@@ -37,7 +37,7 @@ def test_route_poisoning():
 This package is complete for its purpose. The `byteplan` CLI's support for these decorators is
 in development: it will discover them, allocate `id=` values, link tests, and strip the decorators
 from release builds. Until then the decorators are harmless markers. See the
-[implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/byteplan/docs/IMPLEMENTATION_PLAN.md).
+[implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md).
 
 ## Installation
 

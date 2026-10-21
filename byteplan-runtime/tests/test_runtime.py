@@ -9,6 +9,7 @@ import json
 import subprocess
 import sys
 import textwrap
+import typing
 from typing import Any, Callable, TypeVar
 
 import pytest
@@ -178,7 +179,5 @@ def test_import_and_calls_perform_no_io() -> None:
 
 
 def test_type_hints_resolve_on_every_supported_python() -> None:
-    import typing
-
     assert set(typing.get_type_hints(todo)) == {"title", "id", "kind", "description", "test", "tests", "return"}
     assert set(typing.get_type_hints(verifies)) == {"ids", "return"}

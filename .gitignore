@@ -13,3 +13,6 @@ htmlcov/
 # BytePlan transient state (the registry itself, .byteplan/tasks.json, is committed)
 .byteplan/txn/
 .byteplan/scan.lock
+
+# macOS
+.DS_Store
