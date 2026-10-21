@@ -141,6 +141,17 @@ before staging, each target is re-read. If any hash changed, the whole run abort
 `concurrent_modification` and writes nothing. The journal's before-hashes extend the same check
 to the replace step (addendum test 18).
 
+**History events (Phase 2).**
+- `created`, `moved` (path or symbol changed; line-only shifts aren't events), `text_changed`,
+  `missing`, `reappeared`, `resolved`, `status_changed`, and `edited` (old/new of each changed
+  managed field). An optional `note` is recorded on `status`/`resolve`.
+- `last_seen` is set only when a task seen in source gets an event.
+- A `missing` diagnostic is reported for open and in-progress tasks only. A resolved or dismissed
+  task whose annotation is gone is simply finished.
+- A dry run or read command that finds an interrupted write reports `pending_journal` and leaves
+  it alone. Only write commands (`scan`, `status`, `resolve`, `edit`) roll it forward, under the lock.
+- `--project` and `--format` go after the subcommand, e.g. `byteplan scan --project PATH`.
+
 **Exit codes.** 0 means OK, 1 means findings under the check policy, 2 means a
 config, runtime or registry error.
 
@@ -577,7 +588,7 @@ is done above, so the runtime package can ship before anything generates decorat
 |---|---|---|---|
 | 0. Scaffold ✅ | pyproject (3.11+, URLs, envs, sdist excludes), CLI skeleton, smoke tests, `.gitignore`, docs/ | – | – |
 | 1. Core ✅ | config, files, registry, ids, source + comment scanner, `api.Project`, CLI `init/scan(report-only)/list/show` | 1, 5, 19, 20 | – |
-| 2. Write path | `edits.py` (span edits + equivalence guard), comment annotation, reconcile, persistence (journal, concurrent-modification check), `status/resolve/edit/missing/duplicates`, `--dry-run` | 6–17 | 13 (resolve without source edits), 15, 17, 18 |
+| 2. Write path ✅ | `edits.py` (span edits + equivalence guard), comment annotation, reconcile, persistence (journal, concurrent-modification check), `status/resolve/edit/missing/duplicates`, `--dry-run` | 6–17 | 13 (resolve without source edits), 15, 17, 18 |
 | 3. Stubs + decorators | `stubs.py`, `decorators.py` (static `@todo`/`@verifies` discovery, alias resolution), `association.py` (comment / decorator / stub → one obligation), decorator `id=` allocation, schema fields, `implementation_changed`, `check`, `report`, `repair` | 2, 3, 4, 17 | 1, 2, 6 (comment mode), 7, 19 |
 | 4. Hatch | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
 | 5. Runtime + normalization | `byteplan-runtime/` project (inert `todo`/`verifies`, own tests and release), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |

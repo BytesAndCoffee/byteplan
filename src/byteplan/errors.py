@@ -42,3 +42,24 @@ class IdExhaustedError(ByteplanError):
 
 class TaskNotFoundError(ByteplanError):
     """No registry task has the requested ID."""
+
+
+class EditError(ByteplanError):
+    """A planned source edit failed validation; nothing was written."""
+
+
+class LockedError(ByteplanError):
+    """Another BytePlan process holds the project lock."""
+
+
+class ConcurrentModificationError(ByteplanError):
+    """A file changed between being read and being written; nothing was written."""
+
+    def __init__(self, paths: list[str]) -> None:
+        listed = ", ".join(paths)
+        super().__init__(f"file(s) changed while byteplan was running: {listed}; nothing was written, run again")
+        self.paths = paths
+
+
+class JournalConflictError(ByteplanError):
+    """An interrupted write can't be completed because a target has changed since."""

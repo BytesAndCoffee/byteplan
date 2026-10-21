@@ -31,6 +31,7 @@ class Code(StrEnum):
     MALFORMED_ID = "malformed_id"
     STALE_ANNOTATION = "stale_annotation"
     MISSING = "missing"
+    PENDING_JOURNAL = "pending_journal"
 
 
 @dataclass(frozen=True)

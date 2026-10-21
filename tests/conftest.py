@@ -78,3 +78,19 @@ def run_cli(capsys: pytest.CaptureFixture[str]) -> RunCli:
         return CliResult(code, captured.out, captured.err)
 
     return run
+
+
+class FakeClock:
+    """Deterministic, strictly increasing UTC timestamps."""
+
+    def __init__(self) -> None:
+        self.ticks = 0
+
+    def __call__(self) -> str:
+        self.ticks += 1
+        return f"2026-10-21T00:00:{self.ticks:02d}Z"
+
+
+@pytest.fixture
+def clock() -> FakeClock:
+    return FakeClock()

@@ -112,7 +112,7 @@ def test_scan_json_stdout_is_pure_json(project: ProjectFactory, run_cli: RunCli)
     result = run_cli("scan", "--format", "json", "--project", project.root)
     payload = json.loads(result.out)
     assert payload["files_scanned"] == 1
-    assert [p["title"] for p in payload["proposed"]] == ["new"]
+    assert [p["title"] for p in payload["annotated"]] == ["new"]
     assert payload["diagnostics"][0]["code"] == "unregistered_id"
     assert "UNREGISTERED_ID" in result.err
 

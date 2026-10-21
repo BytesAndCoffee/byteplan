@@ -174,7 +174,10 @@ def _history_from_list(raw: Any, where: str, fail: _Fail) -> list[HistoryEvent]:
             or not isinstance(entry.get("at"), str)
         ):
             fail(f"{where}: history entries need string event and at fields")
-        events.append(HistoryEvent(entry["event"], entry["at"], entry.get("old"), entry.get("new")))
+        note = entry.get("note")
+        if note is not None and not isinstance(note, str):
+            fail(f"{where}: history note must be a string")
+        events.append(HistoryEvent(entry["event"], entry["at"], entry.get("old"), entry.get("new"), note))
     return events
 
 
@@ -201,9 +204,16 @@ def task_to_dict(task: Task) -> dict[str, Any]:
             "stub": task.stub,
             "first_seen": task.first_seen,
             "last_seen": task.last_seen,
-            "history": [{"event": e.event, "at": e.at, "old": e.old, "new": e.new} for e in task.history],
+            "history": [_event_to_dict(e) for e in task.history],
         }
     )
+    return data
+
+
+def _event_to_dict(event: HistoryEvent) -> dict[str, Any]:
+    data: dict[str, Any] = {"event": event.event, "at": event.at, "old": event.old, "new": event.new}
+    if event.note is not None:
+        data["note"] = event.note
     return data
 
 
