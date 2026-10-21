@@ -80,6 +80,13 @@ check = "mypy --install-types --non-interactive {args:src/byteplan tests}"
 strict = true
 python_version = "3.11"
 
+# byteplan-runtime supports Python 3.8 and is linted by its own project config.
+# Not `extend-exclude`: Hatch skips injecting its default ruff rules into any
+# [tool.ruff] table containing a line that starts with "extend".
+[tool.ruff]
+lint.exclude = ["**/byteplan-runtime/**"]
+format.exclude = ["**/byteplan-runtime/**"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
