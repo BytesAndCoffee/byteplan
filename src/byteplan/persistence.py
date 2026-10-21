@@ -13,7 +13,13 @@ A multi-file write is a transaction:
 4. A journal listing (target, staged file, hash before, hash after) is written
    atomically and fsynced. From here on the transaction is committed.
 5. Each target is replaced atomically (temp file in the target's directory,
-   ``os.replace``), keeping its permissions. The registry is always last.
+   ``os.replace``, then an fsync of that directory so the rename is durable),
+   keeping its permissions. The registry is always last. Immediately before
+   each replacement the target's hash is checked again; content that matches
+   neither the planned "before" nor the staged "after" (an editor saved it
+   meanwhile) stops the write with ``JournalConflictError`` instead of being
+   overwritten. A residual race between that check and ``os.replace`` remains;
+   no portable compare-and-swap rename exists.
 6. The journal and staged files are deleted.
 
 There is no filesystem-wide atomic rename, so a crash during step 5 can leave
@@ -98,6 +104,9 @@ def atomic_write_bytes(path: Path, data: bytes, mode: int | None = None) -> bool
         if mode is not None:
             tmp.chmod(mode)
         os.replace(tmp, path)
+        # Persist the rename itself; callers delete the recovery journal only
+        # after every replacement is durable.
+        _fsync_dir(path.parent)
     except BaseException:
         with contextlib.suppress(FileNotFoundError):
             tmp.unlink()
@@ -245,8 +254,18 @@ def _apply(root: Path, entries: Sequence[dict[str, Any]]) -> list[str]:
     completed = []
     for entry in entries:
         target = root / entry["target"]
-        if file_hash(target) == entry["after"]:
+        current = file_hash(target)
+        if current == entry["after"]:
             continue
+        if current != entry["before"]:
+            # Changed by something outside BytePlan (an editor) after planning.
+            # Keep the journal so nothing is lost; the user decides.
+            msg = (
+                f"{entry['target']} changed while byteplan was writing; it was not overwritten. "
+                f"Inspect it, then re-run `byteplan scan` (or delete {txn.relative_to(root).as_posix()}/ "
+                "to discard the rest of the interrupted write)"
+            )
+            raise JournalConflictError(msg)
         data = (txn / entry["staged"]).read_bytes()
         if sha256(data) != entry["after"]:
             msg = f"staged copy of {entry['target']} is corrupt; delete {txn.relative_to(root).as_posix()}/ and re-run"

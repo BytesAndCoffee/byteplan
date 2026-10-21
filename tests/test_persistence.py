@@ -171,3 +171,55 @@ def test_corrupt_staged_copy(tmp_path: Path) -> None:
     with pytest.raises(JournalConflictError, match="corrupt"):
         recover(tmp_path)
     assert (tmp_path / "f.py").read_bytes() == b"old"
+
+
+def test_edit_after_journal_is_written_is_not_overwritten(
+    project: ProjectFactory, clock: FakeClock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Codex review: an editor saving a target mid-commit must not be clobbered."""
+    three_file_project(project)
+    real_write = persistence.atomic_write_bytes
+
+    def write_then_edit(path: Path, data: bytes, mode: int | None = None) -> bool:
+        written = real_write(path, data, mode)
+        if path.name == persistence.JOURNAL:
+            (project.root / "src/c.py").write_text("# TODO: saved by an editor just now\n")
+        return written
+
+    monkeypatch.setattr(persistence, "atomic_write_bytes", write_then_edit)
+    with pytest.raises(JournalConflictError, match=r"src/c\.py changed while byteplan was writing"):
+        Project.open(project.root, clock=clock).scan(dry_run=False)
+    monkeypatch.undo()
+    assert (project.root / "src/c.py").read_text() == "# TODO: saved by an editor just now\n"
+    assert persistence.pending_journal(project.root)
+    with pytest.raises(JournalConflictError):
+        Project.open(project.root, clock=clock).scan(dry_run=False)
+    assert (project.root / "src/c.py").read_text() == "# TODO: saved by an editor just now\n"
+
+
+def test_target_directories_are_fsynced_before_the_journal_is_removed(
+    project: ProjectFactory, clock: FakeClock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Codex review: renames must be durable before recovery information is deleted."""
+    project.init()
+    project.write("src/a.py", "# TODO: a\n")
+    project.write("lib/b.py", "# TODO: b\n")
+    events: list[tuple[str, Path]] = []
+    real_fsync_dir, real_finish = persistence._fsync_dir, persistence._finish  # noqa: SLF001
+
+    def record_fsync(path: Path) -> None:
+        events.append(("fsync", path.resolve()))
+        real_fsync_dir(path)
+
+    def record_finish(txn: Path) -> None:
+        events.append(("finish", txn))
+        real_finish(txn)
+
+    monkeypatch.setattr(persistence, "_fsync_dir", record_fsync)
+    monkeypatch.setattr(persistence, "_finish", record_finish)
+    Project.open(project.root, clock=clock).scan(dry_run=False)
+
+    finish = next(i for i, (kind, _) in enumerate(events) if kind == "finish")
+    synced = {path for kind, path in events[:finish] if kind == "fsync"}
+    root = project.root.resolve()
+    assert {root / "src", root / "lib", root / ".byteplan"} <= synced

@@ -13,6 +13,8 @@ Rules, applied to POSIX paths relative to the project root:
   enclosing Git work tree's top and the file. ``.git/info/exclude`` and global
   excludes are not read.
 * Files are returned sorted, so scans and ID allocation are deterministic.
+* A directory that can't be listed fails the collection (``ScanError``) rather
+  than being skipped, so missing detection never treats it as deleted.
 """
 
 from __future__ import annotations
@@ -24,7 +26,7 @@ from typing import TYPE_CHECKING
 
 import pathspec
 
-from byteplan.errors import ConfigError
+from byteplan.errors import ConfigError, ScanError, SourceError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -162,7 +164,15 @@ def collect_files(config: Config, targets: Sequence[str] | None = None) -> Scope
     matcher = ScopeMatcher(config)
 
     found: list[str] = []
-    for dirpath, dirnames, filenames in os.walk(root):
+    errors: list[SourceError] = []
+
+    def on_error(exc: OSError) -> None:
+        # An unreadable directory must not look like deleted source: that would
+        # mark every task in it missing. Fail the whole scan instead.
+        where = Path(exc.filename).relative_to(root).as_posix() if exc.filename else "."
+        errors.append(SourceError(where or ".", f"cannot list directory: {exc.strerror}"))
+
+    for dirpath, dirnames, filenames in os.walk(root, onerror=on_error):
         rel_dir = Path(dirpath).relative_to(root).as_posix()
         rel_dir = "" if rel_dir == "." else rel_dir
 
@@ -178,6 +188,8 @@ def collect_files(config: Config, targets: Sequence[str] | None = None) -> Scope
             if not os.path.islink(os.path.join(dirpath, name)) and matcher.file_selected(rel):
                 found.append(rel)
 
+    if errors:
+        raise ScanError(errors)
     if targets is None:
         return Scope(files=tuple(sorted(found)))
     narrowed = [rel for rel in found if any(_is_under(rel, target) for target in targets)]

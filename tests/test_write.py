@@ -424,3 +424,21 @@ def test_presence_values_are_reported_by_list(project: ProjectFactory, clock: Fa
     project.write("a.py", "# TODO: x\n")
     scan(project, clock)
     assert [t.presence for t in open_project(project, clock).list_tasks()] == [Presence.PRESENT]
+
+
+@pytest.mark.skipif(sys.platform == "win32" or os.geteuid() == 0, reason="needs POSIX permissions as non-root")
+def test_unreadable_directory_aborts_instead_of_marking_missing(project: ProjectFactory, clock: FakeClock) -> None:
+    """Codex review: an unlistable directory must not look like deleted source."""
+    project.init()
+    project.write("src/locked/a.py", "# TODO: still here\n")
+    scan(project, clock)
+    locked = project.root / "src/locked"
+    locked.chmod(0)
+    try:
+        registry_before = (project.root / ".byteplan/tasks.json").read_bytes()
+        with pytest.raises(Exception, match=r"src/locked: cannot list directory"):
+            scan(project, clock)
+        assert (project.root / ".byteplan/tasks.json").read_bytes() == registry_before
+    finally:
+        locked.chmod(0o755)
+    assert only_task(project)["presence"] == "present"
