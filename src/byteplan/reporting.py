@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from typing import TYPE_CHECKING, Any
 
 from byteplan.registry import task_to_dict
@@ -33,28 +34,52 @@ def _tag_dict(tag: CommentTag) -> dict[str, Any]:
     }
 
 
-def scan_json(report: ScanReport, *, dry_run: bool) -> dict[str, Any]:
+def scan_json(report: ScanReport) -> dict[str, Any]:
+    summary = report.summary
     return {
-        "dry_run": dry_run,
+        "dry_run": report.dry_run,
+        "blocked": report.blocked,
         "files_scanned": report.files_scanned,
         "narrowed": report.scope.narrowed,
+        "tracked": report.tracked,
         "annotations": [_tag_dict(tag) for tag in report.tags],
-        "proposed": [{**_tag_dict(p.tag), "id": p.task_id} for p in report.proposals],
+        "annotated": [{**_tag_dict(p.tag), "id": p.task_id} for p in report.proposals],
+        "added": summary.added,
+        "relocated": summary.relocated,
+        "text_changed": summary.text_changed,
+        "missing": summary.missing,
+        "reappeared": summary.reappeared,
+        "excluded": summary.excluded,
+        "written": list(report.written),
+        "recovered": list(report.recovered),
         "diagnostics": [d.to_dict() for d in report.diagnostics],
     }
 
 
 def scan_text(report: ScanReport) -> str:
     noun = "file" if report.files_scanned == 1 else "files"
-    scope = " (narrowed scope)" if report.scope.narrowed else ""
+    scope = " (narrowed scope; missing detection skipped)" if report.scope.narrowed else ""
+    summary = report.summary
+    codes = Counter(str(d.code) for d in report.diagnostics)
     lines = [
         f"BytePlan: {report.files_scanned} Python {noun} scanned{scope}",
-        f"  {len(report.tags)} comment annotations · {len(report.tagged)} tagged · {len(report.proposals)} untagged",
+        f"  {len(report.tags)} comment annotations · {report.tracked} tracked tasks",
+        f"  +{len(summary.added)} added · ~{len(summary.relocated)} relocated · "
+        f"!{codes['missing']} missing · !{codes['duplicate_id']} duplicate · {codes['stale_annotation']} stale",
     ]
+    if report.recovered:
+        lines.append(f"  completed an interrupted write to {len(report.recovered)} file(s)")
     if report.proposals:
+        verb = "Would annotate" if report.dry_run or report.blocked else "Annotated"
         lines.append("")
-        lines.append("Would annotate:")
+        lines.append(f"{verb}:")
         lines.extend(f"  + [{p.task_id}] {p.tag.kind:<5} {p.tag.location}  {p.tag.title}" for p in report.proposals)
+    if report.blocked:
+        lines.append("")
+        lines.append("Nothing was written: resolve the duplicate IDs below first.")
+    elif report.dry_run:
+        lines.append("")
+        lines.append("Dry run: nothing was written.")
     return "\n".join(lines)
 
 
@@ -97,11 +122,24 @@ def task_text(task: Task) -> str:
     if task.history:
         lines.append("  history:")
         for event in task.history:
-            change = ""
-            if event.old is not None or event.new is not None:
-                change = f"  {event.old!r} → {event.new!r}"
+            if event.old is None and event.new is None:
+                change = ""
+            elif event.old is None:
+                change = f"  {_value(event.new)}"
+            else:
+                change = f"  {_value(event.old)} → {_value(event.new)}"
             lines.append(f"    {event.at}  {event.event}{change}")
+            if event.note:
+                lines.append(f"      note: {event.note}")
     return "\n".join(lines)
+
+
+def _value(value: Any) -> str:
+    if isinstance(value, dict):
+        return ", ".join(f"{key}={_value(item)}" for key, item in value.items())
+    if isinstance(value, list):
+        return "[" + ", ".join(_value(item) for item in value) + "]"
+    return "-" if value is None else str(value)
 
 
 def task_json(task: Task) -> dict[str, Any]:

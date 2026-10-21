@@ -51,6 +51,7 @@ class HistoryEvent:
     at: str
     old: Any = None
     new: Any = None
+    note: str | None = None
 
 
 @dataclass

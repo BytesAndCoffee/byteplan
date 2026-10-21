@@ -13,6 +13,8 @@ Rules, applied to POSIX paths relative to the project root:
   enclosing Git work tree's top and the file. ``.git/info/exclude`` and global
   excludes are not read.
 * Files are returned sorted, so scans and ID allocation are deterministic.
+* A directory that can't be listed fails the collection (``ScanError``) rather
+  than being skipped, so missing detection never treats it as deleted.
 """
 
 from __future__ import annotations
@@ -24,7 +26,7 @@ from typing import TYPE_CHECKING
 
 import pathspec
 
-from byteplan.errors import ConfigError
+from byteplan.errors import ConfigError, ScanError, SourceError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -52,35 +54,70 @@ class Scope:
 
 
 class _GitIgnores:
-    """``.gitignore`` files from the Git top down to (and below) the project root."""
+    """``.gitignore`` files from the Git top down to the project root, plus any below it (loaded lazily)."""
 
     def __init__(self, root: Path) -> None:
-        # (base dir relative to root, "" for root and its ancestors;
-        #  prefix that turns a root-relative path into an ancestor-relative one; spec)
-        self._specs: list[tuple[str, str, pathspec.GitIgnoreSpec]] = []
+        self._root = root
+        # Specs at or above the root, with the prefix that turns a root-relative
+        # path into one relative to that spec's directory.
+        self._ancestors: list[tuple[str, pathspec.GitIgnoreSpec]] = []
         for ancestor in _git_ancestors(root):
             spec = _read_gitignore(ancestor / ".gitignore")
             if spec is not None:
                 prefix = "" if ancestor == root else root.relative_to(ancestor).as_posix() + "/"
-                self._specs.append(("", prefix, spec))
+                self._ancestors.append((prefix, spec))
+        self._nested: dict[str, pathspec.GitIgnoreSpec | None] = {}
 
-    def add_dir(self, root: Path, rel_dir: str) -> None:
-        spec = _read_gitignore(root / rel_dir / ".gitignore")
-        if spec is not None:
-            self._specs.append((rel_dir, "", spec))
+    def _nested_spec(self, rel_dir: str) -> pathspec.GitIgnoreSpec | None:
+        if rel_dir not in self._nested:
+            self._nested[rel_dir] = _read_gitignore(self._root / rel_dir / ".gitignore")
+        return self._nested[rel_dir]
 
     def ignored(self, rel_path: str, *, is_dir: bool = False) -> bool:
         suffix = "/" if is_dir else ""
-        for base, prefix, spec in self._specs:
-            if base:
-                if not rel_path.startswith(base + "/"):
-                    continue
-                candidate = rel_path[len(base) + 1 :]
-            else:
-                candidate = prefix + rel_path
-            if spec.match_file(candidate + suffix):
+        if any(spec.match_file(prefix + rel_path + suffix) for prefix, spec in self._ancestors):
+            return True
+        parts = rel_path.split("/")
+        for depth in range(1, len(parts)):
+            base = "/".join(parts[:depth])
+            spec = self._nested_spec(base)
+            if spec is not None and spec.match_file("/".join(parts[depth:]) + suffix):
                 return True
         return False
+
+
+class ScopeMatcher:
+    """The configured scope as a predicate over root-relative POSIX paths."""
+
+    def __init__(self, config: Config) -> None:
+        self.root = config.root
+        self._include = pathspec.PathSpec.from_lines("gitignore", config.include)
+        self._exclude = pathspec.PathSpec.from_lines("gitignore", config.exclude)
+        self._gitignores = _GitIgnores(config.root) if config.respect_gitignore else None
+
+    def dir_excluded(self, rel_dir: str) -> bool:
+        name = rel_dir.rsplit("/", 1)[-1]
+        return (
+            name in ALWAYS_SKIP_DIRS
+            or self._exclude.match_file(f"{rel_dir}/{_DIR_PROBE}")
+            or (self._gitignores is not None and self._gitignores.ignored(rel_dir, is_dir=True))
+        )
+
+    def file_selected(self, rel: str) -> bool:
+        """Whether a file in a non-excluded directory is in scope (no symlink check)."""
+        return (
+            rel.endswith(".py")
+            and self._include.match_file(rel)
+            and not self._exclude.match_file(rel)
+            and not (self._gitignores is not None and self._gitignores.ignored(rel))
+        )
+
+    def contains(self, rel: str) -> bool:
+        """Whether ``rel`` is in scope, whether or not the file currently exists."""
+        parts = rel.split("/")
+        if any(self.dir_excluded("/".join(parts[:depth])) for depth in range(1, len(parts))):
+            return False
+        return self.file_selected(rel)
 
 
 def _git_ancestors(root: Path) -> list[Path]:
@@ -124,42 +161,35 @@ def resolve_targets(root: Path, targets: Sequence[str | Path], cwd: Path | None 
 def collect_files(config: Config, targets: Sequence[str] | None = None) -> Scope:
     """Collect in-scope files. ``targets`` are root-relative paths from ``resolve_targets``."""
     root = config.root
-    include = pathspec.PathSpec.from_lines("gitignore", config.include)
-    exclude = pathspec.PathSpec.from_lines("gitignore", config.exclude)
-    gitignores = _GitIgnores(root) if config.respect_gitignore else None
+    matcher = ScopeMatcher(config)
 
     found: list[str] = []
-    for dirpath, dirnames, filenames in os.walk(root):
+    errors: list[SourceError] = []
+
+    def on_error(exc: OSError) -> None:
+        # An unreadable directory must not look like deleted source: that would
+        # mark every task in it missing. Fail the whole scan instead.
+        where = Path(exc.filename).relative_to(root).as_posix() if exc.filename else "."
+        errors.append(SourceError(where or ".", f"cannot list directory: {exc.strerror}"))
+
+    for dirpath, dirnames, filenames in os.walk(root, onerror=on_error):
         rel_dir = Path(dirpath).relative_to(root).as_posix()
         rel_dir = "" if rel_dir == "." else rel_dir
-        if gitignores is not None and rel_dir:
-            gitignores.add_dir(root, rel_dir)
 
         kept: list[str] = []
         for name in sorted(dirnames):
             rel = f"{rel_dir}/{name}" if rel_dir else name
-            if (
-                name in ALWAYS_SKIP_DIRS
-                or os.path.islink(os.path.join(dirpath, name))
-                or exclude.match_file(f"{rel}/{_DIR_PROBE}")
-                or (gitignores is not None and gitignores.ignored(rel, is_dir=True))
-            ):
-                continue
-            kept.append(name)
+            if not os.path.islink(os.path.join(dirpath, name)) and not matcher.dir_excluded(rel):
+                kept.append(name)
         dirnames[:] = kept
 
         for name in filenames:
-            if not name.endswith(".py"):
-                continue
             rel = f"{rel_dir}/{name}" if rel_dir else name
-            if os.path.islink(os.path.join(dirpath, name)):
-                continue
-            if not include.match_file(rel) or exclude.match_file(rel):
-                continue
-            if gitignores is not None and gitignores.ignored(rel):
-                continue
-            found.append(rel)
+            if not os.path.islink(os.path.join(dirpath, name)) and matcher.file_selected(rel):
+                found.append(rel)
 
+    if errors:
+        raise ScanError(errors)
     if targets is None:
         return Scope(files=tuple(sorted(found)))
     narrowed = [rel for rel in found if any(_is_under(rel, target) for target in targets)]
