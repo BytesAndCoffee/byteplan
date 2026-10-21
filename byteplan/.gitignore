@@ -1,0 +1,15 @@
+# Build and tooling output
+dist/
+build/
+__pycache__/
+*.py[cod]
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# BytePlan transient state (the registry itself, .byteplan/tasks.json, is committed)
+.byteplan/txn/
+.byteplan/scan.lock

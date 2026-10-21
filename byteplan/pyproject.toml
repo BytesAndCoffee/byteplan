@@ -1,0 +1,105 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "byteplan"
+dynamic = ["version"]
+description = 'Plan in code. Track in one place.'
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+keywords = ["todo", "fixme", "task-tracking", "hatch", "developer-tools"]
+authors = [
+  { name = "Michael Yazdani", email = "yazdmich@icloud.com" },
+]
+classifiers = [
+  "Development Status :: 1 - Planning",
+  "Environment :: Console",
+  "Framework :: Hatch",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+  "pathspec>=0.12",
+]
+
+[project.scripts]
+byteplan = "byteplan.cli:main"
+
+# The Hatch build-hook entry point is added in Phase 4, together with
+# byteplan.hatch_hook. Registering it before the module exists would break
+# every Hatchling build in an environment where byteplan is installed.
+
+[project.urls]
+Documentation = "https://github.com/BytesAndCoffee/byteplan/tree/main/byteplan#readme"
+Issues = "https://github.com/BytesAndCoffee/byteplan/issues"
+Source = "https://github.com/BytesAndCoffee/byteplan"
+
+[tool.hatch.version]
+path = "src/byteplan/__about__.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+  ".byteplan",
+  "docs/spec.md",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/byteplan"]
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = [
+  "build",
+  "hatchling",
+]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.11", "3.12", "3.13", "3.14"]
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+  "pytest",
+  "hatchling",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/byteplan tests}"
+
+[tool.mypy]
+strict = true
+python_version = "3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "network: needs network access (isolated PEP 517 builds)",
+]
+addopts = "-m 'not network'"
+
+[tool.coverage.run]
+source_pkgs = ["byteplan", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/byteplan/__about__.py",
+]
+
+[tool.coverage.paths]
+byteplan = ["src/byteplan", "*/byteplan/src/byteplan"]
+tests = ["tests", "*/byteplan/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
