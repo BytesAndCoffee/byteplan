@@ -1,0 +1,89 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "byteplan-runtime"
+dynamic = ["version"]
+description = "Inert @todo and @verifies markers for BytePlan task tracking"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+keywords = ["todo", "task-tracking", "decorator", "byteplan"]
+authors = [
+  { name = "Michael Yazdani", email = "yazdmich@icloud.com" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Documentation = "https://github.com/BytesAndCoffee/byteplan/tree/main/byteplan-runtime#readme"
+Issues = "https://github.com/BytesAndCoffee/byteplan/issues"
+Source = "https://github.com/BytesAndCoffee/byteplan/tree/main/byteplan-runtime"
+
+[tool.hatch.version]
+path = "src/byteplan_runtime/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/byteplan_runtime"]
+
+[tool.hatch.envs.hatch-test]
+# Hatch's default test dependencies pin versions that need Python 3.10+; leave
+# them unpinned so each matrix interpreter (3.8+) resolves compatible releases.
+dependencies = [
+  "coverage-enable-subprocess",
+  "coverage[toml]",
+  "pytest",
+  "pytest-mock",
+  "pytest-randomly",
+  "pytest-rerunfailures",
+  "pytest-xdist[psutil]",
+]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+  "pytest",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/byteplan_runtime tests}"
+
+[tool.mypy]
+strict = true
+
+[tool.ruff]
+target-version = "py38"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+source_pkgs = ["byteplan_runtime", "tests"]
+branch = true
+parallel = true
+
+[tool.coverage.paths]
+byteplan_runtime = ["src/byteplan_runtime", "*/byteplan-runtime/src/byteplan_runtime"]
+tests = ["tests", "*/byteplan-runtime/tests"]
