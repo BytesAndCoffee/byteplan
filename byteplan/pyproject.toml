@@ -29,7 +29,7 @@ classifiers = [
   "Topic :: Software Development :: Quality Assurance",
 ]
 dependencies = [
-  "pathspec>=0.12",
+  "pathspec>=1.0",
 ]
 
 [project.scripts]
@@ -50,7 +50,7 @@ path = "src/byteplan/__about__.py"
 [tool.hatch.build.targets.sdist]
 exclude = [
   ".byteplan",
-  "docs/spec.md",
+  "docs/spec*.md",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -84,6 +84,7 @@ markers = [
   "network: needs network access (isolated PEP 517 builds)",
 ]
 addopts = "-m 'not network'"
+filterwarnings = ["error"]
 
 [tool.coverage.run]
 source_pkgs = ["byteplan", "tests"]
