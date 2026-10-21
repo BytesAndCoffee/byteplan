@@ -40,7 +40,7 @@ byteplan = "byteplan.cli:main"
 # every Hatchling build in an environment where byteplan is installed.
 
 [project.urls]
-Documentation = "https://github.com/BytesAndCoffee/byteplan/tree/main/byteplan#readme"
+Documentation = "https://github.com/BytesAndCoffee/byteplan#readme"
 Issues = "https://github.com/BytesAndCoffee/byteplan/issues"
 Source = "https://github.com/BytesAndCoffee/byteplan"
 
@@ -51,6 +51,8 @@ path = "src/byteplan/__about__.py"
 exclude = [
   ".byteplan",
   "docs/spec*.md",
+  # A separate distribution that lives in this repository; see its own pyproject.toml.
+  "byteplan-runtime",
 ]
 
 [tool.hatch.build.targets.wheel]

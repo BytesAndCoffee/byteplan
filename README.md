@@ -6,7 +6,7 @@
 -----
 
 > **Status: pre-alpha placeholder.** This release reserves the package name and ships only a
-> `byteplan --version` CLI. See [the implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/byteplan/docs/IMPLEMENTATION_PLAN.md)
+> `byteplan --version` CLI. See [the implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md)
 > for what's coming: source-first TODO tracking with stable IDs, a Hatch build hook, and an MCP server.
 
 ## Table of Contents

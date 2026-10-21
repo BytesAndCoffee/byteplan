@@ -23,11 +23,12 @@ self-build. To track BytePlan's own TODOs, run `hatch run byteplan scan`; don't 
 
 ## Module layout
 
-The Git repository holds two Hatch projects side by side. That's the reason to keep the
-package in a subdirectory rather than at the repo root:
+The repository root is the `byteplan` devtool project. The runtime distribution is a separate
+Hatch project nested in it, with its own `pyproject.toml`, tests and release cycle. It's excluded
+from `byteplan`'s sdist; `byteplan`'s wheel only ever contains `src/byteplan`.
 
 ```
-byteplan/                       devtool distribution "byteplan" (this project)
+./                              devtool distribution "byteplan" (src/, tests/, docs/)
 byteplan-runtime/               runtime distribution "byteplan-runtime" (Addendum A, see below)
 ```
 
