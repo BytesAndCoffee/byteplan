@@ -2,6 +2,8 @@
   "reserved_ids": [
     "0413",
     "0591",
+    "0b12",
+    "0c28",
     "14ff",
     "15df",
     "205d",
@@ -23,6 +25,8 @@
     "9185",
     "93dd",
     "9b40",
+    "9f8d",
+    "a067",
     "a6b2",
     "a703",
     "aedf",
@@ -120,6 +124,70 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_crash_mid_release_rolls_forward",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:09:34Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_smoke_test_passes_for_a_clean_strip",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:09:34Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_without_the_flag_nothing_is_built",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:09:34Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_import_failure_restores_the_tree",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:09:34Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_runtime_pulled_in_as_a_dependency_fails",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:09:34Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_runtime_dependency_in_release",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:09:34Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_unfinished_scaffold_in_sdist",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:09:34Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_require_stripped_fails_an_unstripped_build",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:10:53Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Phase 8 complete: release/restore (#32) + smoke test, require_stripped and release warnings (this PR); 16 linked tests fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:10:54Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:10:54Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          }
         }
       ],
       "id": "0413",
@@ -130,18 +198,18 @@
       "last_seen": "2026-10-22T03:53:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1552,
+        "line": 1553,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -154,7 +222,14 @@
           "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast",
           "tests/test_release.py::test_stripped_tree_imports_without_the_runtime",
           "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen",
-          "tests/test_release.py::test_writing_commands_refuse_while_stripped"
+          "tests/test_release.py::test_writing_commands_refuse_while_stripped",
+          "tests/test_release_guards.py::test_import_failure_restores_the_tree",
+          "tests/test_release_guards.py::test_require_stripped_fails_an_unstripped_build",
+          "tests/test_release_guards.py::test_runtime_dependency_in_release",
+          "tests/test_release_guards.py::test_runtime_pulled_in_as_a_dependency_fails",
+          "tests/test_release_guards.py::test_smoke_test_passes_for_a_clean_strip",
+          "tests/test_release_guards.py::test_unfinished_scaffold_in_sdist",
+          "tests/test_release_guards.py::test_without_the_flag_nothing_is_built"
         ]
       },
       "title": "Phase 8: release stripping",
@@ -179,6 +254,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_dynamic_decorator_arguments_refuse_the_release",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:10:55Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:10:56Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:10:56Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "0591",
@@ -187,18 +284,18 @@
       "last_seen": "2026-10-22T20:41:44Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 86,
-        "line": 138,
+        "decl_line": 87,
+        "line": 139,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "strip_file"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -207,6 +304,148 @@
         ]
       },
       "title": "Refuse decorator arguments whose evaluation stripping would skip",
+      "title_override": null
+    },
+    "0b12": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/34#discussion_r4354182649",
+      "first_seen": "2026-10-22T22:28:29Z",
+      "history": [
+        {
+          "at": "2026-10-22T22:28:29Z",
+          "event": "created",
+          "new": {
+            "line": 91,
+            "path": "src/byteplan/smoke.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:28:37Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_offline_find_links_relative_to_root",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:28:45Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Relative find_links resolved against project root, URLs kept; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:28:46Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:28:46Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/smoke.py"
+          }
+        }
+      ],
+      "id": "0b12",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T22:28:29Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 79,
+        "line": 91,
+        "path": "src/byteplan/smoke.py",
+        "representation": "comment",
+        "symbol": "run_smoke"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release_guards.py::test_offline_find_links_relative_to_root"
+        ]
+      },
+      "title": "relative find_links paths resolve against the scratch dir, not the project root",
+      "title_override": null
+    },
+    "0c28": {
+      "assignee": null,
+      "description": "Codex review of #34: https://github.com/BytesAndCoffee/byteplan/pull/34#discussion_r4354123878\nMarkers stay through a release and add no runtime dependency, yet failed the build.",
+      "first_seen": "2026-10-22T22:20:54Z",
+      "history": [
+        {
+          "at": "2026-10-22T22:20:54Z",
+          "event": "created",
+          "new": {
+            "line": 158,
+            "path": "src/byteplan/hatch_hook.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:21:15Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_require_stripped_ignores_pytest_markers",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:21:33Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #34, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:21:34Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:21:34Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/hatch_hook.py"
+          }
+        }
+      ],
+      "id": "0c28",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T22:20:54Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 115,
+        "line": 155,
+        "path": "src/byteplan/hatch_hook.py",
+        "representation": "comment",
+        "symbol": "BytePlanBuildHook.initialize"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release_guards.py::test_require_stripped_ignores_pytest_markers"
+        ]
+      },
+      "title": "Don't count @pytest.mark.byteplan links as decorators that need stripping",
       "title_override": null
     },
     "14ff": {
@@ -390,7 +629,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1570,
+        "line": 1567,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -419,26 +658,60 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_release_refuses_a_pending_journal_without_recovering_it",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:09:34Z",
+          "event": "moved",
+          "new": {
+            "path": "src/byteplan/api.py",
+            "symbol": "Project._strip_for_release"
+          },
+          "old": {
+            "path": "src/byteplan/api.py",
+            "symbol": "Project.release"
+          }
+        },
+        {
+          "at": "2026-10-22T22:10:56Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:10:58Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:10:58Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
         }
       ],
       "id": "205d",
       "kind": "FIXME",
       "labels": [],
-      "last_seen": "2026-10-22T20:12:59Z",
+      "last_seen": "2026-10-22T22:09:34Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 1089,
-        "line": 1098,
+        "decl_line": 1163,
+        "line": 1174,
         "path": "src/byteplan/api.py",
         "representation": "comment",
-        "symbol": "Project.release"
+        "symbol": "Project._strip_for_release"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -468,6 +741,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_alias_reused_in_another_scope_still_counts_as_a_consumer",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:00Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:02Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:02Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "2533",
@@ -476,18 +771,18 @@
       "last_seen": "2026-10-22T20:29:05Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 242,
-        "line": 257,
+        "decl_line": 240,
+        "line": 255,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "project_consumers"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -663,6 +958,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_shadowed_todo_is_not_stripped",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:02Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:03Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:03Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "34da",
@@ -671,18 +988,18 @@
       "last_seen": "2026-10-22T19:33:13Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 86,
-        "line": 110,
+        "decl_line": 87,
+        "line": 111,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "strip_file"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -712,6 +1029,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_escaping_package_exposes_its_submodules",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:04Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:05Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:05Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "4518",
@@ -720,18 +1059,18 @@
       "last_seen": "2026-10-22T21:14:53Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 242,
-        "line": 271,
+        "decl_line": 237,
+        "line": 263,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "project_consumers"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -798,6 +1137,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_relative_import_of_the_runtime_refuses_the_release",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:05Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:06Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:06Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "478d",
@@ -806,18 +1167,18 @@
       "last_seen": "2026-10-22T21:06:27Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 331,
-        "line": 332,
+        "decl_line": 320,
+        "line": 321,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_from_runtime"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -847,6 +1208,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_partial_restore_keeps_decorators_whose_import_is_unplaced",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:06Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:07Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:07Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
         }
       ],
       "id": "4d48",
@@ -855,18 +1238,18 @@
       "last_seen": "2026-10-22T19:33:13Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 1208,
-        "line": 1240,
+        "decl_line": 1287,
+        "line": 1319,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "Project.restore"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -1118,7 +1501,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1564,
+        "line": 1561,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1265,6 +1648,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_module_escaping_attribute_access_keeps_its_runtime_names",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:07Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:08Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:08Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "8b28",
@@ -1273,18 +1678,18 @@
       "last_seen": "2026-10-22T20:49:59Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 242,
-        "line": 276,
+        "decl_line": 237,
+        "line": 265,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "project_consumers"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -1346,7 +1751,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1567,
+        "line": 1564,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1375,6 +1780,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_stripped_stub_gets_no_duplicate_task",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:09Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:10Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:10Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
         }
       ],
       "id": "90c6",
@@ -1383,18 +1810,18 @@
       "last_seen": "2026-10-22T19:54:16Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 342,
-        "line": 412,
+        "decl_line": 346,
+        "line": 416,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "Project._scan"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -1516,7 +1943,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1560,
+        "line": 1557,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1658,6 +2085,148 @@
       "title": "Phase 6a: acceptance tests",
       "title_override": null
     },
+    "9f8d": {
+      "assignee": null,
+      "description": "Codex review of #34: https://github.com/BytesAndCoffee/byteplan/pull/34#discussion_r4354123872\nA hotfix that brings decorators back after `release` slipped past the guard.",
+      "first_seen": "2026-10-22T22:20:54Z",
+      "history": [
+        {
+          "at": "2026-10-22T22:20:54Z",
+          "event": "created",
+          "new": {
+            "line": 153,
+            "path": "src/byteplan/hatch_hook.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:21:15Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_require_stripped_checks_source_despite_a_release_record",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:21:32Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #34, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:21:33Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:21:33Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/hatch_hook.py"
+          }
+        }
+      ],
+      "id": "9f8d",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T22:20:54Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 115,
+        "line": 153,
+        "path": "src/byteplan/hatch_hook.py",
+        "representation": "comment",
+        "symbol": "BytePlanBuildHook.initialize"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release_guards.py::test_require_stripped_checks_source_despite_a_release_record"
+        ]
+      },
+      "title": "Check the current source even when a stripped release is on record",
+      "title_override": null
+    },
+    "a067": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/34#discussion_r4354182656",
+      "first_seen": "2026-10-22T22:28:29Z",
+      "history": [
+        {
+          "at": "2026-10-22T22:28:29Z",
+          "event": "created",
+          "new": {
+            "line": 72,
+            "path": "src/byteplan/smoke.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:28:37Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_top_level_modules_include_native_extensions",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:28:44Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Extension modules (.so/.pyd) now discovered; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:28:45Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:28:45Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/smoke.py"
+          }
+        }
+      ],
+      "id": "a067",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T22:28:29Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 59,
+        "line": 72,
+        "path": "src/byteplan/smoke.py",
+        "representation": "comment",
+        "symbol": "top_level_modules"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release_guards.py::test_top_level_modules_include_native_extensions"
+        ]
+      },
+      "title": "top-level native extension modules (.so/.pyd) are left out of smoke imports",
+      "title_override": null
+    },
     "a6b2": {
       "assignee": null,
       "description": "Module-level `name = ...` / `= NotImplemented` stubs need a declaration model for\nplain assignments (position, attachment, annotation slot). Until then the option\nis rejected rather than silently ignored.",
@@ -1684,8 +2253,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 262,
-        "line": 266,
+        "decl_line": 287,
+        "line": 291,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"
@@ -1714,6 +2283,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_wildcard_runtime_import_refuses_the_release",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:10Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:11Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:11Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "a703",
@@ -1722,18 +2313,18 @@
       "last_seen": "2026-10-22T20:03:29Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 363,
-        "line": 360,
+        "decl_line": 346,
+        "line": 343,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_runtime_locals"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -1769,6 +2360,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_unused_other_runtime_import_is_stripped",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:11Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:12Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:12Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "aedf",
@@ -1777,18 +2390,18 @@
       "last_seen": "2026-10-22T19:54:16Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 86,
-        "line": 97,
+        "decl_line": 87,
+        "line": 98,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "strip_file"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -1819,6 +2432,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_unanchored_import_goes_below_a_new_docstring_and_future_import",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:12Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:13Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:13Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "b68c",
@@ -1827,18 +2462,18 @@
       "last_seen": "2026-10-22T19:33:13Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 528,
-        "line": 531,
+        "decl_line": 505,
+        "line": 508,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -1868,6 +2503,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_runtime_names_exported_by_any_all_form_refuse_the_release",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:14Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:14Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:14Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "baeb",
@@ -1876,18 +2533,18 @@
       "last_seen": "2026-10-22T20:21:13Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 375,
-        "line": 372,
+        "decl_line": 352,
+        "line": 349,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_used_names"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -1929,6 +2586,28 @@
             "path": "src/byteplan/release.py",
             "symbol": "_insert_decorator"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:15Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:16Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:16Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "c242",
@@ -1937,18 +2616,18 @@
       "last_seen": "2026-10-22T20:58:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 469,
-        "line": 466,
+        "decl_line": 443,
+        "line": 440,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_hoist_late_imports"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -1984,6 +2663,28 @@
           "event": "test_linked",
           "new": "tests/test_cleanup.py::test_cleanup_keeps_a_runtime_import_exported_through_an_all_mutation",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:16Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:17Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:17Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "c449",
@@ -1992,18 +2693,18 @@
       "last_seen": "2026-10-22T21:23:32Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 375,
-        "line": 376,
+        "decl_line": 349,
+        "line": 350,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_used_names"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -2034,6 +2735,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_runtime_reexported_to_another_module_refuses_the_release",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:18Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:21Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:21Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "c8db",
@@ -2042,18 +2765,18 @@
       "last_seen": "2026-10-22T20:03:29Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 86,
-        "line": 171,
+        "decl_line": 87,
+        "line": 163,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "strip_file"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -2095,6 +2818,28 @@
             "path": "src/byteplan/release.py",
             "symbol": "_runtime_imports"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:21Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:22Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:22Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "cc54",
@@ -2103,18 +2848,18 @@
       "last_seen": "2026-10-22T21:15:29Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 307,
-        "line": 304,
+        "decl_line": 287,
+        "line": 284,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "consumers_of"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -2176,7 +2921,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1549,
+        "line": 1550,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2237,7 +2982,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1574,
+        "line": 1571,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2288,7 +3033,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1556,
+        "line": 1553,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2317,6 +3062,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_restored_import_stays_above_a_declaration_moved_before_its_anchor",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:23Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:24Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:24Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "fb23",
@@ -2325,18 +3092,18 @@
       "last_seen": "2026-10-22T20:58:18Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 410,
-        "line": 459,
+        "decl_line": 375,
+        "line": 424,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "restore_anchored"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -2366,6 +3133,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_dotted_module_escape_keeps_its_runtime_names",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:24Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:25Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:25Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "fb9c",
@@ -2374,18 +3163,18 @@
       "last_seen": "2026-10-22T21:06:27Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 242,
-        "line": 286,
+        "decl_line": 231,
+        "line": 266,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "project_consumers"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -2415,6 +3204,28 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_anchored_import_goes_below_a_new_future_import",
           "old": null
+        },
+        {
+          "at": "2026-10-22T22:11:25Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:11:26Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:11:26Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         }
       ],
       "id": "fd44",
@@ -2423,18 +3234,18 @@
       "last_seen": "2026-10-22T20:21:13Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 528,
-        "line": 540,
+        "decl_line": 484,
+        "line": 493,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],

@@ -93,6 +93,20 @@ class TestsConfig:
 
 
 @dataclass(frozen=True)
+class ReleaseConfig:
+    """``[tool.byteplan.release]``: the opt-in ``release --smoke-test``."""
+
+    # The wheel build, as an argument list; "{out}" is the output directory. [] means
+    # `python -m build --wheel --outdir {out}` with this Python.
+    smoke_build: tuple[str, ...] = ()
+    # Modules to import from the installed wheel ([] = every top-level module in its RECORD).
+    smoke_imports: tuple[str, ...] = ()
+    smoke_timeout: int = 300
+    # Extra package sources for --offline installs (pip --find-links).
+    find_links: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
 class GitConfig:
     # After `scan --staged --apply` reconciles a commit: "commit" lets it proceed,
     # "stop" exits 1 so the developer reviews first.
@@ -130,6 +144,7 @@ class Config:
     annotations: AnnotationsConfig = field(default_factory=AnnotationsConfig)
     git: GitConfig = field(default_factory=GitConfig)
     tests: TestsConfig = field(default_factory=TestsConfig)
+    release: ReleaseConfig = field(default_factory=ReleaseConfig)
 
     @property
     def registry_path(self) -> Path:
@@ -188,6 +203,7 @@ def parse_config(root: Path, table: Any) -> Config:
     check = _parse_section(CheckConfig, table.pop("check", {}), "tool.byteplan.check")
     annotations = _parse_section(AnnotationsConfig, table.pop("annotations", {}), "tool.byteplan.annotations")
     git = _parse_section(GitConfig, table.pop("git", {}), "tool.byteplan.git")
+    release = _parse_section(ReleaseConfig, table.pop("release", {}), "tool.byteplan.release")
     tests_table = table.pop("tests", {})
     if not isinstance(tests_table, dict):
         msg = "[tool.byteplan.tests] must be a table"
@@ -198,9 +214,18 @@ def parse_config(root: Path, table: Any) -> Config:
         **_parse_values(TestsConfig, tests_table, "tool.byteplan.tests", skip=frozenset({"scaffold"})),
         scaffold=scaffold,
     )
-    skip = frozenset({"root", "detect", "check", "annotations", "git", "tests"})
+    skip = frozenset({"root", "detect", "check", "annotations", "git", "tests", "release"})
     values = _parse_values(Config, table, "tool.byteplan", skip=skip)
-    config = Config(root=root, detect=detect, check=check, annotations=annotations, git=git, tests=tests, **values)
+    config = Config(
+        root=root,
+        detect=detect,
+        check=check,
+        annotations=annotations,
+        git=git,
+        tests=tests,
+        release=release,
+        **values,
+    )
     _validate(config)
     return config
 

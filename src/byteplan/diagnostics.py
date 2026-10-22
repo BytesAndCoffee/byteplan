@@ -58,6 +58,8 @@ class Code(StrEnum):
     # byteplan release / restore
     RELEASE_STRIPPED = "release_stripped"
     RELEASE_ON_DEFAULT_BRANCH = "release_on_default_branch"
+    RUNTIME_DEPENDENCY_IN_RELEASE = "runtime_dependency_in_release"
+    UNFINISHED_SCAFFOLD_IN_SDIST = "unfinished_scaffold_in_sdist"
     # byteplan sync --remove-resolved
     RESOLVED_BUT_STUBBED = "resolved_but_stubbed"
     CLEANUP_NEEDS_REVIEW = "cleanup_needs_review"
