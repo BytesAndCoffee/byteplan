@@ -11,6 +11,7 @@
     "2533",
     "2887",
     "34da",
+    "3d3a",
     "4518",
     "46b6",
     "478d",
@@ -34,6 +35,7 @@
     "a703",
     "aedf",
     "b68c",
+    "b865",
     "baeb",
     "c242",
     "c449",
@@ -44,7 +46,8 @@
     "f853",
     "fb23",
     "fb9c",
-    "fd44"
+    "fd44",
+    "ff3a"
   ],
   "schema_version": 1,
   "tasks": {
@@ -1082,6 +1085,77 @@
         ]
       },
       "title": "Respect enclosing scopes before stripping a decorator",
+      "title_override": null
+    },
+    "3d3a": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354459815",
+      "first_seen": "2026-10-22T23:07:46Z",
+      "history": [
+        {
+          "at": "2026-10-22T23:07:46Z",
+          "event": "created",
+          "new": {
+            "line": 841,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:02Z",
+          "event": "test_linked",
+          "new": "tests/test_archive.py::test_snapshot_checks_read_the_committed_index",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:08Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "archive index read from the Git snapshot when one is active; malformed index is a ConfigError; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T23:08:09Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T23:08:09Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
+        }
+      ],
+      "id": "3d3a",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T23:07:46Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "method",
+        "decl_line": 840,
+        "line": 841,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.archive_index"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_archive.py::test_snapshot_checks_read_the_committed_index"
+        ]
+      },
+      "title": "the archive index is read from the working tree even when checking a Git snapshot",
       "title_override": null
     },
     "4518": {
@@ -2700,6 +2774,77 @@
       "title": "Restore an unanchored import below the current docstring and __future__ imports",
       "title_override": null
     },
+    "b865": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354459832",
+      "first_seen": "2026-10-22T23:07:46Z",
+      "history": [
+        {
+          "at": "2026-10-22T23:07:46Z",
+          "event": "created",
+          "new": {
+            "line": 1021,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:02Z",
+          "event": "test_linked",
+          "new": "tests/test_archive.py::test_show_uses_archived_evidence",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:11Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "readiness of an archived task uses its archived evidence and run; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T23:08:12Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T23:08:12Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
+        }
+      ],
+      "id": "b865",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T23:07:46Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 1031,
+        "line": 1033,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.readiness"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_archive.py::test_show_uses_archived_evidence"
+        ]
+      },
+      "title": "an archived task's readiness ignores the evidence archived with it",
+      "title_override": null
+    },
     "baeb": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108715\n`__all__: list[str] = [...]` and `__all__ += [...]` were ignored, so exported names were stripped.",
@@ -3470,6 +3615,77 @@
         ]
       },
       "title": "Keep anchored imports below a __future__ import added since the release",
+      "title_override": null
+    },
+    "ff3a": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354459824",
+      "first_seen": "2026-10-22T23:07:46Z",
+      "history": [
+        {
+          "at": "2026-10-22T23:07:46Z",
+          "event": "created",
+          "new": {
+            "line": 2086,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:02Z",
+          "event": "test_linked",
+          "new": "tests/test_archive.py::test_verifies_links_to_archived_tasks_are_known",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:09Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "verifies links to archived IDs are no longer unknown references; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T23:08:10Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T23:08:10Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
+        }
+      ],
+      "id": "ff3a",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T23:07:46Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 2103,
+        "line": 2101,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "_link_diagnostics"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_archive.py::test_verifies_links_to_archived_tasks_are_known"
+        ]
+      },
+      "title": "@verifies links to archived tasks are reported as unknown task references",
       "title_override": null
     }
   }

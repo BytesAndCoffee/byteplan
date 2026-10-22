@@ -507,7 +507,7 @@ class Project:
                 diagnostics.extend(self._release_warnings())
         diagnostics.extend(self._test_link_diagnostics(new_registry, observed, scope_matcher))
         diagnostics.extend(self._missing_diagnostics(new_registry))
-        diagnostics.extend(_link_diagnostics(links, new_registry))
+        diagnostics.extend(_link_diagnostics(links, new_registry, self.archive_index().tasks))
         implementation = _implementation_diagnostics(summary, new_registry)
         if self.snapshot is None and implementation:
             implementation = self._complete_candidates(implementation, new_registry)
@@ -838,8 +838,13 @@ class Project:
         return f"{STATE_DIR}/{archive.INDEX}"
 
     def archive_index(self) -> archive.Index:
-        data = _read_bytes(self.root / self.archive_index_rel)
-        return archive.Index.loads(data.decode("utf-8") if data else None)
+        rel = self.archive_index_rel
+        data = self.snapshot.read(rel) if self.snapshot is not None else _read_bytes(self.root / rel)
+        try:
+            return archive.Index.loads(data.decode("utf-8") if data else None)
+        except (ValueError, AttributeError, TypeError) as exc:
+            msg = f"{rel} is unreadable ({exc}); restore it from Git"
+            raise ConfigError(msg) from exc
 
     def archived_task(self, task_id: str) -> Task | None:
         """An archived task, from the local store (reconciled from Git history if needed)."""
@@ -901,6 +906,15 @@ class Project:
             writes.extend(self._registry_writes(registry_hash, registry))
             written = commit(self.root, writes)
             return ArchiveReport(tuple(chosen), dry_run, tuple(written), tuple(uncommitted))
+
+    def _archived_evidence(self, task_id: str) -> verification.Evidence:
+        """The evidence (and its run) archived with a task, as an ``Evidence`` of its own."""
+        payload = archive.Store(self.root / STATE_DIR).get(task_id) or {}
+        kept, run = payload.get("evidence"), payload.get("run")
+        if kept is None:
+            return verification.Evidence()
+        runs = {str(kept.get("run")): run} if run is not None else {}
+        return verification.Evidence({task_id: kept}, runs)
 
     def _committed_records(self) -> dict[str, Any] | None:
         """Task records in ``HEAD``'s registry; None outside Git (no other clones to serve)."""
@@ -1016,7 +1030,10 @@ class Project:
 
     def readiness(self, task: Task, evidence: verification.Evidence | None = None) -> verification.Readiness:
         """Derived, never stored: ``unverified``, ``failing``, ``needs_review`` or ``ready_for_review``."""
-        evidence = evidence if evidence is not None else verification.Evidence.load(self.root)
+        if evidence is None:
+            evidence = verification.Evidence.load(self.root)
+            if task.id not in evidence.tasks and task.id in self.archive_index().tasks:
+                evidence = self._archived_evidence(task.id)
         head = verification.git_state(self.root) if self.config.tests.stale_on == "head" else (None, False)
         return verification.readiness(
             task,
@@ -2079,7 +2096,9 @@ def _not_found(task_id: str) -> TaskNotFoundError:
     return TaskNotFoundError(f"no task with ID {task_id!r}")
 
 
-def _link_diagnostics(links: Sequence[VerifiesLink], registry: Registry) -> list[Diagnostic]:
+def _link_diagnostics(
+    links: Sequence[VerifiesLink], registry: Registry, archived: Mapping[str, Mapping[str, Any]]
+) -> list[Diagnostic]:
     return [
         Diagnostic(
             Code.UNKNOWN_TASK_REFERENCE,
@@ -2091,7 +2110,7 @@ def _link_diagnostics(links: Sequence[VerifiesLink], registry: Registry) -> list
         )
         for link in links
         for task_id in link.task_ids
-        if task_id not in registry.tasks
+        if task_id not in registry.tasks and task_id not in archived  # a test kept after archiving is fine
     ]
 
 

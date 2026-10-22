@@ -288,3 +288,40 @@ def test_restore_brings_back_the_evidence_run(repo: ProjectFactory, run_cli: Run
     data = json.loads(store.read_text())
     assert data["tasks"][task_id] == evidence
     assert data["runs"] == {"r1": run}
+
+
+def test_snapshot_checks_read_the_committed_index(repo: ProjectFactory, run_cli: RunCli) -> None:
+    task_id = _close_and_commit(repo, run_cli)
+    assert run_cli("archive", "--older-than", "0", "--project", repo.root).code == EXIT_OK
+    git(repo.root.parent, "add", "-A")
+    git(repo.root.parent, "commit", "-qm", "archive")
+    (repo.root / ".byteplan/archive.json").write_text("{ not json")
+    repo.write("src/c.py", f"# FIXME[{task_id}]: back again\n")
+    git(repo.root.parent, "add", "proj/src/c.py")
+    result = run_cli("check", "--staged", "--project", repo.root)
+    assert f"ID {task_id} is in source but archived" in result.err
+    assert run_cli("check", "--commit", "HEAD", "--project", repo.root).code == EXIT_OK
+
+
+def test_verifies_links_to_archived_tasks_are_known(repo: ProjectFactory, run_cli: RunCli) -> None:
+    task_id = _id_of(repo, "second task")
+    repo.write(
+        "tests/test_kept.py",
+        f"from byteplan_runtime import verifies\n\n\n@verifies({task_id!r})\ndef test_kept():\n    assert True\n",
+    )
+    _close_and_commit(repo, run_cli)
+    assert run_cli("archive", "--older-than", "0", "--project", repo.root).code == EXIT_OK
+    assert "UNKNOWN_TASK_REFERENCE" not in run_cli("check", "--project", repo.root).err
+
+
+def test_show_uses_archived_evidence(repo: ProjectFactory, run_cli: RunCli) -> None:
+    task_id = _id_of(repo, "second task")
+    repo.write("tests/test_ok.py", "def test_ok():\n    assert True\n")
+    assert run_cli("tests", "add", task_id, "tests/test_ok.py::test_ok", "--project", repo.root).code == EXIT_OK
+    assert run_cli("verify", task_id, "--project", repo.root).code == EXIT_OK
+    _close_and_commit(repo, run_cli)
+    before = json.loads(run_cli("show", task_id, "--format", "json", "--project", repo.root).out)
+    assert before["readiness"] != "unverified"
+    assert run_cli("archive", "--older-than", "0", "--project", repo.root).code == EXIT_OK
+    after = json.loads(run_cli("show", task_id, "--format", "json", "--project", repo.root).out)
+    assert (after["readiness"], after["readiness_reasons"]) == (before["readiness"], before["readiness_reasons"])

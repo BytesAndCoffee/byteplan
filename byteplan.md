@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**9 open** · 36 closed (resolved 36)
+**9 open** · 39 closed (resolved 39)
 
 ## Open
 
@@ -32,6 +32,7 @@
 | `2533` | resolved | FIXME | Keep every module an import alias may refer to, across scopes |
 | `2887` | resolved | TODO | Phase 6b: test scaffolding |
 | `34da` | resolved | FIXME | Respect enclosing scopes before stripping a decorator |
+| `3d3a` | resolved | FIXME | the archive index is read from the working tree even when checking a Git snapshot |
 | `4518` | resolved | FIXME | An escaping package exposes every submodule imported under it |
 | `478d` | resolved | FIXME | Resolve relative imports before deciding whether they import the runtime |
 | `4d48` | resolved | FIXME | Keep decorators pending when their runtime import can't be restored |
@@ -50,6 +51,7 @@
 | `a703` | resolved | FIXME | Refuse wildcard runtime imports, whose bindings can't be proven unused |
 | `aedf` | resolved | FIXME | Check every runtime import, not just decorator bindings, before skipping a file |
 | `b68c` | resolved | FIXME | Restore an unanchored import below the current docstring and __future__ imports |
+| `b865` | resolved | FIXME | an archived task's readiness ignores the evidence archived with it |
 | `baeb` | resolved | FIXME | Count every __all__ assignment form as an export |
 | `c242` | resolved | FIXME | Check the current binding before restoring a decorator |
 | `c449` | resolved | FIXME | Treat __all__ mutations the export collector can't resolve as exporting everything |
@@ -58,3 +60,4 @@
 | `fb23` | resolved | FIXME | Keep a restored runtime import above every use of its names |
 | `fb9c` | resolved | FIXME | Track escapes of dotted module expressions like `alias = pkg.reexport` |
 | `fd44` | resolved | FIXME | Keep anchored imports below a __future__ import added since the release |
+| `ff3a` | resolved | FIXME | @verifies links to archived tasks are reported as unknown task references |
