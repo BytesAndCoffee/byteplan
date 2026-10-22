@@ -414,10 +414,10 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 72,
-        "line": 69,
+        "decl_line": 78,
+        "line": 70,
         "path": "src/byteplan/scanner/comments.py",
-        "representation": "comment",
+        "representation": "decorator",
         "symbol": "tag_pattern"
       },
       "status": "open",

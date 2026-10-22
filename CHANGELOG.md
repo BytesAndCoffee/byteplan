@@ -18,6 +18,16 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 - **`resolved_but_stubbed`:** a closed task whose code is still a stub isn't cleaned (scan
   reports it too). `--suppress-stubs` leaves a visible `# byteplan: ignore` instead.
 - **`[tool.byteplan.annotations] remove_resolved`** makes `sync --apply` clean up.
+### Decorator mode
+- **`sync` writes more natural code:**
+  - The runtime import goes after the module's leading import block, where first-party imports
+    usually sit, unless that would be below a rewritten declaration.
+  - A multi-line description becomes a parenthesized string with one line per source line.
+  - Run your formatter afterwards for exact import order.
+- **The `init --runtime-shim` template** is now clean under strict linters (ruff's `A002`,
+  `ARG001` and `TC003`).
+- **BytePlan dogfoods decorator mode:** its own tasks use `@todo` through an in-package shim
+  (`byteplan._todo`), so it gains no runtime dependency.
 
 ### Test scaffolding (Phase 6b)
 - **`byteplan tests scaffold ID`** writes a deliberately failing acceptance test for a task and

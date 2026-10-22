@@ -137,7 +137,10 @@ def test_attached_comment_becomes_a_decorator(decorated: ProjectFactory, run_cli
                 "Withdraw routes on link loss",
                 id="{task_id}",
                 kind="FIXME",
-                description="Support split horizon\\n  and poisoned reverse.",
+                description=(
+                    "Support split horizon\\n"
+                    "  and poisoned reverse."
+                ),
             )
             @staticmethod
             def withdraw():
@@ -557,3 +560,21 @@ def test_stub_ids_never_reuse_unregistered_source_ids(decorated: ProjectFactory,
     (new_id,) = [r["id"] for r in result["rewrites"]]
     assert new_id != would_be
     assert "DUPLICATE_ID" not in run_cli("scan", "--project", decorated.root).err
+
+
+def test_import_goes_after_the_leading_import_block(decorated: ProjectFactory, run_cli: RunCli) -> None:
+    source = '"""Doc."""\n\nimport os\nimport sys\n\nVALUE = os.sep\n\n\n# TODO: x\ndef f():\n    return sys\n'
+    decorated.write("src/a.py", source)
+    scan_and_sync(decorated, run_cli)
+    text = (decorated.root / "src/a.py").read_text()
+    assert text.startswith('"""Doc."""\n\nimport os\nimport sys\nfrom byteplan_runtime import todo\n\nVALUE')
+
+
+def test_import_falls_back_above_a_declaration_that_precedes_the_imports(
+    decorated: ProjectFactory, run_cli: RunCli
+) -> None:
+    # The only imports come after the converted declaration: putting `todo` there would be too late.
+    decorated.write("src/a.py", "# TODO: x\ndef f():\n    return 1\n\n\nimport os\n")
+    scan_and_sync(decorated, run_cli)
+    text = (decorated.root / "src/a.py").read_text()
+    assert text.startswith("from byteplan_runtime import todo\n@todo(")

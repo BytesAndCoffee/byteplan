@@ -57,6 +57,15 @@ report_file = "byteplan.md"
 # `byteplan verify` runs pytest in the hatch-test environment (the default one has no pytest).
 runner = ["hatch", "test", "--"]
 
+[tool.byteplan.annotations]
+# Decorator mode: `byteplan sync` turns attached TODO comments into @todo(...) and decorates
+# unowned stubs. The decorators import from an inert in-package shim, so BytePlan gains no
+# runtime dependency (written by `byteplan init --runtime-shim src/byteplan/_todo.py`).
+mode = "decorator"
+convert_attached_comments = true
+auto_decorate_stubs = true
+runtime_modules = ["byteplan_runtime", "byteplan._todo"]
+
 [tool.hatch.version]
 path = "src/byteplan/__about__.py"
 
