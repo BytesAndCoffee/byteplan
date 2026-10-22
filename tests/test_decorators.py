@@ -323,7 +323,7 @@ def test_shadowed_decorator_still_works_after_scan(project: ProjectFactory, cloc
     write_scan(project, clock)
     namespace: dict[str, Any] = {}
     exec(compile(path.read_text(), "a.py", "exec"), namespace)
-    assert namespace["outer"](lambda title: lambda fn: fn)() == 1
+    assert namespace["outer"](lambda _title: lambda fn: fn)() == 1
 
 
 def test_keyword_unpacking_is_never_given_an_id(project: ProjectFactory, clock: FakeClock) -> None:
