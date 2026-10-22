@@ -177,6 +177,10 @@ def _coerce(value: Any, default: Any, name: str) -> Any:
 
 
 def _validate(config: Config) -> None:
+    # TODO[a6b2]: Support detect.placeholder_assignments
+    #   Module-level `name = ...` / `= NotImplemented` stubs need a declaration model for
+    #   plain assignments (position, attachment, annotation slot). Until then the option
+    #   is rejected rather than silently ignored.
     if config.detect.placeholder_assignments:
         msg = "tool.byteplan.detect.placeholder_assignments is not supported yet; remove it or set it to false"
         raise ConfigError(msg)

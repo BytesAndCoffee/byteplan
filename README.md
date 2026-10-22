@@ -297,6 +297,21 @@ A clone that hasn't installed the driver just gets Git's ordinary text merge. Th
 recorded as `<this Python> -m byteplan`, so it works even when Git runs outside your virtualenv;
 re-run the installer if you recreate that environment.
 
+## Linters
+
+Ruff's flake8-todos rule **TD004** ("missing colon in TODO") expects the colon directly after the
+tag, so it flags BytePlan's annotated form `# TODO[a6b2]: ...`. Hatch's default ruff rules enable
+TD004. If you lint with them, ignore that one rule:
+
+```toml
+[tool.ruff]
+lint.extend-ignore = ["TD004"]
+```
+
+Use `lint.extend-ignore` rather than `extend-ignore`. Hatch skips its default ruff configuration
+for a `[tool.ruff]` table containing a line that starts with `extend`. The other flake8-todos
+rules aren't affected.
+
 ## Safety guarantees and tradeoffs
 
 **What BytePlan guarantees.**

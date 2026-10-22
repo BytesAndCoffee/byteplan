@@ -58,7 +58,7 @@ if TYPE_CHECKING:
 BYTEPLAN_GITIGNORE = "txn/\nscan.lock\n"
 
 
-class _Unset:
+class _Unset:  # byteplan: ignore - a sentinel is meant to be empty
     """Sentinel for "leave this field alone" where ``None`` means "clear it"."""
 
 

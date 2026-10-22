@@ -56,6 +56,9 @@ class Comment:
     standalone: bool
 
 
+# TODO[46b6]: Recognize Google-style `TODO(owner): ...` tags
+#   Today `TODO(alice):` doesn't match the grammar and is silently not tracked. Accept an
+#   optional `(owner)` after the tag and record it as the assignee when a task is created.
 def tag_pattern(tags: Sequence[str]) -> re.Pattern[str]:
     alternatives = "|".join(re.escape(tag) for tag in sorted(tags, key=len, reverse=True))
     return re.compile(

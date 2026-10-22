@@ -28,6 +28,34 @@ passing test never resolves a task. Only an explicit `status`/`resolve` does.
 BytePlan's own `[build-system].requires` stays `["hatchling"]` to avoid a recursive
 self-build. To track BytePlan's own TODOs, run `hatch run byteplan scan`; don't use the build hook.
 
+## Dogfooding: BytePlan manages its own development
+
+Self-management starts now, not at Phase 10. Each phase widens what BytePlan manages about
+itself.
+
+| Milestone | What BytePlan manages about itself |
+|---|---|
+| **Now (with Phase 4b)** ✅ | Its own registry. `[tool.byteplan]` scopes `src/` of both packages; tests are excluded because they deliberately contain annotation fixtures. Real follow-ups live as tagged TODOs in the code they concern. The registry merges by task ID (`.byteplan/.gitattributes`). CI runs `byteplan check --commit HEAD` on every push and PR. |
+| Phase 4b ✅ | Staged commits are checked: `hatch run byteplan git install-hooks`, or the local `.pre-commit-config.yaml`. |
+| Phases 6a–6b | Its own tasks link to acceptance tests, and regression tests are scaffolded with `tests scaffold`. |
+| Phase 9 | Coding agents developing BytePlan query it over MCP for outstanding work, record evidence, and hand the next session an authoritative state snapshot. |
+| Phase 10 | A documented, fully integrated self-managed workflow. CI on ubuntu, macOS and Windows. |
+| Phase 12 | Assignments link the commits, PRs and evidence produced by BytePlan's own development. |
+| Phase 13 | Relay for GitHub runs BytePlan's own issue-to-PR lifecycle, as the reference demonstration. |
+
+**Found by dogfooding.** Ruff's flake8-todos rule TD004, which Hatch's defaults enable, flags
+BytePlan's own `TODO[id]:` syntax because it expects the colon right after the tag. The syntax
+stays, since the spec mandates it and `TODO(…)` is reserved for the planned owner syntax. The
+README documents `lint.extend-ignore = ["TD004"]`, and BytePlan uses that itself. A future
+`byteplan init` could detect TD004 in the project's ruff config and suggest the ignore.
+
+**Workflow today:**
+- After editing, run `hatch run byteplan scan`, then commit the source together with
+  `.byteplan/tasks.json`.
+- Run `hatch run byteplan git install-merge-driver` once per clone.
+- Resolve work explicitly with `hatch run byteplan resolve ID`. Removing a TODO only makes it
+  `missing`.
+
 ## Module layout
 
 The repository root is the `byteplan` devtool project. The runtime distribution is a separate
