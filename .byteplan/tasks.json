@@ -3,6 +3,7 @@
     "0413",
     "14ff",
     "15df",
+    "205d",
     "2887",
     "34da",
     "46b6",
@@ -339,6 +340,55 @@
       "title": "Phase 12: assignment model (Addendum D stages D0-D2, D4)",
       "title_override": null
     },
+    "205d": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353030073\n_writing() rolls an interrupted write forward first, so release changed files instead of refusing.",
+      "first_seen": "2026-10-22T20:12:59Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:12:59Z",
+          "event": "created",
+          "new": {
+            "line": 1098,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:13:49Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_release_refuses_a_pending_journal_without_recovering_it",
+          "old": null
+        }
+      ],
+      "id": "205d",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:12:59Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 1089,
+        "line": 1098,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.release"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_release_refuses_a_pending_journal_without_recovering_it"
+        ]
+      },
+      "title": "Check for a pending journal before the write context recovers it",
+      "title_override": null
+    },
     "2887": {
       "assignee": null,
       "description": "`scaffold.py` planner, `byteplan tests scaffold ID`, placeholder detection,\n`[tool.byteplan.tests.scaffold]`.",
@@ -603,8 +653,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 1197,
-        "line": 1229,
+        "decl_line": 1202,
+        "line": 1234,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "Project.restore"

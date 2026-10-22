@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**18 open** · 8 closed (resolved 8)
+**19 open** · 8 closed (resolved 8)
 
 ## Open
 
@@ -17,7 +17,8 @@
 | `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1554`](docs/IMPLEMENTATION_PLAN.md#L1554) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
 | `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1558`](docs/IMPLEMENTATION_PLAN.md#L1558) | Phase 13 (optional): relay-for-github |
 | `90c6` | open | FIXME | normal | - | [`src/byteplan/api.py:412`](src/byteplan/api.py#L412) | Don't propose stub tasks for declarations whose @todo is stripped for a release |
-| `4d48` | open | FIXME | normal | - | [`src/byteplan/api.py:1229`](src/byteplan/api.py#L1229) | Keep decorators pending when their runtime import can't be restored |
+| `205d` | open | FIXME | normal | - | [`src/byteplan/api.py:1098`](src/byteplan/api.py#L1098) | Check for a pending journal before the write context recovers it |
+| `4d48` | open | FIXME | normal | - | [`src/byteplan/api.py:1234`](src/byteplan/api.py#L1234) | Keep decorators pending when their runtime import can't be restored |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:266`](src/byteplan/config.py#L266) | Support detect.placeholder_assignments |
 | `aedf` | open | FIXME | normal | - | [`src/byteplan/release.py:96`](src/byteplan/release.py#L96) | Check every runtime import, not just decorator bindings, before skipping a file |
 | `34da` | open | FIXME | normal | - | [`src/byteplan/release.py:108`](src/byteplan/release.py#L108) | Respect enclosing scopes before stripping a decorator |

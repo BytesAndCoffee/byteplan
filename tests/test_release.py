@@ -532,3 +532,36 @@ def test_runtime_reexported_to_another_module_refuses_the_release(
     assert "src/pkg/reexport.py" in result.err
     assert "imported from this module by src/pkg/consumer.py" in result.err
     assert released_repo.snapshot() == before
+
+
+# Codex review of #32, round 4 (tracked as 205d) -------------------------------------------------
+
+
+def test_release_refuses_a_pending_journal_without_recovering_it(
+    released_repo: ProjectFactory, run_cli: RunCli, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An interrupted write must be finished deliberately (`byteplan scan`), not by release."""
+    real_replace = os.replace
+    calls = {"n": 0}
+
+    class CrashError(Exception):
+        pass
+
+    def replace(src: Any, dst: Any) -> None:
+        if not str(dst).endswith("journal.json"):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise CrashError
+        real_replace(src, dst)
+
+    monkeypatch.setattr(os, "replace", replace)
+    with pytest.raises(CrashError):
+        Project.open(released_repo.root).release(allow_dirty=True)
+    monkeypatch.undo()
+    assert persistence.pending_journal(released_repo.root)
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli, "--allow-dirty")
+    assert result.code == EXIT_ERROR
+    assert "an interrupted write is pending" in result.err
+    assert released_repo.snapshot() == before  # nothing rolled forward or written
+    assert persistence.pending_journal(released_repo.root)

@@ -1095,16 +1095,21 @@ class Project:
         already-stripped tree.
         """
         version = self.release_version(version)
+        # FIXME[205d]: Check for a pending journal before the write context recovers it
+        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353030073
+        #   _writing() rolls an interrupted write forward first, so release changed files instead of refusing.
+        if pending_journal(self.root) or (staged_dir(self.root) / "journal.json").exists():
+            raise release.ReleaseError(
+                release.NEEDS_REVIEW,
+                ["an interrupted write is pending"],
+                "finish it deliberately with `byteplan scan` (or `scan --staged --apply`), then release",
+            )
         context = contextlib.nullcontext(()) if dry_run else self._writing()
         with context:
             registry_hash, registry = self._read_registry()
             block = self.stripped_release(registry)
             if block is not None:
                 raise release.ReleaseError(release.STRIPPED, [f"already stripped for release {block.get('version')}"])
-            if pending_journal(self.root):
-                raise release.ReleaseError(
-                    release.NEEDS_REVIEW, ["an interrupted write is pending"], "run `byteplan scan` to finish it"
-                )
             head, dirty = verification.git_state(self.root)
             if dirty and not allow_dirty:
                 raise release.ReleaseError(
