@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@icloud.com>
+# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@gmail.com>
 #
 # SPDX-License-Identifier: MIT
 """Hatch build hook (spec 18; Addendum A 16, Hatch part).

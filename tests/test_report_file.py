@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@icloud.com>
+# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@gmail.com>
 #
 # SPDX-License-Identifier: MIT
 """`[tool.byteplan] report_file`: a Markdown view of the registry, kept current at commit time."""

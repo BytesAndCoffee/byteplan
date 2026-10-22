@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@icloud.com>
+# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@gmail.com>
 #
 # SPDX-License-Identifier: MIT
 """Phase 2: annotation, reconciliation, and registry-only lifecycle commands."""
