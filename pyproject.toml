@@ -15,7 +15,7 @@ authors = [
   { name = "Michael Yazdani", email = "yazdmich@icloud.com" },
 ]
 classifiers = [
-  "Development Status :: 1 - Planning",
+  "Development Status :: 3 - Alpha",
   "Environment :: Console",
   "Framework :: Hatch",
   "Intended Audience :: Developers",
