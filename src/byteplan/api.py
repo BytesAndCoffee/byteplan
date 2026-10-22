@@ -1760,21 +1760,35 @@ BytePlan reads @todo/@verifies statically; at runtime they return the object unc
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 _T = TypeVar("_T")
 
 
+def _identity(obj: _T) -> _T:
+    return obj
+
+
 def todo(
-    title: str, /, *, id: str | None = None, kind: str = "TODO", description: str = "",
-    test: str | None = None, tests: Sequence[str] = (),
+    title: str,
+    /,
+    *,
+    id: str | None = None,  # noqa: A002 - BytePlan's documented keyword
+    kind: str = "TODO",
+    description: str = "",
+    test: str | None = None,
+    tests: Sequence[str] = (),
 ) -> Callable[[_T], _T]:
-    return lambda obj: obj
+    del title, id, kind, description, test, tests
+    return _identity
 
 
 def verifies(*ids: str) -> Callable[[_T], _T]:
-    return lambda obj: obj
+    del ids
+    return _identity
 '''
 
 

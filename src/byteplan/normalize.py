@@ -76,12 +76,18 @@ def decorator_text(expr: str, title: str, task_id: str, kind: str, description: 
     args = [literal(title), f'id="{task_id}"']
     if kind != "TODO":
         args.append(f"kind={literal(kind)}")
-    if description:
+    unit = "\t" if "\t" in indent else "    "
+    if "\n" in description:
+        # One literal per source line, implicitly concatenated: still a single string constant.
+        pieces = description.split("\n")
+        literals = [literal(piece + "\n") for piece in pieces[:-1]] + ([literal(pieces[-1])] if pieces[-1] else [])
+        inner = "".join(f"{indent}{unit}{unit}{piece}{newline}" for piece in literals)
+        args.append(f"description=({newline}{inner}{indent}{unit})")
+    elif description:
         args.append(f"description={literal(description)}")
     one_line = f"{indent}@{expr}({', '.join(args)})"
     if not description and len(one_line) <= MAX_LINE:
         return one_line + newline
-    unit = "\t" if "\t" in indent else "    "
     body = "".join(f"{indent}{unit}{arg},{newline}" for arg in args)
     return f"{indent}@{expr}({newline}{body}{indent}){newline}"
 
@@ -109,10 +115,17 @@ def _name_in_use(tree: ast.Module, name: str) -> bool:
     return False
 
 
-def _import_line(tree: ast.Module, lines: Sequence[str]) -> int | None:
-    """Where ``from <runtime> import todo`` can go: the line of the first statement after
-    the docstring and ``__future__`` imports (``len(lines) + 1`` for the end of the file),
-    or None if that isn't a clean statement start."""
+def _import_line(tree: ast.Module, lines: Sequence[str], before: int) -> int | None:
+    """Where ``from <runtime> import todo`` can go.
+
+    Preferably right after the module's leading import block, where first-party imports
+    usually sit, as long as that's above ``before`` (the first line a new decorator touches).
+    Otherwise the line of the first statement after the docstring and ``__future__`` imports
+    (``len(lines) + 1`` for the end of the file). None if that isn't a clean statement start.
+    """
+    block_end = _leading_import_block_end(tree)
+    if block_end is not None and block_end < before:
+        return block_end + 1
     body = list(tree.body)
     index = 0
     first_stmt = body[0] if body else None
@@ -148,6 +161,25 @@ def _import_line(tree: ast.Module, lines: Sequence[str]) -> int | None:
         while first - 1 >= floor and lines[first - 2].lstrip().startswith("#"):
             first -= 1
     return first
+
+
+def _leading_import_block_end(tree: ast.Module) -> int | None:
+    """The last line of the run of top-level imports that follows the docstring, if each of
+    them starts its own line at column 0 and nothing else shares the block's last line."""
+    body = list(tree.body)
+    index = (
+        1 if body and isinstance(body[0], ast.Expr) and isinstance(getattr(body[0], "value", None), ast.Constant) else 0
+    )
+    end: int | None = None
+    while index < len(body) and isinstance(body[index], ast.Import | ast.ImportFrom):
+        stmt = body[index]
+        if stmt.col_offset != 0 or (end is not None and stmt.lineno <= end):
+            return None
+        end = stmt.end_lineno or stmt.lineno
+        index += 1
+    if end is None or (index < len(body) and body[index].lineno <= end):
+        return None
+    return end
 
 
 @dataclass(frozen=True)
@@ -270,7 +302,7 @@ def plan_file(
                 _review(path, tag.line, f"can't add @todo(...): {binding.problem}", task_id=tag.task_id)
             )
         return plan
-    import_at = _import_line(tree, lines) if binding.insert_from else None
+    import_at = _import_line(tree, lines, first) if binding.insert_from else None
     if binding.insert_from and import_at is None:
         for tag, _ in candidates:
             plan.diagnostics.append(

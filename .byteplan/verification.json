@@ -14,6 +14,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "bac7c95f5a71": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T18:44:39Z",
+      "dirty": true,
+      "head": "9301e39fbd3c31c148de7c2a97f46dad4fd481e5",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "c6c988fe2179": {
       "argv": [
         "hatch",
@@ -158,35 +172,35 @@
       }
     },
     "82b3": {
-      "fingerprint": "ef294fe06ad210141389679929a0ed37baefed91e50c032d2fb665b4654e9c64",
-      "run": "64043655efb3",
+      "fingerprint": "207bc550c5d74697432a873a65c849286642cce7c7b6b5fe9e0f76b69ca2f5f0",
+      "run": "bac7c95f5a71",
       "tests": {
         "tests/test_normalize.py::test_attached_comment_becomes_a_decorator": {
-          "duration_ms": 67,
+          "duration_ms": 30,
           "outcome": "passed"
         },
         "tests/test_normalize.py::test_byte_level_safety": {
-          "duration_ms": 100,
-          "outcome": "passed"
-        },
-        "tests/test_normalize.py::test_conditional_or_late_imports_are_not_reused": {
-          "duration_ms": 44,
-          "outcome": "passed"
-        },
-        "tests/test_normalize.py::test_init_writes_a_runtime_shim_and_registers_it": {
-          "duration_ms": 12,
-          "outcome": "passed"
-        },
-        "tests/test_normalize.py::test_only_unowned_stubs_are_decorated": {
-          "duration_ms": 28,
-          "outcome": "passed"
-        },
-        "tests/test_normalize.py::test_refusals_leave_comments_exactly_as_they_were": {
           "duration_ms": 43,
           "outcome": "passed"
         },
+        "tests/test_normalize.py::test_conditional_or_late_imports_are_not_reused": {
+          "duration_ms": 29,
+          "outcome": "passed"
+        },
+        "tests/test_normalize.py::test_init_writes_a_runtime_shim_and_registers_it": {
+          "duration_ms": 7,
+          "outcome": "passed"
+        },
+        "tests/test_normalize.py::test_only_unowned_stubs_are_decorated": {
+          "duration_ms": 16,
+          "outcome": "passed"
+        },
+        "tests/test_normalize.py::test_refusals_leave_comments_exactly_as_they_were": {
+          "duration_ms": 10,
+          "outcome": "passed"
+        },
         "tests/test_normalize.py::test_rewritten_module_behaves_identically": {
-          "duration_ms": 39,
+          "duration_ms": 15,
           "outcome": "passed"
         }
       }

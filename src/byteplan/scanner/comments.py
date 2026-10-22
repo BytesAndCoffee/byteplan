@@ -28,6 +28,7 @@ import tokenize
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from byteplan._todo import todo
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity
 from byteplan.errors import SourceError
 from byteplan.ids import is_valid_id
@@ -66,9 +67,14 @@ class Comment:
     standalone: bool
 
 
-# TODO[46b6]: Recognize Google-style `TODO(owner): ...` tags
-#   Today `TODO(alice):` doesn't match the grammar and is silently not tracked. Accept an
-#   optional `(owner)` after the tag and record it as the assignee when a task is created.
+@todo(
+    "Recognize Google-style `TODO(owner): ...` tags",
+    id="46b6",
+    description=(
+        "Today `TODO(alice):` doesn't match the grammar and is silently not tracked. Accept an\n"
+        "optional `(owner)` after the tag and record it as the assignee when a task is created."
+    ),
+)
 def tag_pattern(tags: Sequence[str], opener: str = "#") -> re.Pattern[str]:
     """The tag grammar after a comment opener (a regex: ``#``, ``<!--``, ``//``, ``/\\*``)."""
     alternatives = "|".join(re.escape(tag) for tag in sorted(tags, key=len, reverse=True))

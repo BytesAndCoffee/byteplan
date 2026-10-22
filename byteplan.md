@@ -21,7 +21,7 @@
 | `6639` | open | FIXME | normal | - | [`src/byteplan/cleanup.py:237`](src/byteplan/cleanup.py#L237) | Keep runtime imports that __all__ re-exports |
 | `6b83` | open | FIXME | normal | - | [`src/byteplan/cli.py:67`](src/byteplan/cli.py#L67) | Keep sync's top-level JSON fields when only cleanup runs |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:266`](src/byteplan/config.py#L266) | Support detect.placeholder_assignments |
-| `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:69`](src/byteplan/scanner/comments.py#L69) | Recognize Google-style `TODO(owner): ...` tags |
+| `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
 
 ## Closed
 
