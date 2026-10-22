@@ -6,9 +6,12 @@
     "2887",
     "46b6",
     "4fb5",
+    "6639",
+    "6b83",
     "75b4",
     "82b3",
     "9054",
+    "9185",
     "93dd",
     "9b40",
     "a6b2",
@@ -472,6 +475,104 @@
       "title": "Update the status line for the next release",
       "title_override": null
     },
+    "6639": {
+      "assignee": null,
+      "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185449\nA name listed in __all__ is used by importers even with no local reference.",
+      "first_seen": "2026-10-22T18:48:22Z",
+      "history": [
+        {
+          "at": "2026-10-22T18:48:22Z",
+          "event": "created",
+          "new": {
+            "line": 232,
+            "path": "src/byteplan/cleanup.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:48:55Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_runtime_import_reexported_through_all_stays",
+          "old": null
+        }
+      ],
+      "id": "6639",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T18:48:22Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 224,
+        "line": 237,
+        "path": "src/byteplan/cleanup.py",
+        "representation": "comment",
+        "symbol": "_drop_unused_runtime_imports"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_cleanup.py::test_runtime_import_reexported_through_all_stays"
+        ]
+      },
+      "title": "Keep runtime imports that __all__ re-exports",
+      "title_override": null
+    },
+    "6b83": {
+      "assignee": null,
+      "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185466\nWith remove_resolved in comment mode the output lost dry_run, rewrites, written, ...",
+      "first_seen": "2026-10-22T18:48:22Z",
+      "history": [
+        {
+          "at": "2026-10-22T18:48:22Z",
+          "event": "created",
+          "new": {
+            "line": 67,
+            "path": "src/byteplan/cli.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:48:55Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_sync_json_keeps_its_shape_when_only_cleanup_runs",
+          "old": null
+        }
+      ],
+      "id": "6b83",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T18:48:22Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 60,
+        "line": 67,
+        "path": "src/byteplan/cli.py",
+        "representation": "comment",
+        "symbol": "cmd_sync"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_cleanup.py::test_sync_json_keeps_its_shape_when_only_cleanup_runs"
+        ]
+      },
+      "title": "Keep sync's top-level JSON fields when only cleanup runs",
+      "title_override": null
+    },
     "75b4": {
       "assignee": null,
       "description": "Includes the `TODO(owner):` syntax, also tracked on its own in comments.py.",
@@ -710,6 +811,55 @@
       "status": "open",
       "stub": null,
       "title": "Phase 11b (optional): Git reporting",
+      "title_override": null
+    },
+    "9185": {
+      "assignee": null,
+      "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185458\n`Hello <!-- TODO -->world.` must not become `Helloworld.`.",
+      "first_seen": "2026-10-22T18:48:22Z",
+      "history": [
+        {
+          "at": "2026-10-22T18:48:22Z",
+          "event": "created",
+          "new": {
+            "line": 157,
+            "path": "src/byteplan/cleanup.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:48:55Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_inline_markdown_comment_keeps_word_spacing",
+          "old": null
+        }
+      ],
+      "id": "9185",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T18:48:22Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 138,
+        "line": 157,
+        "path": "src/byteplan/cleanup.py",
+        "representation": "comment",
+        "symbol": "_span"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_cleanup.py::test_inline_markdown_comment_keeps_word_spacing"
+        ]
+      },
+      "title": "Keep the space between words around an inline Markdown comment",
       "title_override": null
     },
     "93dd": {

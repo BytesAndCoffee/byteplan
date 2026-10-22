@@ -284,3 +284,49 @@ def test_crash_recovers_through_the_journal(
     Project.open(project.root).scan(dry_run=False)  # rolls forward
     assert "TODO[aaaa]" not in (project.root / "src/a.py").read_text()
     assert registry(project)["aaaa"]["history"][-1]["event"] == "cleaned"
+
+
+# Codex review of #30 (tracked as 6639, 9185, 6b83) ----------------------------------------------
+
+
+def test_runtime_import_reexported_through_all_stays(project: ProjectFactory, run_cli: RunCli) -> None:
+    """6639: a name in __all__ is used by importers, even without a local reference."""
+    text = '__all__ = ["todo", "f"]\n\nfrom byteplan_runtime import todo\n\n\n@todo("x", id="aaaa")\ndef f():\n    return 1\n'
+    setup(project, run_cli, {"src/a.py": text})
+    resolve(project, run_cli, "aaaa")
+    assert run_cli("sync", "--remove-resolved", "--apply", "--project", project.root).code == EXIT_OK
+    after = (project.root / "src/a.py").read_text()
+    assert "from byteplan_runtime import todo\n" in after
+    assert "@todo" not in after
+
+
+@pytest.mark.parametrize(
+    ("line", "expected"),
+    [
+        ("Hello <!-- TODO[aaaa]: done -->world.", "Hello world."),
+        ("Hello<!-- TODO[aaaa]: done --> world.", "Hello world."),
+        ("Hello <!-- TODO[aaaa]: done --> world.", "Hello world."),
+        ("Hello<!-- TODO[aaaa]: done -->world.", "Helloworld."),
+        ("End of a sentence. <!-- TODO[aaaa]: done -->", "End of a sentence."),
+    ],
+)
+def test_inline_markdown_comment_keeps_word_spacing(
+    project: ProjectFactory, run_cli: RunCli, line: str, expected: str
+) -> None:
+    """9185: removing an inline comment never joins or doubles up the words around it."""
+    setup(project, run_cli, {"README.md": f"# Doc\n\n{line}\n"}, include='["**/*.md"]')
+    resolve(project, run_cli, "aaaa")
+    assert run_cli("sync", "--remove-resolved", "--apply", "--project", project.root).code == EXIT_OK
+    assert (project.root / "README.md").read_text() == f"# Doc\n\n{expected}\n"
+
+
+def test_sync_json_keeps_its_shape_when_only_cleanup_runs(project: ProjectFactory, run_cli: RunCli) -> None:
+    """6b83: remove_resolved in comment mode must not change sync's JSON schema."""
+    setup(project, run_cli, {"src/a.py": PY})
+    pyproject = project.root / "pyproject.toml"
+    pyproject.write_text(pyproject.read_text() + "\n[tool.byteplan.annotations]\nremove_resolved = true\n")
+    resolve(project, run_cli, "aaaa")
+    data = json.loads(run_cli("sync", "--format", "json", "--project", project.root).out)
+    assert {"dry_run", "blocked", "rewrites", "imports_added", "written", "diagnostics", "cleanup"} <= set(data)
+    assert data["rewrites"] == []
+    assert data["cleanup"]["removed"] == [{"id": "aaaa", "path": "src/a.py"}]

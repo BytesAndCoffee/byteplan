@@ -64,9 +64,13 @@ def cmd_sync(args: argparse.Namespace) -> int:
     normalizing = settings.mode == "decorator" and (settings.convert_attached_comments or settings.auto_decorate_stubs)
     code = EXIT_OK
     payload: dict[str, Any] = {}
+    # FIXME[6b83]: Keep sync's top-level JSON fields when only cleanup runs
+    #   Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185466
+    #   With remove_resolved in comment mode the output lost dry_run, rewrites, written, ...
+    # Always the original top-level shape; `sync` returns at once when normalization is off.
+    report = project.sync(args.only, dry_run=not args.apply)
+    payload.update(reporting.sync_json(report))
     if normalizing or not remove:
-        report = project.sync(args.only, dry_run=not args.apply)
-        payload.update(reporting.sync_json(report))  # the original top-level shape
         if args.format == "text" and not (remove and report.blocked and report.blocked.startswith("nothing to do")):
             _out(reporting.sync_text(report))
         for diagnostic in report.diagnostics:

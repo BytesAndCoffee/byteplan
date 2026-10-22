@@ -154,9 +154,17 @@ def _span(
         if comment.standalone and not rest.strip():
             start, end = _whole_lines(offsets, text, comment.line, comment.end_line)
             return start, end, ""
+        # FIXME[9185]: Keep the space between words around an inline Markdown comment
+        #   Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185458
+        #   `Hello <!-- TODO -->world.` must not become `Helloworld.`.
         start = comment.start
-        while start > offsets[comment.line - 1] and text[start - 1] in " \t":
-            start -= 1
+        line_end = offsets[comment.end_line] if comment.end_line < len(offsets) else len(text)
+        following = text[comment.end : line_end]
+        # The space before the comment separates words unless the comment ends the line or is
+        # itself followed by a space (which then does the separating).
+        if not following.strip() or following[:1] in {" ", "\t"}:
+            while start > offsets[comment.line - 1] and text[start - 1] in " \t":
+                start -= 1
         return start, comment.end, ""
     if language is Language.JSON:
         token = next((t for t in tokenize_json(source.path, text) if (t.line, t.col) == (tag.line, tag.col)), None)
@@ -226,8 +234,12 @@ def _drop_unused_runtime_imports(path: str, text: str, runtime_modules: Sequence
         return text, []  # the caller's validation reports it
     names = resolve_runtime_names(tree, runtime_modules)
     runtime = set(runtime_modules)
+    # FIXME[6639]: Keep runtime imports that __all__ re-exports
+    #   Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185449
+    #   A name listed in __all__ is used by importers even with no local reference.
     used = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
     used |= {_root(node) for node in ast.walk(tree) if isinstance(node, ast.Attribute)}
+    used |= _exported(tree)
     lines = text.splitlines(keepends=True)
     removed: list[str] = []
     for stmt in sorted(tree.body, key=lambda s: s.lineno, reverse=True):
@@ -257,6 +269,24 @@ def _drop_unused_runtime_imports(path: str, text: str, runtime_modules: Sequence
         while at < len(lines) and not lines[at].strip() and (at == 0 or not lines[at - 1].strip()):
             del lines[at]
     return "".join(lines), removed
+
+
+def _exported(tree: ast.Module) -> set[str]:
+    """String literals in module-level ``__all__`` assignments (``=``, ``+=``, annotated)."""
+    names: set[str] = set()
+    for stmt in tree.body:
+        targets: list[ast.expr]
+        value: ast.expr | None
+        if isinstance(stmt, ast.Assign):
+            targets, value = stmt.targets, stmt.value
+        elif isinstance(stmt, ast.AugAssign | ast.AnnAssign):
+            targets, value = [stmt.target], stmt.value
+        else:
+            continue
+        if value is None or not any(isinstance(t, ast.Name) and t.id == "__all__" for t in targets):
+            continue
+        names |= {n.value for n in ast.walk(value) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
+    return names
 
 
 def _root(node: ast.Attribute) -> str:
