@@ -1,6 +1,6 @@
 {
   "runs": {
-    "645fc139e6ca": {
+    "64043655efb3": {
       "argv": [
         "hatch",
         "test",
@@ -8,37 +8,9 @@
         "-p",
         "_byteplan_verify_plugin"
       ],
-      "at": "2026-10-22T18:05:36Z",
-      "dirty": true,
-      "head": "50a25d41c30be70c56a98ffd7df5ec50104a96d7",
-      "python": "3.11.0",
-      "timed_out": false
-    },
-    "a83e179164ae": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T18:06:07Z",
-      "dirty": true,
-      "head": "50a25d41c30be70c56a98ffd7df5ec50104a96d7",
-      "python": "3.11.0",
-      "timed_out": false
-    },
-    "c45f4e81fd61": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T18:09:24Z",
-      "dirty": true,
-      "head": "50a25d41c30be70c56a98ffd7df5ec50104a96d7",
+      "at": "2026-10-22T18:11:42Z",
+      "dirty": false,
+      "head": "b03126398e9ed163303792d34c25c3af0b69b000",
       "python": "3.11.0",
       "timed_out": false
     }
@@ -46,127 +18,127 @@
   "schema_version": 1,
   "tasks": {
     "2887": {
-      "fingerprint": "2b139b7cd86e37736d824b7f847354646eddc2e961583e66ab4bcf0bcfd7ab56",
-      "run": "645fc139e6ca",
+      "fingerprint": "a99b426a5eab957cd1b8a80d72c135d2866169c5bc1c1289573d95e5670fd5c1",
+      "run": "64043655efb3",
       "tests": {
         "tests/test_scaffold.py::test_appends_without_touching_existing_code": {
-          "duration_ms": 12,
+          "duration_ms": 13,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_async_tests_only_with_a_plugin": {
-          "duration_ms": 11,
+          "duration_ms": 13,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_crash_recovers_through_the_journal": {
-          "duration_ms": 24,
+          "duration_ms": 27,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_dry_run_writes_nothing": {
-          "duration_ms": 12,
+          "duration_ms": 14,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_line_shift_keeps_one_link": {
-          "duration_ms": 18,
+          "duration_ms": 23,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_placeholder_is_never_ready_until_implemented": {
-          "duration_ms": 19,
+          "duration_ms": 25,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_policies_never_pass": {
-          "duration_ms": 317,
+          "duration_ms": 379,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_rerun_reports_the_existing_test": {
-          "duration_ms": 20,
+          "duration_ms": 22,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_scaffold_creates_a_failing_bound_test": {
-          "duration_ms": 173,
+          "duration_ms": 208,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_templates_by_target_kind": {
-          "duration_ms": 68,
+          "duration_ms": 83,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_verify_never_counts_a_placeholder": {
-          "duration_ms": 174,
+          "duration_ms": 210,
           "outcome": "passed"
         }
       }
     },
     "82b3": {
-      "fingerprint": "53b56134f822ee00a8b99af2783c016168309eb1d0308d54b3763f561f550fd3",
-      "run": "a83e179164ae",
+      "fingerprint": "ef294fe06ad210141389679929a0ed37baefed91e50c032d2fb665b4654e9c64",
+      "run": "64043655efb3",
       "tests": {
         "tests/test_normalize.py::test_attached_comment_becomes_a_decorator": {
-          "duration_ms": 26,
+          "duration_ms": 67,
           "outcome": "passed"
         },
         "tests/test_normalize.py::test_byte_level_safety": {
-          "duration_ms": 46,
+          "duration_ms": 100,
           "outcome": "passed"
         },
         "tests/test_normalize.py::test_conditional_or_late_imports_are_not_reused": {
-          "duration_ms": 30,
+          "duration_ms": 44,
           "outcome": "passed"
         },
         "tests/test_normalize.py::test_init_writes_a_runtime_shim_and_registers_it": {
-          "duration_ms": 7,
+          "duration_ms": 12,
           "outcome": "passed"
         },
         "tests/test_normalize.py::test_only_unowned_stubs_are_decorated": {
-          "duration_ms": 16,
+          "duration_ms": 28,
           "outcome": "passed"
         },
         "tests/test_normalize.py::test_refusals_leave_comments_exactly_as_they_were": {
-          "duration_ms": 10,
+          "duration_ms": 43,
           "outcome": "passed"
         },
         "tests/test_normalize.py::test_rewritten_module_behaves_identically": {
-          "duration_ms": 16,
+          "duration_ms": 39,
           "outcome": "passed"
         }
       }
     },
     "9b40": {
-      "fingerprint": "4b48c0a9cfe6ce246a2df5f9f74f9bdd79065a3aa48b5e6b3c7bd11e4d0b2660",
-      "run": "c45f4e81fd61",
+      "fingerprint": "df34bc556b5c24adce012d29d6167003a19c98a941d1130de465604a56bdf57b",
+      "run": "64043655efb3",
       "tests": {
         "tests/test_test_links.py::test_link_line_drift_is_position_drift": {
-          "duration_ms": 22,
+          "duration_ms": 26,
           "outcome": "passed"
         },
         "tests/test_test_links.py::test_links_from_source_with_provenance": {
-          "duration_ms": 35,
+          "duration_ms": 37,
           "outcome": "passed"
         },
         "tests/test_test_links.py::test_managed_and_discovered_combine": {
-          "duration_ms": 23,
-          "outcome": "passed"
-        },
-        "tests/test_test_links.py::test_managed_links": {
           "duration_ms": 32,
           "outcome": "passed"
         },
+        "tests/test_test_links.py::test_managed_links": {
+          "duration_ms": 43,
+          "outcome": "passed"
+        },
         "tests/test_verify.py::test_all_passing_is_ready_for_review_and_never_resolves": {
-          "duration_ms": 239,
+          "duration_ms": 206,
           "outcome": "passed"
         },
         "tests/test_verify.py::test_collection_error_is_an_error": {
-          "duration_ms": 212,
+          "duration_ms": 277,
           "outcome": "passed"
         },
         "tests/test_verify.py::test_every_outcome_with_no_false_passes": {
-          "duration_ms": 226,
+          "duration_ms": 250,
           "outcome": "passed"
         },
         "tests/test_verify.py::test_evidence_store_and_staleness": {
-          "duration_ms": 192,
+          "duration_ms": 203,
           "outcome": "passed"
         },
         "tests/test_verify.py::test_timeout_kills_the_run": {
-          "duration_ms": 8041,
+          "duration_ms": 8047,
           "outcome": "passed"
         }
       }
