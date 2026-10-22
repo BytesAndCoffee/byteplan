@@ -18,7 +18,7 @@ from byteplan import registry as registry_io
 from byteplan.annotate import annotate
 from byteplan.config import PYPROJECT, Config, find_project_root, load_config, read_pyproject
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity, exit_code
-from byteplan.edits import ensure_equivalent, replace_at
+from byteplan.edits import ensure_equivalent, physical_lines, replace_at
 from byteplan.errors import ConfigError, EditError, RegistryError, ScanError, SourceError, TaskNotFoundError
 from byteplan.files import Scope, ScopeMatcher, collect_files, resolve_targets
 from byteplan.ids import allocate
@@ -401,7 +401,7 @@ class Project:
                 old_text, new_text = text, text.replace(old_id, new_id)
             else:
                 line_no = target.line
-                col = source.text.splitlines(keepends=True)[line_no - 1].find(f"[{old_id}]", target.col)
+                col = physical_lines(source.text)[line_no - 1].find(f"[{old_id}]", target.col)
                 old_text, new_text = f"[{old_id}]", f"[{new_id}]"
             edited = dataclasses.replace(source, text=replace_at(source.text, line_no, col, old_text, new_text))
             ensure_equivalent(path, source.text, edited.text)
@@ -513,7 +513,7 @@ def _managed(task: Task) -> dict[str, Any]:
 
 def _find_decorator_id(text: str, annotation: Annotation, task_id: str) -> tuple[str, int, int]:
     """The exact ``id="..."`` text of a decorator, and where it starts."""
-    lines = text.splitlines(keepends=True)
+    lines = physical_lines(text)
     for line_no in range(annotation.line, annotation.end_line + 1):
         for quote in ('"', "'"):
             needle = f"id={quote}{task_id}{quote}"

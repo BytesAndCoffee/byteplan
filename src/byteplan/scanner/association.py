@@ -23,6 +23,7 @@ import dataclasses
 from typing import TYPE_CHECKING
 
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity
+from byteplan.edits import physical_lines
 from byteplan.models import Annotation, AttachmentKind, IdSlot, Origin, Representation
 
 if TYPE_CHECKING:
@@ -79,7 +80,7 @@ def associate(
         )
 
     diagnostics: list[Diagnostic] = []
-    lines = source.text.splitlines(keepends=True)
+    lines = physical_lines(source.text)
     kind = "TODO" if "TODO" in tags else tags[0]
     for start, stub in sorted(stub_starts.items()):
         if start in owned:

@@ -40,6 +40,22 @@ def line_offsets(text: str) -> list[int]:
     return [0, *(match.end() for match in _NEWLINE_RE.finditer(text))]
 
 
+def physical_lines(text: str) -> list[str]:
+    """Lines as Python's tokenizer and ``ast`` number them, with their endings.
+
+    Unlike ``str.splitlines`` this doesn't split on form feeds, ``\\x1c`` or
+    ``\\u2028``, which Python doesn't treat as line breaks.
+    """
+    offsets = line_offsets(text)
+    lines = [text[start:end] for start, end in zip(offsets, [*offsets[1:], len(text)], strict=True)]
+    return lines[:-1] if lines and lines[-1] == "" else lines
+
+
+def char_col(line: str, byte_col: int) -> int:
+    """Convert an ``ast`` column (UTF-8 bytes) to a character index into ``line``."""
+    return len(line.encode("utf-8")[:byte_col].decode("utf-8", errors="ignore"))
+
+
 def apply_insertions(text: str, insertions: Sequence[Insertion]) -> str:
     offsets = line_offsets(text)
     positions: list[tuple[int, str]] = []

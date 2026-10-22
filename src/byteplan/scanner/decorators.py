@@ -25,6 +25,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity
+from byteplan.edits import char_col, physical_lines
 from byteplan.ids import is_valid_id
 from byteplan.models import Annotation, IdSlot, Origin, Representation
 from byteplan.scanner.stubs import dotted_name
@@ -135,6 +136,60 @@ def resolve_runtime_names(tree: ast.Module, runtime_modules: Sequence[str]) -> R
     return names
 
 
+_Scope = ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef
+
+
+def _enclosing_scopes(tree: ast.Module) -> dict[ast.AST, list[_Scope]]:
+    """For each def/class, the function and class scopes it's nested in (outermost first).
+
+    A declaration's decorators are evaluated in those scopes, so a binding there
+    can shadow the module-level import.
+    """
+    found: dict[ast.AST, list[_Scope]] = {}
+
+    def visit(node: ast.AST, stack: list[_Scope]) -> None:
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, _Scope):
+                found[child] = list(stack)
+                visit(child, [*stack, child])
+            else:
+                visit(child, stack)
+
+    visit(tree, [])
+    return found
+
+
+def _binds(scope: _Scope, name: str) -> bool:
+    """Whether ``name`` is bound anywhere directly in ``scope`` (conservatively)."""
+    if not isinstance(scope, ast.ClassDef):
+        args = scope.args
+        params = [*args.posonlyargs, *args.args, *args.kwonlyargs, args.vararg, args.kwarg]
+        if any(param is not None and param.arg == name for param in params):
+            return True
+    pending: list[ast.AST] = list(scope.body)
+    while pending:
+        node = pending.pop()
+        if isinstance(node, _Scope | ast.Lambda):
+            if not isinstance(node, ast.Lambda) and node.name == name:
+                return True
+            continue  # its body is its own scope
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store | ast.Del) and node.id == name:
+            return True
+        if isinstance(node, ast.Import | ast.ImportFrom):
+            if any((alias.asname or alias.name.split(".")[0]) == name for alias in node.names):
+                return True
+        elif isinstance(node, ast.Global | ast.Nonlocal):
+            if name in node.names:
+                return True
+        elif isinstance(node, ast.ExceptHandler | ast.MatchAs | ast.MatchStar):
+            if node.name == name:
+                return True
+        elif isinstance(node, ast.MatchMapping) and node.rest == name:
+            return True
+        pending.extend(ast.iter_child_nodes(node))
+    return False
+
+
 @dataclass(frozen=True)
 class VerifiesLink:
     task_ids: tuple[str, ...]
@@ -160,15 +215,16 @@ def _id_slot(source: SourceFile, call: ast.Call, lines: list[str]) -> IdSlot | N
     if not arguments:
         return None
     last = max(arguments, key=lambda node: (node.end_lineno or 0, node.end_col_offset or 0))
-    end_line, end_col = last.end_lineno, last.end_col_offset
-    if end_line is None or end_col is None:
+    if last.end_lineno is None or last.end_col_offset is None or call.end_lineno is None:
         return None
+    # ast columns are UTF-8 byte offsets; edits use character indices.
+    end_line = last.end_lineno
+    end_col = char_col(lines[end_line - 1], last.end_col_offset)
     # Between the last argument and the call's own ")" there may only be
     # whitespace, comments and one trailing comma. Anything else (e.g. the
     # argument was wrapped in parentheses) means inserting there is unsafe.
-    close_line, close_col = call.end_lineno, (call.end_col_offset or 0) - 1
-    if close_line is None:
-        return None
+    close_line = call.end_lineno
+    close_col = char_col(lines[close_line - 1], call.end_col_offset or 0) - 1
     between = []
     for line_no in range(end_line, close_line + 1):
         text = lines[line_no - 1].rstrip("\r\n")
@@ -179,9 +235,9 @@ def _id_slot(source: SourceFile, call: ast.Call, lines: list[str]) -> IdSlot | N
         return None
 
     multiline = (call.end_lineno or call.lineno) > call.lineno
-    last_start_line = lines[last.lineno - 1] if hasattr(last, "lineno") else ""
+    last_start_line = lines[last.lineno - 1]
     indent = last_start_line[: len(last_start_line) - len(last_start_line.lstrip())]
-    starts_its_line = last_start_line[: last.col_offset].strip() == "" if hasattr(last, "col_offset") else False
+    starts_its_line = last_start_line[: char_col(last_start_line, last.col_offset)].strip() == ""
     if multiline and starts_its_line and last.lineno == end_line:
         return IdSlot(end_line, end_col, f',{source.newline}{indent}id="{{id}}"')
     return IdSlot(end_line, end_col, ', id="{id}"')
@@ -198,7 +254,8 @@ def scan_decorators(
     result = DecoratorScan()
     if not names.direct and not names.modules and not names.ambiguous:
         return result
-    lines = source.text.splitlines(keepends=True) if source.text else []
+    lines = physical_lines(source.text)
+    scopes = _enclosing_scopes(tree)
     canonical = {tag.upper(): tag for tag in tags}
 
     def report(code: Code, severity: Severity, message: str, line: int, hint: str | None = None) -> None:
@@ -212,12 +269,15 @@ def scan_decorators(
             marker = names.resolve(name) if name else None
             if marker is None:
                 continue
+            base = (name or "").split(".")[0]
+            if any(_binds(scope, base) for scope in scopes.get(decl.node, ())):
+                marker = "ambiguous"  # shadowed by a local, parameter or class attribute
             line = decorator.lineno
             if marker == "ambiguous":
                 report(
                     Code.UNRESOLVED_TODO_DECORATOR,
                     Severity.WARNING,
-                    f"@{name} on {decl.qualname} may not be byteplan_runtime's (the name is bound more than once); not tracked",
+                    f"@{name} on {decl.qualname} may not be byteplan_runtime's (the name is rebound or shadowed); not tracked",
                     line,
                     "import it once, e.g. `from byteplan_runtime import todo`, and don't rebind the name",
                 )
@@ -248,9 +308,10 @@ def _todo(
         report(Code.INVALID_TODO_DECORATOR, Severity.ERROR, f"@{name}(...) takes exactly one positional title", line)
         return None
     values: dict[str, ast.expr] = {}
+    unpacked = False
     for keyword in call.keywords:
         if keyword.arg is None:
-            report(Code.DYNAMIC_TODO_ARGUMENT, Severity.WARNING, f"@{name}(**...) can't be read statically", line)
+            unpacked = True
             continue
         if keyword.arg not in TODO_KEYWORDS:
             report(
@@ -263,6 +324,17 @@ def _todo(
             return None
         values[keyword.arg] = keyword.value
 
+    if unpacked and "id" not in values:
+        # The mapping might already supply id=; adding one could make the module
+        # fail to import ("got multiple values for keyword argument 'id'").
+        report(
+            Code.DYNAMIC_TODO_ARGUMENT,
+            Severity.WARNING,
+            f"@{name}(..., **...) on {decl.qualname} can't be read statically; not tracked",
+            line,
+            'write id="..." explicitly (or drop the ** unpacking) to track it',
+        )
+        return None
     task_id: str | None = None
     if "id" in values:
         raw_id = _literal_str(values["id"])
@@ -332,7 +404,7 @@ def _todo(
         path=source.path,
         line=line,
         end_line=call.end_lineno or line,
-        col=call.col_offset - 1,  # the "@"
+        col=char_col(lines[line - 1], call.col_offset) - 1,  # the "@"
         kind=kind,
         tag_text=name,
         task_id=task_id,
