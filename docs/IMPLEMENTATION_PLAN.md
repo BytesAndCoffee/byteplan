@@ -892,11 +892,24 @@ made all-or-nothing as far as the platform allows, and recoverable beyond that.
    4. Write the verified bytes into the lock, fsync, and `rename` the lock over the index.
    5. On any failure, delete the lock and leave the index untouched.
 5. **Update the working tree.** Each fully staged target is replaced atomically through
-   `persistence`, keeping its permissions. That only happens if its bytes still equal the captured
-   staged blob, so a concurrent editor save is never overwritten.
-   - **If any of these writes can't proceed**, BytePlan restores the index entries from the journal
-     (taking the lock again, OID-guarded) and aborts with `concurrent_modification`. The commit
-     stops with nothing changed.
+   `persistence`, keeping its permissions, one file at a time. **Source files go first and the
+   registry goes last**, so a partial run can never leave new IDs without registry entries. Each
+   replacement happens only if the file's bytes still equal the captured staged blob (its *before*
+   bytes), so a concurrent editor save is never overwritten. The journal marks each target as
+   written once it's done.
+   - **If any write can't proceed** (a concurrent edit or an I/O error), BytePlan **rolls the
+     whole reconciliation back** before aborting with `concurrent_modification`:
+     1. The journal's direction is set to `rollback`.
+     2. Every already-written working-tree target whose bytes still equal BytePlan's *after*
+        bytes is restored to its *before* bytes (atomically, permissions kept).
+     3. The index entries are restored, taking the lock again, OID-guarded.
+   - **What the developer is left with:** the index, every working-tree file and the registry are
+     exactly as before the commit attempt. A retry then sees the same fully staged files, not a
+     self-inflicted `partial_stage_conflict`.
+   - **When a file can't be restored** because something else changed it after BytePlan's write,
+     it's left untouched. The journal is kept and the run exits 2 with `rollback_conflict`, naming
+     the file, its before and after hashes, and the two ways to resolve it. BytePlan never
+     overwrites someone else's edit, in either direction.
 6. **Revalidate.** Run `check --staged` against the new index. Success is reported only if it
    passes. Otherwise the journal is kept and the hook exits non-zero.
 7. **Finish.** Delete the journal and print what was annotated. Exit 0, so the commit proceeds,
@@ -909,10 +922,18 @@ check still works.
 **Recovery and retries.**
 - **Crash before step 4:** the index is unchanged. At most a stale lock is left, reported with Git's
   usual guidance.
-- **Crash between steps 4 and 5:** the next BytePlan run finds the journal. If every target's
-  working-tree bytes still equal the old staged blob, it rolls the working tree forward. If any
-  file changed since, it rolls the index **back** (OID-guarded), so the index never claims IDs the
-  working tree lacks.
+- **Crash after step 4, including partway through step 5's working-tree writes:** the next
+  BytePlan run finds the journal and picks *one* direction for every target, then records it in
+  the journal so a crash during recovery resumes the same way.
+  - **Forward:** used when every target is at either its *before* or *after* bytes, i.e.
+    nothing else touched them. Unwritten targets are written, registry last, and the run
+    revalidates.
+  - **Back:** used when any target holds foreign bytes. Targets at *after* revert to *before*, the
+    index entries are restored (OID-guarded), and foreign files are reported as
+    `rollback_conflict`, never overwritten.
+
+  Either way, the index never claims IDs the working tree lacks, and the working tree never holds
+  IDs that neither the index nor the registry knows about.
 - **Retries are idempotent:** re-running on an already-annotated snapshot finds no untagged
   annotations and writes nothing. A re-commit after an aborted commit just works.
 
@@ -1391,8 +1412,18 @@ Addendum C §C9 items 15 and 16, plus:
   diffs compared before and after).
 - **Concurrency:** an editor save between capture and write, or a concurrent `git add` while
   BytePlan holds the lock, aborts with the index unchanged (or rolled back) and nothing lost.
-- **Crash recovery:** a crash injected after the index swap but before the working-tree writes rolls
-  the working tree forward. If a file changed meanwhile, it rolls the index back instead.
+- **Partial failure:** with three targets (two source files and the registry), the second
+  source write fails because of an injected concurrent edit or I/O error. Afterwards:
+  - the first file is restored to its staged bytes
+  - the second file keeps the developer's edit
+  - the registry is untouched
+  - the index entries are restored
+
+  An immediate retry with no `partial_stage_conflict` succeeds once the edit is resolved.
+- **Crash recovery** at each step-5 boundary: after the index swap, after each working-tree write,
+  and during a rollback. Recovery rolls forward when nothing foreign is present and back otherwise,
+  is idempotent when re-run, and never overwrites a foreign edit (`rollback_conflict`, exit 2,
+  journal kept).
 - **Retries:** an immediate re-commit is a no-op, and a second hook run writes nothing.
 - **pre-commit framework fixer flow:** the first commit exits 1 with the files annotated, and the
   second commit passes (marked `network` if it needs to install `pre-commit`).
