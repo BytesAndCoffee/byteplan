@@ -268,6 +268,13 @@
           "event": "test_linked",
           "new": "tests/test_scaffold.py::test_crash_recovers_through_the_journal",
           "old": null
+        },
+        {
+          "at": "2026-10-22T18:28:13Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Phase 6b merged in #28; 11 linked tests fresh-passed (ready_for_review); resolved at the maintainer's request",
+          "old": "open"
         }
       ],
       "id": "2887",
@@ -289,7 +296,7 @@
         "representation": "comment",
         "symbol": "Phases"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
