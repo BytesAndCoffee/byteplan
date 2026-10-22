@@ -18,10 +18,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from byteplan import archive
 from byteplan import registry as registry_io
 from byteplan.errors import ByteplanError, ConfigError, RegistryError
 from byteplan.merge import MergeResult, merge_registries
-from byteplan.persistence import atomic_write_bytes
+from byteplan.persistence import STATE_DIR, atomic_write_bytes
 
 if TYPE_CHECKING:
     from byteplan.api import Project
@@ -33,6 +34,8 @@ DRIVER_NAME = "BytePlan registry (merge by task ID)"
 # `byteplan scan`, regenerates it from the merged registry.
 REPORT_DRIVER = "byteplan-report"
 REPORT_DRIVER_NAME = "BytePlan report (generated; keep ours, the next scan regenerates it)"
+ARCHIVE_DRIVER = "byteplan-archive"
+ARCHIVE_DRIVER_NAME = "BytePlan archive index (union by task ID)"
 
 
 def git(args: list[str], cwd: Path, *, read_only: bool = True) -> str:
@@ -111,9 +114,9 @@ def merge_driver(base: Path, ours: Path, theirs: Path, label: str = ".byteplan/t
 # Installation ------------------------------------------------------------------------------------
 
 
-def driver_command() -> str:
+def driver_command(subcommand: str = "merge-registry") -> str:
     """Absolute interpreter path, so Git can run the driver outside the virtualenv."""
-    return f"{shlex.quote(sys.executable)} -m byteplan merge-registry %O %A %B %P"
+    return f"{shlex.quote(sys.executable)} -m byteplan {subcommand} %O %A %B %P"
 
 
 def _add_attribute(root: Path, target: Path, driver: str) -> list[str]:
@@ -139,6 +142,11 @@ def install_merge_driver(project: Project) -> list[str]:
     if project.report_rel is not None:
         actions += _add_attribute(root, root / project.report_rel, REPORT_DRIVER)
         settings += [(f"merge.{REPORT_DRIVER}.name", REPORT_DRIVER_NAME), (f"merge.{REPORT_DRIVER}.driver", "true")]
+    actions += _add_attribute(root, root / STATE_DIR / archive.INDEX, ARCHIVE_DRIVER)
+    settings += [
+        (f"merge.{ARCHIVE_DRIVER}.name", ARCHIVE_DRIVER_NAME),
+        (f"merge.{ARCHIVE_DRIVER}.driver", driver_command("merge-archive")),
+    ]
 
     for key, value in settings:
         try:
@@ -162,7 +170,27 @@ def merge_driver_main(base: str, ours: str, theirs: str, label: str | None) -> i
     return outcome.code
 
 
-__all__ = ["DriverOutcome", "driver_command", "git", "install_merge_driver", "merge_driver", "toplevel"]
+def archive_driver_main(base: str, ours: str, theirs: str, label: str | None) -> int:
+    """Merge two archive indexes by task ID into ``ours`` (entries never change once written)."""
+    try:
+        texts = [Path(p).read_text(encoding="utf-8") for p in (base, ours, theirs)]
+        merged = archive.merge(*texts)
+    except (OSError, ValueError, AttributeError, TypeError) as exc:
+        sys.stderr.write(f"byteplan: can't merge {label or archive.INDEX} by task ID: {exc}\n")
+        return 1
+    Path(ours).write_text(merged, encoding="utf-8", newline="\n")
+    return 0
+
+
+__all__ = [
+    "DriverOutcome",
+    "archive_driver_main",
+    "driver_command",
+    "git",
+    "install_merge_driver",
+    "merge_driver",
+    "toplevel",
+]
 
 
 # Pre-commit hooks -------------------------------------------------------------------------------

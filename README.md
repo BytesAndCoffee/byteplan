@@ -267,6 +267,23 @@ Every task has two independent dimensions:
 IDs never change and are never reused. Line numbers, file paths and function names are only
 metadata, so moving or renaming code keeps the same task.
 
+**Archiving.** Closed tasks don't stay in `tasks.json` forever. Once a task has been resolved or
+dismissed for a week (`[tool.byteplan.archive] after_days`) and its annotation is gone from
+source, the next writing `scan` moves it out (or run `byteplan archive` yourself):
+
+- **Local store:** `.byteplan/archive.sqlite` (gitignored) keeps the full record and its
+  verification evidence, zlib-compressed.
+- **Reconciliation artifact:** `.byteplan/archive.json` (committed) lists each archived task's
+  title, status, dates and the sha256 of its record. It's small and merges by task ID.
+- **Other clones:** every archived record is in an earlier commit's `tasks.json`. `byteplan show
+  ID` finds it there by hash when the local store lacks it, and `byteplan archive --reconcile`
+  fills the store for all of them at once. (Evidence isn't in history, so it stays with the
+  clone that archived the task.)
+- **Only committed records move:** in a Git repository, a task is archived only once its
+  current record is committed, so other clones can always find it.
+- **What stays:** the ID stays in `reserved_ids`, so it's never reused. If it turns up in source
+  again, `check` says it's archived; `byteplan archive --restore ID` brings it back.
+
 ## Commands
 
 | Command | What it does |
@@ -285,7 +302,10 @@ metadata, so moving or renaming code keeps the same task.
 | `byteplan scan --staged --apply` | add IDs to the staged commit (index and working tree) before it's finalized; what the pre-commit hook runs |
 | `byteplan check [--staged \| --commit REV]` | read-only validation, with policy-based exit code. `--staged` checks exactly what's staged (pre-commit); `--commit HEAD` checks a commit (CI) |
 | `byteplan list [--status S] [--presence P] [--kind K]` | list tasks |
-| `byteplan show ID` | details, location and history |
+| `byteplan show ID` | details, location and history (archived tasks too) |
+| `byteplan list --archived [--kind K]` | list archived tasks |
+| `byteplan archive [--dry-run] [--older-than DAYS]` | move long-closed tasks whose annotation is gone into the archive (scans do this automatically) |
+| `byteplan archive --reconcile` / `archive --restore ID` | fill the local archive store from Git history / put an archived task back in the registry |
 | `byteplan status ID STATUS [--note]` | change lifecycle status |
 | `byteplan resolve ID [--note]` | mark resolved (never edits source) |
 | `byteplan edit ID [--priority] [--assignee/--unassign] [--label] [--remove-label] [--notes/--add-note] [--title/--clear-title]` | managed fields; scans never overwrite them |
@@ -298,6 +318,7 @@ metadata, so moving or renaming code keeps the same task.
 | `byteplan git install-hooks [--mode reconcile\|check\|scan]` | direct pre-commit hook (default `reconcile`: IDs at commit time); never replaces a hook it didn't write |
 | `byteplan git hooks-status` | show the pre-commit framework hook, direct hook and merge driver |
 | `byteplan merge-registry BASE OURS THEIRS [PATH]` | the merge driver itself; Git runs it, you don't |
+| `byteplan merge-archive BASE OURS THEIRS [PATH]` | the archive index's merge driver (union by task ID); Git runs it |
 
 - **Common options:** `--project PATH` and `--format json` go after the command.
 - **Output streams:** stdout carries only the result (pure JSON with `--format json`); diagnostics
@@ -355,6 +376,10 @@ convert_attached_comments = false  # decorator mode: sync turns attached comment
 auto_decorate_stubs = false        # decorator mode: sync puts @todo on unowned stubs
 remove_resolved = false            # sync also removes closed tasks' annotations
 runtime_modules = ["byteplan_runtime"]   # add a project shim module here
+
+[tool.byteplan.archive]
+after_days = 7                     # archive tasks closed at least this many days ago
+auto = true                        # every writing `scan` archives what's eligible
 ```
 
 - **Paths and patterns:** paths are relative to the project root (the directory with
@@ -544,6 +569,9 @@ plus an explanation:
 
 If both branches moved the same annotation, the merged registry keeps our location and asks you
 to run `byteplan scan`, which refreshes it from the merged code.
+
+The installer also sets up `byteplan-archive` for `.byteplan/archive.json`: its entries never
+change once written, so it merges as a union by task ID.
 
 **Per clone, and safe to skip.** Commit `.byteplan/.gitattributes` (and, with a `report_file`, the
 `.gitattributes` next to it). Each clone runs

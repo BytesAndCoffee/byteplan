@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any
 
 import pathspec
 
-from byteplan import cleanup, gitio, normalize, release, reporting, scaffold, smoke, verification
+from byteplan import archive, cleanup, gitio, normalize, release, reporting, scaffold, smoke, verification
 from byteplan import registry as registry_io
 from byteplan.annotate import annotate
 from byteplan.config import (
@@ -64,7 +64,7 @@ from byteplan.scanner.symbols import SymbolIndex, declarations, parse_module
 from byteplan.snapshot import GitSnapshot
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator, Sequence
+    from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 
     from byteplan.models import Annotation, Task
     from byteplan.normalize import Rewrite
@@ -195,6 +195,8 @@ class ScanReport:
     planned: tuple[FileWrite, ...] = ()
     # @verifies / marker links found in source.
     links: tuple[VerifiesLink, ...] = ()
+    # Closed tasks moved to the archive after this (writing) scan.
+    archived: tuple[str, ...] = ()
 
     @property
     def files_scanned(self) -> int:
@@ -207,6 +209,22 @@ class ScanReport:
     @property
     def annotated_files(self) -> tuple[str, ...]:
         return tuple(sorted({p.tag.path for p in self.proposals}))
+
+
+@dataclass(frozen=True)
+class ArchiveReport:
+    tasks: tuple[str, ...]  # archived (or, for a dry run, archivable) task IDs
+    dry_run: bool = False
+    written: tuple[str, ...] = ()
+    # Eligible, but their current record isn't committed yet (other clones couldn't reconcile it).
+    uncommitted: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class ReconcileReport:
+    recovered: tuple[str, ...]  # restored into the local store from Git history
+    missing: tuple[str, ...]  # in the index, but not found in this clone's history
+    present: int  # already in the local store
 
 
 class Project:
@@ -341,7 +359,10 @@ class Project:
         """
         context = contextlib.nullcontext(()) if dry_run else self._writing()
         with context as recovered:
-            return self._scan(targets, cwd, dry_run=dry_run, recovered=recovered)
+            report = self._scan(targets, cwd, dry_run=dry_run, recovered=recovered)
+        if dry_run or self.snapshot is not None or not self.config.archive.auto or report.blocked:
+            return report
+        return dataclasses.replace(report, archived=self.archive().tasks)
 
     def _scan(
         self,
@@ -429,7 +450,7 @@ class Project:
         if self.config.annotations.mode != "comment":
             tags, stub_notes = _stubs_reported_only(tags, self.config.annotations)
             diagnostics.extend(stub_notes)
-        diagnostics.extend(_id_diagnostics(tags, registry))
+        diagnostics.extend(_id_diagnostics(tags, registry, self.archive_index().tasks))
         duplicated = {d.task_id for d in diagnostics if d.code is Code.DUPLICATE_ID}
         proposals = _plan_allocations(tags, registry) if self.config.auto_annotate else []
 
@@ -486,7 +507,7 @@ class Project:
                 diagnostics.extend(self._release_warnings())
         diagnostics.extend(self._test_link_diagnostics(new_registry, observed, scope_matcher))
         diagnostics.extend(self._missing_diagnostics(new_registry))
-        diagnostics.extend(_link_diagnostics(links, new_registry))
+        diagnostics.extend(_link_diagnostics(links, new_registry, self.archive_index().tasks))
         implementation = _implementation_diagnostics(summary, new_registry)
         if self.snapshot is None and implementation:
             implementation = self._complete_candidates(implementation, new_registry)
@@ -804,8 +825,177 @@ class Project:
     def get_task(self, task_id: str) -> Task:
         task = self.load_registry().get(task_id.lower())
         if task is None:
+            archived = self.archived_task(task_id.lower())
+            if archived is not None:
+                return archived
             raise _not_found(task_id)
         return task
+
+    # Archive (`byteplan archive`) -----------------------------------------------------------
+
+    @property
+    def archive_index_rel(self) -> str:
+        return f"{STATE_DIR}/{archive.INDEX}"
+
+    def archive_index(self) -> archive.Index:
+        rel = self.archive_index_rel
+        data = self.snapshot.read(rel) if self.snapshot is not None else _read_bytes(self.root / rel)
+        try:
+            return archive.Index.loads(data.decode("utf-8") if data else None)
+        except (ValueError, AttributeError, TypeError) as exc:
+            msg = f"{rel} is unreadable ({exc}); restore it from Git"
+            raise ConfigError(msg) from exc
+
+    def archived_task(self, task_id: str) -> Task | None:
+        """An archived task, from the local store (reconciled from Git history if needed)."""
+        entry = self.archive_index().tasks.get(task_id)
+        if entry is None:
+            return None
+        store = archive.Store(self.root / STATE_DIR)
+        payload = store.get(task_id)
+        if payload is None or archive.record_hash(payload["task"]) != entry["sha256"]:
+            self.reconcile_archive()  # a row from another archive of this task counts as a miss
+            payload = store.get(task_id)
+        if payload is None or archive.record_hash(payload["task"]) != entry["sha256"]:
+            msg = f"task {task_id} is archived, but its record isn't in this clone's Git history"
+            raise ConfigError(msg)
+        wrapper = {"schema_version": 1, "reserved_ids": [task_id], "tasks": {task_id: payload["task"]}}
+        return registry_io.from_dict(wrapper, f"archive:{task_id}").tasks[task_id]
+
+    def archive(self, *, dry_run: bool = False, older_than: int | None = None) -> ArchiveReport:
+        """Move tasks closed at least ``older_than`` (default ``after_days``) days ago, whose
+        annotation is gone, out of ``tasks.json`` into the local store and the committed index.
+        Their IDs stay reserved; their evidence moves with them. In a Git repository only
+        records already committed as they are are moved, so every clone can reconcile them."""
+        days = self.config.archive.after_days if older_than is None else older_than
+        context = contextlib.nullcontext(()) if dry_run else self._writing()
+        with context:
+            registry_hash, registry = self._read_registry()
+            if self.stripped_release(registry) is not None:
+                return ArchiveReport((), dry_run)  # tasks stay put while a release is on record
+            now = self.clock()
+            eligible = sorted(t for t, task in registry.tasks.items() if archive.eligible(task, now, days))
+            committed = self._committed_records() if eligible else None
+            chosen: list[str] = []
+            uncommitted: list[str] = []
+            for task_id in eligible:
+                record = registry_io.task_to_dict(registry.tasks[task_id])
+                ok = committed is None or committed.get(task_id) == record
+                (chosen if ok else uncommitted).append(task_id)
+            if dry_run or not chosen:
+                return ArchiveReport(tuple(chosen), dry_run, uncommitted=tuple(uncommitted))
+            evidence = verification.Evidence.load(self.root)
+            evidence_before = _read_bytes(self.root / verification.STORE)
+            index = self.archive_index()
+            index_before = _read_bytes(self.root / self.archive_index_rel)
+            rows = []
+            for task_id in chosen:
+                task = registry.tasks.pop(task_id)
+                record = registry_io.task_to_dict(task)
+                kept = evidence.tasks.pop(task_id, None)
+                run = evidence.runs.get(str(kept.get("run"))) if kept else None
+                rows.append((task_id, {"task": record, "evidence": kept, "run": run}, now))
+                index.tasks[task_id] = archive.entry(task, record, now)
+            # The local store first: if the JSON writes are interrupted, it just holds extra rows.
+            archive.Store(self.root / STATE_DIR).put(rows)
+            self._ignore_archive_store()
+            before = None if index_before is None else sha256(index_before)
+            writes = [FileWrite(self.archive_index_rel, before, index.dumps().encode())]
+            if evidence_before is not None:
+                writes.append(FileWrite(verification.STORE, sha256(evidence_before), evidence.dumps()))
+            writes.extend(self._registry_writes(registry_hash, registry))
+            written = commit(self.root, writes)
+            return ArchiveReport(tuple(chosen), dry_run, tuple(written), tuple(uncommitted))
+
+    def _archived_evidence(self, task_id: str) -> verification.Evidence:
+        """The evidence (and its run) archived with a task, as an ``Evidence`` of its own."""
+        payload = archive.Store(self.root / STATE_DIR).get(task_id) or {}
+        kept, run = payload.get("evidence"), payload.get("run")
+        if kept is None:
+            return verification.Evidence()
+        runs = {str(kept.get("run")): run} if run is not None else {}
+        return verification.Evidence({task_id: kept}, runs)
+
+    def _committed_records(self) -> dict[str, Any] | None:
+        """Task records in ``HEAD``'s registry; None outside Git (no other clones to serve)."""
+        try:
+            gitio.git(["rev-parse", "--git-dir"], self.root)
+        except ConfigError:
+            return None
+        try:
+            text = gitio.git(["show", f"HEAD:./{self.registry_rel}"], self.root)
+            tasks: dict[str, Any] = json.loads(text)["tasks"]
+        except (ConfigError, ValueError, KeyError, TypeError):
+            return {}
+        return tasks
+
+    def _ignore_archive_store(self) -> None:
+        gitignore = self.root / STATE_DIR / ".gitignore"
+        current = (_read_bytes(gitignore) or b"").decode()
+        if archive.STORE not in current.split():
+            atomic_write_bytes(gitignore, (current.rstrip("\n") + f"\n{archive.STORE}\n").lstrip("\n").encode())
+
+    def restore_archived(self, task_id: str) -> tuple[str, ...]:
+        """Put an archived task back into ``tasks.json`` (with its evidence, if this clone has it)."""
+        task_id = task_id.lower()
+        with self._writing():
+            registry_hash, registry = self._read_registry()
+            if task_id in registry.tasks:
+                msg = f"task {task_id} is already in the registry"
+                raise ConfigError(msg)
+            task = self.archived_task(task_id)
+            if task is None:
+                msg = f"task {task_id} isn't archived"
+                raise ConfigError(msg)
+            payload = archive.Store(self.root / STATE_DIR).get(task_id) or {}
+            registry.tasks[task_id] = task
+            index = self.archive_index()
+            index_before = _read_bytes(self.root / self.archive_index_rel)
+            del index.tasks[task_id]
+            writes = [
+                FileWrite(
+                    self.archive_index_rel,
+                    None if index_before is None else sha256(index_before),
+                    index.dumps().encode(),
+                )
+            ]
+            if payload.get("evidence") is not None:
+                evidence = verification.Evidence.load(self.root)
+                evidence_before = _read_bytes(self.root / verification.STORE)
+                evidence.tasks[task_id] = payload["evidence"]
+                run_id = payload["evidence"].get("run")
+                if payload.get("run") is not None and run_id not in evidence.runs:
+                    evidence.runs[run_id] = payload["run"]
+                before = None if evidence_before is None else sha256(evidence_before)
+                writes.append(FileWrite(verification.STORE, before, evidence.dumps()))
+            writes.extend(self._registry_writes(registry_hash, registry))
+            return tuple(commit(self.root, writes))
+
+    def reconcile_archive(self) -> ReconcileReport:
+        """Fill the local store with every archived record it lacks, found by hash in the
+        registry's Git history. (Evidence isn't in history; reconciled records come without it.)"""
+        index = self.archive_index()
+        store = archive.Store(self.root / STATE_DIR)
+        have = store.hashes()
+        wanted = {t: e["sha256"] for t, e in index.tasks.items() if have.get(t) != e["sha256"]}
+        if not wanted:
+            return ReconcileReport((), (), len(index.tasks))
+        try:
+            # --full-history: a merge whose registry matches one parent must not hide the other's.
+            log = ["log", "--full-history", "--format=%H", "--", self.registry_rel]
+            commits = gitio.git(log, self.root).split()
+        except ConfigError:
+            commits = []
+
+        def versions() -> Iterator[str]:
+            for rev in commits:
+                with contextlib.suppress(ConfigError):
+                    yield gitio.git(["show", f"{rev}:./{self.registry_rel}"], self.root)
+
+        found = archive.find_in_history(wanted, versions(), lambda text: json.loads(text)["tasks"])
+        store.put((t, {"task": record, "evidence": None}, index.tasks[t]["archived_at"]) for t, record in found.items())
+        missing = sorted(set(wanted) - set(found))
+        return ReconcileReport(tuple(sorted(found)), tuple(missing), len(index.tasks) - len(wanted))
 
     # Checks and reports --------------------------------------------------------------
 
@@ -840,7 +1030,10 @@ class Project:
 
     def readiness(self, task: Task, evidence: verification.Evidence | None = None) -> verification.Readiness:
         """Derived, never stored: ``unverified``, ``failing``, ``needs_review`` or ``ready_for_review``."""
-        evidence = evidence if evidence is not None else verification.Evidence.load(self.root)
+        if evidence is None:
+            evidence = verification.Evidence.load(self.root)
+            if task.id not in evidence.tasks and task.id in self.archive_index().tasks:
+                evidence = self._archived_evidence(task.id)
         head = verification.git_state(self.root) if self.config.tests.stale_on == "head" else (None, False)
         return verification.readiness(
             task,
@@ -1903,7 +2096,9 @@ def _not_found(task_id: str) -> TaskNotFoundError:
     return TaskNotFoundError(f"no task with ID {task_id!r}")
 
 
-def _link_diagnostics(links: Sequence[VerifiesLink], registry: Registry) -> list[Diagnostic]:
+def _link_diagnostics(
+    links: Sequence[VerifiesLink], registry: Registry, archived: Mapping[str, Mapping[str, Any]]
+) -> list[Diagnostic]:
     return [
         Diagnostic(
             Code.UNKNOWN_TASK_REFERENCE,
@@ -1915,7 +2110,7 @@ def _link_diagnostics(links: Sequence[VerifiesLink], registry: Registry) -> list
         )
         for link in links
         for task_id in link.task_ids
-        if task_id not in registry.tasks
+        if task_id not in registry.tasks and task_id not in archived  # a test kept after archiving is fine
     ]
 
 
@@ -1939,7 +2134,9 @@ def _implementation_diagnostics(summary: Summary, registry: Registry) -> list[Di
     return found
 
 
-def _id_diagnostics(tags: Sequence[Annotation], registry: Registry) -> list[Diagnostic]:
+def _id_diagnostics(
+    tags: Sequence[Annotation], registry: Registry, archived: Mapping[str, Mapping[str, Any]]
+) -> list[Diagnostic]:
     by_id: defaultdict[str, list[Annotation]] = defaultdict(list)
     for tag in tags:
         if tag.task_id is not None:
@@ -1960,7 +2157,19 @@ def _id_diagnostics(tags: Sequence[Annotation], registry: Registry) -> list[Diag
                 )
             )
         task = registry.get(task_id)
-        if task is None:
+        if task is None and task_id in archived:
+            diagnostics.append(
+                Diagnostic(
+                    Code.UNREGISTERED_ID,
+                    Severity.WARNING,
+                    f"ID {task_id} is in source but archived ({archived[task_id].get('status', 'closed')})",
+                    task_id=task_id,
+                    locations=locations,
+                    hint=f"delete the comment if it came back by mistake (e.g. a revert), or "
+                    f"`byteplan archive --restore {task_id}` to bring the task back and reopen it",
+                )
+            )
+        elif task is None:
             diagnostics.append(
                 Diagnostic(
                     Code.UNREGISTERED_ID,

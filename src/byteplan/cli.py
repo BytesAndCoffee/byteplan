@@ -21,7 +21,7 @@ from byteplan.api import Project, init_project
 from byteplan.diagnostics import EXIT_ERROR, EXIT_FINDINGS, EXIT_OK, Code
 from byteplan.errors import ByteplanError, ConfigError
 from byteplan.files import resolve_targets
-from byteplan.gitio import hooks_status, install_hooks, install_merge_driver, merge_driver_main
+from byteplan.gitio import archive_driver_main, hooks_status, install_hooks, install_merge_driver, merge_driver_main
 from byteplan.gitwrite import reconcile_staged
 from byteplan.models import Presence, Status
 
@@ -134,6 +134,22 @@ def cmd_scan(args: argparse.Namespace) -> int:
 
 
 def cmd_list(args: argparse.Namespace) -> int:
+    if args.archived:
+        if args.status or args.presence:
+            msg = "--archived lists closed, archived tasks; --status and --presence don't apply"
+            raise ConfigError(msg)
+        project = _project(args)
+        registered = project.load_registry().tasks
+        entries = project.archive_index().tasks
+        # An index entry for a registered task is a restore that a union merge brought back.
+        rows = {
+            t: e for t, e in entries.items() if t not in registered and (not args.kind or e.get("kind") in args.kind)
+        }
+        if args.format == "json":
+            _out(reporting.to_json([{"id": t, **e} for t, e in sorted(rows.items())]))
+        else:
+            _out(reporting.archive_table(rows))
+        return EXIT_OK
     statuses = [Status(value) for value in args.status or ()]
     presences = [Presence(value) for value in args.presence or ()]
     tasks = _project(args).list_tasks(statuses, presences, args.kind)
@@ -436,6 +452,59 @@ def cmd_repair(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def cmd_archive(args: argparse.Namespace) -> int:
+    project = _project(args)
+    if args.restore:
+        if args.reconcile or args.dry_run or args.older_than is not None:
+            msg = "--restore takes no other options"
+            raise ConfigError(msg)
+        project.restore_archived(args.restore)
+        _out(f"byteplan: restored {args.restore.lower()} to the registry; reopen it with `byteplan status`")
+        return EXIT_OK
+    if args.reconcile:
+        if args.dry_run or args.older_than is not None:
+            msg = "--reconcile only fills the local store; it doesn't take --dry-run or --older-than"
+            raise ConfigError(msg)
+        rec = project.reconcile_archive()
+        if args.format == "json":
+            _out(
+                reporting.to_json(
+                    {"recovered": list(rec.recovered), "missing": list(rec.missing), "present": rec.present}
+                )
+            )
+        else:
+            _out(
+                f"byteplan: {rec.present} archived task(s) already local; recovered {len(rec.recovered)} from Git history"
+            )
+            if rec.missing:
+                _err(f"byteplan: not in this clone's history (fetch, then retry): {', '.join(rec.missing)}")
+        return EXIT_FINDINGS if rec.missing else EXIT_OK
+    report = project.archive(dry_run=args.dry_run, older_than=args.older_than)
+    if args.format == "json":
+        _out(
+            reporting.to_json(
+                {
+                    "tasks": list(report.tasks),
+                    "uncommitted": list(report.uncommitted),
+                    "dry_run": report.dry_run,
+                    "written": list(report.written),
+                }
+            )
+        )
+    else:
+        verb = "would archive" if report.dry_run else "archived"
+        _out(f"byteplan: {verb} {len(report.tasks)} task(s){': ' + ', '.join(report.tasks) if report.tasks else ''}")
+        if report.uncommitted:
+            _out(
+                f"byteplan: waiting for a commit (their current records aren't committed): {', '.join(report.uncommitted)}"
+            )
+    return EXIT_OK
+
+
+def cmd_merge_archive(args: argparse.Namespace) -> int:
+    return archive_driver_main(args.base, args.ours, args.theirs, args.label)
+
+
 def cmd_merge_registry(args: argparse.Namespace) -> int:
     return merge_driver_main(args.base, args.ours, args.theirs, args.label)
 
@@ -525,7 +594,21 @@ def build_parser() -> argparse.ArgumentParser:
     list_.add_argument("--status", action="append", choices=[s.value for s in Status])
     list_.add_argument("--presence", action="append", choices=[p.value for p in Presence])
     list_.add_argument("--kind", action="append", metavar="KIND")
+    list_.add_argument("--archived", action="store_true", help="list archived tasks (from .byteplan/archive.json)")
     list_.set_defaults(handler=cmd_list)
+
+    archive_cmd = sub.add_parser(
+        "archive", parents=[common, formatted], help="move long-closed tasks out of the registry into the archive"
+    )
+    archive_cmd.add_argument("--dry-run", action="store_true", help="list what would be archived; write nothing")
+    archive_cmd.add_argument(
+        "--older-than", type=int, metavar="DAYS", help="closed at least DAYS ago (default [tool.byteplan.archive])"
+    )
+    archive_cmd.add_argument(
+        "--reconcile", action="store_true", help="fill the local store from Git history for every archived task"
+    )
+    archive_cmd.add_argument("--restore", metavar="ID", help="put an archived task back into the registry")
+    archive_cmd.set_defaults(handler=cmd_archive)
 
     show = sub.add_parser("show", parents=[common, formatted], help="show one task with its history")
     show.add_argument("id", help="four-hex-digit task ID")
@@ -622,6 +705,16 @@ def build_parser() -> argparse.ArgumentParser:
     merge.add_argument("theirs", help="%%B: their version")
     merge.add_argument("label", nargs="?", help="%%P: the registry's path, for messages")
     merge.set_defaults(handler=cmd_merge_registry)
+
+    merge_archive = sub.add_parser(
+        "merge-archive",
+        help="Git merge driver for .byteplan/archive.json (set up by `byteplan git install-merge-driver`)",
+    )
+    merge_archive.add_argument("base", help="%%O: the common ancestor version")
+    merge_archive.add_argument("ours", help="%%A: our version; the result is written here")
+    merge_archive.add_argument("theirs", help="%%B: their version")
+    merge_archive.add_argument("label", nargs="?", help="%%P: the file's path, for messages")
+    merge_archive.set_defaults(handler=cmd_merge_archive)
 
     verify = sub.add_parser(
         "verify", parents=[common, formatted], help="run linked tests with pytest and record the evidence"

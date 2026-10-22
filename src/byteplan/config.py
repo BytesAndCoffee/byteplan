@@ -93,6 +93,14 @@ class TestsConfig:
 
 
 @dataclass(frozen=True)
+class ArchiveConfig:
+    """``[tool.byteplan.archive]``: moving long-closed tasks out of ``tasks.json``."""
+
+    after_days: int = 7  # closed at least this long ago (and no longer annotated in source)
+    auto: bool = True  # archive after every writing `scan`
+
+
+@dataclass(frozen=True)
 class ReleaseConfig:
     """``[tool.byteplan.release]``: the opt-in ``release --smoke-test``."""
 
@@ -145,6 +153,7 @@ class Config:
     git: GitConfig = field(default_factory=GitConfig)
     tests: TestsConfig = field(default_factory=TestsConfig)
     release: ReleaseConfig = field(default_factory=ReleaseConfig)
+    archive: ArchiveConfig = field(default_factory=ArchiveConfig)
 
     @property
     def registry_path(self) -> Path:
@@ -204,6 +213,7 @@ def parse_config(root: Path, table: Any) -> Config:
     annotations = _parse_section(AnnotationsConfig, table.pop("annotations", {}), "tool.byteplan.annotations")
     git = _parse_section(GitConfig, table.pop("git", {}), "tool.byteplan.git")
     release = _parse_section(ReleaseConfig, table.pop("release", {}), "tool.byteplan.release")
+    archive = _parse_section(ArchiveConfig, table.pop("archive", {}), "tool.byteplan.archive")
     tests_table = table.pop("tests", {})
     if not isinstance(tests_table, dict):
         msg = "[tool.byteplan.tests] must be a table"
@@ -214,7 +224,7 @@ def parse_config(root: Path, table: Any) -> Config:
         **_parse_values(TestsConfig, tests_table, "tool.byteplan.tests", skip=frozenset({"scaffold"})),
         scaffold=scaffold,
     )
-    skip = frozenset({"root", "detect", "check", "annotations", "git", "tests", "release"})
+    skip = frozenset({"root", "detect", "check", "annotations", "git", "tests", "release", "archive"})
     values = _parse_values(Config, table, "tool.byteplan", skip=skip)
     config = Config(
         root=root,
@@ -224,6 +234,7 @@ def parse_config(root: Path, table: Any) -> Config:
         git=git,
         tests=tests,
         release=release,
+        archive=archive,
         **values,
     )
     _validate(config)
@@ -309,6 +320,9 @@ def _validate(config: Config) -> None:
             raise ConfigError(msg)
     if "{module}" not in scaffold.filename or not scaffold.filename.endswith(".py"):
         msg = 'tool.byteplan.tests.scaffold.filename must end in .py and contain "{module}"'
+        raise ConfigError(msg)
+    if config.archive.after_days < 0:
+        msg = "tool.byteplan.archive.after_days must not be negative"
         raise ConfigError(msg)
     if config.tests.timeout <= 0:
         msg = "tool.byteplan.tests.timeout must be a positive number of seconds"

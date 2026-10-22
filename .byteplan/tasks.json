@@ -6,10 +6,12 @@
     "0c28",
     "14ff",
     "15df",
+    "181f",
     "205d",
     "2533",
     "2887",
     "34da",
+    "3d3a",
     "4518",
     "46b6",
     "478d",
@@ -17,8 +19,10 @@
     "4fb5",
     "6639",
     "6b83",
+    "71c4",
     "75b4",
     "82b3",
+    "86e1",
     "8b28",
     "9054",
     "90c6",
@@ -31,17 +35,20 @@
     "a703",
     "aedf",
     "b68c",
+    "b865",
     "baeb",
     "c242",
     "c449",
     "c8db",
     "cc54",
     "de66",
+    "e7d9",
     "ec99",
     "f853",
     "fb23",
     "fb9c",
-    "fd44"
+    "fd44",
+    "ff3a"
   ],
   "schema_version": 1,
   "tasks": {
@@ -176,18 +183,18 @@
         },
         {
           "at": "2026-10-22T22:10:54Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:10:54Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "docs/IMPLEMENTATION_PLAN.md"
           }
+        },
+        {
+          "at": "2026-10-22T22:10:54Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "0413",
@@ -204,7 +211,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1553,
+        "line": 1569,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -264,18 +271,18 @@
         },
         {
           "at": "2026-10-22T22:10:56Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:10:56Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:10:56Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "0591",
@@ -629,7 +636,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1567,
+        "line": 1584,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -637,6 +644,77 @@
       "status": "open",
       "stub": null,
       "title": "Phase 12: assignment model (Addendum D stages D0-D2, D4)",
+      "title_override": null
+    },
+    "181f": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354387047",
+      "first_seen": "2026-10-22T22:58:03Z",
+      "history": [
+        {
+          "at": "2026-10-22T22:58:03Z",
+          "event": "created",
+          "new": {
+            "line": 968,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:58:23Z",
+          "event": "test_linked",
+          "new": "tests/test_archive.py::test_reconcile_follows_merged_branches_full_history",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:58:39Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "reconcile walks git log --full-history; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:58:40Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:58:40Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
+        }
+      ],
+      "id": "181f",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T22:58:03Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 958,
+        "line": 968,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.reconcile_archive"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_archive.py::test_reconcile_follows_merged_branches_full_history"
+        ]
+      },
+      "title": "history simplification skips merged branches' intermediate registry records",
       "title_override": null
     },
     "205d": {
@@ -680,18 +758,18 @@
         },
         {
           "at": "2026-10-22T22:10:58Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:10:58Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/api.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:10:58Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "205d",
@@ -705,11 +783,11 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 1163,
-        "line": 1174,
+        "decl_line": 1257,
+        "line": 1266,
         "path": "src/byteplan/api.py",
         "representation": "comment",
-        "symbol": "Project._strip_for_release"
+        "symbol": "Project.release"
       },
       "status": "resolved",
       "stub": null,
@@ -751,18 +829,18 @@
         },
         {
           "at": "2026-10-22T22:11:02Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:02Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:02Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "2533",
@@ -968,18 +1046,18 @@
         },
         {
           "at": "2026-10-22T22:11:03Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:03Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:03Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "34da",
@@ -1008,6 +1086,77 @@
         ]
       },
       "title": "Respect enclosing scopes before stripping a decorator",
+      "title_override": null
+    },
+    "3d3a": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354459815",
+      "first_seen": "2026-10-22T23:07:46Z",
+      "history": [
+        {
+          "at": "2026-10-22T23:07:46Z",
+          "event": "created",
+          "new": {
+            "line": 841,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:02Z",
+          "event": "test_linked",
+          "new": "tests/test_archive.py::test_snapshot_checks_read_the_committed_index",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:08Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "archive index read from the Git snapshot when one is active; malformed index is a ConfigError; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T23:08:09Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T23:08:09Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
+        }
+      ],
+      "id": "3d3a",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T23:07:46Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "method",
+        "decl_line": 840,
+        "line": 841,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.archive_index"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_archive.py::test_snapshot_checks_read_the_committed_index"
+        ]
+      },
+      "title": "the archive index is read from the working tree even when checking a Git snapshot",
       "title_override": null
     },
     "4518": {
@@ -1039,18 +1188,18 @@
         },
         {
           "at": "2026-10-22T22:11:05Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:05Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:05Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "4518",
@@ -1147,18 +1296,18 @@
         },
         {
           "at": "2026-10-22T22:11:06Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:06Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:06Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "478d",
@@ -1218,18 +1367,18 @@
         },
         {
           "at": "2026-10-22T22:11:07Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:07Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/api.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:07Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "4d48",
@@ -1243,8 +1392,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 1287,
-        "line": 1319,
+        "decl_line": 1376,
+        "line": 1408,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "Project.restore"
@@ -1450,6 +1599,77 @@
       "title": "Keep sync's top-level JSON fields when only cleanup runs",
       "title_override": null
     },
+    "71c4": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354387060",
+      "first_seen": "2026-10-22T22:58:03Z",
+      "history": [
+        {
+          "at": "2026-10-22T22:58:03Z",
+          "event": "created",
+          "new": {
+            "line": 891,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:58:24Z",
+          "event": "test_linked",
+          "new": "tests/test_archive.py::test_restore_brings_back_the_evidence_run",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:58:41Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "run metadata archived with evidence and restored; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:58:42Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:58:42Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
+        }
+      ],
+      "id": "71c4",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T22:58:03Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 860,
+        "line": 890,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.archive"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_archive.py::test_restore_brings_back_the_evidence_run"
+        ]
+      },
+      "title": "the evidence's run metadata isn't archived, so a restore loses it",
+      "title_override": null
+    },
     "75b4": {
       "assignee": null,
       "description": "Includes the `TODO(owner):` syntax, also tracked on its own in comments.py.",
@@ -1501,7 +1721,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1561,
+        "line": 1578,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1629,6 +1849,77 @@
       "title": "Phase 5: runtime and normalization",
       "title_override": null
     },
+    "86e1": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354387052",
+      "first_seen": "2026-10-22T22:58:03Z",
+      "history": [
+        {
+          "at": "2026-10-22T22:58:03Z",
+          "event": "created",
+          "new": {
+            "line": 849,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:58:24Z",
+          "event": "test_linked",
+          "new": "tests/test_archive.py::test_a_stale_local_row_is_reconciled_against_the_index",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:58:40Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "cached rows checked against the index sha256, mismatch reconciles; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:58:41Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:58:41Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
+        }
+      ],
+      "id": "86e1",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T22:58:03Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 844,
+        "line": 850,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.archived_task"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_archive.py::test_a_stale_local_row_is_reconciled_against_the_index"
+        ]
+      },
+      "title": "a cached row isn't checked against the index's sha256, so a stale record is returned",
+      "title_override": null
+    },
     "8b28": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353374785\n`alias = markers; alias.todo` hid a use of a runtime re-export from the index.",
@@ -1658,18 +1949,18 @@
         },
         {
           "at": "2026-10-22T22:11:08Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:08Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:08Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "8b28",
@@ -1751,7 +2042,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1564,
+        "line": 1581,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1790,18 +2081,18 @@
         },
         {
           "at": "2026-10-22T22:11:10Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:10Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/api.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:10Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "90c6",
@@ -1815,8 +2106,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 346,
-        "line": 416,
+        "decl_line": 363,
+        "line": 433,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "Project._scan"
@@ -1943,7 +2234,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1557,
+        "line": 1574,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2253,8 +2544,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 287,
-        "line": 291,
+        "decl_line": 298,
+        "line": 302,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"
@@ -2293,18 +2584,18 @@
         },
         {
           "at": "2026-10-22T22:11:11Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:11Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:11Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "a703",
@@ -2370,18 +2661,18 @@
         },
         {
           "at": "2026-10-22T22:11:12Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:12Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:12Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "aedf",
@@ -2442,18 +2733,18 @@
         },
         {
           "at": "2026-10-22T22:11:13Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:13Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:13Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "b68c",
@@ -2484,6 +2775,77 @@
       "title": "Restore an unanchored import below the current docstring and __future__ imports",
       "title_override": null
     },
+    "b865": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354459832",
+      "first_seen": "2026-10-22T23:07:46Z",
+      "history": [
+        {
+          "at": "2026-10-22T23:07:46Z",
+          "event": "created",
+          "new": {
+            "line": 1021,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:02Z",
+          "event": "test_linked",
+          "new": "tests/test_archive.py::test_show_uses_archived_evidence",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:11Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "readiness of an archived task uses its archived evidence and run; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T23:08:12Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T23:08:12Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
+        }
+      ],
+      "id": "b865",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T23:07:46Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 1031,
+        "line": 1033,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.readiness"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_archive.py::test_show_uses_archived_evidence"
+        ]
+      },
+      "title": "an archived task's readiness ignores the evidence archived with it",
+      "title_override": null
+    },
     "baeb": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108715\n`__all__: list[str] = [...]` and `__all__ += [...]` were ignored, so exported names were stripped.",
@@ -2506,10 +2868,12 @@
         },
         {
           "at": "2026-10-22T22:11:14Z",
-          "event": "resolved",
-          "new": "resolved",
-          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
-          "old": "open"
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
         },
         {
           "at": "2026-10-22T22:11:14Z",
@@ -2519,12 +2883,10 @@
         },
         {
           "at": "2026-10-22T22:11:14Z",
-          "event": "cleaned",
-          "new": null,
-          "note": "annotation removed by byteplan cleanup",
-          "old": {
-            "path": "src/byteplan/release.py"
-          }
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #32, fixed there; regression test fresh-passed",
+          "old": "open"
         }
       ],
       "id": "baeb",
@@ -2596,18 +2958,18 @@
         },
         {
           "at": "2026-10-22T22:11:16Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:16Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:16Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "c242",
@@ -2673,18 +3035,18 @@
         },
         {
           "at": "2026-10-22T22:11:17Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:17Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:17Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "c449",
@@ -2745,18 +3107,18 @@
         },
         {
           "at": "2026-10-22T22:11:21Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:21Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:21Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "c8db",
@@ -2828,18 +3190,18 @@
         },
         {
           "at": "2026-10-22T22:11:22Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:22Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:22Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "cc54",
@@ -2921,7 +3283,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1550,
+        "line": 1567,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2929,6 +3291,43 @@
       "status": "open",
       "stub": null,
       "title": "Phase 6c (optional): acceptance criteria and dependencies",
+      "title_override": null
+    },
+    "e7d9": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354508767\nMerge each entry three-way against base; conflict when both sides change it differently.",
+      "first_seen": "2026-10-22T23:14:45Z",
+      "history": [
+        {
+          "at": "2026-10-22T23:14:45Z",
+          "event": "created",
+          "new": {
+            "line": 166,
+            "path": "src/byteplan/archive.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "e7d9",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T23:14:45Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 169,
+        "line": 166,
+        "path": "src/byteplan/archive.py",
+        "representation": "comment",
+        "symbol": "merge"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side",
       "title_override": null
     },
     "ec99": {
@@ -2982,7 +3381,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1571,
+        "line": 1588,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3033,7 +3432,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1553,
+        "line": 1570,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3072,18 +3471,18 @@
         },
         {
           "at": "2026-10-22T22:11:24Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:24Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:24Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "fb23",
@@ -3143,18 +3542,18 @@
         },
         {
           "at": "2026-10-22T22:11:25Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:25Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:25Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "fb9c",
@@ -3214,18 +3613,18 @@
         },
         {
           "at": "2026-10-22T22:11:26Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-22T22:11:26Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-22T22:11:26Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "fd44",
@@ -3254,6 +3653,77 @@
         ]
       },
       "title": "Keep anchored imports below a __future__ import added since the release",
+      "title_override": null
+    },
+    "ff3a": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354459824",
+      "first_seen": "2026-10-22T23:07:46Z",
+      "history": [
+        {
+          "at": "2026-10-22T23:07:46Z",
+          "event": "created",
+          "new": {
+            "line": 2086,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:02Z",
+          "event": "test_linked",
+          "new": "tests/test_archive.py::test_verifies_links_to_archived_tasks_are_known",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:08:09Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "verifies links to archived IDs are no longer unknown references; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T23:08:10Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T23:08:10Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
+        }
+      ],
+      "id": "ff3a",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T23:07:46Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 2103,
+        "line": 2101,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "_link_diagnostics"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_archive.py::test_verifies_links_to_archived_tasks_are_known"
+        ]
+      },
+      "title": "@verifies links to archived tasks are reported as unknown task references",
       "title_override": null
     }
   }

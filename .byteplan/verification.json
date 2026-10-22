@@ -14,6 +14,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "2b81a3e16b1d": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T22:58:34Z",
+      "dirty": true,
+      "head": "c3f389b6f2025204737c9ead8a58d11447543859",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "64043655efb3": {
       "argv": [
         "hatch",
@@ -39,6 +53,20 @@
       "at": "2026-10-22T22:21:34Z",
       "dirty": true,
       "head": "7a68d14f4c5eac4a36a244aa38dd9e36bf8a564b",
+      "python": "3.11.0",
+      "timed_out": false
+    },
+    "6d222f8f19a2": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T23:08:02Z",
+      "dirty": true,
+      "head": "da84e629bc274a8f5dda272b8754493ed054b1bd",
       "python": "3.11.0",
       "timed_out": false
     },
@@ -257,6 +285,16 @@
         }
       }
     },
+    "181f": {
+      "fingerprint": "e52525214b1f51a8b7308c7777d000343025fede8f204b8a70a57b2a1172c8e2",
+      "run": "2b81a3e16b1d",
+      "tests": {
+        "tests/test_archive.py::test_reconcile_follows_merged_branches_full_history": {
+          "duration_ms": 157,
+          "outcome": "passed"
+        }
+      }
+    },
     "205d": {
       "fingerprint": "512a31da49996f58909edfb33042007d1b0aed7350b7348827f08990c330fd34",
       "run": "7d4f28e5d140",
@@ -337,6 +375,16 @@
         }
       }
     },
+    "3d3a": {
+      "fingerprint": "ce0170cbdfc39df7bedc8c0cd4e926d5e1a11f8472aab0d3d8b017219e00b850",
+      "run": "6d222f8f19a2",
+      "tests": {
+        "tests/test_archive.py::test_snapshot_checks_read_the_committed_index": {
+          "duration_ms": 180,
+          "outcome": "passed"
+        }
+      }
+    },
     "4518": {
       "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
       "run": "7d4f28e5d140",
@@ -387,6 +435,16 @@
         }
       }
     },
+    "71c4": {
+      "fingerprint": "e52525214b1f51a8b7308c7777d000343025fede8f204b8a70a57b2a1172c8e2",
+      "run": "2b81a3e16b1d",
+      "tests": {
+        "tests/test_archive.py::test_restore_brings_back_the_evidence_run": {
+          "duration_ms": 108,
+          "outcome": "passed"
+        }
+      }
+    },
     "82b3": {
       "fingerprint": "207bc550c5d74697432a873a65c849286642cce7c7b6b5fe9e0f76b69ca2f5f0",
       "run": "bac7c95f5a71",
@@ -417,6 +475,16 @@
         },
         "tests/test_normalize.py::test_rewritten_module_behaves_identically": {
           "duration_ms": 15,
+          "outcome": "passed"
+        }
+      }
+    },
+    "86e1": {
+      "fingerprint": "e52525214b1f51a8b7308c7777d000343025fede8f204b8a70a57b2a1172c8e2",
+      "run": "2b81a3e16b1d",
+      "tests": {
+        "tests/test_archive.py::test_a_stale_local_row_is_reconciled_against_the_index": {
+          "duration_ms": 129,
           "outcome": "passed"
         }
       }
@@ -547,6 +615,16 @@
         }
       }
     },
+    "b865": {
+      "fingerprint": "ce0170cbdfc39df7bedc8c0cd4e926d5e1a11f8472aab0d3d8b017219e00b850",
+      "run": "6d222f8f19a2",
+      "tests": {
+        "tests/test_archive.py::test_show_uses_archived_evidence": {
+          "duration_ms": 264,
+          "outcome": "passed"
+        }
+      }
+    },
     "baeb": {
       "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
       "run": "7d4f28e5d140",
@@ -627,6 +705,16 @@
       "tests": {
         "tests/test_release.py::test_anchored_import_goes_below_a_new_future_import": {
           "duration_ms": 173,
+          "outcome": "passed"
+        }
+      }
+    },
+    "ff3a": {
+      "fingerprint": "ce0170cbdfc39df7bedc8c0cd4e926d5e1a11f8472aab0d3d8b017219e00b850",
+      "run": "6d222f8f19a2",
+      "tests": {
+        "tests/test_archive.py::test_verifies_links_to_archived_tasks_are_known": {
+          "duration_ms": 105,
           "outcome": "passed"
         }
       }

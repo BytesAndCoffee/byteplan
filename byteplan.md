@@ -2,20 +2,21 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**9 open** · 33 closed (resolved 33)
+**10 open** · 39 closed (resolved 39)
 
 ## Open
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1550`](docs/IMPLEMENTATION_PLAN.md#L1550) | Phase 6c (optional): acceptance criteria and dependencies |
-| `f853` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1553`](docs/IMPLEMENTATION_PLAN.md#L1553) | Phase 9: MCP server |
-| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1557`](docs/IMPLEMENTATION_PLAN.md#L1557) | Phase 10: integration |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1561`](docs/IMPLEMENTATION_PLAN.md#L1561) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1564`](docs/IMPLEMENTATION_PLAN.md#L1564) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1567`](docs/IMPLEMENTATION_PLAN.md#L1567) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1571`](docs/IMPLEMENTATION_PLAN.md#L1571) | Phase 13 (optional): relay-for-github |
-| `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:291`](src/byteplan/config.py#L291) | Support detect.placeholder_assignments |
+| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1567`](docs/IMPLEMENTATION_PLAN.md#L1567) | Phase 6c (optional): acceptance criteria and dependencies |
+| `f853` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1570`](docs/IMPLEMENTATION_PLAN.md#L1570) | Phase 9: MCP server |
+| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1574`](docs/IMPLEMENTATION_PLAN.md#L1574) | Phase 10: integration |
+| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1578`](docs/IMPLEMENTATION_PLAN.md#L1578) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1581`](docs/IMPLEMENTATION_PLAN.md#L1581) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1584`](docs/IMPLEMENTATION_PLAN.md#L1584) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1588`](docs/IMPLEMENTATION_PLAN.md#L1588) | Phase 13 (optional): relay-for-github |
+| `e7d9` | open | FIXME | normal | - | [`src/byteplan/archive.py:166`](src/byteplan/archive.py#L166) | ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side |
+| `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:302`](src/byteplan/config.py#L302) | Support detect.placeholder_assignments |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
 
 ## Closed
@@ -27,17 +28,21 @@
 | `0b12` | resolved | FIXME | relative find_links paths resolve against the scratch dir, not the project root |
 | `0c28` | resolved | FIXME | Don't count @pytest.mark.byteplan links as decorators that need stripping |
 | `14ff` | resolved | TODO | Phase 7: cleanup |
+| `181f` | resolved | FIXME | history simplification skips merged branches' intermediate registry records |
 | `205d` | resolved | FIXME | Check for a pending journal before the write context recovers it |
 | `2533` | resolved | FIXME | Keep every module an import alias may refer to, across scopes |
 | `2887` | resolved | TODO | Phase 6b: test scaffolding |
 | `34da` | resolved | FIXME | Respect enclosing scopes before stripping a decorator |
+| `3d3a` | resolved | FIXME | the archive index is read from the working tree even when checking a Git snapshot |
 | `4518` | resolved | FIXME | An escaping package exposes every submodule imported under it |
 | `478d` | resolved | FIXME | Resolve relative imports before deciding whether they import the runtime |
 | `4d48` | resolved | FIXME | Keep decorators pending when their runtime import can't be restored |
 | `4fb5` | resolved | TODO | Update the status line for the next release |
 | `6639` | resolved | FIXME | Keep runtime imports that __all__ re-exports |
 | `6b83` | resolved | FIXME | Keep sync's top-level JSON fields when only cleanup runs |
+| `71c4` | resolved | FIXME | the evidence's run metadata isn't archived, so a restore loses it |
 | `82b3` | resolved | TODO | Phase 5: runtime and normalization |
+| `86e1` | resolved | FIXME | a cached row isn't checked against the index's sha256, so a stale record is returned |
 | `8b28` | resolved | FIXME | Treat an imported module that escapes attribute access as consuming all its names |
 | `90c6` | resolved | FIXME | Don't propose stub tasks for declarations whose @todo is stripped for a release |
 | `9185` | resolved | FIXME | Keep the space between words around an inline Markdown comment |
@@ -47,6 +52,7 @@
 | `a703` | resolved | FIXME | Refuse wildcard runtime imports, whose bindings can't be proven unused |
 | `aedf` | resolved | FIXME | Check every runtime import, not just decorator bindings, before skipping a file |
 | `b68c` | resolved | FIXME | Restore an unanchored import below the current docstring and __future__ imports |
+| `b865` | resolved | FIXME | an archived task's readiness ignores the evidence archived with it |
 | `baeb` | resolved | FIXME | Count every __all__ assignment form as an export |
 | `c242` | resolved | FIXME | Check the current binding before restoring a decorator |
 | `c449` | resolved | FIXME | Treat __all__ mutations the export collector can't resolve as exporting everything |
@@ -55,3 +61,4 @@
 | `fb23` | resolved | FIXME | Keep a restored runtime import above every use of its names |
 | `fb9c` | resolved | FIXME | Track escapes of dotted module expressions like `alias = pkg.reexport` |
 | `fd44` | resolved | FIXME | Keep anchored imports below a __future__ import added since the release |
+| `ff3a` | resolved | FIXME | @verifies links to archived tasks are reported as unknown task references |
