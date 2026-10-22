@@ -425,3 +425,27 @@ def test_head_mode_ignores_the_evidence_store(project: ProjectFactory, run_cli: 
     git(root, "add", "-A")
     git(root, "commit", "-qm", "other")
     assert state() == "needs_review"  # and so does committing it
+
+
+def test_missing_annotation_drops_its_old_file_from_freshness(project: ProjectFactory, run_cli: RunCli) -> None:
+    """A finished task whose TODO was removed: edits to the file it used to live in don't
+    make its evidence stale (only its linked tests do)."""
+    project.init()
+    project.write("tests/test_feature.py", "def test_pass():\n    assert True\n")
+    project.write("docs/plan.py", "# TODO: Phase X\n#   deliverables\nx = 1\n")
+    assert run_cli("scan", "--project", project.root).code == EXIT_OK
+    task_id = next(iter(json.loads((project.root / ".byteplan/tasks.json").read_text())["tasks"]))
+    assert run_cli("tests", "add", task_id, f"{F}::test_pass", "--project", project.root).code == EXIT_OK
+    project.write("docs/plan.py", "x = 1\n")  # the phase is done: its TODO is removed
+    assert run_cli("scan", "--project", project.root).code == EXIT_OK
+    assert run_cli("verify", task_id, "--project", project.root).code == EXIT_OK
+
+    def state() -> str:
+        project_obj = Project.open(project.root)
+        return project_obj.readiness(project_obj.get_task(task_id)).state
+
+    assert state() == "ready_for_review"
+    project.write("docs/plan.py", "x = 2\n# unrelated edit\n")
+    assert state() == "ready_for_review"
+    project.write("tests/test_feature.py", "def test_pass():\n    assert 1\n")
+    assert state() == "needs_review"  # the linked test still counts
