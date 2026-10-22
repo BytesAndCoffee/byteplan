@@ -15,6 +15,9 @@ or leave a function unfinished, and BytePlan does the rest:
 It never decides that work is done. If a TODO disappears, its task is marked **missing**, not
 resolved. Only you resolve tasks.
 
+<!-- TODO: The status line below undersells what works. Also mention the Git integration: IDs added
+     at commit time (`scan --staged --apply` / `git install-hooks`), `check --staged` and
+     `check --commit` for pre-commit and CI, and the registry merge driver. Fix before the next release. -->
 > **Status: alpha, in active development.** The CLI, scanner, registry and Hatch hook described
 > here work today. Test linking and verification, test scaffolding, release stripping, and an MCP
 > server are planned; see the [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md) and the
