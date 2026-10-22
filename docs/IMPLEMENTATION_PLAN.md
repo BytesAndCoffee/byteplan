@@ -1016,6 +1016,104 @@ was the earlier design's behaviour.
   write coverage data to the repository's `.coverage`, never into the project under test.
   Without this, `hatch test --cover` failed the Phase 4 build tests.
 
+## Markdown and JSON sources (Phase 4e)
+
+Docs, configuration and data files carry unfinished work too: a README section that needs
+rewriting, a `tsconfig.json` option to tighten later, a fixture with a placeholder. Phase 4e
+lets BytePlan track TODOs in Markdown and JSON files, with the same IDs, registry, lifecycle,
+Git integration and never-auto-resolve rule as Python.
+
+### File types
+
+- **The file type comes from the suffix:**
+  - `.py`: Python
+  - `.md` and `.markdown`: Markdown
+  - `.json` and `.jsonc`: JSON, with comments allowed in both, because `tsconfig.json`,
+    `.vscode/*.json` and `devcontainer.json` are commented `.json` files
+- **Files of any other type are never collected,** even if `include` matches them.
+- **`include` decides which supported files are scanned.** The default stays `["**/*.py"]`, so
+  existing projects see no change. Projects opt in with patterns like `"README.md"`,
+  `"docs/**/*.md"` or `"config/**/*.json"`.
+- **The registry file is never scanned,** even when it sits outside `.byteplan/` and an `include`
+  pattern matches it.
+- **Python-only features don't apply to Markdown and JSON:** stub detection, `@todo` decorators,
+  declaration attachment and the class index. Tags attach as `module`, or as `statement` for
+  trailing ones.
+- **No schema change:** `representation` and `origin` stay `comment`.
+
+### Markdown
+
+- **What counts:** a tag inside an HTML comment, `<!-- TODO: title -->`, under the same tag
+  rules as Python. The tag must open the comment, `[id]` is optional, and tags match
+  case-insensitively.
+  - Prose `TODO`s are not tracked; "TODO list" in a sentence is not a task.
+- **Title and description:** the comment's first line is the title. The rest of a multi-line
+  comment, up to `-->`, is the description, dedented.
+- **Code is skipped:** comments inside fenced code blocks (` ``` ` / `~~~`, including in lists and
+  block quotes) and inline code spans are not comments.
+  - Known gap: indented (four-space) code blocks are not recognized.
+- **Symbol:** the nearest preceding heading (ATX `##` or setext), so moving a TODO to another
+  section records a `moved` event. YAML front matter is skipped.
+- **Ignoring:** `byteplan: ignore` inside a tag comment ignores that tag.
+  `<!-- byteplan: ignore-file -->` within the first five lines ignores the file.
+- **Edit guard:** with every HTML comment removed, the edited text must equal the original.
+
+### JSON
+
+- **Comments:** `// TODO: title` and `/* TODO: title */`.
+  - Line comments take continuation lines exactly as Python does: the next line, the same column,
+    two spaces after `//`.
+  - A block comment's later lines are its description. A leading `*` on each line, Javadoc
+    style, is removed.
+  - `// byteplan: ignore-file` within the first five lines ignores the file.
+- **String values,** for strict JSON that can't hold comments (`package.json`, fixtures, a JSON
+  Schema `$comment`):
+  - A value string tracks a task when it begins with a tag, an optional `[id]` and a colon:
+    `"todo": "TODO: pin the version"`.
+  - Matching is case-sensitive and the colon is required, so data like `"Todo: buy milk"` is
+    left alone. Keys never match.
+  - An ID is written inside the string (`"TODO[7fa2]: pin the version"`), which stays valid JSON.
+  - A `\n` in the value separates the title from the description.
+  - Turned off with `[tool.byteplan.detect] json_string_values = false`.
+- **Symbol:** a JSON Pointer.
+  - String value: the value's own pointer (`/scripts/todo`).
+  - Comment above a member: that member's pointer.
+  - Trailing comment: the member it follows.
+  - Otherwise the enclosing container's pointer, or none at the top level.
+- **Parsing:** a small tolerant lexer accepts comments and trailing commas. Unterminated strings
+  or comments and mismatched brackets are scan failures, like a Python syntax error.
+- **Edit guard:** the token stream without comments must be unchanged, except that a tagged
+  string may gain an `[id]` right after its tag.
+
+### Encoding
+
+Markdown and JSON are read as UTF-8, keeping a BOM if there is one. Python coding cookies apply
+only to `.py` files. Newline style, BOM and a missing final newline round-trip byte for byte, as
+they do for Python.
+
+### Phase 4e tests
+
+- **Markdown:**
+  - Single-line and multi-line comments, with titles, descriptions and ID slots.
+  - Several comments on one line, and trailing comments.
+  - Comments skipped in fences (backtick, tilde, longer closers, in lists and block quotes) and in
+    inline code.
+  - ATX, setext and front-matter handling for symbols.
+  - Ignore markers and malformed IDs.
+- **JSON:**
+  - Line and block comments, with continuations and Javadoc stripping.
+  - String values in objects and arrays, with escaped content and pointers containing `~` and
+    `/`.
+  - Keys never match, case-sensitivity, the opt-out, and trailing commas.
+  - Lexer errors.
+- **End to end:**
+  - `scan` writes IDs into `.md`, `.json` and `.jsonc` files byte-for-byte safely (CRLF, BOM,
+    no final newline), and a second scan is a no-op.
+  - Unsupported suffixes and the registry are never collected.
+  - `check --staged` and `scan --staged --apply` work on Markdown and JSON.
+  - `repair --reassign` works in both formats.
+  - The edit guard refuses changes outside comments and tag strings.
+
 ## Registry format and merging
 
 **JSON stays the canonical registry, and SQLite is not used for it.** This was decided on
@@ -1346,7 +1444,8 @@ D builds on nearly everything before it (verification, scaffolding, release, MCP
 earlier depends on it.
 
 Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4c (IDs at
-commit time) is done. **Phase 4d comes next.** Addendum A's step 2 (choosing the runtime design) is already done, and the
+commit time) is done. Phase 4e (Markdown and JSON) was brought forward and is being built
+ahead of 4d. **Phase 4d comes next.** Addendum A's step 2 (choosing the runtime design) is already done, and the
 runtime package has shipped.
 
 | Phase | Deliverables | Spec §12 tests | Addendum §9 tests |
@@ -1359,6 +1458,7 @@ runtime package has shipped.
 | 4b. Git lifecycle (read-only) ✅ | `snapshot.py` + `gitio.py` (index/commit snapshots via NUL-safe plumbing, no-optional-locks), `check --staged`, `scan --staged --dry-run`, staged diagnostics and policy keys, `.pre-commit-hooks.yaml`, `git install-hooks` / `git hooks-status`, `docs/ci.md` GitHub Actions recipe | – | C: 1–6, 8–14, 17–21 (C: 7, 22 with Phase 8) |
 | 4c. Git staged reconciliation ✅ | `scan --staged --apply`; fully-staged / partial-stage classification against HEAD, index and working tree (`partial_stage_conflict`, `registry_partial_stage_conflict`); blobs → journal → index swap under the index lock (`$GIT_INDEX_FILE`-aware inside `git commit`) → hash-guarded working-tree writes, with index rollback on conflict → revalidation; crash recovery and idempotent retries; `install-hooks --mode reconcile` (new default) and a `byteplan-reconcile` framework hook (fixer behaviour); `[tool.byteplan.git] on_reconcile`; `unsupported_index_format` | – | C: 15, 16 + 4c tests below |
 | 4d. Registry forward compatibility | unknown **top-level** registry keys round-trip (today they're dropped on save; task-level ones already survive), and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
+| 4e. Markdown and JSON sources | suffix-based file types (`.md`/`.markdown`, `.json`/`.jsonc`); Markdown HTML-comment tags with heading symbols, skipping code; JSON comment tags and tagged string values with JSON Pointer symbols; per-format edit guards; `detect.json_string_values`; registry never scanned. See [Markdown and JSON sources](#markdown-and-json-sources-phase-4e) | – | Phase 4e tests |
 | 5. Runtime + normalization | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
 | 6a. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |
 | 6b. Test scaffolding | `scaffold.py` planner, `byteplan tests scaffold ID [--path] [--name] [--policy] [--force-new] [--dry-run]`, placeholder detection, `[tool.byteplan.tests.scaffold]` | – | B: 1–9, 11 (CLI), 12 |
