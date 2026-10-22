@@ -154,6 +154,8 @@ metadata, so moving or renaming code keeps the same task.
 | `byteplan report [--format text\|json\|markdown]` | summary by status, presence, kind and priority, plus findings |
 | `byteplan repair --import ID` | register an ID found in source but not in the registry |
 | `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID |
+| `byteplan git install-merge-driver` | merge the registry by task ID in Git merges (per clone) |
+| `byteplan merge-registry BASE OURS THEIRS [PATH]` | the merge driver itself; Git runs it, you don't |
 
 - **Common options:** `--project PATH` and `--format json` go after the command.
 - **Output streams:** stdout carries only the result (pure JSON with `--format json`); diagnostics
@@ -225,6 +227,41 @@ allow_in_ci = false    # write_source still won't write when $CI is set, unless 
   hook (`[tool.hatch.build.hooks.custom]`) that does the read-only check.
 - **Without Hatch:** `byteplan scan` and `byteplan check` work in CI, pre-commit hooks and editor
   tasks.
+
+## Merging the registry in Git
+
+`.byteplan/tasks.json` is plain, deterministic JSON, so it diffs and reviews like code. Two
+branches that each add tasks would still conflict on the shared `reserved_ids` list under Git's
+text merge, so BytePlan ships a merge driver that merges **by task ID**:
+
+```console
+$ byteplan git install-merge-driver
+byteplan: added `tasks.json merge=byteplan` to .byteplan/.gitattributes (commit this file)
+byteplan: set git config merge.byteplan.name (local to this clone)
+byteplan: set git config merge.byteplan.driver (local to this clone)
+```
+
+**What merges automatically:**
+- Reserved IDs and tasks combine (IDs are never reused).
+- Both sides' history events are kept, in order.
+- Labels merge as a set.
+- Fields changed on only one side, such as status on one branch and priority on the other, take
+  that side's value.
+
+**What it leaves to you.** These fall back to Git's normal text merge with conflict markers,
+plus an explanation:
+- the same field changed differently on both sides
+- the same ID created on both branches for different work
+- a task removed on one side and changed on the other
+
+If both branches moved the same annotation, the merged registry keeps our location and asks you
+to run `byteplan scan`, which refreshes it from the merged code.
+
+**Per clone, and safe to skip.** Commit `.byteplan/.gitattributes`. Each clone runs
+`byteplan git install-merge-driver` once, because Git doesn't version merge-driver configuration.
+A clone that hasn't installed the driver just gets Git's ordinary text merge. The driver is
+recorded as `<this Python> -m byteplan`, so it works even when Git runs outside your virtualenv;
+re-run the installer if you recreate that environment.
 
 ## Safety guarantees and tradeoffs
 

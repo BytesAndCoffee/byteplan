@@ -48,7 +48,9 @@ if TYPE_CHECKING:
 
 PLUGIN_NAME = "byteplan"
 # Keys Hatchling itself interprets for every build hook.
-_HATCH_KEYS = frozenset({"dependencies", "enable-by-default", "require-runtime-dependencies", "require-runtime-features"})
+_HATCH_KEYS = frozenset(
+    {"dependencies", "enable-by-default", "require-runtime-dependencies", "require-runtime-features"}
+)
 _KEYS = frozenset({"scan", "write_source", "fail_build", "allow_in_ci"})
 
 
