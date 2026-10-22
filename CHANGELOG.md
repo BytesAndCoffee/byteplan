@@ -13,6 +13,18 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
   New `[tool.byteplan.detect] json_string_values` option.
 - The registry file is never scanned, even when `include` matches it.
 
+### Decorators
+- **`byteplan sync`** (Phase 5): with `[tool.byteplan.annotations] mode = "decorator"`, rewrite
+  tagged comments directly above a `def`/`class` (`convert_attached_comments`) and unowned
+  stubs (`auto_decorate_stubs`) to `@todo(...)`. It previews by default, `--apply` writes
+  through the journal, and `--only ID` limits it. Unsafe cases are reported as
+  `conversion_needs_review`. Every rewrite must keep the AST identical apart from BytePlan's
+  own decorators and imports, and must round-trip through the scanner.
+- **Annotation modes:** `comment` (default, unchanged), `preserve` and `decorator`. In the last
+  two, `scan` reports unowned stubs instead of adding `# TODO` lines.
+- **`byteplan init --runtime-shim PATH`** writes an inert `todo`/`verifies` module for projects
+  that won't depend on `byteplan-runtime`, and registers it in `runtime_modules`.
+
 ### Registry
 - **Forward compatibility:** unknown top-level registry keys, from a newer BytePlan, are kept on
   save instead of dropped, as unknown task fields already were. The merge driver merges them

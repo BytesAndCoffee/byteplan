@@ -17,7 +17,7 @@ from byteplan.registry import task_to_dict
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from byteplan.api import ScanReport
+    from byteplan.api import ScanReport, SyncReport
     from byteplan.models import Annotation, Task
     from byteplan.registry import Registry
 
@@ -268,3 +268,48 @@ def plan_markdown(registry: Registry, *, registry_rel: str, report_rel: str) -> 
     else:
         lines.append("Nothing closed yet.")
     return "\n".join(lines) + "\n"
+
+
+# byteplan sync -------------------------------------------------------------------------------------
+
+
+def sync_json(report: SyncReport) -> dict[str, Any]:
+    return {
+        "dry_run": report.dry_run,
+        "blocked": report.blocked,
+        "rewrites": [
+            {
+                "action": r.action,
+                "id": r.task_id,
+                "path": r.path,
+                "line": r.line,
+                "kind": r.kind,
+                "title": r.title,
+                "symbol": r.symbol,
+            }
+            for r in report.rewrites
+        ],
+        "imports_added": list(report.imports_added),
+        "written": list(report.written),
+        "diagnostics": [d.to_dict() for d in report.diagnostics],
+    }
+
+
+def sync_text(report: SyncReport) -> str:
+    if report.blocked:
+        return f"byteplan sync: {report.blocked}"
+    converted = sum(r.action == "convert" for r in report.rewrites)
+    decorated = len(report.rewrites) - converted
+    review = len(report.diagnostics)
+    lines = [f"BytePlan sync: {converted} comment(s) converted · {decorated} stub(s) decorated · {review} need review"]
+    for r in report.rewrites:
+        what = "comment -> @todo" if r.action == "convert" else f"@todo on stub {r.symbol}"
+        lines.append(
+            f"  {'~' if r.action == 'convert' else '+'} [{r.task_id}] {r.kind:<5} {r.path}:{r.line}  {what}: {r.title}"
+        )
+    lines.extend(f"  + import todo in {path}" for path in report.imports_added)
+    if report.dry_run and report.rewrites:
+        lines += ["", "Dry run: nothing was written. `byteplan sync --apply` writes these."]
+    elif report.written:
+        lines += ["", f"Wrote {len(report.written)} file(s)."]
+    return "\n".join(lines)
