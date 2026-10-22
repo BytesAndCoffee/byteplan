@@ -1191,9 +1191,11 @@ local SQLite use foreseen above, and the registry stays authoritative for every 
 - **Store:** `.byteplan/archive.sqlite`, gitignored, one row per task: id, record sha256,
   archived_at, zlib(canonical JSON `{task, evidence}`). Written before the journaled JSON writes,
   so an interruption only leaves extra rows.
-- **Index:** `.byteplan/archive.json`, committed, deterministic, sorted. Entries never change once
-  written, so its merge driver is a union by ID. An entry for a registered task (a restore that a
-  merge brought back) is ignored.
+- **Index:** `.byteplan/archive.json`, committed, deterministic, sorted. Its merge driver is
+  three-way per task ID against base, comparing record hashes, so a one-sided re-archive or
+  restore survives and two independent archives of the same record agree. Both sides changing an
+  entry differently falls back to `git merge-file` markers. An entry for a registered task is
+  ignored.
 - **Reconcile:** walk `git log -- tasks.json` newest first, hash each version's records, and stop
   once every wanted hash is found. Evidence isn't in history and isn't recovered.
 - **Automatic:** after every writing, unblocked, non-snapshot scan (`auto = true`).

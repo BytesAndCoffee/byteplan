@@ -318,7 +318,7 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 | `byteplan git install-hooks [--mode reconcile\|check\|scan]` | direct pre-commit hook (default `reconcile`: IDs at commit time); never replaces a hook it didn't write |
 | `byteplan git hooks-status` | show the pre-commit framework hook, direct hook and merge driver |
 | `byteplan merge-registry BASE OURS THEIRS [PATH]` | the merge driver itself; Git runs it, you don't |
-| `byteplan merge-archive BASE OURS THEIRS [PATH]` | the archive index's merge driver (union by task ID); Git runs it |
+| `byteplan merge-archive BASE OURS THEIRS [PATH]` | the archive index's merge driver (three-way per task ID); Git runs it |
 
 - **Common options:** `--project PATH` and `--format json` go after the command.
 - **Output streams:** stdout carries only the result (pure JSON with `--format json`); diagnostics
@@ -570,8 +570,10 @@ plus an explanation:
 If both branches moved the same annotation, the merged registry keeps our location and asks you
 to run `byteplan scan`, which refreshes it from the merged code.
 
-The installer also sets up `byteplan-archive` for `.byteplan/archive.json`: its entries never
-change once written, so it merges as a union by task ID.
+The installer also sets up `byteplan-archive` for `.byteplan/archive.json`. It merges each task's
+entry three-way against the common ancestor, by record hash: entries added, changed (a task
+restored and archived again) or removed on one side carry over. If both sides changed the same
+entry differently, you get Git's conflict markers and an explanation.
 
 **Per clone, and safe to skip.** Commit `.byteplan/.gitattributes` (and, with a `report_file`, the
 `.gitattributes` next to it). Each clone runs

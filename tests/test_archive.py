@@ -194,7 +194,7 @@ def test_index_merge_is_a_union_by_id(tmp_path: Path) -> None:
     theirs.write_text(index(aaaa="1", cccc="3"))
     assert archive_driver_main(str(base), str(ours), str(theirs), None) == 0
     assert sorted(archive.Index.loads(ours.read_text()).tasks) == ["aaaa", "bbbb", "cccc"]
-    assert archive.merge("", "", "") == archive.Index().dumps()
+    assert archive.merge("", "", "") == (archive.Index().dumps(), [])
 
 
 def test_install_merge_driver_covers_the_index(repo: ProjectFactory, run_cli: RunCli) -> None:
@@ -325,3 +325,29 @@ def test_show_uses_archived_evidence(repo: ProjectFactory, run_cli: RunCli) -> N
     assert run_cli("archive", "--older-than", "0", "--project", repo.root).code == EXIT_OK
     after = json.loads(run_cli("show", task_id, "--format", "json", "--project", repo.root).out)
     assert (after["readiness"], after["readiness_reasons"]) == (before["readiness"], before["readiness_reasons"])
+
+
+def test_index_merge_is_three_way_per_entry(tmp_path: Path) -> None:
+    def index(**tasks: str) -> str:
+        return archive.Index({t: {"sha256": sha, "archived_at": f"at-{sha}"} for t, sha in tasks.items()}).dumps()
+
+    def run(base: str, ours: str, theirs: str) -> tuple[int, dict[str, str]]:
+        paths = [tmp_path / name for name in ("base", "ours", "theirs")]
+        for path, text in zip(paths, (base, ours, theirs), strict=True):
+            path.write_text(text)
+        code = archive_driver_main(str(paths[0]), str(paths[1]), str(paths[2]), None)
+        if code:
+            return code, {}
+        return code, {t: e["sha256"] for t, e in archive.Index.loads(paths[1].read_text()).tasks.items()}
+
+    # Theirs re-archived aaaa (new hash); ours archived bbbb: both survive.
+    assert run(index(aaaa="1"), index(aaaa="1", bbbb="2"), index(aaaa="9")) == (0, {"aaaa": "9", "bbbb": "2"})
+    assert run(index(aaaa="1"), index(aaaa="9"), index(aaaa="1", bbbb="2")) == (0, {"aaaa": "9", "bbbb": "2"})
+    # Restored (entry removed) on one side, untouched on the other: stays removed.
+    assert run(index(aaaa="1"), index(), index(aaaa="1")) == (0, {})
+    # Both sides archived the same record independently (different archived_at is fine).
+    same = archive.Index({"aaaa": {"sha256": "1", "archived_at": "later"}}).dumps()
+    assert run(index(), index(aaaa="1"), same) == (0, {"aaaa": "1"})
+    # Both changed the same entry differently: a conflict, left to the user.
+    assert run(index(aaaa="1"), index(aaaa="8"), index(aaaa="9"))[0] == 1
+    assert run(index(aaaa="1"), index(), index(aaaa="9"))[0] == 1

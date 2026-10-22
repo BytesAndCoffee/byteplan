@@ -28,6 +28,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "31b3280441ca": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T23:42:26Z",
+      "dirty": true,
+      "head": "8c1abb3046b0d79b4bff13071a8d9797df8ba164",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "64043655efb3": {
       "argv": [
         "hatch",
@@ -675,6 +689,16 @@
       "tests": {
         "tests/test_release.py::test_runtime_module_imported_through_its_parent_refuses_the_release": {
           "duration_ms": 631,
+          "outcome": "passed"
+        }
+      }
+    },
+    "e7d9": {
+      "fingerprint": "8cf338546d8194556a5e4c5eeb12638f997da27cf19cefb699453578d1f035a2",
+      "run": "31b3280441ca",
+      "tests": {
+        "tests/test_archive.py::test_index_merge_is_three_way_per_entry": {
+          "duration_ms": 17,
           "outcome": "passed"
         }
       }

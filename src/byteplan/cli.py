@@ -141,7 +141,7 @@ def cmd_list(args: argparse.Namespace) -> int:
         project = _project(args)
         registered = project.load_registry().tasks
         entries = project.archive_index().tasks
-        # An index entry for a registered task is a restore that a union merge brought back.
+        # An index entry for a registered task is a restore that a merge brought back.
         rows = {
             t: e for t, e in entries.items() if t not in registered and (not args.kind or e.get("kind") in args.kind)
         }

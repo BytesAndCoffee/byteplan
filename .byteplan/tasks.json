@@ -636,7 +636,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1584,
+        "line": 1586,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1721,7 +1721,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1578,
+        "line": 1580,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2042,7 +2042,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1581,
+        "line": 1583,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2234,7 +2234,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1574,
+        "line": 1576,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3283,7 +3283,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1567,
+        "line": 1569,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3306,6 +3306,34 @@
             "path": "src/byteplan/archive.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-22T23:42:26Z",
+          "event": "test_linked",
+          "new": "tests/test_archive.py::test_index_merge_is_three_way_per_entry",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T23:42:43Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "archive index merges three-way per entry by record hash, conflicting changes fall back to merge markers; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T23:42:44Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T23:42:44Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/archive.py"
+          }
         }
       ],
       "id": "e7d9",
@@ -3314,7 +3342,7 @@
       "last_seen": "2026-10-22T23:14:45Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -3325,8 +3353,14 @@
         "representation": "comment",
         "symbol": "merge"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_archive.py::test_index_merge_is_three_way_per_entry"
+        ]
+      },
       "title": "ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side",
       "title_override": null
     },
@@ -3381,7 +3415,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1588,
+        "line": 1590,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3432,7 +3466,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1570,
+        "line": 1572,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"

@@ -163,15 +163,31 @@ def entry(task: Task, record: dict[str, Any], archived_at: str) -> dict[str, Any
     }
 
 
-# FIXME[e7d9]: ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side
-#   https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354508767
-#   Merge each entry three-way against base; conflict when both sides change it differently.
-def merge(base: str | None, ours: str | None, theirs: str | None) -> str:
-    """Union of two indexes by task ID (entries never change once written; on a clash, ours)."""
-    merged = Index.loads(base)
-    for side in (theirs, ours):
-        merged.tasks.update(Index.loads(side).tasks)
-    return merged.dumps()
+def merge(base: str | None, ours: str | None, theirs: str | None) -> tuple[str | None, list[str]]:
+    """Three-way merge of two indexes, entry by entry against ``base``: the merged text, or
+    None and the conflicting task IDs. Entries are compared by record hash, so two branches
+    archiving the same record independently agree."""
+    b, o, t = (Index.loads(text).tasks for text in (base, ours, theirs))
+    merged: dict[str, dict[str, Any]] = {}
+    conflicts: list[str] = []
+    for task_id in sorted(set(b) | set(o) | set(t)):
+        old, mine, theirs_ = (_sha(side.get(task_id)) for side in (b, o, t))
+        if theirs_ in {mine, old}:
+            chosen = o.get(task_id)
+        elif mine == old:
+            chosen = t.get(task_id)
+        else:
+            conflicts.append(task_id)
+            continue
+        if chosen is not None:
+            merged[task_id] = chosen
+    if conflicts:
+        return None, conflicts
+    return Index(merged).dumps(), []
+
+
+def _sha(entry: dict[str, Any] | None) -> str | None:
+    return None if entry is None else str(entry.get("sha256"))
 
 
 # Reconciling from Git history ------------------------------------------------------------------
