@@ -830,6 +830,41 @@ so it isn't improvised later.
 
 Phase 11b tests are Addendum C §C9 items 15 and 16.
 
+## Registry format and merging
+
+**JSON stays the canonical registry, and SQLite is not used for it.** This was decided on
+2026-10-22.
+- **The registry is committed and travels with the code.** That needs readable diffs and PR
+  review, text merges, and byte-identical rewrites for idempotence. Git-snapshot checks also read
+  it straight from blobs. JSON does all of these; a SQLite file does none of them, since its layout
+  changes with page allocation and vacuuming.
+- **Locking is already covered.** On one machine, the project lock plus the journal handle it.
+  Across branches, the concurrency is resolved by Git merges, where SQLite's locking can't help.
+- **SQLite remains a candidate for a local, gitignored, rebuildable cache.** That could serve fast
+  queries on very large projects, the MCP server, or verification evidence (Phase 6). It would
+  never be authoritative.
+
+**Registry merge driver ✅** (`merge.py`, `gitio.py`; `byteplan git install-merge-driver`,
+`byteplan merge-registry`). It's a three-way merge by task ID:
+- unions reserved IDs and tasks
+- append-only history, ordered by `(at, event)`
+- set-merge for labels
+- per-field three-way merge for managed fields
+- `first_seen` takes the earlier value, `last_seen` the later
+
+**Conflicts fall back to `git merge-file` markers, with an explanation.** These include the same
+field changed differently on both sides, an ID allocated on both branches for different work
+(follow up with `repair --reassign`), removed versus changed, and a schema mismatch. Nothing is
+chosen silently.
+
+**Discovered fields** changed on both sides keep ours and ask for a `scan`, which recomputes them
+from the merged source.
+
+**Installation.** `.byteplan/.gitattributes` is committed. The driver command is local
+`git config`, recorded with the absolute interpreter path (`python -m byteplan`) so it works
+outside the virtualenv. A clone without the driver falls back to Git's text merge; I checked on
+git 2.51 that an undefined driver name is harmless.
+
 ## Hatch build hook
 
 ```toml

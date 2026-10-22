@@ -21,6 +21,7 @@ from byteplan.api import Project, init_project
 from byteplan.diagnostics import EXIT_ERROR, EXIT_FINDINGS, EXIT_OK, Code
 from byteplan.errors import ByteplanError, ConfigError
 from byteplan.files import resolve_targets
+from byteplan.gitio import install_merge_driver, merge_driver_main
 from byteplan.models import Presence, Status
 
 if TYPE_CHECKING:
@@ -196,6 +197,17 @@ def cmd_repair(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def cmd_merge_registry(args: argparse.Namespace) -> int:
+    return merge_driver_main(args.base, args.ours, args.theirs, args.label)
+
+
+def cmd_git_install_merge_driver(args: argparse.Namespace) -> int:
+    actions = install_merge_driver(_project(args))
+    for action in actions or ["merge driver already installed"]:
+        _out(f"byteplan: {action}")
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument(
@@ -275,6 +287,25 @@ def build_parser() -> argparse.ArgumentParser:
     action.add_argument("--import", dest="import_id", metavar="ID", help="register an ID found in source")
     action.add_argument("--reassign", metavar="PATH:LINE", help="give a duplicate ID copy a fresh ID")
     repair.set_defaults(handler=cmd_repair)
+
+    merge = sub.add_parser(
+        "merge-registry",
+        help="Git merge driver for the registry (set up by `byteplan git install-merge-driver`)",
+    )
+    merge.add_argument("base", help="%%O: the common ancestor version")
+    merge.add_argument("ours", help="%%A: our version; the result is written here")
+    merge.add_argument("theirs", help="%%B: their version")
+    merge.add_argument("label", nargs="?", help="%%P: the registry's path, for messages")
+    merge.set_defaults(handler=cmd_merge_registry)
+
+    git_cmd = sub.add_parser("git", help="Git integration")
+    git_sub = git_cmd.add_subparsers(dest="git_command", metavar="COMMAND", required=True)
+    install = git_sub.add_parser(
+        "install-merge-driver",
+        parents=[common],
+        help="merge the registry by task ID instead of as text (per clone; commits a .gitattributes line)",
+    )
+    install.set_defaults(handler=cmd_git_install_merge_driver)
     return parser
 
 
