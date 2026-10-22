@@ -154,9 +154,6 @@ def _span(
         if comment.standalone and not rest.strip():
             start, end = _whole_lines(offsets, text, comment.line, comment.end_line)
             return start, end, ""
-        # FIXME[9185]: Keep the space between words around an inline Markdown comment
-        #   Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185458
-        #   `Hello <!-- TODO -->world.` must not become `Helloworld.`.
         start = comment.start
         line_end = offsets[comment.end_line] if comment.end_line < len(offsets) else len(text)
         following = text[comment.end : line_end]
@@ -234,9 +231,6 @@ def _drop_unused_runtime_imports(path: str, text: str, runtime_modules: Sequence
         return text, []  # the caller's validation reports it
     names = resolve_runtime_names(tree, runtime_modules)
     runtime = set(runtime_modules)
-    # FIXME[6639]: Keep runtime imports that __all__ re-exports
-    #   Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185449
-    #   A name listed in __all__ is used by importers even with no local reference.
     used = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
     used |= {_root(node) for node in ast.walk(tree) if isinstance(node, ast.Attribute)}
     used |= _exported(tree)

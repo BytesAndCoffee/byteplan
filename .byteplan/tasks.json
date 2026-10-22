@@ -62,7 +62,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1532,
+        "line": 1529,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -151,6 +151,27 @@
           "event": "test_linked",
           "new": "tests/test_cleanup.py::test_crash_recovers_through_the_journal",
           "old": null
+        },
+        {
+          "at": "2026-10-22T19:17:17Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T19:17:17Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T19:17:17Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          }
         }
       ],
       "id": "14ff",
@@ -161,7 +182,7 @@
       "last_seen": "2026-10-22T03:53:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -172,7 +193,7 @@
         "representation": "comment",
         "symbol": "Phases"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -232,7 +253,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1550,
+        "line": 1547,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -494,6 +515,27 @@
           "event": "test_linked",
           "new": "tests/test_cleanup.py::test_runtime_import_reexported_through_all_stays",
           "old": null
+        },
+        {
+          "at": "2026-10-22T19:17:25Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T19:17:26Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T19:17:26Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/cleanup.py"
+          }
         }
       ],
       "id": "6639",
@@ -502,7 +544,7 @@
       "last_seen": "2026-10-22T18:48:22Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -513,7 +555,7 @@
         "representation": "comment",
         "symbol": "_drop_unused_runtime_imports"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -543,6 +585,27 @@
           "event": "test_linked",
           "new": "tests/test_cleanup.py::test_sync_json_keeps_its_shape_when_only_cleanup_runs",
           "old": null
+        },
+        {
+          "at": "2026-10-22T19:17:36Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T19:17:37Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T19:17:37Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/cli.py"
+          }
         }
       ],
       "id": "6b83",
@@ -551,7 +614,7 @@
       "last_seen": "2026-10-22T18:48:22Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -562,7 +625,7 @@
         "representation": "comment",
         "symbol": "cmd_sync"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -624,7 +687,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1544,
+        "line": 1541,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -803,7 +866,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1547,
+        "line": 1544,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -832,6 +895,27 @@
           "event": "test_linked",
           "new": "tests/test_cleanup.py::test_inline_markdown_comment_keeps_word_spacing",
           "old": null
+        },
+        {
+          "at": "2026-10-22T19:17:43Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T19:17:44Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T19:17:44Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/cleanup.py"
+          }
         }
       ],
       "id": "9185",
@@ -840,7 +924,7 @@
       "last_seen": "2026-10-22T18:48:22Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -851,7 +935,7 @@
         "representation": "comment",
         "symbol": "_span"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -903,7 +987,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1540,
+        "line": 1537,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1194,7 +1278,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1554,
+        "line": 1551,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1245,7 +1329,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1536,
+        "line": 1533,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"

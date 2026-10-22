@@ -1525,9 +1525,6 @@ runtime package has shipped.
 <!-- TODO[de66]: Phase 6c (optional): acceptance criteria and dependencies
      `acceptance_criteria`, `byteplan criteria ...`, `depends_on`, lifecycle facts in reports. -->
 
-<!-- TODO[14ff]: Phase 7: cleanup
-     `cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`,
-     `--suppress-stubs`. -->
 
 <!-- TODO[0413]: Phase 8: release stripping
      `byteplan release` / `byteplan restore`, presence `stripped`, registry `release`/`releases`
