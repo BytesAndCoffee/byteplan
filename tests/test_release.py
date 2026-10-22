@@ -624,3 +624,58 @@ def test_alias_reused_in_another_scope_still_counts_as_a_consumer(
     assert result.code == EXIT_ERROR
     assert "imported from this module by src/pkg/consumer.py" in result.err
     assert released_repo.snapshot() == before
+
+
+# Codex review of #32, round 7 ----------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "decorator",
+    [
+        '@todo("x", id="a123", tests=EVENTS.append("registered"))',
+        '@todo(make_title(), id="a123")',
+        '@todo("x", id="a123", description=DESC)',
+    ],
+)
+def test_dynamic_decorator_arguments_refuse_the_release(
+    released_repo: ProjectFactory, run_cli: RunCli, decorator: str
+) -> None:
+    """Stripping would skip evaluating the argument; only literals are safe to drop."""
+    module = (
+        "from byteplan_runtime import todo\n\nEVENTS = []\nDESC = 'd'\n\n\ndef make_title():\n    return 't'\n\n\n"
+        f"{decorator}\ndef f():\n    return 1\n"
+    )
+    released_repo.write("src/pkg/dynamic.py", module, dedent=False)
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "dynamic")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert "src/pkg/dynamic.py" in result.err
+    assert "isn't a literal" in result.err
+    assert released_repo.snapshot() == before
+
+
+def test_runtime_module_imported_through_its_parent_refuses_the_release(
+    released_repo: ProjectFactory, run_cli: RunCli
+) -> None:
+    """`from pkg import _bp` imports runtime module pkg._bp; it must not survive a release."""
+    pyproject = released_repo.root / "pyproject.toml"
+    pyproject.write_text(
+        pyproject.read_text() + '\n[tool.byteplan.annotations]\nruntime_modules = ["byteplan_runtime", "pkg._bp"]\n'
+    )
+    released_repo.write("src/pkg/__init__.py", "", dedent=False)
+    released_repo.write("src/pkg/_bp.py", "def todo(*a, **k):\n    return lambda f: f\n", dedent=False)
+    released_repo.write(
+        "src/pkg/parent.py",
+        'from pkg import _bp as markers\n\n\n@markers.todo("p", id="e456")\ndef f():\n    return 1\n',
+        dedent=False,
+    )
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "parent import")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR  # `@markers.todo` isn't a form BytePlan recognizes, so it can't be stripped
+    assert "src/pkg/parent.py" in result.err
+    assert "still used outside decorators" in result.err
+    assert released_repo.snapshot() == before

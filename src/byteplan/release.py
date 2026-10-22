@@ -134,6 +134,16 @@ def strip_file(
             untagged = isinstance(decorator, ast.Call) and not any(k.arg == "id" for k in decorator.keywords)
             if marker == "todo" and untagged:
                 raise ReleaseError(UNTAGGED, [f"{path}:{first}: @{name}(...) has no id="], "run `byteplan scan` first")
+            # FIXME[0591]: Refuse decorator arguments whose evaluation stripping would skip
+            #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353302171
+            #   `tests=EVENTS.append(...)` ran before release and not after; only literals are safe.
+            if isinstance(decorator, ast.Call):
+                values = [*decorator.args, *(k.value for k in decorator.keywords)]
+                if any(k.arg is None for k in decorator.keywords) or not all(_is_literal(v) for v in values):
+                    problems.append(
+                        f"{path}:{first}: an argument of @{name} isn't a literal; stripping would skip evaluating it"
+                    )
+                    continue
             decorators.append(
                 {
                     "kind": marker,
@@ -260,14 +270,31 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
     return found
 
 
+# FIXME[cc54]: Detect a runtime module imported through its parent package
+#   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353302177
+#   `from byteplan import _todo` imports runtime module byteplan._todo but wasn't recognized.
 def _runtime_imports(tree: ast.Module, runtime: set[str]) -> list[ast.Import | ast.ImportFrom]:
-    """Every import of a runtime module, at any depth, whatever it imports."""
+    """Every import of a runtime module, at any depth, whatever it imports, including a
+    runtime module imported through its parent package (``from pkg import _bp``)."""
     return [
         node
         for node in ast.walk(tree)
-        if (isinstance(node, ast.ImportFrom) and node.level == 0 and node.module in runtime)
+        if (isinstance(node, ast.ImportFrom) and _from_runtime(node, runtime))
         or (isinstance(node, ast.Import) and any(alias.name in runtime for alias in node.names))
     ]
+
+
+def _from_runtime(node: ast.ImportFrom, runtime: set[str]) -> bool:
+    if node.level != 0 or node.module is None:
+        return False
+    return node.module in runtime or any(f"{node.module}.{alias.name}" in runtime for alias in node.names)
+
+
+def _is_literal(node: ast.expr) -> bool:
+    """A constant, or a tuple/list of them: safe to drop without skipping any evaluation."""
+    if isinstance(node, ast.Constant):
+        return True
+    return isinstance(node, ast.Tuple | ast.List) and all(_is_literal(e) for e in node.elts)
 
 
 def _task_ids(decorator: ast.expr, marker: str) -> list[str]:
@@ -287,7 +314,7 @@ def _task_ids(decorator: ast.expr, marker: str) -> list[str]:
 #   `from byteplan_runtime import *` was stripped even when its names were used.
 def _runtime_locals(stmt: ast.stmt, runtime: set[str]) -> list[str]:
     """Local names bound by a top-level import of a runtime module (empty if it isn't one)."""
-    if isinstance(stmt, ast.ImportFrom) and stmt.level == 0 and stmt.module in runtime:
+    if isinstance(stmt, ast.ImportFrom) and _from_runtime(stmt, runtime):
         return [alias.asname or alias.name for alias in stmt.names]
     if isinstance(stmt, ast.Import) and stmt.names and all(alias.name in runtime for alias in stmt.names):
         return [(alias.asname or alias.name).split(".")[0] for alias in stmt.names]

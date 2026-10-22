@@ -1,6 +1,7 @@
 {
   "reserved_ids": [
     "0413",
+    "0591",
     "14ff",
     "15df",
     "205d",
@@ -26,6 +27,7 @@
     "baeb",
     "c242",
     "c8db",
+    "cc54",
     "de66",
     "ec99",
     "f853",
@@ -150,6 +152,55 @@
         ]
       },
       "title": "Phase 8: release stripping",
+      "title_override": null
+    },
+    "0591": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353302171\n`tests=EVENTS.append(...)` ran before release and not after; only literals are safe.",
+      "first_seen": "2026-10-22T20:41:44Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:41:44Z",
+          "event": "created",
+          "new": {
+            "line": 137,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:42:36Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_dynamic_decorator_arguments_refuse_the_release",
+          "old": null
+        }
+      ],
+      "id": "0591",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:41:44Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 86,
+        "line": 137,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "strip_file"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_dynamic_decorator_arguments_refuse_the_release"
+        ]
+      },
+      "title": "Refuse decorator arguments whose evaluation stripping would skip",
       "title_override": null
     },
     "14ff": {
@@ -424,8 +475,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 215,
-        "line": 231,
+        "decl_line": 225,
+        "line": 241,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "project_consumers"
@@ -1523,8 +1574,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 288,
-        "line": 285,
+        "decl_line": 315,
+        "line": 312,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_runtime_locals"
@@ -1628,8 +1679,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 416,
-        "line": 419,
+        "decl_line": 443,
+        "line": 446,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"
@@ -1677,8 +1728,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 300,
-        "line": 297,
+        "decl_line": 327,
+        "line": 324,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_used_names"
@@ -1726,8 +1777,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 387,
-        "line": 384,
+        "decl_line": 414,
+        "line": 411,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_decorator"
@@ -1776,7 +1827,7 @@
       "source": {
         "attachment_kind": "statement",
         "decl_line": 86,
-        "line": 160,
+        "line": 170,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "strip_file"
@@ -1790,6 +1841,55 @@
         ]
       },
       "title": "Keep runtime imports that other modules consume through re-exports",
+      "title_override": null
+    },
+    "cc54": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353302177\n`from byteplan import _todo` imports runtime module byteplan._todo but wasn't recognized.",
+      "first_seen": "2026-10-22T20:41:44Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:41:44Z",
+          "event": "created",
+          "new": {
+            "line": 266,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:42:36Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_runtime_module_imported_through_its_parent_refuses_the_release",
+          "old": null
+        }
+      ],
+      "id": "cc54",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:41:44Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 276,
+        "line": 273,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_runtime_imports"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_runtime_module_imported_through_its_parent_refuses_the_release"
+        ]
+      },
+      "title": "Detect a runtime module imported through its parent package",
       "title_override": null
     },
     "de66": {
@@ -1997,8 +2097,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 416,
-        "line": 428,
+        "decl_line": 443,
+        "line": 455,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"
