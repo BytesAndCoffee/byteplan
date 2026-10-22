@@ -146,6 +146,46 @@ def cmd_tests_remove(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def cmd_tests_scaffold(args: argparse.Namespace) -> int:
+    result = _project(args).scaffold_test(
+        args.id,
+        path=args.path,
+        name=args.name,
+        policy=args.policy,
+        link_style=args.link,
+        force_new=args.force_new,
+        dry_run=args.dry_run,
+    )
+    if args.format == "json":
+        _out(
+            reporting.to_json(
+                {
+                    "id": result.task.id,
+                    "node": result.node,
+                    "path": result.path,
+                    "created_file": result.created_file,
+                    "existing": list(result.existing),
+                    "dry_run": result.dry_run,
+                    "written": list(result.written),
+                }
+            )
+        )
+    elif result.existing:
+        _out(f"byteplan: [{result.task.id}] already has linked tests; nothing written:")
+        for node in result.existing:
+            _out(f"  {node}")
+        _out("  (use --force-new to add another)")
+    elif result.dry_run:
+        _out(f"byteplan: would {'create' if result.created_file else 'append to'} {result.path}: {result.node}")
+        _out(result.text)
+    else:
+        _out(
+            f"byteplan: [{result.task.id}] scaffolded {result.node} ({'new file' if result.created_file else 'appended'})"
+        )
+        _out("  it fails until you write the real test; `byteplan verify` won't count it as evidence until then")
+    return EXIT_OK
+
+
 def cmd_show(args: argparse.Namespace) -> int:
     project = _project(args)
     task = project.get_task(args.id)
@@ -457,6 +497,21 @@ def build_parser() -> argparse.ArgumentParser:
     tests_remove.add_argument("id")
     tests_remove.add_argument("nodes", nargs="+", metavar="NODE")
     tests_remove.set_defaults(handler=cmd_tests_remove)
+    tests_scaffold = tests_sub.add_parser(
+        "scaffold", parents=[common, formatted], help="write a deliberately failing acceptance test for a task"
+    )
+    tests_scaffold.add_argument("id")
+    tests_scaffold.add_argument(
+        "--path", help="test file to create or append to (default from [tool.byteplan.tests.scaffold])"
+    )
+    tests_scaffold.add_argument("--name", help="test function name (a test_* identifier)")
+    tests_scaffold.add_argument(
+        "--policy", choices=("fail", "xfail", "skip"), help="how the placeholder fails (default fail)"
+    )
+    tests_scaffold.add_argument("--link", choices=("verifies", "marker", "managed"), help="how the test is linked")
+    tests_scaffold.add_argument("--force-new", action="store_true", help="add a test even if the task has linked tests")
+    tests_scaffold.add_argument("--dry-run", action="store_true", help="show the test without writing it")
+    tests_scaffold.set_defaults(handler=cmd_tests_scaffold)
 
     git_cmd = sub.add_parser("git", help="Git integration")
     git_sub = git_cmd.add_subparsers(dest="git_command", metavar="COMMAND", required=True)

@@ -26,14 +26,13 @@ from __future__ import annotations
 
 import ast
 import json
-import re
 import warnings
 from collections import Counter
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity
-from byteplan.edits import line_offsets, physical_lines
+from byteplan.edits import header_end, line_offsets, physical_lines
 from byteplan.errors import EditError
 from byteplan.models import Annotation, AttachmentKind, Origin, Representation
 from byteplan.scanner.decorators import resolve_runtime_names
@@ -145,22 +144,10 @@ def _import_line(tree: ast.Module, lines: Sequence[str]) -> int | None:
         return None
     if isinstance(stmt, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef):
         # Don't separate a declaration from the comment block attached to it.
-        floor = (body[index - 1].end_lineno or 0) + 1 if index > 0 else _header_end(lines) + 1
+        floor = (body[index - 1].end_lineno or 0) + 1 if index > 0 else header_end(lines) + 1
         while first - 1 >= floor and lines[first - 2].lstrip().startswith("#"):
             first -= 1
     return first
-
-
-_CODING_RE = re.compile(r"^[ \t\f]*#.*?coding[:=][ \t]*[-\w.]+")
-
-
-def _header_end(lines: Sequence[str]) -> int:
-    """Lines that must stay first: a shebang, and an encoding cookie (line 1 or 2)."""
-    end = 1 if lines and lines[0].startswith("#!") else 0
-    for number in (1, 2):
-        if number <= len(lines) and _CODING_RE.match(lines[number - 1]):
-            end = number
-    return end
 
 
 @dataclass(frozen=True)

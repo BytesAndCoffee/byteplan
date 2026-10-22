@@ -52,6 +52,7 @@ class Code(StrEnum):
     # Acceptance-test links
     MALFORMED_TEST_ID = "malformed_test_id"
     TEST_NOT_IN_SCOPE = "test_not_in_scope"
+    SCAFFOLD_PLACEHOLDER = "scaffold_placeholder"
     # byteplan sync
     CONVERSION_NEEDS_REVIEW = "conversion_needs_review"
 

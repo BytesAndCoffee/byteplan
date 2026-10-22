@@ -196,6 +196,78 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "test_linked",
+          "new": "tests/test_scaffold.py::test_scaffold_creates_a_failing_bound_test",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "test_linked",
+          "new": "tests/test_scaffold.py::test_policies_never_pass",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "test_linked",
+          "new": "tests/test_scaffold.py::test_rerun_reports_the_existing_test",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "test_linked",
+          "new": "tests/test_scaffold.py::test_appends_without_touching_existing_code",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "test_linked",
+          "new": "tests/test_scaffold.py::test_templates_by_target_kind",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "test_linked",
+          "new": "tests/test_scaffold.py::test_async_tests_only_with_a_plugin",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "test_linked",
+          "new": "tests/test_scaffold.py::test_line_shift_keeps_one_link",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "test_linked",
+          "new": "tests/test_scaffold.py::test_placeholder_is_never_ready_until_implemented",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "test_linked",
+          "new": "tests/test_scaffold.py::test_verify_never_counts_a_placeholder",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "test_linked",
+          "new": "tests/test_scaffold.py::test_dry_run_writes_nothing",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:05:36Z",
+          "event": "test_linked",
+          "new": "tests/test_scaffold.py::test_crash_recovers_through_the_journal",
+          "old": null
         }
       ],
       "id": "2887",
@@ -206,7 +278,7 @@
       "last_seen": "2026-10-22T03:53:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -219,6 +291,22 @@
       },
       "status": "open",
       "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_scaffold.py::test_appends_without_touching_existing_code",
+          "tests/test_scaffold.py::test_async_tests_only_with_a_plugin",
+          "tests/test_scaffold.py::test_crash_recovers_through_the_journal",
+          "tests/test_scaffold.py::test_dry_run_writes_nothing",
+          "tests/test_scaffold.py::test_line_shift_keeps_one_link",
+          "tests/test_scaffold.py::test_placeholder_is_never_ready_until_implemented",
+          "tests/test_scaffold.py::test_policies_never_pass",
+          "tests/test_scaffold.py::test_rerun_reports_the_existing_test",
+          "tests/test_scaffold.py::test_scaffold_creates_a_failing_bound_test",
+          "tests/test_scaffold.py::test_templates_by_target_kind",
+          "tests/test_scaffold.py::test_verify_never_counts_a_placeholder"
+        ]
+      },
       "title": "Phase 6b: test scaffolding",
       "title_override": null
     },
@@ -758,8 +846,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 233,
-        "line": 237,
+        "decl_line": 260,
+        "line": 264,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"

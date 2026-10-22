@@ -404,7 +404,7 @@ def test_head_mode_ignores_the_evidence_store(project: ProjectFactory, run_cli: 
         pytest.skip("git not installed")
     make(project, run_cli, [f"{F}::test_pass"], extra='\n[tool.byteplan.tests]\nstale_on = "head"\n')
     root = project.root
-    project.write(".gitignore", "__pycache__/\n.pytest_cache/\n")  # what pytest leaves behind
+    project.write(".gitignore", "__pycache__/\n.pytest_cache/\n.coverage*\n")  # what test runs leave behind
     for args in (("init", "-q", "-b", "main"), ("config", "user.email", "t@example.com"), ("config", "user.name", "T")):
         git(root, *args)
     git(root, "config", "commit.gpgsign", "false")

@@ -50,7 +50,7 @@ Source = "https://github.com/BytesAndCoffee/byteplan"
 # contain @todo / @verifies / stub fixtures that aren't real work.
 [tool.byteplan]
 registry = ".byteplan/tasks.json"
-include = ["src/**/*.py", "byteplan-runtime/src/**/*.py", "**/*.md"]
+include = ["src/**/*.py", "byteplan-runtime/src/**/*.py", "tests/**/*.py", "**/*.md"]
 report_file = "byteplan.md"
 
 [tool.byteplan.tests]

@@ -51,6 +51,19 @@ def physical_lines(text: str) -> list[str]:
     return lines[:-1] if lines and lines[-1] == "" else lines
 
 
+_CODING_RE = re.compile(r"^[ \t\f]*#.*?coding[:=][ \t]*[-\w.]+")
+
+
+def header_end(lines: Sequence[str]) -> int:
+    """How many leading lines must stay first: a shebang, and an encoding cookie (which Python
+    only honours on line 1 or 2). Inserted code goes after them."""
+    end = 1 if lines and lines[0].startswith("#!") else 0
+    for number in (1, 2):
+        if number <= len(lines) and _CODING_RE.match(lines[number - 1]):
+            end = number
+    return end
+
+
 def char_col(line: str, byte_col: int) -> int:
     """Convert an ``ast`` column (UTF-8 bytes) to a character index into ``line``."""
     return len(line.encode("utf-8")[:byte_col].decode("utf-8", errors="ignore"))
