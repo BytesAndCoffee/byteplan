@@ -23,6 +23,7 @@ def test_defaults_without_table(project: ProjectFactory) -> None:
     assert config.exclude == DEFAULT_EXCLUDE
     assert config.detect.todo_tags == ("TODO", "FIXME", "HACK", "XXX")
     assert config.check.fail_on_duplicate_ids
+    assert config.annotations.runtime_modules == ("byteplan_runtime",)
 
 
 def test_values_are_loaded(project: ProjectFactory) -> None:
@@ -66,6 +67,9 @@ def test_values_are_loaded(project: ProjectFactory) -> None:
         ('[tool.byteplan.detect]\ntodo_tags = ["TO DO"]\n', "must be a word"),
         ("[tool.byteplan]\ndetect = 3\n", "must be a table"),
         ("[tool.byteplan\n", "invalid TOML"),
+        ("[tool.byteplan.detect]\nplaceholder_assignments = true\n", "not supported yet"),
+        ('[tool.byteplan.annotations]\nruntime_modules = ["not a module"]\n', "not a module name"),
+        ("[tool.byteplan.annotations]\nmode = \"decorator\"\n", "unknown key 'mode'"),
     ],
 )
 def test_invalid_config(project: ProjectFactory, toml: str, message: str) -> None:

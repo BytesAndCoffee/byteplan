@@ -32,6 +32,14 @@ class Code(StrEnum):
     STALE_ANNOTATION = "stale_annotation"
     MISSING = "missing"
     PENDING_JOURNAL = "pending_journal"
+    UNRESOLVED_TODO_DECORATOR = "unresolved_todo_decorator"
+    INVALID_TODO_DECORATOR = "invalid_todo_decorator"
+    DYNAMIC_TODO_ARGUMENT = "dynamic_todo_argument"
+    CONFLICTING_TEST_ARGUMENTS = "conflicting_test_arguments"
+    DECORATOR_NEEDS_REVIEW = "decorator_needs_review"
+    STUB_NEEDS_REVIEW = "stub_needs_review"
+    IMPLEMENTATION_CHANGED = "implementation_changed"
+    UNKNOWN_TASK_REFERENCE = "unknown_task_reference"
 
 
 @dataclass(frozen=True)

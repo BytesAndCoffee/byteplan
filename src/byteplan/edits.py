@@ -61,18 +61,49 @@ def apply_insertions(text: str, insertions: Sequence[Insertion]) -> str:
     return text
 
 
+class _DropDecoratorIds(ast.NodeTransformer):
+    """Remove ``id=`` keywords from decorator calls: the one AST change annotation may make."""
+
+    def _strip(self, node: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef) -> ast.AST:
+        for decorator in node.decorator_list:
+            if isinstance(decorator, ast.Call):
+                decorator.keywords = [k for k in decorator.keywords if k.arg != "id"]
+        self.generic_visit(node)
+        return node
+
+    # ast.NodeTransformer dispatches on these exact names.
+    visit_FunctionDef = visit_AsyncFunctionDef = visit_ClassDef = _strip  # noqa: N815
+
+
 def _dump(path: str, text: str) -> str:
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", SyntaxWarning)
-            return ast.dump(ast.parse(text, filename=path), include_attributes=False)
+            tree = _DropDecoratorIds().visit(ast.parse(text, filename=path))
+            return ast.dump(tree, include_attributes=False)
     except (SyntaxError, ValueError) as exc:
         msg = f"{path}: edited source no longer parses ({exc}); nothing was written"
         raise EditError(msg) from exc
 
 
 def ensure_equivalent(path: str, before: str, after: str) -> None:
-    """Refuse an edit that changes the program's AST."""
+    """Refuse an edit that changes the program's AST, other than adding decorator ``id=`` keywords.
+
+    (That the added keyword is exactly the allocated ID is checked by re-scanning.)
+    """
     if _dump(path, before) != _dump(path, after):
         msg = f"{path}: edit would change program structure; nothing was written"
         raise EditError(msg)
+
+
+def replace_at(text: str, line: int, col: int, old: str, new: str) -> str:
+    """Replace ``old`` at exactly (line, col), refusing if the text there differs."""
+    offsets = line_offsets(text)
+    if not 1 <= line <= len(offsets):
+        msg = f"edit at line {line} is outside the file"
+        raise EditError(msg)
+    start = offsets[line - 1] + col
+    if text[start : start + len(old)] != old:
+        msg = f"expected {old!r} at {line}:{col}; the file changed"
+        raise EditError(msg)
+    return text[:start] + new + text[start + len(old) :]

@@ -44,6 +44,12 @@ class DetectConfig:
 
 
 @dataclass(frozen=True)
+class AnnotationsConfig:
+    # Modules whose `todo`/`verifies` BytePlan recognizes (a project shim can be added).
+    runtime_modules: tuple[str, ...] = ("byteplan_runtime",)
+
+
+@dataclass(frozen=True)
 class CheckConfig:
     fail_on_duplicate_ids: bool = True
     fail_on_missing: bool = False
@@ -61,6 +67,7 @@ class Config:
     missing_policy: str = "warn"
     detect: DetectConfig = field(default_factory=DetectConfig)
     check: CheckConfig = field(default_factory=CheckConfig)
+    annotations: AnnotationsConfig = field(default_factory=AnnotationsConfig)
 
     @property
     def registry_path(self) -> Path:
@@ -103,8 +110,9 @@ def parse_config(root: Path, table: Any) -> Config:
     table = dict(table)
     detect = _parse_section(DetectConfig, table.pop("detect", {}), "tool.byteplan.detect")
     check = _parse_section(CheckConfig, table.pop("check", {}), "tool.byteplan.check")
-    values = _parse_values(Config, table, "tool.byteplan", skip=frozenset({"root", "detect", "check"}))
-    config = Config(root=root, detect=detect, check=check, **values)
+    annotations = _parse_section(AnnotationsConfig, table.pop("annotations", {}), "tool.byteplan.annotations")
+    values = _parse_values(Config, table, "tool.byteplan", skip=frozenset({"root", "detect", "check", "annotations"}))
+    config = Config(root=root, detect=detect, check=check, annotations=annotations, **values)
     _validate(config)
     return config
 
@@ -151,6 +159,13 @@ def _coerce(value: Any, default: Any, name: str) -> Any:
 
 
 def _validate(config: Config) -> None:
+    if config.detect.placeholder_assignments:
+        msg = "tool.byteplan.detect.placeholder_assignments is not supported yet; remove it or set it to false"
+        raise ConfigError(msg)
+    for module in config.annotations.runtime_modules:
+        if not all(part.isidentifier() for part in module.split(".")):
+            msg = f"tool.byteplan.annotations.runtime_modules entry {module!r} is not a module name"
+            raise ConfigError(msg)
     if config.missing_policy not in MISSING_POLICIES:
         msg = f"tool.byteplan.missing_policy must be one of {', '.join(MISSING_POLICIES)}"
         raise ConfigError(msg)

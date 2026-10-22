@@ -11,7 +11,8 @@ Rules:
   are never touched.
 * Events are appended only for real changes: ``created``, ``moved`` (path or
   symbol changed; line-only shifts are not events), ``text_changed``,
-  ``missing`` and ``reappeared``. ``last_seen`` is set only when a task seen in
+  ``missing``, ``reappeared`` and ``implementation_changed`` (a declaration the
+  task owns stopped or started looking like a stub; advisory only). ``last_seen`` is set only when a task seen in
   source gets an event, so an unchanged scan changes nothing.
 * Missing detection runs only for complete, un-narrowed scans, and only for
   tasks whose last known path is inside the configured scope. Tasks outside it
@@ -30,14 +31,14 @@ from byteplan.models import HistoryEvent, Presence, ScopeState, SourceRef, Task
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from byteplan.models import CommentTag
+    from byteplan.models import Annotation
     from byteplan.registry import Registry
 
 
 @dataclass(frozen=True)
 class Observation:
     task_id: str
-    tag: CommentTag
+    tag: Annotation
     new: bool  # True when the ID is being allocated by this scan
 
 
@@ -49,6 +50,7 @@ class Summary:
     missing: list[str] = field(default_factory=list)
     reappeared: list[str] = field(default_factory=list)
     excluded: list[str] = field(default_factory=list)
+    implementation_changed: list[str] = field(default_factory=list)
 
 
 def reconcile(
@@ -71,7 +73,7 @@ def reconcile(
     for obs in observations:
         seen.add(obs.task_id)
         tag = obs.tag
-        source = SourceRef(tag.path, tag.line, tag.symbol)
+        source = SourceRef(tag.path, tag.line, tag.symbol, tag.decl_line, tag.attachment_kind, tag.representation)
         task = result.tasks.get(obs.task_id)
         if task is None:
             if not obs.new:
@@ -83,7 +85,9 @@ def reconcile(
                 title=tag.title,
                 description=tag.description,
                 presence=Presence.PRESENT,
+                origin=tag.origin,
                 source=source,
+                stub={"symbol": tag.symbol, "implemented": False} if tag.decl_is_stub else None,
                 first_seen=now,
                 last_seen=now,
                 history=[HistoryEvent("created", now, new={"path": tag.path, "line": tag.line})],
@@ -122,6 +126,23 @@ def reconcile(
             )
             task.kind, task.title, task.description = tag.kind, tag.title, tag.description
             summary.text_changed.append(obs.task_id)
+
+        if tag.decl_is_stub is not None:
+            implemented = not tag.decl_is_stub
+            if task.stub is None:
+                if tag.decl_is_stub:  # first time this task is seen owning a stub
+                    task.stub = {"symbol": tag.symbol, "implemented": False}
+            elif task.stub.get("implemented") != implemented:
+                events.append(
+                    HistoryEvent(
+                        "implementation_changed",
+                        now,
+                        old={"implemented": task.stub.get("implemented")},
+                        new={"implemented": implemented},
+                    )
+                )
+                task.stub = {**task.stub, "symbol": tag.symbol, "implemented": implemented}
+                summary.implementation_changed.append(obs.task_id)
 
         if task.presence is Presence.MISSING:
             events.append(HistoryEvent("reappeared", now, old=str(Presence.MISSING), new=str(Presence.PRESENT)))

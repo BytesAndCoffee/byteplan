@@ -15,14 +15,14 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from byteplan.api import ScanReport
-    from byteplan.models import CommentTag, Task
+    from byteplan.models import Annotation, Task
 
 
 def to_json(payload: Any) -> str:
     return json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True)
 
 
-def _tag_dict(tag: CommentTag) -> dict[str, Any]:
+def _tag_dict(tag: Annotation) -> dict[str, Any]:
     return {
         "id": tag.task_id,
         "kind": tag.kind,
@@ -63,7 +63,7 @@ def scan_text(report: ScanReport) -> str:
     codes = Counter(str(d.code) for d in report.diagnostics)
     lines = [
         f"BytePlan: {report.files_scanned} Python {noun} scanned{scope}",
-        f"  {len(report.tags)} comment annotations · {report.tracked} tracked tasks",
+        f"  {len(report.tags)} annotations · {report.tracked} tracked tasks",
         f"  +{len(summary.added)} added · ~{len(summary.relocated)} relocated · "
         f"!{codes['missing']} missing · !{codes['duplicate_id']} duplicate · {codes['stale_annotation']} stale",
     ]
@@ -144,3 +144,62 @@ def _value(value: Any) -> str:
 
 def task_json(task: Task) -> dict[str, Any]:
     return task_to_dict(task)
+
+
+def _summary_lines(summary: dict[str, Any]) -> list[tuple[str, str]]:
+    rows = []
+    for key, label in (
+        ("by_status", "status"),
+        ("by_presence", "presence"),
+        ("by_kind", "kind"),
+        ("by_priority", "priority"),
+    ):
+        counts = summary[key]
+        rows.append((label, " · ".join(f"{name} {n}" for name, n in counts.items()) or "-"))
+    return rows
+
+
+def report_text(report: dict[str, Any]) -> str:
+    summary = report["summary"]
+    lines = [f"BytePlan report: {summary['total']} tasks"]
+    lines.extend(f"  {label:<9} {value}" for label, value in _summary_lines(summary))
+    severities = Counter(d["severity"] for d in report["diagnostics"])
+    lines.append(
+        f"  findings  {severities['error']} error(s) · {severities['warning']} warning(s) · {severities['info']} info"
+    )
+    return "\n".join(lines)
+
+
+def _md(text: str | None) -> str:
+    return (text or "").replace("|", "\\|").replace("\n", " ")
+
+
+def report_markdown(report: dict[str, Any]) -> str:
+    summary = report["summary"]
+    lines = ["# BytePlan report", "", f"**{summary['total']} tasks**", ""]
+    lines += ["| | |", "|---|---|"]
+    lines += [f"| {label} | {_md(value)} |" for label, value in _summary_lines(summary)]
+    lines += ["", "## Tasks", ""]
+    if report["tasks"]:
+        lines += ["| ID | Status | Presence | Kind | Priority | Location | Title |", "|---|---|---|---|---|---|---|"]
+        for task in report["tasks"]:
+            source = task["source"]
+            where = f"`{source['path']}:{source['line']}`" if source else "-"
+            title = task["title_override"] or task["title"]
+            lines.append(
+                f"| `{task['id']}` | {task['status']} | {task['presence']} | {task['kind']} | "
+                f"{_md(task['priority'])} | {where} | {_md(title)} |"
+            )
+    else:
+        lines.append("No tasks.")
+    lines += ["", "## Findings", ""]
+    if report["diagnostics"]:
+        for diag in report["diagnostics"]:
+            where = ", ".join(
+                f"`{loc['path']}:{loc['line']}`" if loc["line"] else f"`{loc['path']}`" for loc in diag["locations"]
+            )
+            ident = f"`{diag['task_id']}` " if diag["task_id"] else ""
+            lines.append(f"- **{diag['severity']}** `{diag['code']}` {ident}{where}: {_md(diag['message'])}")
+    else:
+        lines.append("None.")
+    return "\n".join(lines) + "\n"
