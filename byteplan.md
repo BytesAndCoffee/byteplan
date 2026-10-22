@@ -2,13 +2,12 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**14 open** · 1 closed (resolved 1)
+**13 open** · 2 closed (resolved 2)
 
 ## Open
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `4fb5` | open | TODO | normal | - | [`README.md:18`](README.md#L18) | Update the status line for the next release |
 | `9b40` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1518`](docs/IMPLEMENTATION_PLAN.md#L1518) | Phase 6a: acceptance tests |
 | `2887` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1522`](docs/IMPLEMENTATION_PLAN.md#L1522) | Phase 6b: test scaffolding |
 | `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1526`](docs/IMPLEMENTATION_PLAN.md#L1526) | Phase 6c (optional): acceptance criteria and dependencies |
@@ -27,4 +26,5 @@
 
 | ID | Status | Kind | Title |
 |---|---|---|---|
+| `4fb5` | resolved | TODO | Update the status line for the next release |
 | `82b3` | resolved | TODO | Phase 5: runtime and normalization |
