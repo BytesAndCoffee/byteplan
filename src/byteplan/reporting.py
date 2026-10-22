@@ -229,7 +229,14 @@ def plan_markdown(registry: Registry, *, registry_rel: str, report_rel: str) -> 
     report_dir = posixpath.dirname(report_rel)
     tasks = sorted(registry.tasks.values(), key=lambda t: t.id)
     active = [t for t in tasks if not t.status.is_closed]
-    active.sort(key=lambda t: (_OPEN_ORDER.get(str(t.status), 3), t.source.path if t.source else "", t.id))
+    active.sort(
+        key=lambda t: (
+            _OPEN_ORDER.get(str(t.status), 3),
+            t.source.path if t.source else "",
+            t.source.line if t.source else 0,
+            t.id,
+        )
+    )
     closed = [t for t in tasks if t.status.is_closed]
     counts = Counter(str(t.status) for t in closed)
 
