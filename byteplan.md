@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**21 open** · 8 closed (resolved 8)
+**22 open** · 8 closed (resolved 8)
 
 ## Open
 
@@ -23,11 +23,12 @@
 | `aedf` | open | FIXME | normal | - | [`src/byteplan/release.py:97`](src/byteplan/release.py#L97) | Check every runtime import, not just decorator bindings, before skipping a file |
 | `34da` | open | FIXME | normal | - | [`src/byteplan/release.py:109`](src/byteplan/release.py#L109) | Respect enclosing scopes before stripping a decorator |
 | `c8db` | open | FIXME | normal | - | [`src/byteplan/release.py:160`](src/byteplan/release.py#L160) | Keep runtime imports that other modules consume through re-exports |
-| `a703` | open | FIXME | normal | - | [`src/byteplan/release.py:282`](src/byteplan/release.py#L282) | Refuse wildcard runtime imports, whose bindings can't be proven unused |
-| `baeb` | open | FIXME | normal | - | [`src/byteplan/release.py:294`](src/byteplan/release.py#L294) | Count every __all__ assignment form as an export |
-| `c242` | open | FIXME | normal | - | [`src/byteplan/release.py:381`](src/byteplan/release.py#L381) | Check the current binding before restoring a decorator |
-| `b68c` | open | FIXME | normal | - | [`src/byteplan/release.py:416`](src/byteplan/release.py#L416) | Restore an unanchored import below the current docstring and __future__ imports |
-| `fd44` | open | FIXME | normal | - | [`src/byteplan/release.py:425`](src/byteplan/release.py#L425) | Keep anchored imports below a __future__ import added since the release |
+| `2533` | open | FIXME | normal | - | [`src/byteplan/release.py:231`](src/byteplan/release.py#L231) | Keep every module an import alias may refer to, across scopes |
+| `a703` | open | FIXME | normal | - | [`src/byteplan/release.py:285`](src/byteplan/release.py#L285) | Refuse wildcard runtime imports, whose bindings can't be proven unused |
+| `baeb` | open | FIXME | normal | - | [`src/byteplan/release.py:297`](src/byteplan/release.py#L297) | Count every __all__ assignment form as an export |
+| `c242` | open | FIXME | normal | - | [`src/byteplan/release.py:384`](src/byteplan/release.py#L384) | Check the current binding before restoring a decorator |
+| `b68c` | open | FIXME | normal | - | [`src/byteplan/release.py:419`](src/byteplan/release.py#L419) | Restore an unanchored import below the current docstring and __future__ imports |
+| `fd44` | open | FIXME | normal | - | [`src/byteplan/release.py:428`](src/byteplan/release.py#L428) | Keep anchored imports below a __future__ import added since the release |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
 
 ## Closed

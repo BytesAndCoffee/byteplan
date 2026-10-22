@@ -4,6 +4,7 @@
     "14ff",
     "15df",
     "205d",
+    "2533",
     "2887",
     "34da",
     "46b6",
@@ -389,6 +390,55 @@
         ]
       },
       "title": "Check for a pending journal before the write context recovers it",
+      "title_override": null
+    },
+    "2533": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353183658\nA function-local `import os as util` overwrote a module-level `import pkg.reexport as util`.",
+      "first_seen": "2026-10-22T20:29:05Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:29:05Z",
+          "event": "created",
+          "new": {
+            "line": 231,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:29:31Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_alias_reused_in_another_scope_still_counts_as_a_consumer",
+          "old": null
+        }
+      ],
+      "id": "2533",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:29:05Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 215,
+        "line": 231,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "project_consumers"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_alias_reused_in_another_scope_still_counts_as_a_consumer"
+        ]
+      },
+      "title": "Keep every module an import alias may refer to, across scopes",
       "title_override": null
     },
     "2887": {
@@ -1473,8 +1523,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 285,
-        "line": 282,
+        "decl_line": 288,
+        "line": 285,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_runtime_locals"
@@ -1578,8 +1628,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 413,
-        "line": 416,
+        "decl_line": 416,
+        "line": 419,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"
@@ -1627,8 +1677,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 297,
-        "line": 294,
+        "decl_line": 300,
+        "line": 297,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_used_names"
@@ -1676,8 +1726,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 384,
-        "line": 381,
+        "decl_line": 387,
+        "line": 384,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_decorator"
@@ -1947,8 +1997,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 413,
-        "line": 425,
+        "decl_line": 416,
+        "line": 428,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"

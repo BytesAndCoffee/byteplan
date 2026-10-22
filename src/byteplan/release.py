@@ -228,7 +228,11 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
             continue
         here = module_name(path)
         package = here if path.endswith("__init__.py") else here.rpartition(".")[0]
-        modules: dict[str, str] = {}  # local name -> module it refers to
+        # FIXME[2533]: Keep every module an import alias may refer to, across scopes
+        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353183658
+        #   A function-local `import os as util` overwrote a module-level `import pkg.reexport as util`.
+        # local name -> every module it may refer to (scopes aren't tracked, so keep them all)
+        modules: dict[str, set[str]] = {}
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom):
                 base = node.module or ""
@@ -239,20 +243,19 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
                 for alias in node.names:
                     record(base, alias.name, path)
                     if alias.name != "*":
-                        modules[alias.asname or alias.name] = f"{base}.{alias.name}".strip(".")
+                        modules.setdefault(alias.asname or alias.name, set()).add(f"{base}.{alias.name}".strip("."))
             elif isinstance(node, ast.Import):
                 for alias in node.names:
-                    if alias.asname:
-                        modules[alias.asname] = alias.name
-                    else:
-                        modules[alias.name.split(".")[0]] = alias.name.split(".")[0]
+                    local = alias.asname or alias.name.split(".")[0]
+                    modules.setdefault(local, set()).add(alias.name if alias.asname else local)
         for node in ast.walk(tree):
             if isinstance(node, ast.Attribute):
                 dotted = dotted_name(node)
                 root = (dotted or "").split(".")[0]
-                if dotted and root in modules:
-                    full = modules[root] + dotted[len(root) :]
-                    module, _, name = full.rpartition(".")
+                if not dotted:
+                    continue
+                for target in modules.get(root, set()):
+                    module, _, name = (target + dotted[len(root) :]).rpartition(".")
                     record(module, name, path)
     return found
 
