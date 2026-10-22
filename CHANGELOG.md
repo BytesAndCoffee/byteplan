@@ -3,7 +3,7 @@
 All notable changes to `byteplan`. The runtime decorators ship separately as
 [`byteplan-runtime`](https://pypi.org/project/byteplan-runtime/), with their own versions.
 
-## 0.1.0 (unreleased)
+## 0.1.0 (2026-10-22)
 
 The first usable release. 0.0.1 was an empty placeholder that reserved the name.
 
