@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**26 open** · 8 closed (resolved 8)
+**28 open** · 8 closed (resolved 8)
 
 ## Open
 
@@ -21,18 +21,20 @@
 | `4d48` | open | FIXME | normal | - | [`src/byteplan/api.py:1239`](src/byteplan/api.py#L1239) | Keep decorators pending when their runtime import can't be restored |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:266`](src/byteplan/config.py#L266) | Support detect.placeholder_assignments |
 | `aedf` | open | FIXME | normal | - | [`src/byteplan/release.py:97`](src/byteplan/release.py#L97) | Check every runtime import, not just decorator bindings, before skipping a file |
-| `34da` | open | FIXME | normal | - | [`src/byteplan/release.py:109`](src/byteplan/release.py#L109) | Respect enclosing scopes before stripping a decorator |
-| `0591` | open | FIXME | normal | - | [`src/byteplan/release.py:137`](src/byteplan/release.py#L137) | Refuse decorator arguments whose evaluation stripping would skip |
-| `c8db` | open | FIXME | normal | - | [`src/byteplan/release.py:170`](src/byteplan/release.py#L170) | Keep runtime imports that other modules consume through re-exports |
-| `2533` | open | FIXME | normal | - | [`src/byteplan/release.py:241`](src/byteplan/release.py#L241) | Keep every module an import alias may refer to, across scopes |
-| `8b28` | open | FIXME | normal | - | [`src/byteplan/release.py:261`](src/byteplan/release.py#L261) | Treat an imported module that escapes attribute access as consuming all its names |
-| `cc54` | open | FIXME | normal | - | [`src/byteplan/release.py:283`](src/byteplan/release.py#L283) | Detect a runtime module imported through its parent package |
-| `a703` | open | FIXME | normal | - | [`src/byteplan/release.py:322`](src/byteplan/release.py#L322) | Refuse wildcard runtime imports, whose bindings can't be proven unused |
-| `baeb` | open | FIXME | normal | - | [`src/byteplan/release.py:334`](src/byteplan/release.py#L334) | Count every __all__ assignment form as an export |
-| `fb23` | open | FIXME | normal | - | [`src/byteplan/release.py:418`](src/byteplan/release.py#L418) | Keep a restored runtime import above every use of its names |
-| `c242` | open | FIXME | normal | - | [`src/byteplan/release.py:425`](src/byteplan/release.py#L425) | Check the current binding before restoring a decorator |
-| `b68c` | open | FIXME | normal | - | [`src/byteplan/release.py:490`](src/byteplan/release.py#L490) | Restore an unanchored import below the current docstring and __future__ imports |
-| `fd44` | open | FIXME | normal | - | [`src/byteplan/release.py:499`](src/byteplan/release.py#L499) | Keep anchored imports below a __future__ import added since the release |
+| `34da` | open | FIXME | normal | - | [`src/byteplan/release.py:110`](src/byteplan/release.py#L110) | Respect enclosing scopes before stripping a decorator |
+| `0591` | open | FIXME | normal | - | [`src/byteplan/release.py:138`](src/byteplan/release.py#L138) | Refuse decorator arguments whose evaluation stripping would skip |
+| `c8db` | open | FIXME | normal | - | [`src/byteplan/release.py:171`](src/byteplan/release.py#L171) | Keep runtime imports that other modules consume through re-exports |
+| `2533` | open | FIXME | normal | - | [`src/byteplan/release.py:257`](src/byteplan/release.py#L257) | Keep every module an import alias may refer to, across scopes |
+| `8b28` | open | FIXME | normal | - | [`src/byteplan/release.py:273`](src/byteplan/release.py#L273) | Treat an imported module that escapes attribute access as consuming all its names |
+| `fb9c` | open | FIXME | normal | - | [`src/byteplan/release.py:283`](src/byteplan/release.py#L283) | Track escapes of dotted module expressions like `alias = pkg.reexport` |
+| `cc54` | open | FIXME | normal | - | [`src/byteplan/release.py:301`](src/byteplan/release.py#L301) | Detect a runtime module imported through its parent package |
+| `478d` | open | FIXME | normal | - | [`src/byteplan/release.py:316`](src/byteplan/release.py#L316) | Resolve relative imports before deciding whether they import the runtime |
+| `a703` | open | FIXME | normal | - | [`src/byteplan/release.py:344`](src/byteplan/release.py#L344) | Refuse wildcard runtime imports, whose bindings can't be proven unused |
+| `baeb` | open | FIXME | normal | - | [`src/byteplan/release.py:356`](src/byteplan/release.py#L356) | Count every __all__ assignment form as an export |
+| `fb23` | open | FIXME | normal | - | [`src/byteplan/release.py:440`](src/byteplan/release.py#L440) | Keep a restored runtime import above every use of its names |
+| `c242` | open | FIXME | normal | - | [`src/byteplan/release.py:447`](src/byteplan/release.py#L447) | Check the current binding before restoring a decorator |
+| `b68c` | open | FIXME | normal | - | [`src/byteplan/release.py:512`](src/byteplan/release.py#L512) | Restore an unanchored import below the current docstring and __future__ imports |
+| `fd44` | open | FIXME | normal | - | [`src/byteplan/release.py:521`](src/byteplan/release.py#L521) | Keep anchored imports below a __future__ import added since the release |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
 
 ## Closed

@@ -737,3 +737,46 @@ def test_restored_import_stays_above_a_declaration_moved_before_its_anchor(
     finally:
         sys.modules.pop("byteplan_runtime", None)
     assert namespace["f"]() == 1
+
+
+# Codex review of #32, round 10 ---------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("statement", ["from ._bp import todo", "from . import _bp as markers"])
+def test_relative_import_of_the_runtime_refuses_the_release(
+    released_repo: ProjectFactory, run_cli: RunCli, statement: str
+) -> None:
+    """A relative import of a configured runtime module must not survive a release."""
+    pyproject = released_repo.root / "pyproject.toml"
+    pyproject.write_text(
+        pyproject.read_text() + '\n[tool.byteplan.annotations]\nruntime_modules = ["byteplan_runtime", "pkg._bp"]\n'
+    )
+    released_repo.write("src/pkg/__init__.py", "", dedent=False)
+    released_repo.write("src/pkg/_bp.py", "def todo(*a, **k):\n    return lambda f: f\n", dedent=False)
+    use = "todo" if "todo" in statement else "markers.todo"
+    released_repo.write(
+        "src/pkg/m.py", f'{statement}\n\n\n@{use}("x", id="a123")\ndef f():\n    return 1\n', dedent=False
+    )
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "relative")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert "src/pkg/m.py" in result.err
+    assert released_repo.snapshot() == before
+
+
+def test_dotted_module_escape_keeps_its_runtime_names(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    """`alias = pkg.reexport` escapes the module just like `alias = markers` does."""
+    released_repo.write("src/pkg/__init__.py", "", dedent=False)
+    released_repo.write("src/pkg/reexport.py", "from byteplan_runtime import todo as todo\n", dedent=False)
+    released_repo.write(
+        "src/pkg/consumer.py", "import pkg.reexport\n\nalias = pkg.reexport\nVALUE = alias.todo\n", dedent=False
+    )
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "dotted escape")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert "imported from this module by src/pkg/consumer.py" in result.err
+    assert released_repo.snapshot() == before

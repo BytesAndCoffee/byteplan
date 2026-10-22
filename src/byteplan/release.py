@@ -98,7 +98,8 @@ def strip_file(
     #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850109
     #   `from byteplan_runtime import __version__` or an import inside a function survived a release.
     runtime = set(runtime_modules)
-    if not names.direct and not names.modules and not names.ambiguous and not _runtime_imports(tree, runtime):
+    package = package_of(path)
+    if not names.direct and not names.modules and not names.ambiguous and not _runtime_imports(tree, runtime, package):
         return None
     lines = _lines(text)
     problems: list[str] = []
@@ -158,7 +159,7 @@ def strip_file(
             )
     if problems:
         raise ReleaseError(NEEDS_REVIEW, problems, "put each decorator on its own lines")
-    if not decorators and not _runtime_imports(tree, runtime):
+    if not decorators and not _runtime_imports(tree, runtime, package):
         return None
 
     removed_lines = {n for d in decorators for n in range(d["line"], d["end_line"] + 1)}
@@ -170,7 +171,7 @@ def strip_file(
         # FIXME[c8db]: Keep runtime imports that other modules consume through re-exports
         #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352941942
         #   `from a import todo` in b.py broke once a.py's runtime import was stripped.
-        locals_ = _runtime_locals(stmt, runtime)
+        locals_ = _runtime_locals(stmt, runtime, package)
         if "*" in locals_:
             raise ReleaseError(
                 NEEDS_REVIEW,
@@ -205,7 +206,7 @@ def strip_file(
             previous = stmt
 
     stripped = "".join(line for number, line in enumerate(lines, start=1) if number not in removed_lines)
-    leftover = _runtime_imports(_parse(path, stripped), runtime)
+    leftover = _runtime_imports(_parse(path, stripped), runtime, package)
     if leftover:
         where = sorted({f"line {node.lineno}" for node in leftover})
         raise ReleaseError(
@@ -214,6 +215,22 @@ def strip_file(
             "production code would fail to import without byteplan-runtime",
         )
     return FileStrip(path, stripped, decorators, imports)
+
+
+def package_of(path: str) -> str:
+    """The package a file's relative imports resolve against."""
+    here = module_name(path)
+    return here if path.endswith("__init__.py") else here.rpartition(".")[0]
+
+
+def resolve_from(node: ast.ImportFrom, package: str) -> str:
+    """The absolute module a ``from ... import`` names (relative ones resolved against ``package``)."""
+    base = node.module or ""
+    if not node.level:
+        return base
+    parts = package.split(".") if package else []
+    parent = ".".join(parts[: len(parts) - (node.level - 1)]) if node.level > 1 else package
+    return f"{parent}.{base}".strip(".") if base else parent
 
 
 def module_name(path: str) -> str:
@@ -236,8 +253,7 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
             tree = _parse(path, text)
         except SyntaxError:
             continue
-        here = module_name(path)
-        package = here if path.endswith("__init__.py") else here.rpartition(".")[0]
+        package = package_of(path)
         # FIXME[2533]: Keep every module an import alias may refer to, across scopes
         #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353183658
         #   A function-local `import os as util` overwrote a module-level `import pkg.reexport as util`.
@@ -245,11 +261,7 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
         modules: dict[str, set[str]] = {}
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom):
-                base = node.module or ""
-                if node.level:
-                    parts = package.split(".") if package else []
-                    parent = ".".join(parts[: len(parts) - (node.level - 1)]) if node.level > 1 else package
-                    base = f"{parent}.{base}".strip(".") if base else parent
+                base = resolve_from(node, package)
                 for alias in node.names:
                     record(base, alias.name, path)
                     if alias.name != "*":
@@ -268,6 +280,9 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
             if isinstance(node, ast.Name) and node.id in modules and id(node) not in attribute_roots:
                 for target in modules[node.id]:
                     record(target, "*", path)
+        # FIXME[fb9c]: Track escapes of dotted module expressions like `alias = pkg.reexport`
+        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353523681
+        #   Only plain names counted as escapes; `pkg.reexport` assigned elsewhere hid its re-exports.
         for node in ast.walk(tree):
             if isinstance(node, ast.Attribute):
                 dotted = dotted_name(node)
@@ -275,29 +290,36 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
                 if not dotted:
                     continue
                 for target in modules.get(root, set()):
-                    module, _, name = (target + dotted[len(root) :]).rpartition(".")
+                    full = target + dotted[len(root) :]
+                    module, _, name = full.rpartition(".")
                     record(module, name, path)
+                    if id(node) not in attribute_roots:  # the whole expression escapes (assigned, passed, ...)
+                        record(full, "*", path)
     return found
 
 
 # FIXME[cc54]: Detect a runtime module imported through its parent package
 #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353302177
 #   `from byteplan import _todo` imports runtime module byteplan._todo but wasn't recognized.
-def _runtime_imports(tree: ast.Module, runtime: set[str]) -> list[ast.Import | ast.ImportFrom]:
+def _runtime_imports(tree: ast.Module, runtime: set[str], package: str) -> list[ast.Import | ast.ImportFrom]:
     """Every import of a runtime module, at any depth, whatever it imports, including a
     runtime module imported through its parent package (``from pkg import _bp``)."""
     return [
         node
         for node in ast.walk(tree)
-        if (isinstance(node, ast.ImportFrom) and _from_runtime(node, runtime))
+        if (isinstance(node, ast.ImportFrom) and _from_runtime(node, runtime, package))
         or (isinstance(node, ast.Import) and any(alias.name in runtime for alias in node.names))
     ]
 
 
-def _from_runtime(node: ast.ImportFrom, runtime: set[str]) -> bool:
-    if node.level != 0 or node.module is None:
+def _from_runtime(node: ast.ImportFrom, runtime: set[str], package: str) -> bool:
+    # FIXME[478d]: Resolve relative imports before deciding whether they import the runtime
+    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353523672
+    #   `from ._todo import todo` in pkg/m.py (runtime pkg._todo) survived a release.
+    base = resolve_from(node, package)
+    if not base and not node.level:
         return False
-    return node.module in runtime or any(f"{node.module}.{alias.name}" in runtime for alias in node.names)
+    return base in runtime or any(f"{base}.{alias.name}".strip(".") in runtime for alias in node.names)
 
 
 def _is_literal(node: ast.expr) -> bool:
@@ -322,9 +344,9 @@ def _task_ids(decorator: ast.expr, marker: str) -> list[str]:
 # FIXME[a703]: Refuse wildcard runtime imports, whose bindings can't be proven unused
 #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352941930
 #   `from byteplan_runtime import *` was stripped even when its names were used.
-def _runtime_locals(stmt: ast.stmt, runtime: set[str]) -> list[str]:
+def _runtime_locals(stmt: ast.stmt, runtime: set[str], package: str) -> list[str]:
     """Local names bound by a top-level import of a runtime module (empty if it isn't one)."""
-    if isinstance(stmt, ast.ImportFrom) and _from_runtime(stmt, runtime):
+    if isinstance(stmt, ast.ImportFrom) and _from_runtime(stmt, runtime, package):
         return [alias.asname or alias.name for alias in stmt.names]
     if isinstance(stmt, ast.Import) and stmt.names and all(alias.name in runtime for alias in stmt.names):
         return [(alias.asname or alias.name).split(".")[0] for alias in stmt.names]
