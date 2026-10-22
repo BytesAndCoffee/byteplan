@@ -111,7 +111,7 @@ class VerifyReport:
     def failed(self) -> bool:
         """Any requested test that didn't pass or skip as expected: no false passes."""
         bad = {"failed", "error", "timeout", "not_found", "not_run"}
-        return any(r.outcome in bad for t in self.tasks for r in t.results.values())
+        return self.timed_out or any(r.outcome in bad for t in self.tasks for r in t.results.values())
 
 
 @dataclass(frozen=True)

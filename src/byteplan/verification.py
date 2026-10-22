@@ -103,12 +103,29 @@ def fingerprint(root: Path, files: Sequence[str]) -> str:
     return digest.hexdigest()
 
 
+# The evidence store itself never makes evidence stale: writing or committing it would
+# otherwise invalidate what was just recorded.
+_NOT_STORE = f":(exclude){STORE}"
+
+
 def git_state(root: Path) -> tuple[str | None, bool]:
-    """``(HEAD, dirty)``, or ``(None, False)`` outside Git."""
+    """``(HEAD, dirty)``, or ``(None, False)`` outside Git. Changes to the evidence store
+    don't count as dirty."""
     try:
-        return git(["rev-parse", "HEAD"], root).strip(), bool(git(["status", "--porcelain"], root).strip())
+        head = git(["rev-parse", "HEAD"], root).strip()
+        dirty = bool(git(["status", "--porcelain", "--", ".", _NOT_STORE], root).strip())
     except ConfigError:  # not a repository, no commits yet, or no git
         return None, False
+    return head, dirty
+
+
+def changed_since(root: Path, base: str, head: str) -> bool:
+    """Whether anything but the evidence store differs between two commits (True if unknown)."""
+    try:
+        git(["diff", "--quiet", base, head, "--", ".", _NOT_STORE], root)
+    except ConfigError:  # differences (exit 1), or an unknown commit
+        return True
+    return False
 
 
 # Running pytest --------------------------------------------------------------------------------
@@ -254,15 +271,16 @@ def _item_result(reports: Sequence[Mapping[str, Any]]) -> TestResult:
     """One collected item's outcome from its setup/call/teardown reports."""
     duration = round(sum(float(r.get("duration", 0)) for r in reports) * 1000)
     by_phase = {r["when"]: r for r in reports}
-    for phase in ("setup", "call", "teardown"):
-        report = by_phase.get(phase)
-        if report is None:
-            continue
-        if report["outcome"] == "failed":
-            outcome = "failed" if phase == "call" else "error"
-            return TestResult(outcome, duration, report.get("message", ""))
-        if report["outcome"] == "skipped":
-            return TestResult("xfailed" if report.get("xfail") else "skipped", duration)
+    # Errors first, from any phase: a failing setup or teardown outranks a pass or a skip.
+    failed = [phase for phase in ("setup", "call", "teardown") if by_phase.get(phase, {}).get("outcome") == "failed"]
+    if failed:
+        outcome = "error" if failed != ["call"] else "failed"
+        return TestResult(outcome, duration, by_phase[failed[0]].get("message", ""))
+    if "teardown" not in by_phase:
+        return TestResult("not_run", duration)  # unfinished: killed or crashed before cleanup completed
+    skipped = next((by_phase[p] for p in ("setup", "call") if by_phase.get(p, {}).get("outcome") == "skipped"), None)
+    if skipped is not None:
+        return TestResult("xfailed" if skipped.get("xfail") else "skipped", duration)
     call = by_phase.get("call")
     if call is None:
         return TestResult("not_run", duration)
@@ -359,5 +377,8 @@ def _is_stale(
     if stale_on == "head":
         run = evidence.runs.get(entry.get("run", ""), {})
         current, dirty = head
-        return dirty or bool(run.get("dirty")) or run.get("head") != current
+        recorded = run.get("head")
+        if dirty or run.get("dirty") or recorded is None or current is None:
+            return True
+        return recorded != current and changed_since(root, recorded, current)
     return entry.get("fingerprint") != fingerprint(root, task_files(task))

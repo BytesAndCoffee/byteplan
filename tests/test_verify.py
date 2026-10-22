@@ -320,6 +320,9 @@ def test_item_result_phases() -> None:
         == "error"
     )
     assert _item_result([rec("setup", "passed")]).outcome == "not_run"
+    assert _item_result([rec("setup", "passed"), rec("call", "passed")]).outcome == "not_run"  # no teardown yet
+    skipped_then_broken = [rec("setup", "passed"), rec("call", "skipped"), rec("teardown", "failed", message="x")]
+    assert _item_result(skipped_then_broken).outcome == "error"
     assert (
         _item_result([rec("setup", "passed"), rec("call", "passed", xfail=True), rec("teardown", "passed")]).outcome
         == "xpassed"
@@ -334,3 +337,91 @@ def test_partial_results_after_a_crash() -> None:
     results = _aggregate(["f.py::a", "f.py::b"], records, timed_out=False, returncode=-9)
     assert results["f.py::a"].outcome == "passed"
     assert results["f.py::b"].outcome == "not_run"  # never a pass by omission
+
+
+# Codex review of #26 -------------------------------------------------------------------------------
+
+TEARDOWN = """\
+import time
+
+import pytest
+
+
+@pytest.fixture
+def hangs():
+    yield
+    time.sleep(30)
+
+
+@pytest.fixture
+def breaks():
+    yield
+    raise RuntimeError("cleanup failed")
+
+
+def test_hanging_teardown(hangs):
+    assert True
+
+
+def test_skip_then_broken_teardown(breaks):
+    pytest.skip("skipped")
+
+
+
+def test_pass_then_broken_teardown(breaks):
+    assert True
+"""
+
+
+def test_hanging_teardown_is_never_a_pass(project: ProjectFactory, run_cli: RunCli) -> None:
+    runner = json.dumps([sys.executable, "-m", "pytest", "-p", "no:randomly"])
+    make(
+        project,
+        run_cli,
+        [f"{F}::test_hanging_teardown"],
+        tests=TEARDOWN,
+        extra=f"\n[tool.byteplan.tests]\ntimeout = 8\nrunner = {runner}\n",
+    )
+    code, data = verify(project, run_cli)
+    assert code == EXIT_FINDINGS
+    assert data["timed_out"] is True
+    assert outcomes(data) == {f"{F}::test_hanging_teardown": "timeout"}
+    assert data["tasks"][0]["readiness"] == "failing"
+
+
+def test_teardown_errors_outrank_skips_and_passes(project: ProjectFactory, run_cli: RunCli) -> None:
+    # (An xfail-marked test with a broken teardown is pytest's call: it reports xfailed and exits 0.)
+    nodes = [f"{F}::test_skip_then_broken_teardown", f"{F}::test_pass_then_broken_teardown"]
+    make(project, run_cli, nodes, tests=TEARDOWN)
+    code, data = verify(project, run_cli)
+    assert code == EXIT_FINDINGS
+    assert outcomes(data) == dict.fromkeys(nodes, "error")
+    assert all("cleanup failed" in r["message"] for r in data["tasks"][0]["tests"].values())
+
+
+def test_head_mode_ignores_the_evidence_store(project: ProjectFactory, run_cli: RunCli) -> None:
+    if shutil.which("git") is None:
+        pytest.skip("git not installed")
+    make(project, run_cli, [f"{F}::test_pass"], extra='\n[tool.byteplan.tests]\nstale_on = "head"\n')
+    root = project.root
+    project.write(".gitignore", "__pycache__/\n.pytest_cache/\n")  # what pytest leaves behind
+    for args in (("init", "-q", "-b", "main"), ("config", "user.email", "t@example.com"), ("config", "user.name", "T")):
+        git(root, *args)
+    git(root, "config", "commit.gpgsign", "false")
+    git(root, "add", "-A")
+    git(root, "commit", "-qm", "base")
+    assert verify(project, run_cli)[0] == EXIT_OK
+
+    def state() -> str:
+        project_obj = Project.open(root)
+        return project_obj.readiness(project_obj.get_task("a83f")).state
+
+    assert state() == "ready_for_review"  # the new, uncommitted verification.json isn't "dirty"
+    git(root, "add", ".byteplan/verification.json")
+    git(root, "commit", "-qm", "evidence")
+    assert state() == "ready_for_review"  # a commit of only the evidence doesn't move it
+    project.write("src/other.py", "x = 1\n")
+    assert state() == "needs_review"  # any other change does (dirty)
+    git(root, "add", "-A")
+    git(root, "commit", "-qm", "other")
+    assert state() == "needs_review"  # and so does committing it
