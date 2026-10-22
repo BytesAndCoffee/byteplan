@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 import textwrap
+import types
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -707,3 +708,32 @@ def test_module_escaping_attribute_access_keeps_its_runtime_names(
     assert result.code == EXIT_ERROR
     assert "imported from this module by src/pkg/consumer.py" in result.err
     assert released_repo.snapshot() == before
+
+
+# Codex review of #32, round 9 ----------------------------------------------------------------------
+
+
+def test_restored_import_stays_above_a_declaration_moved_before_its_anchor(
+    released_repo: ProjectFactory, run_cli: RunCli
+) -> None:
+    """A hotfix moved the decorated function above the import's anchor; the import must still come first."""
+    original = 'VERSION = 1\nfrom byteplan_runtime import todo\n\n\n@todo("m", id="f567")\ndef f():\n    return 1\n'
+    released_repo.write("src/pkg/moved.py", original, dedent=False)
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "moved")
+    assert release(released_repo, run_cli).code == EXIT_OK
+    path = released_repo.root / "src/pkg/moved.py"
+    assert path.read_text() == "VERSION = 1\n\n\ndef f():\n    return 1\n"
+    path.write_text("def f():\n    return 1\n\n\nVERSION = 1\n")  # the hotfix reorders the module
+    assert run_cli("restore", "--project", released_repo.root).code == EXIT_OK
+    restored = path.read_text()
+    assert restored.index("from byteplan_runtime import todo") < restored.index("@todo(")
+    namespace: dict[str, Any] = {}
+    runtime = types.ModuleType("byteplan_runtime")
+    runtime.todo = lambda *_args, **_kwargs: lambda f: f  # type: ignore[attr-defined]
+    sys.modules["byteplan_runtime"] = runtime
+    try:
+        exec(compile(restored, "moved.py", "exec"), namespace)
+    finally:
+        sys.modules.pop("byteplan_runtime", None)
+    assert namespace["f"]() == 1

@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**25 open** · 8 closed (resolved 8)
+**26 open** · 8 closed (resolved 8)
 
 ## Open
 
@@ -29,9 +29,10 @@
 | `cc54` | open | FIXME | normal | - | [`src/byteplan/release.py:283`](src/byteplan/release.py#L283) | Detect a runtime module imported through its parent package |
 | `a703` | open | FIXME | normal | - | [`src/byteplan/release.py:322`](src/byteplan/release.py#L322) | Refuse wildcard runtime imports, whose bindings can't be proven unused |
 | `baeb` | open | FIXME | normal | - | [`src/byteplan/release.py:334`](src/byteplan/release.py#L334) | Count every __all__ assignment form as an export |
-| `c242` | open | FIXME | normal | - | [`src/byteplan/release.py:421`](src/byteplan/release.py#L421) | Check the current binding before restoring a decorator |
-| `b68c` | open | FIXME | normal | - | [`src/byteplan/release.py:456`](src/byteplan/release.py#L456) | Restore an unanchored import below the current docstring and __future__ imports |
-| `fd44` | open | FIXME | normal | - | [`src/byteplan/release.py:465`](src/byteplan/release.py#L465) | Keep anchored imports below a __future__ import added since the release |
+| `fb23` | open | FIXME | normal | - | [`src/byteplan/release.py:418`](src/byteplan/release.py#L418) | Keep a restored runtime import above every use of its names |
+| `c242` | open | FIXME | normal | - | [`src/byteplan/release.py:425`](src/byteplan/release.py#L425) | Check the current binding before restoring a decorator |
+| `b68c` | open | FIXME | normal | - | [`src/byteplan/release.py:490`](src/byteplan/release.py#L490) | Restore an unanchored import below the current docstring and __future__ imports |
+| `fd44` | open | FIXME | normal | - | [`src/byteplan/release.py:499`](src/byteplan/release.py#L499) | Keep anchored imports below a __future__ import added since the release |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
 
 ## Closed

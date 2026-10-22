@@ -32,6 +32,7 @@
     "de66",
     "ec99",
     "f853",
+    "fb23",
     "fd44"
   ],
   "schema_version": 1,
@@ -1729,8 +1730,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 453,
-        "line": 456,
+        "decl_line": 487,
+        "line": 490,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"
@@ -1814,12 +1815,24 @@
           "event": "test_linked",
           "new": "tests/test_release.py::test_restore_refuses_a_decorator_shadowed_since_the_release",
           "old": null
+        },
+        {
+          "at": "2026-10-22T20:58:56Z",
+          "event": "moved",
+          "new": {
+            "path": "src/byteplan/release.py",
+            "symbol": "_hoist_late_imports"
+          },
+          "old": {
+            "path": "src/byteplan/release.py",
+            "symbol": "_insert_decorator"
+          }
         }
       ],
       "id": "c242",
       "kind": "FIXME",
       "labels": [],
-      "last_seen": "2026-10-22T19:54:16Z",
+      "last_seen": "2026-10-22T20:58:56Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
@@ -1827,11 +1840,11 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 424,
-        "line": 421,
+        "decl_line": 428,
+        "line": 425,
         "path": "src/byteplan/release.py",
         "representation": "comment",
-        "symbol": "_insert_decorator"
+        "symbol": "_hoist_late_imports"
       },
       "status": "open",
       "stub": null,
@@ -2115,6 +2128,55 @@
       "title": "Phase 9: MCP server",
       "title_override": null
     },
+    "fb23": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353449049\nA declaration moved above the import's anchor got its decorator before the import (NameError).",
+      "first_seen": "2026-10-22T20:58:18Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:58:18Z",
+          "event": "created",
+          "new": {
+            "line": 417,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:58:55Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_restored_import_stays_above_a_declaration_moved_before_its_anchor",
+          "old": null
+        }
+      ],
+      "id": "fb23",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:58:18Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 369,
+        "line": 418,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "restore_anchored"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_restored_import_stays_above_a_declaration_moved_before_its_anchor"
+        ]
+      },
+      "title": "Keep a restored runtime import above every use of its names",
+      "title_override": null
+    },
     "fd44": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108706\nAn anchor before a new `from __future__` line put the import above it (SyntaxError).",
@@ -2147,8 +2209,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 453,
-        "line": 465,
+        "decl_line": 487,
+        "line": 499,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"

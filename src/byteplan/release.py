@@ -414,6 +414,10 @@ def restore_anchored(path: str, text: str, record: dict[str, Any]) -> tuple[str,
             left_imports.append(entry)
         else:
             text = placed
+    text = _hoist_late_imports(path, text, [e for e in record.get("imports", []) if e not in left_imports])
+    # FIXME[fb23]: Keep a restored runtime import above every use of its names
+    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353449049
+    #   A declaration moved above the import's anchor got its decorator before the import (NameError).
     remaining = {"decorators": left_decorators, "imports": left_imports} if left_decorators or left_imports else {}
     return text, conflicts, remaining
 
@@ -421,6 +425,36 @@ def restore_anchored(path: str, text: str, record: dict[str, Any]) -> tuple[str,
 # FIXME[c242]: Check the current binding before restoring a decorator
 #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850126
 #   A class-local `todo` added while stripped would take over the restored decorator.
+def _hoist_late_imports(path: str, text: str, entries: Sequence[dict[str, Any]]) -> str:
+    """Move a restored import that ends up after a use of its names up to the header (after the
+    docstring and ``__future__`` imports): its anchor may now sit below the code using it."""
+    for entry in entries:
+        lines = _lines(text)
+        tree = _parse(path, text)
+        block = _lines(entry["text"])
+        first = block[0].rstrip("\r\n")
+        found = [
+            s
+            for s in tree.body
+            if isinstance(s, ast.Import | ast.ImportFrom) and lines[s.lineno - 1].rstrip("\r\n") == first
+        ]
+        if len(found) != 1:
+            continue
+        stmt = found[0]
+        bound = {(a.asname or a.name).split(".")[0] for a in stmt.names}
+        uses = [n.lineno for n in ast.walk(tree) if isinstance(n, ast.Name) and n.id in bound]
+        if not uses or min(uses) > (stmt.end_lineno or stmt.lineno):
+            continue
+        start = stmt.lineno - 1
+        if lines[start : start + len(block)] != block:
+            continue
+        del lines[start : start + len(block)]
+        at = max(header_end(lines), _header_statements_end(_parse(path, "".join(lines))))
+        lines[at:at] = block
+        text = "".join(lines)
+    return text
+
+
 def _insert_decorator(text: str, decl: Declaration, entry: dict[str, Any]) -> str:
     lines = _lines(text)
     stack = decl.node.decorator_list
