@@ -163,6 +163,9 @@ def entry(task: Task, record: dict[str, Any], archived_at: str) -> dict[str, Any
     }
 
 
+# FIXME[e7d9]: ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side
+#   https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354508767
+#   Merge each entry three-way against base; conflict when both sides change it differently.
 def merge(base: str | None, ours: str | None, theirs: str | None) -> str:
     """Union of two indexes by task ID (entries never change once written; on a clash, ours)."""
     merged = Index.loads(base)

@@ -42,6 +42,7 @@
     "c8db",
     "cc54",
     "de66",
+    "e7d9",
     "ec99",
     "f853",
     "fb23",
@@ -3290,6 +3291,43 @@
       "status": "open",
       "stub": null,
       "title": "Phase 6c (optional): acceptance criteria and dependencies",
+      "title_override": null
+    },
+    "e7d9": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354508767\nMerge each entry three-way against base; conflict when both sides change it differently.",
+      "first_seen": "2026-10-22T23:14:45Z",
+      "history": [
+        {
+          "at": "2026-10-22T23:14:45Z",
+          "event": "created",
+          "new": {
+            "line": 166,
+            "path": "src/byteplan/archive.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "e7d9",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T23:14:45Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 169,
+        "line": 166,
+        "path": "src/byteplan/archive.py",
+        "representation": "comment",
+        "symbol": "merge"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side",
       "title_override": null
     },
     "ec99": {

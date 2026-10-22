@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**9 open** · 39 closed (resolved 39)
+**10 open** · 39 closed (resolved 39)
 
 ## Open
 
@@ -15,6 +15,7 @@
 | `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1581`](docs/IMPLEMENTATION_PLAN.md#L1581) | Phase 11b (optional): Git reporting |
 | `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1584`](docs/IMPLEMENTATION_PLAN.md#L1584) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
 | `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1588`](docs/IMPLEMENTATION_PLAN.md#L1588) | Phase 13 (optional): relay-for-github |
+| `e7d9` | open | FIXME | normal | - | [`src/byteplan/archive.py:166`](src/byteplan/archive.py#L166) | ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:302`](src/byteplan/config.py#L302) | Support detect.placeholder_assignments |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
 
