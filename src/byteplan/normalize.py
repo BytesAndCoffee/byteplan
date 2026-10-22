@@ -170,16 +170,41 @@ class _Binding:
     problem: str | None = None
 
 
-def _binding(tree: ast.Module, runtime_modules: Sequence[str], available: str | None) -> _Binding:
+def _unconditional_binding(tree: ast.Module, runtime_modules: Sequence[str], before: int) -> str | None:
+    """A runtime ``todo`` bound by a plain module-level import that ends before line ``before``,
+    so it has certainly run when the decorators do. Imports under ``if``/``try`` (such as
+    ``if TYPE_CHECKING:``) or below a declaration don't qualify."""
     names = resolve_runtime_names(tree, runtime_modules)
-    direct = sorted(
-        local for local, marker in names.direct.items() if marker == "todo" and local not in names.ambiguous
-    )
-    if direct:
-        return _Binding(direct[0], None)
-    modules = sorted(local for local in names.modules if local.split(".")[0] not in names.ambiguous)
-    if modules:
-        return _Binding(f"{modules[0]}.todo", None)
+    runtime = set(runtime_modules)
+    for stmt in tree.body:
+        if (stmt.end_lineno or stmt.lineno) >= before:
+            break
+        if isinstance(stmt, ast.ImportFrom) and stmt.level == 0 and stmt.module in runtime:
+            for alias in stmt.names:
+                local = alias.asname or alias.name
+                if alias.name == "todo" and names.resolve(local) == "todo":
+                    return local
+        elif isinstance(stmt, ast.Import):
+            for alias in stmt.names:
+                local = alias.asname or alias.name
+                if alias.name in runtime and names.resolve(f"{local}.todo") == "todo":
+                    return f"{local}.todo"
+    return None
+
+
+def _binding(tree: ast.Module, runtime_modules: Sequence[str], available: str | None, before: int) -> _Binding:
+    """How the new decorators reach ``todo``. ``before`` is the first line any of them goes on."""
+    expr = _unconditional_binding(tree, runtime_modules, before)
+    if expr is not None:
+        return _Binding(expr, None)
+    names = resolve_runtime_names(tree, runtime_modules)
+    if names.direct or names.modules:
+        return _Binding(
+            None,
+            None,
+            "the module's runtime import is conditional (e.g. under `if TYPE_CHECKING:`) or comes after "
+            "the declaration, so `todo` might not exist when the decorator runs; move the import to the top",
+        )
     if available is None:
         return _Binding(
             None,
@@ -250,7 +275,8 @@ def plan_file(
 
     if not candidates:
         return plan
-    binding = _binding(tree, runtime_modules, available)
+    first = min(tag.line if decl is None else min(tag.line, decl.start) for tag, decl in candidates)
+    binding = _binding(tree, runtime_modules, available, first)
     if binding.expr is None:
         for tag, _ in candidates:
             plan.diagnostics.append(

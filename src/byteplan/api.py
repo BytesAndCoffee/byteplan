@@ -672,7 +672,12 @@ class Project:
             stubs = [a for a in annotations if a.origin is Origin.STUB and a.task_id is None]
             stub_ids: dict[tuple[str, int, int], str] = {}
             if settings.auto_decorate_stubs and only_ids is None:
-                stub_ids = {(p.tag.path, p.tag.line, p.tag.col): p.task_id for p in _plan_allocations(stubs, registry)}
+                # Every ID already in source is taken, registered or not.
+                in_source = {a.task_id for a in annotations if a.task_id is not None}
+                stub_ids = {
+                    (p.tag.path, p.tag.line, p.tag.col): p.task_id
+                    for p in _plan_allocations(stubs, registry, also_used=in_source)
+                }
 
             by_file: defaultdict[str, list[Annotation]] = defaultdict(list)
             for annotation in annotations:
@@ -1116,9 +1121,12 @@ def _stubs_reported_only(
     return kept, notes
 
 
-def _plan_allocations(tags: Sequence[Annotation], registry: Registry) -> list[Proposal]:
-    """Assign IDs to untagged tags in scan order (sorted files, then line)."""
-    used = set(registry.reserved_ids) | {tag.task_id for tag in tags if tag.task_id is not None}
+def _plan_allocations(tags: Sequence[Annotation], registry: Registry, also_used: Iterable[str] = ()) -> list[Proposal]:
+    """Assign IDs to untagged tags in scan order (sorted files, then line).
+
+    Reserved IDs, IDs on ``tags`` and ``also_used`` (e.g. IDs elsewhere in source) are never reused.
+    """
+    used = set(registry.reserved_ids) | {tag.task_id for tag in tags if tag.task_id is not None} | set(also_used)
     occurrences: Counter[tuple[str, str, str, str]] = Counter()
     proposals: list[Proposal] = []
     for tag in tags:

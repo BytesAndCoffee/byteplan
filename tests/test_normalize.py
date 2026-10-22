@@ -511,3 +511,49 @@ def test_shim_end_to_end_without_the_dependency(project: ProjectFactory, run_cli
     text = (project.root / "src/demo/a.py").read_text()
     assert text.startswith("from demo._byteplan import todo\n@todo(")
     assert run_cli("check", "--project", project.root).code == EXIT_OK
+
+
+# Codex review of #23 -------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "from typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n    from byteplan_runtime import todo\n\n\n"
+        "# TODO: x\ndef f():\n    return 1\n",
+        "# TODO: x\ndef f():\n    return 1\n\n\nfrom byteplan_runtime import todo\n",
+        "try:\n    import byteplan_runtime as br\nexcept ImportError:\n    br = None\n\n\n# TODO: x\ndef f():\n    return 1\n",
+    ],
+)
+def test_conditional_or_late_imports_are_not_reused(decorated: ProjectFactory, run_cli: RunCli, source: str) -> None:
+    """Reusing them could raise NameError at import time; the comment must stay."""
+    decorated.write("src/a.py", source)
+    assert run_cli("scan", "--project", decorated.root).code == EXIT_OK
+    scanned = (decorated.root / "src/a.py").read_text()
+    result = run_cli("sync", "--apply", "--project", decorated.root)
+    assert result.code == EXIT_OK
+    assert (decorated.root / "src/a.py").read_text() == scanned
+    assert "might not exist when the decorator runs" in result.err
+
+
+def test_import_above_the_declaration_is_reused(decorated: ProjectFactory, run_cli: RunCli) -> None:
+    decorated.write(
+        "src/a.py", "import os\nfrom byteplan_runtime import todo as mark\n\n\n# TODO: x\ndef f():\n    return os\n"
+    )
+    scan_and_sync(decorated, run_cli)
+    text = (decorated.root / "src/a.py").read_text()
+    assert '@mark("x", id="' in text
+    assert text.count("import") == 2
+
+
+def test_stub_ids_never_reuse_unregistered_source_ids(decorated: ProjectFactory, run_cli: RunCli) -> None:
+    decorated.write("src/stub.py", "def g():\n    pass\n")
+    assert run_cli("scan", "--project", decorated.root).code == EXIT_OK
+    planned = json.loads(run_cli("sync", "--format", "json", "--project", decorated.root).out)
+    (would_be,) = [r["id"] for r in planned["rewrites"]]
+    # The same ID appears in source, unregistered (e.g. pasted from another branch).
+    decorated.write("src/other.py", f"# TODO[{would_be}]: pasted\nx = 1\n")
+    result = json.loads(run_cli("sync", "--apply", "--format", "json", "--project", decorated.root).out)
+    (new_id,) = [r["id"] for r in result["rewrites"]]
+    assert new_id != would_be
+    assert "DUPLICATE_ID" not in run_cli("scan", "--project", decorated.root).err
