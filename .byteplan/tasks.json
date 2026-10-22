@@ -13,11 +13,14 @@
     "75b4",
     "82b3",
     "9054",
+    "90c6",
     "9185",
     "93dd",
     "9b40",
     "a6b2",
+    "aedf",
     "b68c",
+    "c242",
     "de66",
     "ec99",
     "f853"
@@ -512,8 +515,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 84,
-        "line": 95,
+        "decl_line": 85,
+        "line": 101,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "strip_file"
@@ -598,8 +601,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 1175,
-        "line": 1207,
+        "decl_line": 1191,
+        "line": 1223,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "Project.restore"
@@ -1045,6 +1048,55 @@
       "title": "Phase 11b (optional): Git reporting",
       "title_override": null
     },
+    "90c6": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850135\nA stripped stub looks unowned, so a writing scan added a duplicate task and comment.",
+      "first_seen": "2026-10-22T19:54:16Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:54:16Z",
+          "event": "created",
+          "new": {
+            "line": 412,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:54:56Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_stripped_stub_gets_no_duplicate_task",
+          "old": null
+        }
+      ],
+      "id": "90c6",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T19:54:16Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 342,
+        "line": 412,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project._scan"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_stripped_stub_gets_no_duplicate_task"
+        ]
+      },
+      "title": "Don't propose stub tasks for declarations whose @todo is stripped for a release",
+      "title_override": null
+    },
     "9185": {
       "assignee": null,
       "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185458\n`Hello <!-- TODO -->world.` must not become `Helloworld.`.",
@@ -1335,6 +1387,62 @@
       "title": "Support detect.placeholder_assignments",
       "title_override": null
     },
+    "aedf": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850109\n`from byteplan_runtime import __version__` or an import inside a function survived a release.",
+      "first_seen": "2026-10-22T19:54:16Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:54:16Z",
+          "event": "created",
+          "new": {
+            "line": 88,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:54:55Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_other_runtime_imports_refuse_the_release",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:54:55Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_unused_other_runtime_import_is_stripped",
+          "old": null
+        }
+      ],
+      "id": "aedf",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T19:54:16Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 85,
+        "line": 89,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "strip_file"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_other_runtime_imports_refuse_the_release",
+          "tests/test_release.py::test_unused_other_runtime_import_is_stripped"
+        ]
+      },
+      "title": "Check every runtime import, not just decorator bindings, before skipping a file",
+      "title_override": null
+    },
     "b68c": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659119\nA hotfix that adds either would otherwise get the import above it (SyntaxError for __future__).",
@@ -1367,8 +1475,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 268,
-        "line": 271,
+        "decl_line": 323,
+        "line": 326,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"
@@ -1382,6 +1490,55 @@
         ]
       },
       "title": "Restore an unanchored import below the current docstring and __future__ imports",
+      "title_override": null
+    },
+    "c242": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850126\nA class-local `todo` added while stripped would take over the restored decorator.",
+      "first_seen": "2026-10-22T19:54:16Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:54:16Z",
+          "event": "created",
+          "new": {
+            "line": 271,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:54:56Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_restore_refuses_a_decorator_shadowed_since_the_release",
+          "old": null
+        }
+      ],
+      "id": "c242",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T19:54:16Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 294,
+        "line": 291,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_insert_decorator"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_restore_refuses_a_decorator_shadowed_since_the_release"
+        ]
+      },
+      "title": "Check the current binding before restoring a decorator",
       "title_override": null
     },
     "de66": {

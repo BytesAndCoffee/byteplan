@@ -42,6 +42,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "bb9468bff64e": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T19:55:33Z",
+      "dirty": true,
+      "head": "d6384bddcb9e3558799787835717f0ebd315046d",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "c6c988fe2179": {
       "argv": [
         "hatch",
@@ -74,43 +88,43 @@
   "schema_version": 1,
   "tasks": {
     "0413": {
-      "fingerprint": "9129b646844c600b53fffdc01a06de9aaaacd67f7a74ede3c9f5f5259592912a",
-      "run": "49767db02229",
+      "fingerprint": "a5b92b83731fac4ddf6cad04af40159cffd959cc3d29c754259c8a0a443c562f",
+      "run": "bb9468bff64e",
       "tests": {
         "tests/test_release.py::test_crash_mid_release_rolls_forward": {
-          "duration_ms": 303,
+          "duration_ms": 368,
           "outcome": "passed"
         },
         "tests/test_release.py::test_refusals_write_nothing": {
-          "duration_ms": 319,
+          "duration_ms": 376,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_strips_only_decorators_imports_and_the_registry": {
-          "duration_ms": 185,
+          "duration_ms": 126,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_then_restore_is_byte_identical": {
-          "duration_ms": 1616,
+          "duration_ms": 1566,
           "outcome": "passed"
         },
         "tests/test_release.py::test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record": {
-          "duration_ms": 117,
+          "duration_ms": 143,
           "outcome": "passed"
         },
         "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast": {
-          "duration_ms": 115,
+          "duration_ms": 129,
           "outcome": "passed"
         },
         "tests/test_release.py::test_stripped_tree_imports_without_the_runtime": {
-          "duration_ms": 180,
+          "duration_ms": 146,
           "outcome": "passed"
         },
         "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen": {
-          "duration_ms": 151,
+          "duration_ms": 109,
           "outcome": "passed"
         },
         "tests/test_release.py::test_writing_commands_refuse_while_stripped": {
-          "duration_ms": 119,
+          "duration_ms": 106,
           "outcome": "passed"
         }
       }
@@ -281,6 +295,16 @@
         }
       }
     },
+    "90c6": {
+      "fingerprint": "172ddff9690759845c0e927f372a880f51e77078bc7984d8dd36900cb6cf9302",
+      "run": "bb9468bff64e",
+      "tests": {
+        "tests/test_release.py::test_stripped_stub_gets_no_duplicate_task": {
+          "duration_ms": 23,
+          "outcome": "passed"
+        }
+      }
+    },
     "9185": {
       "fingerprint": "4d7ecc87a37c3ec7ee0c5ca47f76a156962cef22da63518ce590fcdafc9952e4",
       "run": "e4e6fd13169c",
@@ -333,12 +357,36 @@
         }
       }
     },
+    "aedf": {
+      "fingerprint": "eb2a2f9c09e3433a5deae6d2e7c3a71ce4ef9e8e3ff4ec76bf791ede085709e2",
+      "run": "bb9468bff64e",
+      "tests": {
+        "tests/test_release.py::test_other_runtime_imports_refuse_the_release": {
+          "duration_ms": 261,
+          "outcome": "passed"
+        },
+        "tests/test_release.py::test_unused_other_runtime_import_is_stripped": {
+          "duration_ms": 182,
+          "outcome": "passed"
+        }
+      }
+    },
     "b68c": {
       "fingerprint": "e4f00bc780cd5c5a24a09f5d9e6008010f09c4e41c0a470396e8058d143b1519",
       "run": "49767db02229",
       "tests": {
         "tests/test_release.py::test_unanchored_import_goes_below_a_new_docstring_and_future_import": {
           "duration_ms": 125,
+          "outcome": "passed"
+        }
+      }
+    },
+    "c242": {
+      "fingerprint": "eb2a2f9c09e3433a5deae6d2e7c3a71ce4ef9e8e3ff4ec76bf791ede085709e2",
+      "run": "bb9468bff64e",
+      "tests": {
+        "tests/test_release.py::test_restore_refuses_a_decorator_shadowed_since_the_release": {
+          "duration_ms": 132,
           "outcome": "passed"
         }
       }

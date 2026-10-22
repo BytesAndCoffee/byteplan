@@ -420,3 +420,73 @@ def test_partial_restore_keeps_decorators_whose_import_is_unplaced(
     assert len(pending["decorators"]) == 2
     assert "src/pkg/routes.py" in data["release"]["files"]
     assert "tests/test_routes.py" not in data["release"]["files"]
+
+
+# Codex review of #32, round 2 (tracked as aedf, c242, 90c6) --------------------------------------
+
+
+@pytest.mark.parametrize(
+    "module",
+    [
+        "from byteplan_runtime import __version__\n\nprint(__version__)\n",
+        "def f():\n    import byteplan_runtime\n    return byteplan_runtime\n",
+    ],
+)
+def test_other_runtime_imports_refuse_the_release(released_repo: ProjectFactory, run_cli: RunCli, module: str) -> None:
+    """aedf: a runtime dependency that isn't a decorator must not survive into a release."""
+    released_repo.write("src/pkg/uses_runtime.py", module, dedent=False)
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "uses runtime")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert "src/pkg/uses_runtime.py" in result.err
+    assert "still used outside decorators" in result.err
+    assert released_repo.snapshot() == before
+
+
+def test_unused_other_runtime_import_is_stripped(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    released_repo.write("src/pkg/unused.py", "from byteplan_runtime import __version__\n\nVALUE = 1\n", dedent=False)
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "unused import")
+    assert release(released_repo, run_cli).code == EXIT_OK
+    assert (released_repo.root / "src/pkg/unused.py").read_text() == "VALUE = 1\n"
+    assert run_cli("restore", "--project", released_repo.root).code == EXIT_OK
+    assert (
+        (released_repo.root / "src/pkg/unused.py").read_text().startswith("from byteplan_runtime import __version__\n")
+    )
+
+
+def test_restore_refuses_a_decorator_shadowed_since_the_release(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    """c242: a class-local `todo` added while stripped would take over the restored decorator."""
+    assert release(released_repo, run_cli).code == EXIT_OK
+    path = released_repo.root / "src/pkg/routes.py"
+    path.write_text(
+        path.read_text().replace(
+            "class Router:\n", "class Router:\n    def todo(*a, **k):\n        raise RuntimeError\n\n"
+        )
+    )
+    before = released_repo.snapshot()
+    result = run_cli("restore", "--project", released_repo.root)
+    assert result.code == EXIT_ERROR
+    assert "restore_conflict" in result.err
+    assert "shadowed" in result.err
+    assert released_repo.snapshot() == before
+
+
+def test_stripped_stub_gets_no_duplicate_task(project: ProjectFactory, run_cli: RunCli) -> None:
+    """90c6: in comment mode, a stub whose @todo is stripped must not look unowned to scan."""
+    project.write("pyproject.toml", '[project]\nname = "demo"\nversion = "1.0"\n', dedent=False)
+    project.init()
+    project.write(
+        "src/stub.py",
+        'from byteplan_runtime import todo\n\n\n@todo("Implement", id="abcd")\ndef unfinished():\n    pass\n',
+        dedent=False,
+    )
+    assert run_cli("repair", "--import", "abcd", "--project", project.root).code == EXIT_OK
+    assert run_cli("release", "--allow-dirty", "--project", project.root).code == EXIT_OK
+    stripped = (project.root / "src/stub.py").read_text()
+    result = run_cli("scan", "--project", project.root)
+    assert "+0 added" in result.out
+    assert (project.root / "src/stub.py").read_text() == stripped  # no new TODO comment
+    assert sorted(tasks(project)["tasks"]) == ["abcd"]

@@ -24,6 +24,7 @@ This module only plans text; the caller validates and writes through the journal
 from __future__ import annotations
 
 import ast
+import re
 import warnings
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
@@ -85,7 +86,11 @@ def strip_file(path: str, text: str, runtime_modules: Sequence[str]) -> FileStri
     """Plan stripping one file, or None if it has nothing of BytePlan's. Raises ``ReleaseError``."""
     tree = _parse(path, text)
     names = resolve_runtime_names(tree, runtime_modules)
-    if not names.direct and not names.modules and not names.ambiguous:
+    # FIXME[aedf]: Check every runtime import, not just decorator bindings, before skipping a file
+    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850109
+    #   `from byteplan_runtime import __version__` or an import inside a function survived a release.
+    runtime = set(runtime_modules)
+    if not names.direct and not names.modules and not names.ambiguous and not _runtime_imports(tree, runtime):
         return None
     lines = _lines(text)
     problems: list[str] = []
@@ -135,13 +140,12 @@ def strip_file(path: str, text: str, runtime_modules: Sequence[str]) -> FileStri
             )
     if problems:
         raise ReleaseError(NEEDS_REVIEW, problems, "put each decorator on its own lines")
-    if not decorators and not names.direct and not names.modules:
+    if not decorators and not _runtime_imports(tree, runtime):
         return None
 
     removed_lines = {n for d in decorators for n in range(d["line"], d["end_line"] + 1)}
     intermediate = "".join(line for number, line in enumerate(lines, start=1) if number not in removed_lines)
     used = _used_names(_parse(path, intermediate))
-    runtime = set(runtime_modules)
     imports: list[dict[str, Any]] = []
     previous: ast.stmt | None = None
     for stmt in tree.body:
@@ -167,15 +171,25 @@ def strip_file(path: str, text: str, runtime_modules: Sequence[str]) -> FileStri
             previous = stmt
 
     stripped = "".join(line for number, line in enumerate(lines, start=1) if number not in removed_lines)
-    leftover = resolve_runtime_names(_parse(path, stripped), runtime_modules)
-    if leftover.direct or leftover.modules:
-        where = sorted({*leftover.direct, *leftover.modules})
+    leftover = _runtime_imports(_parse(path, stripped), runtime)
+    if leftover:
+        where = sorted({f"line {node.lineno}" for node in leftover})
         raise ReleaseError(
             NEEDS_REVIEW,
             [f"{path}: the runtime is still used outside decorators ({', '.join(where)})"],
             "production code would fail to import without byteplan-runtime",
         )
     return FileStrip(path, stripped, decorators, imports)
+
+
+def _runtime_imports(tree: ast.Module, runtime: set[str]) -> list[ast.Import | ast.ImportFrom]:
+    """Every import of a runtime module, at any depth, whatever it imports."""
+    return [
+        node
+        for node in ast.walk(tree)
+        if (isinstance(node, ast.ImportFrom) and node.level == 0 and node.module in runtime)
+        or (isinstance(node, ast.Import) and any(alias.name in runtime for alias in node.names))
+    ]
 
 
 def _task_ids(decorator: ast.expr, marker: str) -> list[str]:
@@ -244,11 +258,20 @@ def restore_anchored(path: str, text: str, record: dict[str, Any]) -> tuple[str,
         by_decl.setdefault(entry["qualname"], []).append(entry)
     for qualname, entries in by_decl.items():
         for entry in sorted(entries, key=lambda e: e["index"]):
-            matches = [d for d in declarations(_parse(path, text)) if d.qualname == qualname]
+            tree = _parse(path, text)
+            matches = [d for d in declarations(tree) if d.qualname == qualname]
             if len(matches) != 1:
                 why = "no longer exists" if not matches else "is ambiguous"
                 conflicts.append(
                     f"{path}: {qualname} {why}; can't place @{entry['kind']} (line {entry['line']} before)"
+                )
+                left_decorators.append(entry)
+                continue
+            name = re.match(r"\s*@\s*([A-Za-z_][\w.]*)", entry["text"])
+            base = name.group(1).split(".")[0] if name else entry["kind"]
+            if any(_binds(scope, base) for scope in _enclosing_scopes(tree).get(matches[0].node, ())):
+                conflicts.append(
+                    f"{path}: `{base}` is shadowed in {qualname}'s scope now; can't restore @{entry['kind']}"
                 )
                 left_decorators.append(entry)
                 continue
@@ -265,6 +288,9 @@ def restore_anchored(path: str, text: str, record: dict[str, Any]) -> tuple[str,
     return text, conflicts, remaining
 
 
+# FIXME[c242]: Check the current binding before restoring a decorator
+#   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850126
+#   A class-local `todo` added while stripped would take over the restored decorator.
 def _insert_decorator(text: str, decl: Declaration, entry: dict[str, Any]) -> str:
     lines = _lines(text)
     stack = decl.node.decorator_list

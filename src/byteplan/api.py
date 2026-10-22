@@ -409,6 +409,22 @@ class Project:
                     hint="run `byteplan scan` (without --dry-run) to complete it",
                 )
             )
+        # FIXME[90c6]: Don't propose stub tasks for declarations whose @todo is stripped for a release
+        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850135
+        #   A stripped stub looks unowned, so a writing scan added a duplicate task and comment.
+        stripped_block = self.stripped_release(registry)
+        if stripped_block is not None:
+            on_record = {
+                (path, entry["qualname"])
+                for path, record in stripped_block.get("files", {}).items()
+                for entry in record.get("decorators", [])
+                if entry["kind"] == "todo"
+            }
+            tags = [
+                t
+                for t in tags
+                if not (t.origin is Origin.STUB and t.task_id is None and (t.path, t.symbol) in on_record)
+            ]
         if self.config.annotations.mode != "comment":
             tags, stub_notes = _stubs_reported_only(tags, self.config.annotations)
             diagnostics.extend(stub_notes)
