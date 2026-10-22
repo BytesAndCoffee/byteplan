@@ -676,6 +676,17 @@ allow_in_ci = false
 - **Entry point:** `[project.entry-points.hatch] byteplan = "byteplan.hatch_hook"` is added in the
   same change as the module. Registering it earlier would break every Hatchling build in
   environments where byteplan is installed.
+- **Implemented (Phase 4):** the hook is `byteplan.hatch_hook`, verified against Hatchling 1.32.4.
+  - **Config:** unknown keys fail the build. Hatchling's own per-hook keys (`dependencies`,
+    `enable-by-default`, `require-runtime-*`) are accepted.
+  - **`write_source`:** accepts only `true`, `false` or `"editable"`, using identity checks so the
+    integer `1` isn't taken as `true`.
+  - **CI detection:** `$CI` counts unless it's empty, `0`, `false` or `no`.
+  - **Registry packaging:** checked with the target's own `build_config.include_path`, which covers
+    include/exclude rules and VCS-ignore.
+  - **Tests:** real `python -m build --no-isolation` builds of a scratch project, plus a
+    `network`-marked isolated build. That one uses a local wheelhouse with the index disabled, so
+    it exercises this checkout rather than a published byteplan.
 
 ## MCP server
 
@@ -742,7 +753,7 @@ is done above, so the runtime package can ship before anything generates decorat
 | 1. Core ✅ | config, files, registry, ids, source + comment scanner, `api.Project`, CLI `init/scan(report-only)/list/show` | 1, 5, 19, 20 | – |
 | 2. Write path ✅ | `edits.py` (span edits + equivalence guard), comment annotation, reconcile, persistence (journal, concurrent-modification check), `status/resolve/edit/missing/duplicates`, `--dry-run` | 6–17 | 13 (resolve without source edits), 15, 17, 18 |
 | 3. Stubs + decorators ✅ | `stubs.py`, `decorators.py` (static `@todo`/`@verifies` discovery, alias resolution), `association.py` (comment / decorator / stub → one obligation), decorator `id=` allocation, schema fields, `implementation_changed`, `check`, `report`, `repair` | 2, 3, 4, 17 | 1, 2, 6 (comment mode), 7, 19 |
-| 4. Hatch | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
+| 4. Hatch ✅ | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
 | 5. Runtime + normalization | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
 | 6a. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |
 | 6b. Test scaffolding | `scaffold.py` planner, `byteplan tests scaffold ID [--path] [--name] [--policy] [--force-new] [--dry-run]`, placeholder detection, `[tool.byteplan.tests.scaffold]` | – | B: 1–9, 11 (CLI), 12 |
