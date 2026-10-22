@@ -702,17 +702,28 @@ working-tree walk skips symlinks. Scans over non-working-tree snapshots are alwa
 - **Comparing with the working tree:** done by reading working-tree bytes directly and comparing
   them to the staged blob bytes, never with `git diff`.
 
-### `byteplan check --staged` (read-only, planned Phase 4b)
+### Snapshot checks: `check --staged` and `check --commit REV` (read-only, planned Phase 4b)
 
-It reconstructs the **full staged snapshot** within the configured scope, from the index listing
-rather than `git diff --cached --name-only`. It then runs the standard dry-run scan against the
-staged registry. On top of the existing diagnostics, it adds:
+`check --staged` reconstructs the **full staged snapshot** within the configured scope, from the
+index listing rather than `git diff --cached --name-only`. `check --commit REV` does the same for a
+commit (`git ls-tree -r -z`). Both run the standard dry-run scan against *that snapshot's*
+registry.
+
+**One consistency policy for every snapshot.** A snapshot check asks whether this code and this
+registry are already reconciled with each other. Pre-commit (`--staged`) and CI (`--commit HEAD`)
+apply exactly the same rules, so CI can't accept what the hook rejects (Addendum C §C9.18).
+- **Plain working-tree `check`** keeps its current meaning. Untagged TODOs there are expected,
+  because the next `scan` will annotate them.
+- **Opting in:** `[tool.byteplan.check] require_reconciled = true` makes the plain `check` enforce
+  the same rules, for CI setups that don't use Git snapshots.
+
+The consistency diagnostics:
 
 | Code | When | Exit |
 |---|---|---|
-| `new_unregistered` | a staged TODO/stub/`@todo` has no ID yet (`staged_require_tagged = true` by default) | 1 |
+| `new_unregistered` | a TODO/stub/`@todo` in the snapshot has no ID yet | 1 |
 | `registry_not_staged` | the staged registry is missing from the index, or staged source carries IDs the staged registry lacks while the working-tree registry has them | 1 |
-| `staged_registry_out_of_sync` | reconciling the staged snapshot would make a **semantic** registry change: added, missing, reappeared, moved (path or symbol), `text_changed`, `implementation_changed` | 1 |
+| `registry_out_of_sync` | reconciling the snapshot would make a **semantic** registry change: added, missing, reappeared, moved (path or symbol), `text_changed`, `implementation_changed` | 1 |
 | `position_drift` | only line or `decl_line` metadata would change | info (0); `fail_on_position_drift = true` makes it 1 |
 | `staged_config_mismatch` | the working-tree `pyproject.toml` (BytePlan sections) differs from the staged one; the staged one is used | warning |
 | `working_tree_changed_but_not_staged` | the working-tree registry differs from the staged one (a hint that `git add .byteplan/tasks.json` is needed) | info |
@@ -721,8 +732,9 @@ staged registry. On top of the existing diagnostics, it adds:
 - **Position drift is informational on purpose.** A line shift above an annotation is metadata
   only (Phase 2 rule). Making it a failure would force a rescan and a re-staged registry on almost
   every commit.
-- **Policy keys** (`[tool.byteplan.check]`): `staged_require_tagged` and
-  `fail_on_position_drift`. Existing keys apply unchanged. Exit codes stay 0/1/2.
+- **Policy keys** (`[tool.byteplan.check]`): `require_reconciled` (working-tree check only;
+  snapshot checks always enforce) and `fail_on_position_drift` (all checks). Existing keys apply
+  unchanged. Exit codes stay 0/1/2.
 - **Missing detection** runs only for a complete staged snapshot, and `check --staged PATHS`
   never marks anything missing.
 - **Resolved work:** a task that's resolved in the staged registry *and* has its annotation removed
@@ -763,9 +775,10 @@ and never import the project. Consumer docs pin a published tag.
 
 Hooks are a convenience, and documented as skippable (`--no-verify`). CI is the enforcement point.
 
-**CI.** `docs/ci.md` and the README give a GitHub Actions recipe. It runs `byteplan check
---format json` on the checked-out commit, with pinned action versions and a published BytePlan
-version. CI never writes source; it fails with findings. Optional later additions are a SARIF or
+**CI.** `docs/ci.md` and the README give a GitHub Actions recipe. It runs
+`byteplan check --commit HEAD --format json` on the checked-out commit, with pinned action versions
+and a published BytePlan version. That's the same enforcing snapshot policy as the pre-commit
+hook. CI never writes source; it fails with findings. Optional later additions are a SARIF or
 Markdown annotation publisher and `byteplan diff BASE...HEAD`, which compares two `GitCommit`
 snapshots (tasks added, resolved, made missing, newly blocked). That's a view over registry
 states, not a second database.
@@ -784,12 +797,32 @@ so it isn't improvised later.
 3. **Write new blobs** (`git hash-object -w --stdin`). This only adds objects and is safe to repeat.
 4. **Record a recovery manifest** under `.byteplan/txn/` before touching the index: each path's
    before (mode, OID) and after (mode, OID).
-5. **Update the index** with a single `git update-index --index-info` call. Immediately beforehand,
-   re-list the affected entries; any OID or mode mismatch aborts with no changes. Git takes its own
-   `index.lock` for that one call.
-   - **Atomicity:** the call is atomic per Git's lock-and-rename of `.git/index`. BytePlan claims
-     nothing beyond that.
-   - **Recovery:** re-applying or reverting from the manifest is idempotent.
+5. **Update the index under one held lock.** Re-checking entries and then calling
+   `git update-index --index-info` is *not* safe. Another process can stage a file between the two,
+   and `--index-info` has no expected-old-OID condition, so its change would be silently
+   overwritten (a lost update). BytePlan therefore uses Git's own lock protocol for the whole
+   validate-and-replace step:
+   1. Locate the index with `git rev-parse --git-path index`, which handles linked worktrees and
+      `GIT_INDEX_FILE`.
+   2. Create `<index>.lock` with `O_CREAT|O_EXCL`. If it already exists, another Git operation is
+      running, so abort. While BytePlan holds it, every other Git command that writes the index
+      fails instead of interleaving.
+   3. Read the index and verify every affected entry's (mode, OID) against the captured snapshot.
+      Any mismatch releases the lock and aborts.
+   4. Copy the index to a scratch file. Apply the planned entries to the copy with
+      `GIT_INDEX_FILE=<scratch> git update-index --index-info`, and verify the copy with
+      `GIT_INDEX_FILE=<scratch> git ls-files --stage -z`.
+   5. Write the verified bytes into `<index>.lock`, fsync, then `rename(<index>.lock, <index>)`.
+      That's Git's own commit step, so the swap is atomic and the lock is released by it.
+   6. On any failure, delete `<index>.lock` and leave the index untouched.
+
+   **Unsupported index formats.** A split index (`core.splitIndex`) or sparse index (`index.sparse`)
+   can't be replaced as a single file. With either, `--apply` refuses with
+   `unsupported_index_format`.
+
+   **Recovery.** The manifest records the before and after entries. A crash before step 5 leaves the
+   index unchanged (at most a stale `index.lock`, reported with Git's usual guidance). A crash after
+   it means the change is complete, and revalidation in step 7 confirms which happened.
 6. **Index only.** Version 1 never touches the working tree. Afterwards it reports which
    working-tree files now differ from the index and exits **1**, so the developer reviews before
    committing. It never runs `git add` on user files.
@@ -950,8 +983,10 @@ is done above, so the runtime package can ship before anything generates decorat
 - Added, deleted, untracked and renamed files are told apart.
 - A narrowed staged check never reports missing.
 - Repeated checks give identical findings.
-- The working-tree `check` and `check --staged` agree on an index equal to the working tree. The
-  same holds for CI on a commit.
+- `check --staged` and `check --commit HEAD` give identical findings and exit codes when the index
+  equals `HEAD`. The working-tree `check` with `require_reconciled = true` matches both.
+- A commit with an untagged TODO or an unreconciled title change passes neither the hook nor the
+  CI command.
 - The pre-commit hook runs through `pre-commit try-repo` on a registry-only commit (marked
   `network`).
 
