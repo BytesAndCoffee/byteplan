@@ -389,3 +389,35 @@ def test_driver_keeps_top_level_keys_end_to_end(repo: ProjectFactory, run_cli: R
     data = json.loads(path.read_text())
     assert data["release"] == {"version": "1.0"}
     assert data["releases"] == [{"v": "0.9"}]
+
+
+# Booleans are not numbers ------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("base", "ours", "theirs"),
+    [(True, False, 1), (1, 2, True), (0, 5, False), (False, True, 0)],
+)
+def test_true_and_1_are_different_values(base: Any, ours: Any, theirs: Any) -> None:
+    """Python says True == 1; JSON doesn't. Both sides changed the value, so it's a conflict,
+    not a silent keep-ours (top-level extras and task extension fields alike)."""
+    top = merge_registries(with_extra(BASE, flag=base), with_extra(BASE, flag=ours), with_extra(BASE, flag=theirs))
+    assert top.data is None
+    assert any("flag changed on both sides" in c for c in top.conflicts)
+    in_task = merge_registries(
+        changed(BASE, "aaaa", x=base), changed(BASE, "aaaa", x=ours), changed(BASE, "aaaa", x=theirs)
+    )
+    assert in_task.data is None
+    assert any("x changed on both sides" in c for c in in_task.conflicts)
+
+
+def test_bool_change_on_one_side_still_merges() -> None:
+    result = merge_registries(with_extra(BASE, flag=1), with_extra(BASE, flag=1), with_extra(BASE, flag=True))
+    assert result.data is not None
+    assert result.data["flag"] is True
+    nested = merge_registries(
+        with_extra(BASE, cfg={"on": 1}), with_extra(BASE, cfg={"on": 1, "x": 2}), with_extra(BASE, cfg={"on": True})
+    )
+    assert nested.data is not None
+    assert nested.data["cfg"] == {"on": True, "x": 2}
+    assert nested.data["cfg"]["on"] is True

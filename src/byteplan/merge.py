@@ -47,15 +47,31 @@ class MergeResult:
     rescan_needed: list[str] = field(default_factory=list)
 
 
+def _same(a: Any, b: Any) -> bool:
+    """JSON equality: like ``==`` but a boolean never equals a number (``true`` vs ``1``),
+    and the absent marker equals only itself."""
+    if a is b:
+        return True
+    if isinstance(a, bool) or isinstance(b, bool):
+        return type(a) is type(b) and a == b
+    if isinstance(a, dict) and isinstance(b, dict):
+        return a.keys() == b.keys() and all(_same(a[k], b[k]) for k in a)
+    if isinstance(a, list) and isinstance(b, list):
+        return len(a) == len(b) and all(_same(x, y) for x, y in zip(a, b, strict=True))
+    if isinstance(a, _Absent) or isinstance(b, _Absent):
+        return False
+    return bool(a == b)
+
+
 def _merge_history(
     task_id: str, base: list[Any], ours: list[Any], theirs: list[Any], conflicts: list[str]
 ) -> list[Any]:
-    if ours[: len(base)] != base or theirs[: len(base)] != base:
+    if not _same(ours[: len(base)], base) or not _same(theirs[: len(base)], base):
         conflicts.append(f"task {task_id}: history was rewritten (not only appended) on one side")
         return ours
     added: list[Any] = []
     for event in [*ours[len(base) :], *theirs[len(base) :]]:
-        if event not in added:
+        if not any(_same(event, seen) for seen in added):
             added.append(event)
     added.sort(key=lambda event: (str(event.get("at", "")), str(event.get("event", ""))))
     return [*base, *added]
@@ -96,9 +112,9 @@ def _merge_task(
             earliest_or_latest = min if key == "first_seen" else max
             fallback = o if o is not _ABSENT else t
             value = earliest_or_latest(present) if present else fallback
-        elif t in (o, b):  # `in` compares by identity first, so the absent marker works too
+        elif _same(t, o) or _same(t, b):
             value = o
-        elif o == b:
+        elif _same(o, b):
             value = t
         elif key in _DISCOVERED:
             value = o
@@ -114,9 +130,9 @@ def _merge_task(
 
 def _merge_value(where: str, base: Any, ours: Any, theirs: Any, conflicts: list[str]) -> Any:
     """Generic three-way merge of a JSON value. Returns ``_ABSENT`` for a deleted key."""
-    if theirs in (ours, base):  # `in` compares by identity first, so the absent marker works too
+    if _same(theirs, ours) or _same(theirs, base):
         return ours
-    if ours == base:
+    if _same(ours, base):
         return theirs
     if isinstance(ours, dict) and isinstance(theirs, dict) and isinstance(base, dict | _Absent):
         old_map: dict[str, Any] = base if isinstance(base, dict) else {}
@@ -130,10 +146,10 @@ def _merge_value(where: str, base: Any, ours: Any, theirs: Any, conflicts: list[
         return merged
     if isinstance(ours, list) and isinstance(theirs, list) and isinstance(base, list | _Absent):
         old_list: list[Any] = base if isinstance(base, list) else []
-        if ours[: len(old_list)] == old_list and theirs[: len(old_list)] == old_list:  # both sides only appended
+        if _same(ours[: len(old_list)], old_list) and _same(theirs[: len(old_list)], old_list):  # only appended
             added: list[Any] = []
             for item in [*ours[len(old_list) :], *theirs[len(old_list) :]]:
-                if item not in added:
+                if not any(_same(item, seen) for seen in added):
                     added.append(item)
             return [*old_list, *added]
     conflicts.append(f"{where} changed on both sides ({ours!r} vs {theirs!r})")
@@ -158,7 +174,7 @@ def merge_registries(base: dict[str, Any], ours: dict[str, Any], theirs: dict[st
     for task_id in sorted({*base_tasks, *our_tasks, *their_tasks}):
         b, o, t = base_tasks.get(task_id), our_tasks.get(task_id), their_tasks.get(task_id)
         if o is not None and t is not None:
-            if b is None and o != t:
+            if b is None and not _same(o, t):
                 result.conflicts.append(
                     f"task {task_id} was created on both branches for different work (ID collision)"
                 )
@@ -169,7 +185,7 @@ def merge_registries(base: dict[str, Any], ours: dict[str, Any], theirs: dict[st
             kept = o if o is not None else t
             if b is None:
                 tasks[task_id] = kept  # added on one side
-            elif kept != b:
+            elif not _same(kept, b):
                 result.conflicts.append(f"task {task_id} was removed on one side and changed on the other")
                 tasks[task_id] = kept
             # else: removed on one side, untouched on the other -> stays removed
