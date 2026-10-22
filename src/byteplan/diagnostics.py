@@ -48,6 +48,8 @@ class Code(StrEnum):
     STAGED_CONFIG_MISMATCH = "staged_config_mismatch"
     WORKING_TREE_CHANGED_BUT_NOT_STAGED = "working_tree_changed_but_not_staged"
     REPORT_OUT_OF_SYNC = "report_out_of_sync"
+    # byteplan sync
+    CONVERSION_NEEDS_REVIEW = "conversion_needs_review"
 
 
 @dataclass(frozen=True)

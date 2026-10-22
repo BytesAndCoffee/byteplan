@@ -124,6 +124,41 @@ def advertise_routes(self):
   first scan.
 - **What counts:** only names really imported from `byteplan_runtime`, or a shim module you list in
   `runtime_modules`. A local or shadowed `todo` is ignored.
+- **No new dependency?** `byteplan init --runtime-shim src/pkg/_byteplan.py` writes an inert
+  `todo`/`verifies` module and registers it in `runtime_modules`.
+
+**Decorator mode: `byteplan sync`.** With `mode = "decorator"`, BytePlan can rewrite tasks into
+decorators for you. It's opt-in, and it's never done by `scan`:
+
+```toml
+[tool.byteplan.annotations]
+mode = "decorator"
+convert_attached_comments = true   # a tagged comment right above a def/class becomes @todo(...)
+auto_decorate_stubs = true         # unowned stubs get @todo("Implement <name>", id=...)
+```
+
+```console
+$ byteplan scan                     # IDs first
+$ byteplan sync                     # preview
+  ~ [a83f] FIXME src/routes.py:9  comment -> @todo: Withdraw routes on link loss
+  + [65ea] TODO  src/routes.py:14  @todo on stub Router.advertise: Implement Router.advertise
+$ byteplan sync --apply             # write (journaled), update the registry
+```
+
+- **What converts:** only a comment block that ends directly above a `def` or `class`, in the
+  same column with no blank line, becomes `@todo(title, id=..., kind=..., description=...)`,
+  the outermost decorator. Module-level, trailing, in-body and separated comments stay comments
+  and are reported as `conversion_needs_review`. `--only ID` limits the rewrite.
+- **Runtime import:** `from byteplan_runtime import todo` is added after the docstring and
+  `__future__` imports, but only if `byteplan-runtime` is in `[project].dependencies` or a
+  configured shim exists. An existing import (or `import byteplan_runtime as br`) is reused.
+- **Safe by construction:**
+  - Each file must parse to the same AST once BytePlan's own decorators and imports are
+    removed, and must re-scan to the same tasks.
+  - Shebangs, encoding cookies, BOM, CRLF and a missing final newline are kept.
+  - Task IDs, kinds and descriptions never change.
+- **Scan in `preserve` and `decorator` modes** still writes IDs into comments, but it reports
+  unowned stubs (`stub_needs_review`) instead of adding `# TODO` lines for them.
 
 **Markdown and JSON.** Add them to `include` (for example `"**/*.md"`, `"config/**/*.json"`)
 and BytePlan tracks tags there too, with the same IDs, registry and Git integration:
@@ -184,7 +219,8 @@ metadata, so moving or renaming code keeps the same task.
 
 | Command | What it does |
 |---|---|
-| `byteplan init` | add configuration and an empty registry (safe to re-run) |
+| `byteplan init [--runtime-shim PATH]` | add configuration and an empty registry (safe to re-run); optionally write an inert runtime shim |
+| `byteplan sync [--apply] [--only ID]` | decorator mode: rewrite attached comments and unowned stubs to `@todo(...)` (preview by default) |
 | `byteplan scan [PATHS] [--dry-run] [--staged]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing. `--staged --dry-run` previews against the Git index |
 | `byteplan scan --staged --apply` | add IDs to the staged commit (index and working tree) before it's finalized; what the pre-commit hook runs |
 | `byteplan check [--staged \| --commit REV]` | read-only validation, with policy-based exit code. `--staged` checks exactly what's staged (pre-commit); `--commit HEAD` checks a commit (CI) |
@@ -240,6 +276,9 @@ fail_on_stale_annotations = false
 fail_on_stale_report = false  # report_file not matching the registry is a warning by default
 
 [tool.byteplan.annotations]
+mode = "comment"                   # or "preserve" / "decorator" (see `byteplan sync`)
+convert_attached_comments = false  # decorator mode: sync turns attached comments into @todo
+auto_decorate_stubs = false        # decorator mode: sync puts @todo on unowned stubs
 runtime_modules = ["byteplan_runtime"]   # add a project shim module here
 ```
 

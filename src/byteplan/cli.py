@@ -47,7 +47,7 @@ def _project(args: argparse.Namespace) -> Project:
 
 
 def cmd_init(args: argparse.Namespace) -> int:
-    result = init_project(args.project)
+    result = init_project(args.project, runtime_shim=args.runtime_shim)
     for action in result.actions:
         _out(f"byteplan: {action}")
     if not result.actions:
@@ -55,6 +55,17 @@ def cmd_init(args: argparse.Namespace) -> int:
     for warning in result.warnings:
         _err(f"byteplan: warning: {warning}")
     return EXIT_OK
+
+
+def cmd_sync(args: argparse.Namespace) -> int:
+    report = _project(args).sync(args.only, dry_run=not args.apply)
+    if args.format == "json":
+        _out(reporting.to_json(reporting.sync_json(report)))
+    else:
+        _out(reporting.sync_text(report))
+    for diagnostic in report.diagnostics:
+        _err(diagnostic.format_text())
+    return EXIT_FINDINGS if report.blocked and not report.blocked.startswith("nothing to do") else EXIT_OK
 
 
 def _snapshot_project(args: argparse.Namespace) -> Project:
@@ -283,7 +294,21 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", metavar="COMMAND")
 
     init = sub.add_parser("init", parents=[common], help="create configuration and an empty registry")
+    init.add_argument(
+        "--runtime-shim",
+        metavar="PATH",
+        help="also write an inert todo/verifies module at PATH (instead of depending on byteplan-runtime)",
+    )
     init.set_defaults(handler=cmd_init)
+
+    sync = sub.add_parser(
+        "sync", parents=[common, formatted], help="rewrite comments and stubs to @todo(...) (decorator mode)"
+    )
+    mode = sync.add_mutually_exclusive_group()
+    mode.add_argument("--dry-run", action="store_true", help="preview the rewrites (the default)")
+    mode.add_argument("--apply", action="store_true", help="write the rewrites and update the registry")
+    sync.add_argument("--only", action="append", metavar="ID", help="only convert these task IDs (repeatable)")
+    sync.set_defaults(handler=cmd_sync)
 
     scan = sub.add_parser("scan", parents=[common, formatted], help="discover, annotate, reconcile, report")
     scan.add_argument("paths", nargs="*", help="limit the scan to these files or directories")

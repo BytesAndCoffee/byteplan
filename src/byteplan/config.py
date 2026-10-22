@@ -50,6 +50,13 @@ class DetectConfig:
 
 @dataclass(frozen=True)
 class AnnotationsConfig:
+    # comment: unowned stubs get a `# TODO` line (scan). preserve: stubs are only reported.
+    # decorator: like preserve for scan; `byteplan sync` may rewrite to `@todo(...)`.
+    mode: str = "comment"
+    # decorator mode, `sync`: turn a tagged comment directly above a def/class into @todo(...).
+    convert_attached_comments: bool = False
+    # decorator mode, `sync`: put @todo(...) on unowned stubs.
+    auto_decorate_stubs: bool = False
     # Modules whose `todo`/`verifies` BytePlan recognizes (a project shim can be added).
     runtime_modules: tuple[str, ...] = ("byteplan_runtime",)
 
@@ -198,6 +205,7 @@ def _coerce(value: Any, default: Any, name: str) -> Any:
 
 
 ON_RECONCILE = ("commit", "stop")
+ANNOTATION_MODES = ("comment", "preserve", "decorator")
 
 
 def _validate(config: Config) -> None:
@@ -210,6 +218,9 @@ def _validate(config: Config) -> None:
     #   is rejected rather than silently ignored.
     if config.detect.placeholder_assignments:
         msg = "tool.byteplan.detect.placeholder_assignments is not supported yet; remove it or set it to false"
+        raise ConfigError(msg)
+    if config.annotations.mode not in ANNOTATION_MODES:
+        msg = f"tool.byteplan.annotations.mode must be one of {', '.join(ANNOTATION_MODES)}"
         raise ConfigError(msg)
     for module in config.annotations.runtime_modules:
         if not all(part.isidentifier() for part in module.split(".")):

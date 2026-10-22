@@ -69,7 +69,8 @@ def test_values_are_loaded(project: ProjectFactory) -> None:
         ("[tool.byteplan\n", "invalid TOML"),
         ("[tool.byteplan.detect]\nplaceholder_assignments = true\n", "not supported yet"),
         ('[tool.byteplan.annotations]\nruntime_modules = ["not a module"]\n', "not a module name"),
-        ('[tool.byteplan.annotations]\nmode = "decorator"\n', "unknown key 'mode'"),
+        ('[tool.byteplan.annotations]\nmode = "decorators"\n', "mode must be one of comment, preserve, decorator"),
+        ("[tool.byteplan.annotations]\nremove_resolved = true\n", "unknown key 'remove_resolved'"),
     ],
 )
 def test_invalid_config(project: ProjectFactory, toml: str, message: str) -> None:

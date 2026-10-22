@@ -8,6 +8,7 @@ from __future__ import annotations
 import contextlib
 import dataclasses
 import os
+import re
 import tomllib
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
@@ -17,12 +18,13 @@ from typing import TYPE_CHECKING, Any
 
 import pathspec
 
+from byteplan import normalize, reporting
 from byteplan import registry as registry_io
-from byteplan import reporting
 from byteplan.annotate import annotate
 from byteplan.config import (
     DEFAULT_REGISTRY,
     PYPROJECT,
+    AnnotationsConfig,
     Config,
     config_from_text,
     find_project_root,
@@ -36,7 +38,7 @@ from byteplan.errors import ConfigError, EditError, RegistryError, ScanError, So
 from byteplan.files import Scope, ScopeMatcher, collect_files, resolve_targets, scope_from_paths
 from byteplan.ids import allocate
 from byteplan.languages import Language, language_for
-from byteplan.models import HistoryEvent, Presence, Representation, ScopeState, Status
+from byteplan.models import HistoryEvent, Origin, Presence, Representation, ScopeState, Status
 from byteplan.persistence import (
     STATE_DIR,
     FileWrite,
@@ -53,13 +55,14 @@ from byteplan.registry import Registry, load_registry
 from byteplan.scanner import FileScan, ensure_unchanged, scan_file
 from byteplan.scanner.hierarchy import ClassHierarchy, classes_in
 from byteplan.scanner.source import decode_source, read_source
-from byteplan.scanner.symbols import parse_module
+from byteplan.scanner.symbols import SymbolIndex, declarations, parse_module
 from byteplan.snapshot import GitSnapshot
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
 
     from byteplan.models import Annotation, Task
+    from byteplan.normalize import Rewrite
     from byteplan.scanner.decorators import VerifiesLink
     from byteplan.scanner.source import SourceFile
 
@@ -83,6 +86,17 @@ class Proposal:
 
     tag: Annotation
     task_id: str
+
+
+@dataclass(frozen=True)
+class SyncReport:
+    rewrites: tuple[Rewrite, ...]
+    diagnostics: tuple[Diagnostic, ...]
+    dry_run: bool = True
+    # Why nothing could be planned (e.g. the tree needs a `byteplan scan` first).
+    blocked: str | None = None
+    written: tuple[str, ...] = ()
+    imports_added: tuple[str, ...] = ()  # files that got a runtime import
 
 
 @dataclass(frozen=True)
@@ -315,6 +329,9 @@ class Project:
                     hint="run `byteplan scan` (without --dry-run) to complete it",
                 )
             )
+        if self.config.annotations.mode != "comment":
+            tags, stub_notes = _stubs_reported_only(tags, self.config.annotations)
+            diagnostics.extend(stub_notes)
         diagnostics.extend(_id_diagnostics(tags, registry))
         duplicated = {d.task_id for d in diagnostics if d.code is Code.DUPLICATE_ID}
         proposals = _plan_allocations(tags, registry) if self.config.auto_annotate else []
@@ -599,6 +616,135 @@ class Project:
             "tasks": [registry_io.task_to_dict(t) for t in tasks],
             "diagnostics": [d.to_dict() for d in diagnostics],
         }
+
+    # Normalization (decorator mode, `byteplan sync`) ---------------------------------------
+
+    def runtime_module(self) -> str | None:
+        """The module to import ``todo`` from: ``byteplan_runtime`` when ``byteplan-runtime`` is a
+        declared dependency, else a configured shim module present in scope, else None."""
+        modules = self.config.annotations.runtime_modules
+        dependencies = read_pyproject(self.root).get("project", {}).get("dependencies", [])
+        names = {_requirement_name(dep) for dep in dependencies if isinstance(dep, str)}
+        if "byteplan-runtime" in names and "byteplan_runtime" in modules:
+            return "byteplan_runtime"
+        files = set(collect_files(self.config).files)
+        for module in modules:
+            if module == "byteplan_runtime":
+                continue
+            stem = module.replace(".", "/")
+            for prefix in ("", "src/"):
+                if f"{prefix}{stem}.py" in files or f"{prefix}{stem}/__init__.py" in files:
+                    return module
+        return None
+
+    def sync(self, only: Sequence[str] | None = None, *, dry_run: bool = True) -> SyncReport:
+        """Rewrite attached comments and unowned stubs to ``@todo(...)`` (decorator mode).
+
+        Nothing happens unless ``[tool.byteplan.annotations] mode = "decorator"`` and at least
+        one of ``convert_attached_comments`` / ``auto_decorate_stubs`` is on. The tree must be
+        scanned first (no untagged annotations, no duplicate IDs).
+        """
+        settings = self.config.annotations
+        if settings.mode != "decorator" or not (settings.convert_attached_comments or settings.auto_decorate_stubs):
+            reason = (
+                f'annotations mode is "{settings.mode}"; sync only rewrites in "decorator" mode'
+                if settings.mode != "decorator"
+                else "neither convert_attached_comments nor auto_decorate_stubs is enabled"
+            )
+            return SyncReport((), (), dry_run=dry_run, blocked=f"nothing to do: {reason}")
+        only_ids = None if only is None else frozenset(task_id.lower() for task_id in only)
+        context = contextlib.nullcontext(()) if dry_run else self._writing()
+        with context:
+            preview = self._scan(None, None, dry_run=True, recovered=())
+            if preview.blocked or preview.proposals:
+                return SyncReport(
+                    (),
+                    preview.diagnostics,
+                    dry_run=dry_run,
+                    blocked="the tree isn't fully scanned (untagged annotations or duplicate IDs); run `byteplan scan` first",
+                )
+            registry_hash, registry = self._read_registry()
+            # Classes are unchanged by rewrites (only decorators move), so the index stays valid.
+            annotations, sources, hierarchy = self._scan_sources()
+            available = self.runtime_module()
+            runtime_modules = settings.runtime_modules
+
+            stubs = [a for a in annotations if a.origin is Origin.STUB and a.task_id is None]
+            stub_ids: dict[tuple[str, int, int], str] = {}
+            if settings.auto_decorate_stubs and only_ids is None:
+                # Every ID already in source is taken, registered or not.
+                in_source = {a.task_id for a in annotations if a.task_id is not None}
+                stub_ids = {
+                    (p.tag.path, p.tag.line, p.tag.col): p.task_id
+                    for p in _plan_allocations(stubs, registry, also_used=in_source)
+                }
+
+            by_file: defaultdict[str, list[Annotation]] = defaultdict(list)
+            for annotation in annotations:
+                by_file[annotation.path].append(annotation)
+            rewrites: list[Rewrite] = []
+            diagnostics: list[Diagnostic] = []
+            writes: list[FileWrite] = []
+            imports: list[str] = []
+            rescanned: dict[str, list[Annotation]] = {}
+            for path, (source, before) in sorted(sources.items()):
+                tags = by_file.get(path, [])
+                if language_for(path) is not Language.PYTHON or not tags:
+                    continue
+                tree = parse_module(source)
+                plan = normalize.plan_file(
+                    source,
+                    tree,
+                    tags,
+                    SymbolIndex(declarations(tree)),
+                    convert=settings.convert_attached_comments,
+                    decorate_stubs=settings.auto_decorate_stubs,
+                    stub_ids={(line, col): i for (p, line, col), i in stub_ids.items() if p == path},
+                    runtime_modules=runtime_modules,
+                    available=available,
+                    only=only_ids,
+                )
+                diagnostics.extend(plan.diagnostics)
+                if not plan.rewrites:
+                    continue
+                edited = dataclasses.replace(source, text=plan.text)
+                normalize.ensure_equivalent_without_runtime(path, source.text, edited.text, runtime_modules)
+                after = scan_file(edited, self.config.detect, runtime_modules, hierarchy).tags
+                normalize.ensure_round_trip(path, tags, after, plan)
+                rescanned[path] = after
+                rewrites.extend(plan.rewrites)
+                writes.append(FileWrite(path, before, edited.encode()))
+                if plan.import_added:
+                    imports.append(path)
+
+            if only_ids is not None:
+                missing = sorted(only_ids - {r.task_id for r in rewrites})
+                diagnostics.extend(
+                    normalize_review(task_id, "was not rewritten (not an attached comment, or not found)")
+                    for task_id in missing
+                )
+            if not rewrites:
+                return SyncReport((), tuple(diagnostics), dry_run=dry_run)
+
+            new_stubs = {r.task_id for r in rewrites if r.action == "decorate"}
+            observed = [tag for path in sorted(sources) for tag in rescanned.get(path, by_file.get(path, []))]
+            observations = [
+                Observation(
+                    tag.task_id,
+                    dataclasses.replace(tag, origin=Origin.STUB) if tag.task_id in new_stubs else tag,
+                    new=tag.task_id in new_stubs,
+                )
+                for tag in observed
+                if tag.task_id is not None
+            ]
+            new_registry, _ = reconcile(
+                registry, observations, self.clock(), absence_check=ScopeMatcher(self.config).contains
+            )
+            writes.extend(self._registry_writes(registry_hash, new_registry))
+            written = () if dry_run else tuple(commit(self.root, writes))
+            return SyncReport(
+                tuple(rewrites), tuple(diagnostics), dry_run=dry_run, written=written, imports_added=tuple(imports)
+            )
 
     # Repair (explicit, never automatic) ------------------------------------------------
 
@@ -938,9 +1084,49 @@ def _id_diagnostics(tags: Sequence[Annotation], registry: Registry) -> list[Diag
     return diagnostics
 
 
-def _plan_allocations(tags: Sequence[Annotation], registry: Registry) -> list[Proposal]:
-    """Assign IDs to untagged tags in scan order (sorted files, then line)."""
-    used = set(registry.reserved_ids) | {tag.task_id for tag in tags if tag.task_id is not None}
+def normalize_review(task_id: str, message: str) -> Diagnostic:
+    return Diagnostic(Code.CONVERSION_NEEDS_REVIEW, Severity.INFO, f"task {task_id} {message}", task_id=task_id)
+
+
+def _requirement_name(requirement: str) -> str:
+    """The normalized project name of a PEP 508 requirement string."""
+    match = re.match(r"\s*([A-Za-z0-9][A-Za-z0-9._-]*)", requirement)
+    return re.sub(r"[-_.]+", "-", match.group(1)).lower() if match else ""
+
+
+def _stubs_reported_only(
+    tags: Sequence[Annotation], annotations: AnnotationsConfig
+) -> tuple[list[Annotation], list[Diagnostic]]:
+    """In ``preserve`` and ``decorator`` modes ``scan`` doesn't write stub comments: unowned
+    stubs are reported (and, with ``auto_decorate_stubs``, left for ``byteplan sync``)."""
+    if annotations.mode == "decorator" and annotations.auto_decorate_stubs:
+        hint = "run `byteplan sync --apply` to add @todo(...), or add `# byteplan: ignore` if it's intentional"
+    else:
+        hint = "add a TODO comment or @todo(...), or `# byteplan: ignore` if it's intentional"
+    kept: list[Annotation] = []
+    notes: list[Diagnostic] = []
+    for tag in tags:
+        if tag.origin is Origin.STUB and tag.task_id is None:
+            notes.append(
+                Diagnostic(
+                    Code.STUB_NEEDS_REVIEW,
+                    Severity.INFO,
+                    f"{tag.symbol} looks unfinished (annotations mode is {annotations.mode!r}, so scan doesn't annotate it)",
+                    locations=(Location(tag.path, tag.decl_line or tag.line),),
+                    hint=hint,
+                )
+            )
+        else:
+            kept.append(tag)
+    return kept, notes
+
+
+def _plan_allocations(tags: Sequence[Annotation], registry: Registry, also_used: Iterable[str] = ()) -> list[Proposal]:
+    """Assign IDs to untagged tags in scan order (sorted files, then line).
+
+    Reserved IDs, IDs on ``tags`` and ``also_used`` (e.g. IDs elsewhere in source) are never reused.
+    """
+    used = set(registry.reserved_ids) | {tag.task_id for tag in tags if tag.task_id is not None} | set(also_used)
     occurrences: Counter[tuple[str, str, str, str]] = Counter()
     proposals: list[Proposal] = []
     for tag in tags:
@@ -974,16 +1160,84 @@ exclude = [".byteplan"]
 """
 
 
-def init_project(start: Path | None = None) -> InitResult:
-    """Create configuration and an empty registry. Safe to run repeatedly."""
+RUNTIME_SHIM = '''"""BytePlan task markers, inert at runtime (written by `byteplan init --runtime-shim`).
+
+BytePlan reads @todo/@verifies statically; at runtime they return the object unchanged.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Callable, Sequence
+from typing import TypeVar
+
+_T = TypeVar("_T")
+
+
+def todo(
+    title: str, /, *, id: str | None = None, kind: str = "TODO", description: str = "",
+    test: str | None = None, tests: Sequence[str] = (),
+) -> Callable[[_T], _T]:
+    return lambda obj: obj
+
+
+def verifies(*ids: str) -> Callable[[_T], _T]:
+    return lambda obj: obj
+'''
+
+
+def shim_module_name(rel: str) -> str:
+    """The import name of a shim at a project-relative path (``src/`` layouts supported)."""
+    stem = rel.removesuffix(".py").removesuffix("/__init__").removeprefix("src/")
+    return stem.replace("/", ".")
+
+
+def _write_shim(root: Path, rel: str, result: InitResult) -> str:
+    path = (root / rel).resolve()
+    if not path.is_relative_to(root.resolve()) or path.suffix != ".py":
+        msg = f"--runtime-shim {rel!r} must be a .py file inside the project"
+        raise ConfigError(msg)
+    rel = path.relative_to(root.resolve()).as_posix()
+    module = shim_module_name(rel)
+    if not all(part.isidentifier() for part in module.split(".")):
+        msg = f"--runtime-shim {rel!r} isn't importable as a module ({module!r})"
+        raise ConfigError(msg)
+    if path.exists():
+        if path.read_text(encoding="utf-8") != RUNTIME_SHIM:
+            msg = f"{rel} already exists; remove it or choose another path for the shim"
+            raise ConfigError(msg)
+    else:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write_bytes(path, RUNTIME_SHIM.encode())
+        result.actions.append(f"wrote runtime shim {rel} (module {module})")
+    return module
+
+
+def init_project(start: Path | None = None, *, runtime_shim: str | None = None) -> InitResult:
+    """Create configuration and an empty registry. Safe to run repeatedly.
+
+    ``runtime_shim`` writes an inert ``todo``/``verifies`` module at that project-relative
+    path, for projects that won't depend on ``byteplan-runtime``, and registers it in
+    ``runtime_modules``.
+    """
     root = find_project_root(start or Path.cwd())
     result = InitResult(root)
     pyproject = read_pyproject(root)
+    shim = _write_shim(root, runtime_shim, result) if runtime_shim else None
 
     additions: list[str] = []
     if "byteplan" not in pyproject.get("tool", {}):
-        additions.append(_CONFIG_BLOCK)
+        block = _CONFIG_BLOCK
+        if shim:
+            block += f'\n[tool.byteplan.annotations]\nruntime_modules = ["byteplan_runtime", "{shim}"]\n'
+        additions.append(block)
         result.actions.append(f"added [tool.byteplan] to {PYPROJECT}")
+    elif shim:
+        configured = pyproject["tool"]["byteplan"].get("annotations", {}).get("runtime_modules", ["byteplan_runtime"])
+        if shim not in configured:
+            result.warnings.append(
+                f'add "{shim}" to [tool.byteplan.annotations] runtime_modules in {PYPROJECT} '
+                "so BytePlan recognizes the shim's decorators"
+            )
     if pyproject.get("build-system", {}).get("build-backend") == "hatchling.build":
         sdist = pyproject.get("tool", {}).get("hatch", {}).get("build", {}).get("targets", {}).get("sdist")
         if sdist is None:
