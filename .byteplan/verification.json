@@ -1,5 +1,19 @@
 {
   "runs": {
+    "49767db02229": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T19:34:08Z",
+      "dirty": true,
+      "head": "fc654e8e42471dd93506b5bafbbbcf11739fea80",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "64043655efb3": {
       "argv": [
         "hatch",
@@ -55,62 +69,48 @@
       "head": "810be50170de5d49654d6a03a700a9c0f810f24a",
       "python": "3.11.0",
       "timed_out": false
-    },
-    "ec0815cd0105": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T19:29:52Z",
-      "dirty": true,
-      "head": "1a54e2b9b4b20ace99215f39a1563f83025dc494",
-      "python": "3.11.0",
-      "timed_out": false
     }
   },
   "schema_version": 1,
   "tasks": {
     "0413": {
-      "fingerprint": "7d7d10d0d6cae78c9867a9f75eaacbb0febfe5f19bcb8746b1a482f8d1f50a79",
-      "run": "ec0815cd0105",
+      "fingerprint": "9129b646844c600b53fffdc01a06de9aaaacd67f7a74ede3c9f5f5259592912a",
+      "run": "49767db02229",
       "tests": {
         "tests/test_release.py::test_crash_mid_release_rolls_forward": {
-          "duration_ms": 299,
+          "duration_ms": 303,
           "outcome": "passed"
         },
         "tests/test_release.py::test_refusals_write_nothing": {
-          "duration_ms": 317,
+          "duration_ms": 319,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_strips_only_decorators_imports_and_the_registry": {
-          "duration_ms": 150,
+          "duration_ms": 185,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_then_restore_is_byte_identical": {
-          "duration_ms": 1568,
+          "duration_ms": 1616,
           "outcome": "passed"
         },
         "tests/test_release.py::test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record": {
-          "duration_ms": 111,
+          "duration_ms": 117,
           "outcome": "passed"
         },
         "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast": {
-          "duration_ms": 110,
+          "duration_ms": 115,
           "outcome": "passed"
         },
         "tests/test_release.py::test_stripped_tree_imports_without_the_runtime": {
-          "duration_ms": 223,
+          "duration_ms": 180,
           "outcome": "passed"
         },
         "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen": {
-          "duration_ms": 142,
+          "duration_ms": 151,
           "outcome": "passed"
         },
         "tests/test_release.py::test_writing_commands_refuse_while_stripped": {
-          "duration_ms": 126,
+          "duration_ms": 119,
           "outcome": "passed"
         }
       }
@@ -203,6 +203,26 @@
         },
         "tests/test_scaffold.py::test_verify_never_counts_a_placeholder": {
           "duration_ms": 170,
+          "outcome": "passed"
+        }
+      }
+    },
+    "34da": {
+      "fingerprint": "e4f00bc780cd5c5a24a09f5d9e6008010f09c4e41c0a470396e8058d143b1519",
+      "run": "49767db02229",
+      "tests": {
+        "tests/test_release.py::test_shadowed_todo_is_not_stripped": {
+          "duration_ms": 115,
+          "outcome": "passed"
+        }
+      }
+    },
+    "4d48": {
+      "fingerprint": "2affa1c4f606cee3520b37e6c16794b9260be8047b180c4fc0f464248f75a836",
+      "run": "49767db02229",
+      "tests": {
+        "tests/test_release.py::test_partial_restore_keeps_decorators_whose_import_is_unplaced": {
+          "duration_ms": 107,
           "outcome": "passed"
         }
       }
@@ -309,6 +329,16 @@
         },
         "tests/test_verify.py::test_timeout_kills_the_run": {
           "duration_ms": 8047,
+          "outcome": "passed"
+        }
+      }
+    },
+    "b68c": {
+      "fingerprint": "e4f00bc780cd5c5a24a09f5d9e6008010f09c4e41c0a470396e8058d143b1519",
+      "run": "49767db02229",
+      "tests": {
+        "tests/test_release.py::test_unanchored_import_goes_below_a_new_docstring_and_future_import": {
+          "duration_ms": 125,
           "outcome": "passed"
         }
       }

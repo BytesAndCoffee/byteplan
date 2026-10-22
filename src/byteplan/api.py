@@ -1204,6 +1204,9 @@ class Project:
                 else:
                     text, file_conflicts, left = release.restore_anchored(path, source.text, record)
                     conflicts += file_conflicts
+                # FIXME[4d48]: Keep decorators pending when their runtime import can't be restored
+                #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659130
+                #   Otherwise the equivalence check aborts the whole restore, even with --partial.
                 normalize.ensure_equivalent_without_runtime(path, source.text, text, runtime_modules, everything=True)
                 if left:
                     remaining[path] = {**record, **left}

@@ -4,7 +4,9 @@
     "14ff",
     "15df",
     "2887",
+    "34da",
     "46b6",
+    "4d48",
     "4fb5",
     "6639",
     "6b83",
@@ -15,6 +17,7 @@
     "93dd",
     "9b40",
     "a6b2",
+    "b68c",
     "de66",
     "ec99",
     "f853"
@@ -477,6 +480,55 @@
       "title": "Phase 6b: test scaffolding",
       "title_override": null
     },
+    "34da": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659114\nA class or function scope that rebinds `todo` makes the decorator not BytePlan's.",
+      "first_seen": "2026-10-22T19:33:13Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:33:13Z",
+          "event": "created",
+          "new": {
+            "line": 95,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:34:07Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_shadowed_todo_is_not_stripped",
+          "old": null
+        }
+      ],
+      "id": "34da",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T19:33:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 84,
+        "line": 95,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "strip_file"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_shadowed_todo_is_not_stripped"
+        ]
+      },
+      "title": "Respect enclosing scopes before stripping a decorator",
+      "title_override": null
+    },
     "46b6": {
       "assignee": null,
       "description": "Today `TODO(alice):` doesn't match the grammar and is silently not tracked. Accept an\noptional `(owner)` after the tag and record it as the assignee when a task is created.",
@@ -512,6 +564,55 @@
       "status": "open",
       "stub": null,
       "title": "Recognize Google-style `TODO(owner): ...` tags",
+      "title_override": null
+    },
+    "4d48": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659130\nOtherwise the equivalence check aborts the whole restore, even with --partial.",
+      "first_seen": "2026-10-22T19:33:13Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:33:13Z",
+          "event": "created",
+          "new": {
+            "line": 1207,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:34:07Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_partial_restore_keeps_decorators_whose_import_is_unplaced",
+          "old": null
+        }
+      ],
+      "id": "4d48",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T19:33:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 1175,
+        "line": 1207,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.restore"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_partial_restore_keeps_decorators_whose_import_is_unplaced"
+        ]
+      },
+      "title": "Keep decorators pending when their runtime import can't be restored",
       "title_override": null
     },
     "4fb5": {
@@ -1232,6 +1333,55 @@
       "status": "open",
       "stub": null,
       "title": "Support detect.placeholder_assignments",
+      "title_override": null
+    },
+    "b68c": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659119\nA hotfix that adds either would otherwise get the import above it (SyntaxError for __future__).",
+      "first_seen": "2026-10-22T19:33:13Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:33:13Z",
+          "event": "created",
+          "new": {
+            "line": 271,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:34:07Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_unanchored_import_goes_below_a_new_docstring_and_future_import",
+          "old": null
+        }
+      ],
+      "id": "b68c",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T19:33:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 268,
+        "line": 271,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_insert_import"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_unanchored_import_goes_below_a_new_docstring_and_future_import"
+        ]
+      },
+      "title": "Restore an unanchored import below the current docstring and __future__ imports",
       "title_override": null
     },
     "de66": {

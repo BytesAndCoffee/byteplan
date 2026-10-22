@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**10 open** · 8 closed (resolved 8)
+**13 open** · 8 closed (resolved 8)
 
 ## Open
 
@@ -16,7 +16,10 @@
 | `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1551`](docs/IMPLEMENTATION_PLAN.md#L1551) | Phase 11b (optional): Git reporting |
 | `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1554`](docs/IMPLEMENTATION_PLAN.md#L1554) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
 | `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1558`](docs/IMPLEMENTATION_PLAN.md#L1558) | Phase 13 (optional): relay-for-github |
+| `4d48` | open | FIXME | normal | - | [`src/byteplan/api.py:1207`](src/byteplan/api.py#L1207) | Keep decorators pending when their runtime import can't be restored |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:266`](src/byteplan/config.py#L266) | Support detect.placeholder_assignments |
+| `34da` | open | FIXME | normal | - | [`src/byteplan/release.py:95`](src/byteplan/release.py#L95) | Respect enclosing scopes before stripping a decorator |
+| `b68c` | open | FIXME | normal | - | [`src/byteplan/release.py:271`](src/byteplan/release.py#L271) | Restore an unanchored import below the current docstring and __future__ imports |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
 
 ## Closed

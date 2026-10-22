@@ -30,7 +30,7 @@ from typing import TYPE_CHECKING, Any
 
 from byteplan.edits import header_end
 from byteplan.errors import ByteplanError
-from byteplan.scanner.decorators import resolve_runtime_names
+from byteplan.scanner.decorators import _binds, _enclosing_scopes, resolve_runtime_names
 from byteplan.scanner.stubs import dotted_name
 from byteplan.scanner.symbols import declarations
 
@@ -90,11 +90,21 @@ def strip_file(path: str, text: str, runtime_modules: Sequence[str]) -> FileStri
     lines = _lines(text)
     problems: list[str] = []
     decorators: list[dict[str, Any]] = []
+    scopes = _enclosing_scopes(tree)
     for decl in declarations(tree):
         for index, decorator in enumerate(decl.node.decorator_list):
+            # FIXME[34da]: Respect enclosing scopes before stripping a decorator
+            #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659114
+            #   A class or function scope that rebinds `todo` makes the decorator not BytePlan's.
             name = dotted_name(decorator)
             marker = names.resolve(name) if name else None
             if marker is None:
+                continue
+            base = (name or "").split(".")[0]
+            if any(_binds(scope, base) for scope in scopes.get(decl.node, ())):
+                problems.append(
+                    f"{path}:{decorator.lineno}: @{name} on {decl.qualname} is shadowed by a local definition"
+                )
                 continue
             if marker == "ambiguous":
                 problems.append(f"{path}:{decorator.lineno}: @{name} may not be BytePlan's (the name is rebound)")
@@ -219,6 +229,16 @@ def restore_anchored(path: str, text: str, record: dict[str, Any]) -> tuple[str,
     left_decorators: list[dict[str, Any]] = []
     left_imports: list[dict[str, Any]] = []
 
+    # Imports first: decorators without their import wouldn't be BytePlan's (or would break the
+    # module), so if any import can't be placed, the whole file stays on record.
+    probe = text
+    for entry in sorted(record.get("imports", []), key=lambda e: e["line"]):
+        placed = _insert_import(path, probe, entry)
+        if placed is None:
+            conflicts.append(f"{path}: the statement before `{entry['text'].strip()}` is gone; can't place it")
+            return text, conflicts, dict(record)
+        probe = placed
+
     by_decl: dict[str, list[dict[str, Any]]] = {}
     for entry in record.get("decorators", []):
         by_decl.setdefault(entry["qualname"], []).append(entry)
@@ -262,11 +282,26 @@ def _insert_decorator(text: str, decl: Declaration, entry: dict[str, Any]) -> st
     return "".join(lines)
 
 
+def _header_statements_end(tree: ast.Module) -> int:
+    """The last line of the module docstring and ``from __future__`` imports (0 if none)."""
+    end = 0
+    for index, stmt in enumerate(tree.body):
+        docstring = index == 0 and isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Constant)
+        future = isinstance(stmt, ast.ImportFrom) and stmt.module == "__future__"
+        if not (docstring or future):
+            break
+        end = stmt.end_lineno or stmt.lineno
+    return end
+
+
 def _insert_import(path: str, text: str, entry: dict[str, Any]) -> str | None:
     lines = _lines(text)
     tree = _parse(path, text)
+    # FIXME[b68c]: Restore an unanchored import below the current docstring and __future__ imports
+    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659119
+    #   A hotfix that adds either would otherwise get the import above it (SyntaxError for __future__).
     if entry["anchor"] is None:
-        at = header_end(lines)
+        at = max(header_end(lines), _header_statements_end(tree))
     else:
         anchors = [s for s in tree.body if lines[s.lineno - 1].rstrip("\r\n") == entry["anchor"]]
         if len(anchors) != 1:

@@ -360,3 +360,63 @@ def test_crash_mid_release_rolls_forward(
     assert not persistence.pending_journal(released_repo.root)
     assert "byteplan_runtime" not in (released_repo.root / "src/pkg/routes.py").read_text()
     assert tasks(released_repo)["release"]["state"] == "stripped"
+
+
+# Codex review of #32 (tracked as 34da, b68c, 4d48) ----------------------------------------------
+
+
+def test_shadowed_todo_is_not_stripped(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    """34da: a class scope that rebinds `todo` makes its decorator not BytePlan's."""
+    shadow = (
+        "from byteplan_runtime import todo\n\n\nclass Local:\n    def todo(*args, **kwargs):\n"
+        '        return lambda f: f\n\n    @todo("x", id="a123")\n    def method(self):\n        return 1\n'
+    )
+    released_repo.write("src/pkg/shadow.py", shadow, dedent=False)
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "shadow")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert "release_needs_review" in result.err
+    assert "@todo on Local.method is shadowed by a local definition" in result.err
+    assert released_repo.snapshot() == before  # the class's own decorator is never deleted
+
+
+def test_unanchored_import_goes_below_a_new_docstring_and_future_import(
+    released_repo: ProjectFactory, run_cli: RunCli
+) -> None:
+    """b68c: the import had nothing above it; a hotfix adds a docstring and __future__."""
+    released_repo.write(
+        "src/pkg/top.py",
+        'from byteplan_runtime import todo\n\n\n@todo("t", id="b234")\ndef f():\n    return 1\n',
+        dedent=False,
+    )
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "top")
+    assert release(released_repo, run_cli).code == EXIT_OK
+    path = released_repo.root / "src/pkg/top.py"
+    path.write_text('"""Top."""\n\nfrom __future__ import annotations\n\n' + path.read_text())
+    assert run_cli("restore", "--project", released_repo.root).code == EXIT_OK
+    restored = path.read_text()
+    assert restored.startswith('"""Top."""\n\nfrom __future__ import annotations\n')
+    assert restored.index("from __future__") < restored.index("from byteplan_runtime import todo")
+    compile(restored, "top.py", "exec")  # a __future__ import after other code would be a SyntaxError
+
+
+def test_partial_restore_keeps_decorators_whose_import_is_unplaced(
+    released_repo: ProjectFactory, run_cli: RunCli
+) -> None:
+    """4d48: an unplaceable import leaves its decorators pending; other files still restore."""
+    assert release(released_repo, run_cli).code == EXIT_OK
+    routes = released_repo.root / "src/pkg/routes.py"
+    routes.write_text(routes.read_text().replace("import os\n", "import os  # changed anchor\n"))
+    result = run_cli("restore", "--partial", "--project", released_repo.root)
+    assert result.code == EXIT_FINDINGS, result.err
+    assert "byteplan_runtime" not in routes.read_text()  # decorators stay pending with their import
+    assert "@verifies" in (released_repo.root / "tests/test_routes.py").read_text()  # the other file restored
+    data = tasks(released_repo)
+    pending = data["release"]["files"]["src/pkg/routes.py"]
+    assert len(pending["imports"]) == 1
+    assert len(pending["decorators"]) == 2
+    assert "src/pkg/routes.py" in data["release"]["files"]
+    assert "tests/test_routes.py" not in data["release"]["files"]
