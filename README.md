@@ -92,6 +92,14 @@ Excluded automatically:
 - `Protocol` classes and their methods
 - deliberately empty classes: exceptions, enums, `TypedDict`, `NamedTuple`
 
+**Interfaces and overrides aren't stubs.** BytePlan looks at the whole project's class hierarchy:
+- **Base-class interface methods:** a base class method that raises `NotImplementedError` (or is
+  `pass`/`...`) isn't reported when a subclass, at any depth, implements it.
+- **No-op overrides:** a method that overrides one inherited from a project base class isn't
+  reported either.
+- **Duck-typed hooks:** a no-op that no shared base declares can't be told apart from unfinished
+  work, so mark it `# byteplan: ignore`.
+
 A stub that already has a TODO above it or inside it, or a `@todo`, is the same task, not a
 second one. Otherwise BytePlan adds `# TODO[id]: Implement Router.withdraw (detected stub)` above
 it. One-line stubs like `def f(): pass` are reported for review instead of edited. Mark
@@ -186,6 +194,7 @@ pass_stubs = true
 ellipsis_stubs = true
 not_implemented_stubs = true
 empty_classes = true
+respect_overrides = true       # interface methods and no-op overrides aren't stubs (see below)
 
 [tool.byteplan.check]
 fail_on_duplicate_ids = true

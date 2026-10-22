@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Collection
+    from collections.abc import Callable, Collection
 
     from byteplan.config import DetectConfig
     from byteplan.scanner.symbols import Declaration
@@ -130,11 +130,18 @@ def stub_reason(decl: Declaration, detect: DetectConfig) -> str | None:
     return _trivial_reason(node.body, detect)
 
 
-def find_stubs(decls: list[Declaration], detect: DetectConfig, ignore_lines: Collection[int]) -> list[Stub]:
-    """Stubs among ``decls``, minus those suppressed by ``# byteplan: ignore``."""
+def find_stubs(
+    decls: list[Declaration],
+    detect: DetectConfig,
+    ignore_lines: Collection[int],
+    intentional: Callable[[Declaration], bool] | None = None,
+) -> list[Stub]:
+    """Stubs among ``decls``, minus suppressed ones and (when given) intentional ones."""
     stubs = []
     for decl in decls:
         if any(decl.start <= line <= decl.header_end for line in ignore_lines):
+            continue
+        if intentional is not None and intentional(decl):
             continue
         reason = stub_reason(decl, detect)
         if reason is not None:

@@ -191,6 +191,18 @@ to the replace step (addendum test 18).
   it alone. Only write commands (`scan`, `status`, `resolve`, `edit`) roll it forward, under the lock.
 - `--project` and `--format` go after the subcommand, e.g. `byteplan scan --project PATH`.
 
+**Found trialling BytePlan on bytesim.**
+- **Interfaces and overrides.** Stub detection now consults a project-wide class index
+  (`scanner/hierarchy.py`). A trivial method isn't a stub when a project subclass, transitively,
+  defines the same name (interface by convention), or when a project ancestor does (deliberate
+  no-op override). The index always covers the full scope, even for narrowed scans. Classes match
+  by simple name, which can only mask a stub, never invent one. `detect.respect_overrides`
+  switches it off.
+- **Result on bytesim:** 9 false annotations became 1. The remaining one is a duck-typed hook with
+  no declaring base, which is left to an explicit `# byteplan: ignore`.
+- **`init` packaging warning:** it now follows Hatch's `only-include`, `include` and `exclude`
+  rules, so an explicit `include` list that omits `.byteplan` no longer triggers it.
+
 **Phase 3 decisions.**
 - **Stubs:** a docstring-only body counts as a stub (spec: "effectively empty").
   `placeholder_assignments = true` is rejected with "not supported yet" rather than silently

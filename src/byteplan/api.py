@@ -15,9 +15,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+import pathspec
+
 from byteplan import registry as registry_io
 from byteplan.annotate import annotate
 from byteplan.config import (
+    DEFAULT_REGISTRY,
     PYPROJECT,
     Config,
     config_from_text,
@@ -46,7 +49,9 @@ from byteplan.persistence import (
 from byteplan.reconcile import Observation, Summary, reconcile
 from byteplan.registry import Registry, load_registry
 from byteplan.scanner import FileScan, scan_file
+from byteplan.scanner.hierarchy import ClassHierarchy, classes_in
 from byteplan.scanner.source import decode_source, read_source
+from byteplan.scanner.symbols import parse_module
 from byteplan.snapshot import GitSnapshot
 
 if TYPE_CHECKING:
@@ -248,13 +253,16 @@ class Project:
         links: list[VerifiesLink] = []
         diagnostics: list[Diagnostic] = []
         failures: list[SourceError] = []
+        loaded: dict[str, SourceFile] = {}
         for path in scope.files:
             try:
-                if snapshot is None:
-                    source = read_source(self.root, path)
-                else:
-                    source = decode_source(path, snapshot.read(path) or b"")
-                result = scan_file(source, self.config.detect, runtime_modules)
+                loaded[path] = self._read(path)
+            except SourceError as exc:
+                failures.append(exc)  # reported together with parse failures below
+        hierarchy = self._hierarchy(loaded, narrowed=scope.narrowed)
+        for path, source in loaded.items():
+            try:
+                result = scan_file(source, self.config.detect, runtime_modules, hierarchy)
             except SourceError as exc:
                 failures.append(exc)
                 continue
@@ -288,7 +296,7 @@ class Project:
             by_file[proposal.tag.path].append(proposal)
         for path, file_proposals in sorted(by_file.items()):
             source, before = sources[path]
-            edited, scans[path] = annotate(source, file_proposals, self.config.detect, runtime_modules)
+            edited, scans[path] = annotate(source, file_proposals, self.config.detect, runtime_modules, hierarchy)
             writes.append(FileWrite(path, before, edited.encode()))
         # A new task's origin is what it was discovered as (e.g. a stub), not what
         # the edited file shows (the comment BytePlan just wrote for it).
@@ -333,6 +341,32 @@ class Project:
             recovered=recovered,
             planned=tuple(writes),
         )
+
+    def _read(self, path: str) -> SourceFile:
+        if self.snapshot is None:
+            return read_source(self.root, path)
+        return decode_source(path, self.snapshot.read(path) or b"")
+
+    def _hierarchy(self, loaded: dict[str, SourceFile], *, narrowed: bool) -> ClassHierarchy | None:
+        """The class index over the *whole* scope, even for a narrowed scan: whether a base
+        class's method is an interface depends on subclasses that may live elsewhere."""
+        if not self.config.detect.respect_overrides:
+            return None
+        sources = dict(loaded)
+        if narrowed:
+            if self.snapshot is None:
+                everything = collect_files(self.config).files
+            else:
+                everything = scope_from_paths(self.config, list(self.snapshot.files()), self.snapshot)[0].files
+            for path in everything:
+                if path not in sources:
+                    with contextlib.suppress(SourceError):  # out of the narrowed scan: best effort
+                        sources[path] = self._read(path)
+        classes = []
+        for source in sources.values():
+            with contextlib.suppress(SourceError):  # unparseable files are reported by the scan itself
+                classes.extend(classes_in(parse_module(source)))
+        return ClassHierarchy(classes)
 
     def _consistency(
         self,
@@ -901,7 +935,7 @@ def init_project(start: Path | None = None) -> InitResult:
         if sdist is None:
             additions.append(_SDIST_BLOCK)
             result.actions.append(f"excluded .byteplan from Hatch sdists in {PYPROJECT}")
-        elif not any(".byteplan" in str(pattern) for pattern in sdist.get("exclude", [])):
+        elif _sdist_ships(sdist, pyproject.get("tool", {}).get("byteplan", {}).get("registry", DEFAULT_REGISTRY)):
             result.warnings.append(
                 f'add ".byteplan" to [tool.hatch.build.targets.sdist] exclude in {PYPROJECT} '
                 "so the registry is not shipped in source distributions"
@@ -921,6 +955,24 @@ def init_project(start: Path | None = None) -> InitResult:
         atomic_write_bytes(gitignore, BYTEPLAN_GITIGNORE.encode())
         result.actions.append(f"created {gitignore.relative_to(root).as_posix()}")
     return result
+
+
+def _sdist_ships(sdist: dict[str, Any], registry: str) -> bool:
+    """Whether a Hatch sdist with this target config would include the registry file.
+
+    Follows Hatch's selection rules: ``only-include`` (paths) restricts to those paths,
+    ``include`` (gitignore-style patterns) restricts to matches, and ``exclude`` removes
+    matches. The build hook re-checks with Hatchling's own ``include_path`` at build time.
+    """
+    rel = registry.removeprefix("./")
+    only = sdist.get("only-include")
+    if only and not any(rel == p.strip("/") or rel.startswith(p.strip("/") + "/") for p in only):
+        return False
+    include = sdist.get("include")
+    if include and not pathspec.PathSpec.from_lines("gitignore", include).match_file(rel):
+        return False
+    exclude = sdist.get("exclude")
+    return not (exclude and pathspec.PathSpec.from_lines("gitignore", exclude).match_file(rel))
 
 
 def _append_to_pyproject(path: Path, blocks: Sequence[str]) -> None:
