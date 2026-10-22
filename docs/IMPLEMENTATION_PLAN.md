@@ -155,6 +155,26 @@ to the replace step (addendum test 18).
   it alone. Only write commands (`scan`, `status`, `resolve`, `edit`) roll it forward, under the lock.
 - `--project` and `--format` go after the subcommand, e.g. `byteplan scan --project PATH`.
 
+**Phase 3 decisions.**
+- **Stubs:** a docstring-only body counts as a stub (spec: "effectively empty").
+  `placeholder_assignments = true` is rejected with "not supported yet" rather than silently
+  ignored.
+- **Ownership:** a comment among a declaration's decorator or header lines, or anywhere in a stub's
+  body, owns that declaration, in addition to a comment directly above it. A comment in a real
+  (non-stub) body is a statement-level task.
+- **Observing edited files:** after writing IDs, a scan observes the *edited* text. Lines added
+  above an annotation (a stub comment, or a new `id=` line) therefore don't show up as relocations
+  on the next scan.
+- **Inserting `id=`:** the ID goes right after the last argument. It's refused
+  (`decorator_needs_review`) when anything other than whitespace, comments and one comma sits
+  before the call's closing parenthesis, e.g. a parenthesized title.
+- **`[tool.byteplan.annotations]`:** for now holds only `runtime_modules`. `mode` and the other
+  conversion keys arrive with Phase 5.
+- **`@verifies` links:** discovered and validated now (`unknown_task_reference`, `malformed_id`),
+  but stored in the registry only from Phase 6a.
+- **`repair --reassign`:** only works on an ID that really is duplicated; reassigning a unique ID
+  would orphan its task. `PATH:LINE` is taken root-relative first, as diagnostics print it.
+
 **Exit codes.** 0 means OK, 1 means findings under the check policy, 2 means a
 config, runtime or registry error.
 
@@ -721,7 +741,7 @@ is done above, so the runtime package can ship before anything generates decorat
 | 0. Scaffold ✅ | pyproject (3.11+, URLs, envs, sdist excludes), CLI skeleton, smoke tests, `.gitignore`, docs/ | – | – |
 | 1. Core ✅ | config, files, registry, ids, source + comment scanner, `api.Project`, CLI `init/scan(report-only)/list/show` | 1, 5, 19, 20 | – |
 | 2. Write path ✅ | `edits.py` (span edits + equivalence guard), comment annotation, reconcile, persistence (journal, concurrent-modification check), `status/resolve/edit/missing/duplicates`, `--dry-run` | 6–17 | 13 (resolve without source edits), 15, 17, 18 |
-| 3. Stubs + decorators | `stubs.py`, `decorators.py` (static `@todo`/`@verifies` discovery, alias resolution), `association.py` (comment / decorator / stub → one obligation), decorator `id=` allocation, schema fields, `implementation_changed`, `check`, `report`, `repair` | 2, 3, 4, 17 | 1, 2, 6 (comment mode), 7, 19 |
+| 3. Stubs + decorators ✅ | `stubs.py`, `decorators.py` (static `@todo`/`@verifies` discovery, alias resolution), `association.py` (comment / decorator / stub → one obligation), decorator `id=` allocation, schema fields, `implementation_changed`, `check`, `report`, `repair` | 2, 3, 4, 17 | 1, 2, 6 (comment mode), 7, 19 |
 | 4. Hatch | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
 | 5. Runtime + normalization | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
 | 6a. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |

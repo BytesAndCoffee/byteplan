@@ -21,7 +21,11 @@ if TYPE_CHECKING:
 
 def scan(code: str, *, tags: tuple[str, ...] = DetectConfig().todo_tags, dedent: bool = True) -> FileScan:
     text = textwrap.dedent(code) if dedent else code
-    return scan_file(decode_source("mod.py", text.encode()), DetectConfig(todo_tags=tags))
+    # Stub detection is covered in test_stubs.py; keep these tests about comments.
+    no_stubs = DetectConfig(
+        todo_tags=tags, pass_stubs=False, ellipsis_stubs=False, not_implemented_stubs=False, empty_classes=False
+    )
+    return scan_file(decode_source("mod.py", text.encode()), no_stubs)
 
 
 def only(code: str) -> Annotation:

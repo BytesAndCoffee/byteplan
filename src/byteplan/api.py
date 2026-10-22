@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import contextlib
+import dataclasses
 import tomllib
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
@@ -17,10 +18,11 @@ from byteplan import registry as registry_io
 from byteplan.annotate import annotate
 from byteplan.config import PYPROJECT, Config, find_project_root, load_config, read_pyproject
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity, exit_code
-from byteplan.errors import ConfigError, RegistryError, ScanError, SourceError, TaskNotFoundError
+from byteplan.edits import ensure_equivalent, replace_at
+from byteplan.errors import ConfigError, EditError, RegistryError, ScanError, SourceError, TaskNotFoundError
 from byteplan.files import Scope, ScopeMatcher, collect_files, resolve_targets
 from byteplan.ids import allocate
-from byteplan.models import HistoryEvent, Presence, ScopeState, Status
+from byteplan.models import HistoryEvent, Presence, Representation, ScopeState, Status
 from byteplan.persistence import (
     STATE_DIR,
     FileWrite,
@@ -33,13 +35,14 @@ from byteplan.persistence import (
 )
 from byteplan.reconcile import Observation, Summary, reconcile
 from byteplan.registry import Registry, load_registry
-from byteplan.scanner import scan_file
+from byteplan.scanner import FileScan, scan_file
 from byteplan.scanner.source import decode_source, read_source
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
 
     from byteplan.models import Annotation, Task
+    from byteplan.scanner.decorators import VerifiesLink
     from byteplan.scanner.source import SourceFile
 
 BYTEPLAN_GITIGNORE = "txn/\nscan.lock\n"
@@ -168,19 +171,24 @@ class Project:
         rel_targets = None if targets is None else resolve_targets(self.root, targets, cwd)
         scope = collect_files(self.config, rel_targets)
 
+        runtime_modules = self.config.annotations.runtime_modules
         sources: dict[str, tuple[SourceFile, str]] = {}
+        scans: dict[str, FileScan] = {}
         tags: list[Annotation] = []
+        links: list[VerifiesLink] = []
         diagnostics: list[Diagnostic] = []
         failures: list[SourceError] = []
         for path in scope.files:
             try:
                 source = read_source(self.root, path)
-                result = scan_file(source, self.config.detect)
+                result = scan_file(source, self.config.detect, runtime_modules)
             except SourceError as exc:
                 failures.append(exc)
                 continue
             sources[path] = (source, sha256(source.encode()))
+            scans[path] = result
             tags.extend(result.tags)
+            links.extend(result.links)
             diagnostics.extend(result.diagnostics)
         if failures:
             raise ScanError(failures)
@@ -198,24 +206,35 @@ class Project:
         duplicated = {d.task_id for d in diagnostics if d.code is Code.DUPLICATE_ID}
         proposals = _plan_allocations(tags, registry) if self.config.auto_annotate else []
 
-        observations = [
-            Observation(tag.task_id, tag, new=False)
-            for tag in tags
-            if tag.task_id is not None and tag.task_id not in duplicated
-        ]
-        observations += [Observation(p.task_id, p.tag, new=True) for p in proposals]
-        observations.sort(key=lambda obs: (obs.tag.path, obs.tag.line))
-        absence_check = None if scope.narrowed else ScopeMatcher(self.config).contains
-        new_registry, summary = reconcile(registry, observations, self.clock(), absence_check=absence_check)
-        diagnostics.extend(self._missing_diagnostics(new_registry))
-
+        # Write IDs first (in memory), then observe the edited files: registry
+        # positions must describe the source as it will be, or the next scan
+        # would see every inserted line as a relocation.
         writes: list[FileWrite] = []
         by_file: defaultdict[str, list[Proposal]] = defaultdict(list)
         for proposal in proposals:
             by_file[proposal.tag.path].append(proposal)
         for path, file_proposals in sorted(by_file.items()):
             source, before = sources[path]
-            writes.append(FileWrite(path, before, annotate(source, file_proposals, self.config.detect).encode()))
+            edited, scans[path] = annotate(source, file_proposals, self.config.detect, runtime_modules)
+            writes.append(FileWrite(path, before, edited.encode()))
+        # A new task's origin is what it was discovered as (e.g. a stub), not what
+        # the edited file shows (the comment BytePlan just wrote for it).
+        new_origins = {p.task_id: p.tag.origin for p in proposals}
+        observed = [tag for path in scope.files for tag in scans[path].tags]
+        observations = [
+            Observation(
+                tag.task_id,
+                dataclasses.replace(tag, origin=new_origins[tag.task_id]) if tag.task_id in new_origins else tag,
+                new=tag.task_id in new_origins,
+            )
+            for tag in observed
+            if tag.task_id is not None and tag.task_id not in duplicated
+        ]
+        absence_check = None if scope.narrowed else ScopeMatcher(self.config).contains
+        new_registry, summary = reconcile(registry, observations, self.clock(), absence_check=absence_check)
+        diagnostics.extend(self._missing_diagnostics(new_registry))
+        diagnostics.extend(_link_diagnostics(links, new_registry))
+        diagnostics.extend(_implementation_diagnostics(summary, new_registry))
         writes.append(FileWrite(self.registry_rel, registry_hash, registry_io.dumps(new_registry).encode()))
 
         blocked = bool(duplicated)
@@ -286,6 +305,128 @@ class Project:
             raise _not_found(task_id)
         return task
 
+    # Checks and reports --------------------------------------------------------------
+
+    def check(self) -> ScanReport:
+        """A read-only scan; ``exit_code(report.diagnostics)`` applies the check policy."""
+        return self.scan(dry_run=True)
+
+    def report(self) -> dict[str, Any]:
+        """Registry summary plus current diagnostics, for text/JSON/Markdown output."""
+        diagnostics = self.check().diagnostics
+        tasks = [task for _, task in sorted(self.load_registry().tasks.items())]
+
+        def count(values: Iterable[str]) -> dict[str, int]:
+            return dict(sorted(Counter(values).items()))
+
+        return {
+            "summary": {
+                "total": len(tasks),
+                "by_status": count(str(t.status) for t in tasks),
+                "by_presence": count(str(t.presence) for t in tasks),
+                "by_kind": count(t.kind for t in tasks),
+                "by_priority": count(t.priority for t in tasks),
+            },
+            "tasks": [registry_io.task_to_dict(t) for t in tasks],
+            "diagnostics": [d.to_dict() for d in diagnostics],
+        }
+
+    # Repair (explicit, never automatic) ------------------------------------------------
+
+    def _scan_sources(self) -> tuple[list[Annotation], dict[str, tuple[SourceFile, str]]]:
+        scope = collect_files(self.config)
+        sources: dict[str, tuple[SourceFile, str]] = {}
+        annotations: list[Annotation] = []
+        failures: list[SourceError] = []
+        for path in scope.files:
+            try:
+                source = read_source(self.root, path)
+                annotations.extend(scan_file(source, self.config.detect, self.config.annotations.runtime_modules).tags)
+            except SourceError as exc:
+                failures.append(exc)
+                continue
+            sources[path] = (source, sha256(source.encode()))
+        if failures:
+            raise ScanError(failures)
+        return annotations, sources
+
+    def import_task(self, task_id: str) -> RepairResult:
+        """Register an ID that is in source but not in the registry (``unregistered_id``)."""
+        task_id = task_id.lower()
+        with self._writing():
+            registry_hash, registry = self._read_registry()
+            if task_id in registry.tasks:
+                msg = f"task {task_id} is already registered"
+                raise ConfigError(msg)
+            annotations, _ = self._scan_sources()
+            found = [a for a in annotations if a.task_id == task_id]
+            if len(found) != 1:
+                where = "is not in source" if not found else f"appears {len(found)} times; reassign the copies first"
+                msg = f"cannot import {task_id}: it {where}"
+                raise ConfigError(msg)
+            new_registry, _ = reconcile(
+                registry, [Observation(task_id, found[0], new=True)], self.clock(), absence_check=None
+            )
+            task = new_registry.tasks[task_id]
+            task.history[-1] = dataclasses.replace(task.history[-1], note="imported by `byteplan repair --import`")
+            written = commit(
+                self.root,
+                [FileWrite(self.registry_rel, registry_hash, registry_io.dumps(new_registry).encode())],
+            )
+            return RepairResult(task, tuple(written))
+
+    def reassign(self, path: str, line: int) -> RepairResult:
+        """Give the duplicate-ID annotation at ``path:line`` a fresh ID, in source and registry."""
+        with self._writing():
+            registry_hash, registry = self._read_registry()
+            annotations, sources = self._scan_sources()
+            target = next((a for a in annotations if a.path == path and a.line == line and a.task_id), None)
+            if target is None or target.task_id is None:
+                msg = f"no tagged annotation at {path}:{line}"
+                raise ConfigError(msg)
+            old_id = target.task_id
+            copies = [a for a in annotations if a.task_id == old_id]
+            if len(copies) == 1:  # only the annotation itself
+                msg = (
+                    f"{old_id} at {path}:{line} is not duplicated; reassigning it would orphan its task. "
+                    "Only duplicate copies can be reassigned"
+                )
+                raise ConfigError(msg)
+            used = set(registry.reserved_ids) | {a.task_id for a in annotations if a.task_id}
+            new_id = allocate(f"{path}\0{line}\0reassign\0{old_id}", used)
+
+            source, before = sources[path]
+            if target.representation is Representation.DECORATOR:
+                text, line_no, col = _find_decorator_id(source.text, target, old_id)
+                old_text, new_text = text, text.replace(old_id, new_id)
+            else:
+                line_no = target.line
+                col = source.text.splitlines(keepends=True)[line_no - 1].find(f"[{old_id}]", target.col)
+                old_text, new_text = f"[{old_id}]", f"[{new_id}]"
+            edited = dataclasses.replace(source, text=replace_at(source.text, line_no, col, old_text, new_text))
+            ensure_equivalent(path, source.text, edited.text)
+            rescanned = scan_file(edited, self.config.detect, self.config.annotations.runtime_modules).tags
+            moved = next((a for a in rescanned if a.line == line and a.task_id == new_id), None)
+            if moved is None:
+                msg = f"{path}:{line}: reassignment did not round-trip through the scanner; nothing was written"
+                raise EditError(msg)
+
+            new_registry, _ = reconcile(
+                registry, [Observation(new_id, moved, new=True)], self.clock(), absence_check=None
+            )
+            task = new_registry.tasks[new_id]
+            task.history[-1] = dataclasses.replace(
+                task.history[-1], note=f"reassigned from duplicate {old_id} by `byteplan repair --reassign`"
+            )
+            written = commit(
+                self.root,
+                [
+                    FileWrite(path, before, edited.encode()),
+                    FileWrite(self.registry_rel, registry_hash, registry_io.dumps(new_registry).encode()),
+                ],
+            )
+            return RepairResult(task, tuple(written), old_id=old_id)
+
     # Registry mutations (never touch source) -------------------------------------
 
     def _mutate(self, task_id: str, change: Callable[[Task, str], list[HistoryEvent]]) -> tuple[Task, bool]:
@@ -353,6 +494,13 @@ class Project:
         return self._mutate(task_id, change)
 
 
+@dataclass(frozen=True)
+class RepairResult:
+    task: Task
+    written: tuple[str, ...]
+    old_id: str | None = None
+
+
 def _managed(task: Task) -> dict[str, Any]:
     return {
         "priority": task.priority,
@@ -363,8 +511,57 @@ def _managed(task: Task) -> dict[str, Any]:
     }
 
 
+def _find_decorator_id(text: str, annotation: Annotation, task_id: str) -> tuple[str, int, int]:
+    """The exact ``id="..."`` text of a decorator, and where it starts."""
+    lines = text.splitlines(keepends=True)
+    for line_no in range(annotation.line, annotation.end_line + 1):
+        for quote in ('"', "'"):
+            needle = f"id={quote}{task_id}{quote}"
+            col = lines[line_no - 1].find(needle)
+            if col != -1:
+                return needle, line_no, col
+    msg = f"{annotation.location}: can't find id={task_id!r} in the decorator; edit it by hand"
+    raise EditError(msg)
+
+
 def _not_found(task_id: str) -> TaskNotFoundError:
     return TaskNotFoundError(f"no task with ID {task_id!r}")
+
+
+def _link_diagnostics(links: Sequence[VerifiesLink], registry: Registry) -> list[Diagnostic]:
+    return [
+        Diagnostic(
+            Code.UNKNOWN_TASK_REFERENCE,
+            Severity.WARNING,
+            f"{link.node_id} verifies task {task_id}, which is not in the registry",
+            task_id=task_id,
+            locations=(Location(link.path, link.line),),
+            hint="check the ID with `byteplan list`; IDs are never reused, so a typo can't hit another task",
+        )
+        for link in links
+        for task_id in link.task_ids
+        if task_id not in registry.tasks
+    ]
+
+
+def _implementation_diagnostics(summary: Summary, registry: Registry) -> list[Diagnostic]:
+    found = []
+    for task_id in summary.implementation_changed:
+        task = registry.tasks[task_id]
+        if task.stub is None or not task.stub.get("implemented") or task.status.is_closed:
+            continue
+        where = (Location(task.source.path, task.source.line),) if task.source else ()
+        found.append(
+            Diagnostic(
+                Code.IMPLEMENTATION_CHANGED,
+                Severity.INFO,
+                f"{task.stub.get('symbol')} no longer looks like a stub; task {task_id} is still {task.status}",
+                task_id=task_id,
+                locations=where,
+                hint=f"if the work is done, run `byteplan resolve {task_id}` (BytePlan never resolves tasks itself)",
+            )
+        )
+    return found
 
 
 def _id_diagnostics(tags: Sequence[Annotation], registry: Registry) -> list[Diagnostic]:

@@ -119,7 +119,10 @@ def resolve_runtime_names(tree: ast.Module, runtime_modules: Sequence[str]) -> R
                     names.modules[local] = target
                     bind(local.split(".")[0], f"module:{target}" if alias.asname else f"package:{target.split('.')[0]}")
                 else:
-                    bind(local.split(".")[0], f"package:{alias.name.split('.')[0]}" if not alias.asname else f"module:{target}")
+                    bind(
+                        local.split(".")[0],
+                        f"package:{alias.name.split('.')[0]}" if not alias.asname else f"module:{target}",
+                    )
         else:
             for local in _bound_names(stmt):
                 bind(local, f"other:{stmt.lineno}")
@@ -160,18 +163,19 @@ def _id_slot(source: SourceFile, call: ast.Call, lines: list[str]) -> IdSlot | N
     end_line, end_col = last.end_lineno, last.end_col_offset
     if end_line is None or end_col is None:
         return None
-    # The next significant character must be "," or ")": otherwise the argument is
-    # wrapped in parentheses or followed by something we don't understand.
-    line_no, col = end_line, end_col
-    while line_no <= len(lines):
-        rest = lines[line_no - 1][col:]
-        stripped = rest.lstrip(" \t")
-        if stripped and stripped[0] not in "#\r\n\\":
-            if stripped[0] not in ",)":
-                return None
-            break
-        line_no, col = line_no + 1, 0
-    else:
+    # Between the last argument and the call's own ")" there may only be
+    # whitespace, comments and one trailing comma. Anything else (e.g. the
+    # argument was wrapped in parentheses) means inserting there is unsafe.
+    close_line, close_col = call.end_lineno, (call.end_col_offset or 0) - 1
+    if close_line is None:
+        return None
+    between = []
+    for line_no in range(end_line, close_line + 1):
+        text = lines[line_no - 1].rstrip("\r\n")
+        start_col = end_col if line_no == end_line else 0
+        stop_col = close_col if line_no == close_line else len(text)
+        between.append(text[start_col:stop_col].split("#", 1)[0])
+    if "".join(between).replace(" ", "").replace("\t", "").replace("\\", "") not in {"", ","}:
         return None
 
     multiline = (call.end_lineno or call.lineno) > call.lineno
@@ -179,7 +183,7 @@ def _id_slot(source: SourceFile, call: ast.Call, lines: list[str]) -> IdSlot | N
     indent = last_start_line[: len(last_start_line) - len(last_start_line.lstrip())]
     starts_its_line = last_start_line[: last.col_offset].strip() == "" if hasattr(last, "col_offset") else False
     if multiline and starts_its_line and last.lineno == end_line:
-        return IdSlot(end_line, end_col, f",{source.newline}{indent}id=\"{{id}}\"")
+        return IdSlot(end_line, end_col, f',{source.newline}{indent}id="{{id}}"')
     return IdSlot(end_line, end_col, ', id="{id}"')
 
 
@@ -356,9 +360,16 @@ def _verifies(
     for arg in call.args:
         value = _literal_str(arg)
         if value is None:
-            report(Code.DYNAMIC_TODO_ARGUMENT, Severity.WARNING, f"@{name}() arguments must be string literals", call.lineno)
+            report(
+                Code.DYNAMIC_TODO_ARGUMENT,
+                Severity.WARNING,
+                f"@{name}() arguments must be string literals",
+                call.lineno,
+            )
         elif not is_valid_id(value):
-            report(Code.MALFORMED_ID, Severity.WARNING, f'@{name}("{value}"): not a four-hex-digit task ID', call.lineno)
+            report(
+                Code.MALFORMED_ID, Severity.WARNING, f'@{name}("{value}"): not a four-hex-digit task ID', call.lineno
+            )
         else:
             ids.append(value)
     if ids and "<locals>" not in decl.qualname:

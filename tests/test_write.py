@@ -69,7 +69,14 @@ def test_fresh_scan_annotates_source_and_registers_tasks(project: ProjectFactory
     todo = tasks[ids[0]]
     assert todo["title"] == "Implement route poisoning"
     assert todo["description"] == "Support split horizon and poisoned reverse."
-    assert todo["source"] == {"path": "src/rip.py", "line": 2, "symbol": "Router.send"}
+    assert todo["source"] == {
+        "path": "src/rip.py",
+        "line": 2,
+        "symbol": "Router.send",
+        "decl_line": 4,
+        "attachment_kind": "method",
+        "representation": "comment",
+    }
     assert (todo["status"], todo["presence"]) == ("open", "present")
     assert [e["event"] for e in todo["history"]] == ["created"]
     assert sorted(registry(project)["reserved_ids"]) == sorted(ids)
@@ -127,7 +134,14 @@ def test_inserted_lines_moves_and_renames_keep_the_id(project: ProjectFactory, c
     scan(project, clock)
     task = only_task(project)
     assert task["id"] == task_id
-    assert task["source"] == {"path": "src/pkg/b.py", "line": 5, "symbol": "g"}
+    assert task["source"] == {
+        "path": "src/pkg/b.py",
+        "line": 5,
+        "symbol": "g",
+        "decl_line": 4,
+        "attachment_kind": "function",  # the TODO is in g's stub body, so it's about g
+        "representation": "comment",
+    }
     moved = task["history"][-1]
     assert moved["event"] == "moved"
     assert moved["old"] == {"path": "src/a.py", "symbol": "f"}

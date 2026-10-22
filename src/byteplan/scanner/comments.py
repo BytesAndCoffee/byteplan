@@ -39,6 +39,8 @@ if TYPE_CHECKING:
     from byteplan.scanner.source import SourceFile
     from byteplan.scanner.symbols import SymbolIndex
 
+__all__ = ["IGNORE_RE", "Comment", "file_ignored", "iter_comments", "scan_comments", "tag_pattern"]
+
 IGNORE_RE = re.compile(r"\bbyteplan:\s*ignore(?![-\w])", re.IGNORECASE)
 IGNORE_FILE_RE = re.compile(r"^#\s*byteplan:\s*ignore-file\b", re.IGNORECASE)
 IGNORE_FILE_MAX_LINE = 5
@@ -74,13 +76,19 @@ def iter_comments(source: SourceFile) -> list[Comment]:
     return comments
 
 
+def file_ignored(comments: Sequence[Comment]) -> bool:
+    return any(c.line <= IGNORE_FILE_MAX_LINE and IGNORE_FILE_RE.match(c.text) for c in comments)
+
+
 def scan_comments(
     source: SourceFile,
     tags: Sequence[str],
     symbols: SymbolIndex,
+    comments: Sequence[Comment] | None = None,
 ) -> tuple[list[Annotation], list[Diagnostic]]:
-    comments = iter_comments(source)
-    if any(c.line <= IGNORE_FILE_MAX_LINE and IGNORE_FILE_RE.match(c.text) for c in comments):
+    if comments is None:
+        comments = iter_comments(source)
+    if file_ignored(comments):
         return [], []
 
     pattern = tag_pattern(tags)

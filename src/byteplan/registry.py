@@ -16,7 +16,17 @@ from typing import TYPE_CHECKING, Any, NoReturn
 
 from byteplan.errors import RegistryError
 from byteplan.ids import is_valid_id
-from byteplan.models import HistoryEvent, Origin, Presence, ScopeState, SourceRef, Status, Task
+from byteplan.models import (
+    AttachmentKind,
+    HistoryEvent,
+    Origin,
+    Presence,
+    Representation,
+    ScopeState,
+    SourceRef,
+    Status,
+    Task,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -158,9 +168,27 @@ def _source_from_dict(raw: Any, where: str, fail: _Fail) -> SourceRef | None:
         or not isinstance(raw.get("path"), str)
         or not isinstance(raw.get("line"), int)
         or not isinstance(raw.get("symbol"), str | None)
+        or not isinstance(raw.get("decl_line"), int | None)
     ):
         fail(f"{where}: source must be an object with path, line and symbol")
-    return SourceRef(raw["path"], raw["line"], raw.get("symbol"))
+
+    def optional_enum(name: str, cls: type[StrEnum]) -> Any:
+        value = raw.get(name)
+        if value is None:
+            return None
+        try:
+            return cls(value)
+        except ValueError:
+            fail(f"{where}: source.{name} {value!r} is not one of {', '.join(m.value for m in cls)}")
+
+    return SourceRef(
+        raw["path"],
+        raw["line"],
+        raw.get("symbol"),
+        raw.get("decl_line"),
+        optional_enum("attachment_kind", AttachmentKind),
+        optional_enum("representation", Representation),
+    )
 
 
 def _history_from_list(raw: Any, where: str, fail: _Fail) -> list[HistoryEvent]:
@@ -198,9 +226,7 @@ def task_to_dict(task: Task) -> dict[str, Any]:
             "presence": str(task.presence),
             "origin": str(task.origin),
             "scope_state": str(task.scope_state),
-            "source": None
-            if task.source is None
-            else {"path": task.source.path, "line": task.source.line, "symbol": task.source.symbol},
+            "source": None if task.source is None else _source_to_dict(task.source),
             "stub": task.stub,
             "first_seen": task.first_seen,
             "last_seen": task.last_seen,
@@ -208,6 +234,17 @@ def task_to_dict(task: Task) -> dict[str, Any]:
         }
     )
     return data
+
+
+def _source_to_dict(source: SourceRef) -> dict[str, Any]:
+    return {
+        "path": source.path,
+        "line": source.line,
+        "symbol": source.symbol,
+        "decl_line": source.decl_line,
+        "attachment_kind": None if source.attachment_kind is None else str(source.attachment_kind),
+        "representation": None if source.representation is None else str(source.representation),
+    }
 
 
 def _event_to_dict(event: HistoryEvent) -> dict[str, Any]:

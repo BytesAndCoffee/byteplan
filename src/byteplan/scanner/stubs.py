@@ -62,9 +62,9 @@ def _last(node: ast.expr) -> str | None:
 
 
 def _effective_body(body: list[ast.stmt]) -> list[ast.stmt]:
-    if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant):
-        if isinstance(body[0].value.value, str):
-            return body[1:]
+    first = body[0] if body else None
+    if isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant) and isinstance(first.value.value, str):
+        return body[1:]
     return body
 
 

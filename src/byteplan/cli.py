@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -18,7 +19,8 @@ from byteplan import reporting
 from byteplan.__about__ import __version__
 from byteplan.api import Project, init_project
 from byteplan.diagnostics import EXIT_ERROR, EXIT_FINDINGS, EXIT_OK, Code
-from byteplan.errors import ByteplanError
+from byteplan.errors import ByteplanError, ConfigError
+from byteplan.files import resolve_targets
 from byteplan.models import Presence, Status
 
 if TYPE_CHECKING:
@@ -146,6 +148,54 @@ def cmd_duplicates(args: argparse.Namespace) -> int:
     return EXIT_FINDINGS if duplicates else EXIT_OK
 
 
+def cmd_check(args: argparse.Namespace) -> int:
+    project = _project(args)
+    report = project.check()
+    code = project.exit_code(report.diagnostics)
+    counts = Counter(str(d.severity) for d in report.diagnostics)
+    if args.format == "json":
+        _out(reporting.to_json({"exit_code": code, "diagnostics": [d.to_dict() for d in report.diagnostics]}))
+    else:
+        _out(
+            f"BytePlan check: {report.files_scanned} files · {counts['error']} error(s) · "
+            f"{counts['warning']} warning(s) · {counts['info']} info" + (" · FAILED" if code else " · OK")
+        )
+    for diagnostic in report.diagnostics:
+        _err(diagnostic.format_text())
+    return code
+
+
+def cmd_report(args: argparse.Namespace) -> int:
+    data = _project(args).report()
+    if args.format == "json":
+        _out(reporting.to_json(data))
+    elif args.format == "markdown":
+        sys.stdout.write(reporting.report_markdown(data))
+    else:
+        _out(reporting.report_text(data))
+    return EXIT_OK
+
+
+def cmd_repair(args: argparse.Namespace) -> int:
+    project = _project(args)
+    if args.import_id:
+        result = project.import_task(args.import_id)
+        _out(f"byteplan: imported [{result.task.id}] {result.task.display_title}")
+    else:
+        path, _, line = args.reassign.rpartition(":")
+        if not path or not line.isdigit():
+            parser_error = "--reassign takes PATH:LINE, e.g. src/a.py:20"
+            raise ConfigError(parser_error)
+        # Diagnostics print root-relative locations, so accept those first.
+        if (project.root / path).is_file():
+            rel = (project.root / path).resolve().relative_to(project.root).as_posix()
+        else:
+            rel = resolve_targets(project.root, [path])[0]
+        result = project.reassign(rel, int(line))
+        _out(f"byteplan: {rel}:{line} now has [{result.task.id}] (was duplicate [{result.old_id}])")
+    return EXIT_OK
+
+
 def build_parser() -> argparse.ArgumentParser:
     common = argparse.ArgumentParser(add_help=False)
     common.add_argument(
@@ -212,6 +262,19 @@ def build_parser() -> argparse.ArgumentParser:
 
     duplicates = sub.add_parser("duplicates", parents=[common, formatted], help="report duplicate embedded IDs")
     duplicates.set_defaults(handler=cmd_duplicates)
+
+    check = sub.add_parser("check", parents=[common, formatted], help="read-only validation for CI")
+    check.set_defaults(handler=cmd_check)
+
+    report = sub.add_parser("report", parents=[common], help="summarize tasks and findings")
+    report.add_argument("--format", choices=("text", "json", "markdown"), default="text")
+    report.set_defaults(handler=cmd_report)
+
+    repair = sub.add_parser("repair", parents=[common], help="explicitly fix states scans won't guess about")
+    action = repair.add_mutually_exclusive_group(required=True)
+    action.add_argument("--import", dest="import_id", metavar="ID", help="register an ID found in source")
+    action.add_argument("--reassign", metavar="PATH:LINE", help="give a duplicate ID copy a fresh ID")
+    repair.set_defaults(handler=cmd_repair)
     return parser
 
 
