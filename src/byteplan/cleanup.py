@@ -66,6 +66,17 @@ def _whole_lines(offsets: Sequence[int], text: str, first: int, last: int) -> tu
     return offsets[first - 1], end
 
 
+def _block_lines(lines: Sequence[str], offsets: Sequence[int], text: str, first: int, last: int) -> tuple[int, int]:
+    """Whole lines of a Markdown block, plus one of the blank lines around it when it sits
+    between two, so removing it doesn't leave a double blank line."""
+    start, end = _whole_lines(offsets, text, first, last)
+    before_blank = first > 1 and not lines[first - 2].strip()
+    after_blank = last < len(lines) and not lines[last].strip()
+    if before_blank and after_blank:
+        end = offsets[last + 1] if last + 1 < len(offsets) else len(text)
+    return start, end
+
+
 def _trailing(lines: Sequence[str], offsets: Sequence[int], line: int, col: int) -> tuple[int, int]:
     """From the spaces before a trailing comment to the end of the line (the newline stays)."""
     content = lines[line - 1].rstrip("\r\n")
@@ -148,12 +159,10 @@ def _span(
         structure = parse_markdown(text)
         comment = next((c for c in structure.comments if (c.line, c.col) == (tag.line, tag.col)), None)
         if comment is None:  # a [//]: # (...) link comment, whole lines
-            start, end = _whole_lines(offsets, text, tag.line, tag.end_line)
-            return start, end, ""
+            return (*_block_lines(lines, offsets, text, tag.line, tag.end_line), "")
         rest = text[comment.end : offsets[comment.end_line] if comment.end_line < len(offsets) else len(text)]
         if comment.standalone and not rest.strip():
-            start, end = _whole_lines(offsets, text, comment.line, comment.end_line)
-            return start, end, ""
+            return (*_block_lines(lines, offsets, text, comment.line, comment.end_line), "")
         start = comment.start
         line_end = offsets[comment.end_line] if comment.end_line < len(offsets) else len(text)
         following = text[comment.end : line_end]

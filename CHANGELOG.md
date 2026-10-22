@@ -30,6 +30,8 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
   - Safety: changes are previewed by default and journaled when written, checked against the
     AST, and must round-trip through the scanner.
   - The registry keeps the ID and history and logs `cleaned`.
+- **Tidy Markdown removal:** a whole-line comment between two blank lines takes one of them with
+  it, so cleanup doesn't leave a double blank line.
 - **`resolved_but_stubbed`:** a closed task whose code is still a stub isn't cleaned (scan
   reports it too). `--suppress-stubs` leaves a visible `# byteplan: ignore` instead.
 - **`[tool.byteplan.annotations] remove_resolved`** makes `sync --apply` clean up.

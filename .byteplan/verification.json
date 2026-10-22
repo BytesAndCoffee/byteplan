@@ -14,90 +14,6 @@
       "python": "3.11.0",
       "timed_out": false
     },
-    "413764069a1b": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T21:07:21Z",
-      "dirty": true,
-      "head": "916cc1308322504fd0a26167e3f1d59d7e5974d6",
-      "python": "3.11.0",
-      "timed_out": false
-    },
-    "49767db02229": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T19:34:08Z",
-      "dirty": true,
-      "head": "fc654e8e42471dd93506b5bafbbbcf11739fea80",
-      "python": "3.11.0",
-      "timed_out": false
-    },
-    "542c912a070b": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T21:15:29Z",
-      "dirty": true,
-      "head": "3c7687c01c74b6500c1f972e5489c63c57015555",
-      "python": "3.11.0",
-      "timed_out": false
-    },
-    "58d7d7db7a8d": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T20:22:03Z",
-      "dirty": true,
-      "head": "a4eb591c111afa25fab46e9612f220b56d1afdc3",
-      "python": "3.11.0",
-      "timed_out": false
-    },
-    "5947a28b2f64": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T20:33:36Z",
-      "dirty": true,
-      "head": "dfe40411d1d9e92bf0fa175bffaadff04e8cf6f8",
-      "python": "3.11.0",
-      "timed_out": false
-    },
-    "6264cf3497c8": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T20:58:57Z",
-      "dirty": true,
-      "head": "3f53493dfb5b25090a3b8c348227bb588c52ca17",
-      "python": "3.11.0",
-      "timed_out": false
-    },
     "64043655efb3": {
       "argv": [
         "hatch",
@@ -112,7 +28,7 @@
       "python": "3.11.0",
       "timed_out": false
     },
-    "6d34f41c67ad": {
+    "8b0a97a19dd9": {
       "argv": [
         "hatch",
         "test",
@@ -120,23 +36,9 @@
         "-p",
         "_byteplan_verify_plugin"
       ],
-      "at": "2026-10-22T20:04:25Z",
+      "at": "2026-10-22T21:52:13Z",
       "dirty": true,
-      "head": "2919a53133a44e6678610177102191ab419644fd",
-      "python": "3.11.0",
-      "timed_out": false
-    },
-    "7df2d08fea6e": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T20:42:37Z",
-      "dirty": true,
-      "head": "037c2d46cb36c1d5c7b317638d47d91fc2c920cf",
+      "head": "f45223631ea6841e132ac2ed835873207bfd551b",
       "python": "3.11.0",
       "timed_out": false
     },
@@ -154,20 +56,6 @@
       "python": "3.11.0",
       "timed_out": false
     },
-    "bb9468bff64e": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T19:55:33Z",
-      "dirty": true,
-      "head": "d6384bddcb9e3558799787835717f0ebd315046d",
-      "python": "3.11.0",
-      "timed_out": false
-    },
     "c6c988fe2179": {
       "argv": [
         "hatch",
@@ -181,86 +69,58 @@
       "head": "d32feb014973cc62f301b21da5f7f7a676fbffa4",
       "python": "3.11.0",
       "timed_out": false
-    },
-    "e2350b2862bb": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T20:50:37Z",
-      "dirty": true,
-      "head": "f6f661fa5d0373a808436a832ed427425b0c459e",
-      "python": "3.11.0",
-      "timed_out": false
-    },
-    "f509a206bf02": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-22T20:13:50Z",
-      "dirty": true,
-      "head": "86645ea4ad5c775a3f077d6c9b0a3f325dfea989",
-      "python": "3.11.0",
-      "timed_out": false
     }
   },
   "schema_version": 1,
   "tasks": {
     "0413": {
-      "fingerprint": "ea54a8f858442073d33797e658e42274c59e509ddc0501551e9c03fdf3e859af",
-      "run": "1d738a9dea73",
+      "fingerprint": "05d6e0d4fa2b3db2d7b650bc84e8f70013667ac3e820e0d0fc4dbdb8755f5cd1",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_crash_mid_release_rolls_forward": {
-          "duration_ms": 404,
+          "duration_ms": 327,
           "outcome": "passed"
         },
         "tests/test_release.py::test_refusals_write_nothing": {
-          "duration_ms": 360,
+          "duration_ms": 338,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_strips_only_decorators_imports_and_the_registry": {
-          "duration_ms": 156,
+          "duration_ms": 157,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_then_restore_is_byte_identical": {
-          "duration_ms": 1549,
+          "duration_ms": 1665,
           "outcome": "passed"
         },
         "tests/test_release.py::test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record": {
-          "duration_ms": 119,
+          "duration_ms": 122,
           "outcome": "passed"
         },
         "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast": {
-          "duration_ms": 117,
+          "duration_ms": 115,
           "outcome": "passed"
         },
         "tests/test_release.py::test_stripped_tree_imports_without_the_runtime": {
-          "duration_ms": 161,
+          "duration_ms": 179,
           "outcome": "passed"
         },
         "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen": {
-          "duration_ms": 127,
+          "duration_ms": 136,
           "outcome": "passed"
         },
         "tests/test_release.py::test_writing_commands_refuse_while_stripped": {
-          "duration_ms": 118,
+          "duration_ms": 134,
           "outcome": "passed"
         }
       }
     },
     "0591": {
-      "fingerprint": "4774a8d75ff03c6f03992cae4b28c0cbd632d57bd764959d28233e2e43d00162",
-      "run": "7df2d08fea6e",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_dynamic_decorator_arguments_refuse_the_release": {
-          "duration_ms": 457,
+          "duration_ms": 369,
           "outcome": "passed"
         }
       }
@@ -308,21 +168,21 @@
       }
     },
     "205d": {
-      "fingerprint": "99ee87095710ab564c426954bf6b4b1f9021d5a4e949c440d952bd9eb5909525",
-      "run": "f509a206bf02",
+      "fingerprint": "a1649168b35630f169d26b89d27f60c8538256c7fbb01e211f13150fc99f6a25",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_release_refuses_a_pending_journal_without_recovering_it": {
-          "duration_ms": 108,
+          "duration_ms": 109,
           "outcome": "passed"
         }
       }
     },
     "2533": {
-      "fingerprint": "fbb6f81b3847f823149b5a783f7c6f8eada344a4ae0ed95f6d8263da5e2d4a14",
-      "run": "5947a28b2f64",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_alias_reused_in_another_scope_still_counts_as_a_consumer": {
-          "duration_ms": 138,
+          "duration_ms": 120,
           "outcome": "passed"
         }
       }
@@ -378,41 +238,41 @@
       }
     },
     "34da": {
-      "fingerprint": "e4f00bc780cd5c5a24a09f5d9e6008010f09c4e41c0a470396e8058d143b1519",
-      "run": "49767db02229",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_shadowed_todo_is_not_stripped": {
-          "duration_ms": 115,
+          "duration_ms": 123,
           "outcome": "passed"
         }
       }
     },
     "4518": {
-      "fingerprint": "1830ea24ebd8afbfb7a90909dd7d8abfe099a0eb31e055211e372f718df933ba",
-      "run": "542c912a070b",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_escaping_package_exposes_its_submodules": {
-          "duration_ms": 316,
-          "outcome": "passed"
-        }
-      }
-    },
-    "478d": {
-      "fingerprint": "12b48c4417c8bffb0726727ac1c272214aac66ce606d690954e64ad0c36eacae",
-      "run": "413764069a1b",
-      "tests": {
-        "tests/test_release.py::test_relative_import_of_the_runtime_refuses_the_release": {
           "duration_ms": 243,
           "outcome": "passed"
         }
       }
     },
+    "478d": {
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
+      "tests": {
+        "tests/test_release.py::test_relative_import_of_the_runtime_refuses_the_release": {
+          "duration_ms": 249,
+          "outcome": "passed"
+        }
+      }
+    },
     "4d48": {
-      "fingerprint": "2affa1c4f606cee3520b37e6c16794b9260be8047b180c4fc0f464248f75a836",
-      "run": "49767db02229",
+      "fingerprint": "a1649168b35630f169d26b89d27f60c8538256c7fbb01e211f13150fc99f6a25",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_partial_restore_keeps_decorators_whose_import_is_unplaced": {
-          "duration_ms": 107,
+          "duration_ms": 110,
           "outcome": "passed"
         }
       }
@@ -472,21 +332,21 @@
       }
     },
     "8b28": {
-      "fingerprint": "39febd314ccad6e3b8bdafbaedc33b812553bf4eaf60f49b3fb97776def093e8",
-      "run": "e2350b2862bb",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_module_escaping_attribute_access_keeps_its_runtime_names": {
-          "duration_ms": 478,
+          "duration_ms": 485,
           "outcome": "passed"
         }
       }
     },
     "90c6": {
-      "fingerprint": "172ddff9690759845c0e927f372a880f51e77078bc7984d8dd36900cb6cf9302",
-      "run": "bb9468bff64e",
+      "fingerprint": "a1649168b35630f169d26b89d27f60c8538256c7fbb01e211f13150fc99f6a25",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_stripped_stub_gets_no_duplicate_task": {
-          "duration_ms": 23,
+          "duration_ms": 21,
           "outcome": "passed"
         }
       }
@@ -544,119 +404,119 @@
       }
     },
     "a703": {
-      "fingerprint": "a99b3beae4634088c334fd84a40142b08843787bae4f26f858971324bad9b09a",
-      "run": "6d34f41c67ad",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_wildcard_runtime_import_refuses_the_release": {
-          "duration_ms": 190,
+          "duration_ms": 120,
           "outcome": "passed"
         }
       }
     },
     "aedf": {
-      "fingerprint": "eb2a2f9c09e3433a5deae6d2e7c3a71ce4ef9e8e3ff4ec76bf791ede085709e2",
-      "run": "bb9468bff64e",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_other_runtime_imports_refuse_the_release": {
-          "duration_ms": 261,
+          "duration_ms": 240,
           "outcome": "passed"
         },
         "tests/test_release.py::test_unused_other_runtime_import_is_stripped": {
-          "duration_ms": 182,
-          "outcome": "passed"
-        }
-      }
-    },
-    "b68c": {
-      "fingerprint": "e4f00bc780cd5c5a24a09f5d9e6008010f09c4e41c0a470396e8058d143b1519",
-      "run": "49767db02229",
-      "tests": {
-        "tests/test_release.py::test_unanchored_import_goes_below_a_new_docstring_and_future_import": {
-          "duration_ms": 125,
-          "outcome": "passed"
-        }
-      }
-    },
-    "baeb": {
-      "fingerprint": "d85a71c9a1319b2bb164322533ad0191ddb25d698796b470d13bc35bcce63651",
-      "run": "58d7d7db7a8d",
-      "tests": {
-        "tests/test_release.py::test_runtime_names_exported_by_any_all_form_refuse_the_release": {
-          "duration_ms": 238,
-          "outcome": "passed"
-        }
-      }
-    },
-    "c242": {
-      "fingerprint": "eb2a2f9c09e3433a5deae6d2e7c3a71ce4ef9e8e3ff4ec76bf791ede085709e2",
-      "run": "bb9468bff64e",
-      "tests": {
-        "tests/test_release.py::test_restore_refuses_a_decorator_shadowed_since_the_release": {
           "duration_ms": 132,
           "outcome": "passed"
         }
       }
     },
+    "b68c": {
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
+      "tests": {
+        "tests/test_release.py::test_unanchored_import_goes_below_a_new_docstring_and_future_import": {
+          "duration_ms": 135,
+          "outcome": "passed"
+        }
+      }
+    },
+    "baeb": {
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
+      "tests": {
+        "tests/test_release.py::test_runtime_names_exported_by_any_all_form_refuse_the_release": {
+          "duration_ms": 242,
+          "outcome": "passed"
+        }
+      }
+    },
+    "c242": {
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
+      "tests": {
+        "tests/test_release.py::test_restore_refuses_a_decorator_shadowed_since_the_release": {
+          "duration_ms": 114,
+          "outcome": "passed"
+        }
+      }
+    },
     "c449": {
-      "fingerprint": "d0e7f4e653947762261a4d7ebc58661a7f868d5ddb9a709820877d8a1e657680",
-      "run": "1d738a9dea73",
+      "fingerprint": "2a548a280598bf44ba0a4f87bbfeca7f68104f70e475bb4468f704d847ffbda9",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_cleanup.py::test_cleanup_keeps_a_runtime_import_exported_through_an_all_mutation": {
           "duration_ms": 18,
           "outcome": "passed"
         },
         "tests/test_release.py::test_unresolvable_all_mutation_refuses_the_release": {
-          "duration_ms": 472,
+          "duration_ms": 357,
           "outcome": "passed"
         }
       }
     },
     "c8db": {
-      "fingerprint": "a99b3beae4634088c334fd84a40142b08843787bae4f26f858971324bad9b09a",
-      "run": "6d34f41c67ad",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_runtime_reexported_to_another_module_refuses_the_release": {
-          "duration_ms": 645,
+          "duration_ms": 490,
           "outcome": "passed"
         }
       }
     },
     "cc54": {
-      "fingerprint": "4774a8d75ff03c6f03992cae4b28c0cbd632d57bd764959d28233e2e43d00162",
-      "run": "7df2d08fea6e",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_runtime_module_imported_through_its_parent_refuses_the_release": {
-          "duration_ms": 134,
+          "duration_ms": 121,
           "outcome": "passed"
         }
       }
     },
     "fb23": {
-      "fingerprint": "602c21660c720feb685377ec761db2f329693507d38fa0ace267e9476a9820c6",
-      "run": "6264cf3497c8",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_restored_import_stays_above_a_declaration_moved_before_its_anchor": {
-          "duration_ms": 178,
+          "duration_ms": 134,
           "outcome": "passed"
         }
       }
     },
     "fb9c": {
-      "fingerprint": "12b48c4417c8bffb0726727ac1c272214aac66ce606d690954e64ad0c36eacae",
-      "run": "413764069a1b",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_dotted_module_escape_keeps_its_runtime_names": {
-          "duration_ms": 117,
+          "duration_ms": 121,
           "outcome": "passed"
         }
       }
     },
     "fd44": {
-      "fingerprint": "d85a71c9a1319b2bb164322533ad0191ddb25d698796b470d13bc35bcce63651",
-      "run": "58d7d7db7a8d",
+      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
+      "run": "8b0a97a19dd9",
       "tests": {
         "tests/test_release.py::test_anchored_import_goes_below_a_new_future_import": {
-          "duration_ms": 132,
+          "duration_ms": 133,
           "outcome": "passed"
         }
       }
