@@ -352,7 +352,14 @@ class Project:
             by_file[proposal.tag.path].append(proposal)
         for path, file_proposals in sorted(by_file.items()):
             source, before = sources[path]
-            edited, scans[path] = annotate(source, file_proposals, self.config.detect, runtime_modules, hierarchy)
+            edited, scans[path] = annotate(
+                source,
+                file_proposals,
+                self.config.detect,
+                runtime_modules,
+                hierarchy,
+                pytest_marker=self.config.tests.pytest_marker,
+            )
             writes.append(FileWrite(path, before, edited.encode()))
         # A new task's origin is what it was discovered as (e.g. a stub), not what
         # the edited file shows (the comment BytePlan just wrote for it).
@@ -370,6 +377,8 @@ class Project:
         absence_check = None if scope.narrowed else (matcher or ScopeMatcher(self.config)).contains
         new_registry, summary = reconcile(registry, observations, self.clock(), absence_check=absence_check)
         scope_matcher = matcher or ScopeMatcher(self.config)
+        # Links from the final (annotated) scans: inserted lines move the decorators below them.
+        links = [link for path in scope.files for link in scans[path].links]
         _apply_discovered_tests(new_registry, observed, links, scope)
         diagnostics.extend(self._test_link_diagnostics(new_registry, observed, scope_matcher))
         diagnostics.extend(self._missing_diagnostics(new_registry))
@@ -498,7 +507,7 @@ class Project:
             events = [e.event for e in task.history[len(before.history) :]]
             closed_and_gone = task.status.is_closed and events == ["missing"]
             relevant = [e for e in events if e in out_of_sync or (e == "missing" and not task.status.is_closed)]
-            if before.tests_discovered != task.tests_discovered:
+            if _link_keys(before) != _link_keys(task):  # line-only moves are position drift
                 relevant.append("test links")
             location = (Location(task.source.path, task.source.line),) if task.source else ()
             if relevant:
@@ -1184,6 +1193,11 @@ def _malformed_test(node: str, task_id: str | None, location: Location) -> Diagn
         locations=(location,),
         hint="it isn't linked until it's fixed",
     )
+
+
+def _link_keys(task: Task) -> list[tuple[str, str, str]]:
+    """A task's discovered test links without their line numbers."""
+    return sorted({(e["node"], e["provenance"], e["path"]) for e in task.tests_discovered})
 
 
 def _apply_discovered_tests(

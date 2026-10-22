@@ -329,3 +329,42 @@ def test_merge_discovered_links_flags_a_rescan() -> None:
     emptied = _merge_task({"managed": ["t.py::a"], "discovered": []}, None, {"managed": ["t.py::a"], "discovered": []})
     assert emptied.data is not None
     assert "tests" not in emptied.data["tasks"]["a83f"]
+
+
+# Codex review of #25 -------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("marker", [False, True])
+def test_links_use_positions_after_annotation(project: ProjectFactory, run_cli: RunCli, marker: bool) -> None:  # noqa: FBT001
+    """A stub comment inserted above a linked test moves its decorator down a line."""
+    project.init()
+    pyproject = project.root / "pyproject.toml"
+    extra = "\n[tool.byteplan.tests]\npytest_marker = true\n" if marker else ""
+    pyproject.write_text(pyproject.read_text() + "\n[tool.byteplan.check]\nrequire_reconciled = true\n" + extra)
+    project.write("src/r.py", ROUTER)
+    register(project, run_cli)
+    decorator = '@pytest.mark.byteplan("c002")' if marker else '@verifies("c002")'
+    project.write(
+        "tests/test_s.py",
+        f"import pytest\nfrom byteplan_runtime import verifies\n\n\ndef helper():\n    pass\n\n\n{decorator}\ndef test_s():\n    assert True\n",
+    )
+    assert run_cli("scan", "--project", project.root).code == EXIT_OK  # inserts a stub TODO above helper
+    text = (project.root / "tests/test_s.py").read_text()
+    line = text.splitlines().index(decorator) + 1
+    provenance = "marker" if marker else "verifies"
+    (entry,) = [
+        e for e in registry_of(project)["tasks"]["c002"]["tests"]["discovered"] if e["provenance"] == provenance
+    ]
+    assert entry["line"] == line
+    assert run_cli("check", "--project", project.root).code == EXIT_OK
+
+
+def test_link_line_drift_is_position_drift(linked: ProjectFactory, run_cli: RunCli) -> None:
+    pyproject = linked.root / "pyproject.toml"
+    pyproject.write_text(pyproject.read_text() + "\n[tool.byteplan.check]\nrequire_reconciled = true\n")
+    linked.write("tests/test_r.py", "\n\n" + TESTS)  # only moves the @verifies decorators
+    result = run_cli("check", "--format", "json", "--project", linked.root)
+    assert result.code == EXIT_OK
+    codes = {d["code"] for d in json.loads(result.out)["diagnostics"]}
+    assert "registry_out_of_sync" not in codes
+    assert "position_drift" in codes
