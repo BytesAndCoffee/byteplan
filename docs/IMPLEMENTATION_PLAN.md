@@ -1,12 +1,15 @@
 # BytePlan implementation plan
 
 The behavioural contract is [`spec.md`](spec.md), extended by
-[`spec-addendum-a.md`](spec-addendum-a.md), [`spec-addendum-b.md`](spec-addendum-b.md) and
-[`spec-addendum-c.md`](spec-addendum-c.md).
+[`spec-addendum-a.md`](spec-addendum-a.md), [`spec-addendum-b.md`](spec-addendum-b.md),
+[`spec-addendum-c.md`](spec-addendum-c.md) and [`spec-addendum-d.md`](spec-addendum-d.md).
 Addendum A covers `@todo` decorators, stub decoration, acceptance-test links, verification, and
 registry-to-source cleanup. Addendum B covers test scaffolding, optional acceptance criteria,
 release-stripping semantics, and the end-to-end development workflow. Addendum C covers Git
-integration: staged-snapshot checks for pre-commit, a published pre-commit hook, and CI recipes. This document records how it is
+integration: staged-snapshot checks for pre-commit, a published pre-commit hook, and CI recipes.
+Addendum D reframes a task as an **assignment**, a durable unit of development intent. It adds
+typed links to commits, PRs, issues and tests, orthogonal state axes, external-issue intake, and
+an optional "Relay" workflow for GitHub. This document records how it is
 built, the decisions both documents leave open, and the phase order. Toolchain: Hatch / Hatchling
 (verified against Hatch 1.18.1, Hatchling 1.32.4).
 
@@ -865,6 +868,198 @@ from the merged source.
 outside the virtualenv. A clone without the driver falls back to Git's text merge; I checked on
 git 2.51 that an undefined driver name is harmless.
 
+## Addendum D decisions: assignments, provenance, development cycles
+
+### Terminology: "assignment" is the concept, `task` stays the name (§D.12 Q1)
+
+Assignments come **alias first**. An assignment *is* today's task: same ID, same registry entry,
+same CLI. The docs adopt "assignment" as the conceptual noun, and nothing is renamed: not
+commands, not `tasks.json`, not the field names. A rename would be its own decision, with its own
+migration, if real use ever justifies it. Every existing TODO, decorator, stub, ID and registry
+file keeps working unchanged (§D.9).
+
+### State axes, mapped onto what exists
+
+Addendum D proposes four axes. Most already exist under other names, so the plan maps them
+rather than duplicating them:
+
+| §D.3 axis | BytePlan field | Decision |
+|---|---|---|
+| `lifecycle` | `status`: `open`, `in_progress`, `blocked`, `resolved`, `dismissed` | Kept as is. `cancelled` is accepted as CLI and API input for `dismissed`. **`ready_for_review` is not stored as a lifecycle value**: readiness stays *computed* from evidence (Addenda A and B). Storing it would let a stale "ready" outlive the evidence behind it. |
+| `binding` | `presence`: `present`, `missing`, `unknown`, `stripped`, plus new **`unbound`** | `bound` = `present`, `stripped` is unchanged, and Addendum D's `stale` binding is today's `missing`. `unbound` is new: created without a source annotation (intake, explicit creation). Scans never mark an unbound assignment missing, because it never had a source. **Proposed** bindings are a separate list (below), never a presence value. |
+| `verification` | computed readiness (Addendum A) | Kept computed. §D.3.1's three distinct facts stay separate: stale evidence (fingerprint/revision), a scaffold placeholder (Addendum B), and **coverage adequacy**. That last one is new: a managed `coverage_review` field (`unassessed`, `adequate`, `needs_review`) set by a human or agent, never derived from test results. |
+| `approval` | new managed `approval` object | `{required: bool, state: not_required, pending, approved, changes_requested}` |
+
+**Approval rules:**
+- `byteplan approve ID` and `byteplan request-changes ID` set the state.
+- When `required` is true, `resolve` refuses unless the state is `approved`. `--override-approval`
+  is allowed only for a human at the CLI, and is recorded.
+- The MCP server never exposes `approve`. No merge, check result or agent statement can stand in
+  for approval (§D.3 rule 7).
+- `[tool.byteplan.approval] required_by_default = false` controls new assignments.
+
+### Links: typed, directed, many-to-many (§D.2.2–D.2.4)
+
+Each assignment gains `links: [{relation, ref, note?, added: {at, actor}}]`.
+
+**Relations:** the §D.2.3 verbs (`originated_from`, `investigates`, `consumes`, `produces`,
+`delivered_by`, `verified_by`, `blocked_by`, `supersedes`, `reverted_by`, `related_to`).
+Provider-namespaced verbs such as `github:labelled_by` are allowed. Unknown relations and fields
+round-trip untouched.
+
+**Artifact references (§D.12 Q3):** one URI-like string grammar, no provider SDK needed:
+
+```
+<scheme>:<locator>                       # scheme and kind are lowercase
+git:commit:<full-oid>[@<repo>]            # algorithm inferred from length (40 = SHA-1, 64 = SHA-256)
+github:<owner>/<repo>:issue:<n>  github:<owner>/<repo>:pull:<n>  github:<owner>/<repo>:release:<tag>
+gitlab:<group>/<project>:issue:<n>
+test:<pytest node id>
+byteplan:<id>                             # another assignment in this project
+url:<https://...>                         # anything else
+```
+
+- **`<repo>`:** defaults to `[tool.byteplan] repository = "github:BytesAndCoffee/byteplan"`.
+- **Commit references** are validated as full object IDs. Branch names are accepted only as a
+  note, never as a ref (§D.2.2).
+
+**Merging existing concepts into links:**
+- Phase 6c's `depends_on` is converted by `byteplan migrate` into `blocked_by` links, with cycle detection.
+- Test links (Addendum A `tests`) stay in their own subsystem, because they carry discovery and
+  provenance details. Queries present them as `verified_by` relationships, so there's one view and
+  two storage paths.
+
+**Queries (§D.5)** are computed from the registry on demand, with no separate index:
+- `byteplan links ID`: forward.
+- `byteplan refs REF`: reverse ("which assignments touch this PR or commit?").
+- `byteplan history ID`.
+- `byteplan impact REV`, which reports three separately labelled sections:
+  1. *explicit* links to that commit
+  2. *source-overlap candidates* (files changed by `git diff-tree` that contain bound annotations)
+  3. *verified effects* (evidence recorded at that revision)
+
+  It never states that a commit completed anything.
+
+**Commit trailers** (`BytePlan-Assignment: a83f`): `byteplan links discover REV-RANGE` *proposes*
+links from trailers, dry-run by default. A trailer is never the sole authority, and history is
+never rewritten.
+
+**Rebases, squashes and cherry-picks (§D.12 Q4):**
+- Each `git:commit` link also stores `patch_id` (`git patch-id --stable`).
+- `byteplan links reconcile` re-associates links whose commit vanished after a rebase or
+  cherry-pick by matching patch IDs, and reports any that can't be matched.
+- For squash merges, the durable link is the PR (`delivered_by`), plus the final integrated commit
+  as `produces` once known.
+- Both outcomes are reported, never guessed.
+
+### Event history (§D.4, §D.12 Q2)
+
+History stays **embedded per assignment**, as now. It's append-only, and the registry merge driver
+already merges it. That keeps atomicity under the existing journal and avoids a second file to
+keep consistent.
+
+Events gain optional fields:
+- `actor` (from `BYTEPLAN_ACTOR`, else `git config user.email`, else `"unknown"`)
+- `actor_type` (`human`, `agent`, `ci`, `integration`; CLI default `human`, MCP `agent`, `$CI`
+  sets `ci`)
+- `revision` (HEAD at the time, when in Git)
+- `inputs` (refs)
+- `evidence` (evidence IDs)
+- `idempotency_key`
+
+A write that carries an idempotency key already present in that assignment's history is a no-op.
+That makes webhook redelivery and agent retries safe (§D.8.1).
+
+The docs will not call this an audit trail or tamper-proof. It's a Git-versioned record of why
+state changed.
+
+### Intake and binding (§D.2.1, §D.8.1–D.8.2)
+
+**Creating assignments without source:**
+- `byteplan create --title T [--kind FIXME] [--link RELATION=REF]...` creates an **unbound**
+  assignment with a fresh ID.
+- `byteplan intake REF [--title T]` does the same for an external report, and is **idempotent by
+  canonical ref**. If an assignment already has `originated_from` that ref, it returns the
+  existing ID and writes nothing.
+  - **Offline:** a title is required.
+  - **Fetching titles:** an optional provider fetch (e.g. through `gh`) is a later, separate
+    adapter. Core never needs the network.
+- **Several issues per assignment, or several assignments per issue,** are both expressible
+  through links. Deduplication never uses title or body text.
+
+**Binding:**
+- **Doing it by hand:** put the existing ID into source (`# FIXME[a83f]: ...` or
+  `@todo(..., id="a83f")`). The next scan finds an ID that's registered and `unbound`, and binds it
+  (`unbound → present`, a `bound` event).
+- **`byteplan bind ID TARGET`:** inserts the comment above a symbol or at `PATH:LINE` through the
+  existing edit engine.
+- **Proposals:** `byteplan propose-binding ID PATH[:SYMBOL] [--confidence low|medium|high]
+  [--note]` records a candidate in `binding_proposals` without editing source. A proposal never
+  changes presence.
+
+**Branch awareness:** an annotation that exists only on an unmerged branch shows as `present` on
+that branch's registry and `unbound` on `main`. The merge driver's "discovered field, ours plus
+rescan" rule reconciles them when the branch lands. This matches §D.8.2's "proposed project
+change, not proof".
+
+### Trust boundaries (§D.8.4)
+
+- **Untrusted data:** issue bodies, PR text, commit messages and trailers are stored as data, and
+  returned through MCP as clearly delimited untrusted content.
+- **Never executed or obeyed:** BytePlan never runs anything they contain and never treats them as
+  instructions.
+- **MCP permissions:** the agent tools from §D.7.1 are added to the MCP server in Phase 12, and map
+  onto its existing three permission flags.
+  `request_resolution` is policy-checked: it is refused when approval is required and not given,
+  or when evidence is stale. It is never an unconditional resolve. `approve` doesn't exist on MCP.
+- **Tokens:** least-privilege token guidance lives in the Relay docs, not core.
+
+### Relay (§D.6–D.7)
+
+Relay is **one optional development cycle**, not part of the protocol. Core BytePlan remains fully
+usable offline with no GitHub account.
+
+- **Packaging:** the reference integration ships separately as `relay-for-github/`, described as
+  "Relay for GitHub, powered by BytePlan" and explicitly **unofficial**. It is never branded in a
+  way that implies GitHub sponsorship.
+- **Contents:**
+  - reusable GitHub Actions workflows: issue intake on `opened`/`reopened`, idempotent by
+    canonical ref
+  - PR reconciliation using `check --commit`
+  - a single updatable status comment
+  - documentation for a triage agent that only *proposes* bindings
+  - branch-protection and required-review guidance
+- **Prerequisites:** it's built only after the assignment model (Phase 12), verification
+  (Phase 6a), scaffolding (6b) and MCP (Phase 9) exist.
+- **GitHub App or Checks API:** deferred until real use justifies it (§D.10 D5).
+
+### Schema v2 and migration (§D.9)
+
+Phase 12 bumps the registry to **`schema_version: 2`**. The new presence value `unbound` would be
+misread by older readers, so silently reusing v1 is not acceptable.
+- `byteplan migrate` upgrades v1 to v2 in place through the journal, idempotently.
+- Every write command refuses a v1 registry with a "run `byteplan migrate`" message. Reads still
+  work.
+- **Migration is purely additive:** empty `links`, `approval: {required: false, state:
+  not_required}`, `coverage_review: unassessed`, and an empty `binding_proposals`. Phase 6c's
+  `depends_on` becomes `blocked_by` links. No other existing value changes.
+- **Prerequisite, scheduled early:** unknown **top-level** registry keys are currently dropped on
+  load and save. I found this while planning Addendum D and confirmed it with a round-trip test.
+  It's a general forward-compatibility bug rather than an Addendum D feature, and Phase 8's
+  top-level `release` records depend on it. So it's fixed in Phase 4c, not deferred with
+  Addendum D. Unknown top-level keys will round-trip as task-level ones already do, and the merge
+  driver will merge them three-way.
+
+### Remaining open questions (§D.12)
+
+- **Q5 (readiness versus adequacy):** answered above. Readiness is derived; adequacy is the
+  managed `coverage_review`.
+- **Q6 (narrowest triage-agent permissions):** answered in the Relay docs: read-only reconnaissance
+  plus `propose-binding` and branch PRs; no merge, approve or close.
+- **Q7 (duplicate and invalid reports):** BytePlan never decides these. Intake only deduplicates by
+  canonical ref. A human or agent can link `related_to`/`supersedes` or dismiss with a note, and
+  the tool reports its uncertainty instead of asserting.
+
 ## Hatch build hook
 
 ```toml
@@ -958,8 +1153,18 @@ contract as the CLI.
 
 Each phase ends green on `hatch fmt --check`, `hatch run types:check` and `hatch test --all`.
 
-Addendum A's six-step order (§10), Addendum B's order (§B9) and Addendum C's order (§C10) are merged in below. Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4b comes next: the engine it depends on (Phases 1–4) is in place, and it's read-only. Its step 2 (choosing the runtime design)
-is done above, so the runtime package can ship before anything generates decorators.
+Each addendum's suggested order is merged in below: Addendum A §10, Addendum B §B9 and Addendum C
+§C10. **Addendum D comes last:**
+- **Phase 12:** §D.10 stages D0–D2, plus the D4 agent tools.
+- **Phase 13:** D3, the optional `relay-for-github` package.
+- **D5:** deferred.
+
+D builds on nearly everything before it (verification, scaffolding, release, MCP), and nothing
+earlier depends on it.
+
+Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4b comes
+next, since the engine it depends on (Phases 1–4) is in place and it's read-only. Addendum A's
+step 2 (choosing the runtime design) is already done, and the runtime package has shipped.
 
 | Phase | Deliverables | Spec §12 tests | Addendum §9 tests |
 |---|---|---|---|
@@ -969,16 +1174,19 @@ is done above, so the runtime package can ship before anything generates decorat
 | 3. Stubs + decorators ✅ | `stubs.py`, `decorators.py` (static `@todo`/`@verifies` discovery, alias resolution), `association.py` (comment / decorator / stub → one obligation), decorator `id=` allocation, schema fields, `implementation_changed`, `check`, `report`, `repair` | 2, 3, 4, 17 | 1, 2, 6 (comment mode), 7, 19 |
 | 4. Hatch ✅ | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
 | 4b. Git lifecycle (read-only) | `snapshot.py` + `gitio.py` (index/commit snapshots via NUL-safe plumbing, no-optional-locks), `check --staged`, `scan --staged --dry-run`, staged diagnostics and policy keys, `.pre-commit-hooks.yaml`, `git install-hooks` / `git hooks-status`, `docs/ci.md` GitHub Actions recipe | – | C: 1–6, 8–14, 17–21 (C: 7, 22 with Phase 8) |
+| 4c. Registry forward compatibility | unknown **top-level** registry keys round-trip (today they're dropped on save; task-level ones already survive), and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
 | 5. Runtime + normalization | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
 | 6a. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |
 | 6b. Test scaffolding | `scaffold.py` planner, `byteplan tests scaffold ID [--path] [--name] [--policy] [--force-new] [--dry-run]`, placeholder detection, `[tool.byteplan.tests.scaffold]` | – | B: 1–9, 11 (CLI), 12 |
-| 6c. Criteria + dependencies (optional) | `acceptance_criteria`, `byteplan criteria …`, `depends_on`, lifecycle facts in reports | – | – |
+| 6c. Criteria + dependencies (optional) | `acceptance_criteria`, `byteplan criteria …`, `depends_on`, lifecycle facts in reports (Phase 12 later turns `depends_on` into `blocked_by` links) | – | – |
 | 7. Cleanup | `cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`, `--suppress-stubs` | – | 13 (cleanup), 14 |
 | 8. Release | `release.py`, `byteplan release [--version] [--dry-run] [--allow-dirty] [--smoke-test]`, `byteplan restore [--dry-run] [--partial]`, presence `stripped`, registry `release`/`releases`, `release_on_default_branch` and `unfinished_scaffold_in_sdist` warnings, Hatch `require_stripped`, documented release-branch workflow | – | release tests below · B: 13–18 |
 | 9. MCP | `[mcp]` extra, `mcp_server.py` with all tools above (including scaffold preview / `scaffold_test`), the three permissions, `byteplan mcp`, README client snippets | – | A: 16 (MCP part), 20 · B: 11 (MCP) |
 | 10. Integration | README end-to-end developer journey (`# TODO` → `scan` → `tests scaffold` → implement → `verify` → `resolve` → `sync`, including where BytePlan notices but never closes work), docs for every config key, dogfood `hatch run byteplan scan` on BytePlan itself, CI on ubuntu/macos/windows | DoD | full suite · B: 19 |
 | 11 (optional) | spec §14 phase 5 items, `TODO(owner):` syntax | – | – |
 | 11b (optional) | `scan --staged --apply` (index-only, partial-stage refusal, manifest recovery), `byteplan diff BASE...HEAD`, SARIF/Markdown PR annotations | – | C: 15, 16 |
+| 12. Assignment model (Addendum D: D0–D2, D4) | schema v2 + `byteplan migrate` (also converts `depends_on` to `blocked_by` links); `presence: unbound`; `binding_proposals`; `approval` + `approve` / `request-changes`, approval-gated `resolve`; `coverage_review`; typed `links` with ref grammar and patch IDs; `create`, `intake` (offline, idempotent), `bind`, `propose-binding`, `link` / `unlink`, `links`, `refs`, `history`, `impact REV`, `links discover` (trailers), `links reconcile` (patch IDs); event actor/revision/idempotency fields; merge driver handles the new fields; MCP gains the §D.7.1 contract (`intake_issue`, `propose_binding`, `bind_source`, `link_artifact`, `scaffold_regression`, `record_verification`, `get_assignment`, `get_handoff`, policy-checked `request_resolution`; no `approve`) | – | D.11: 1–8 (9 for local retries) |
+| 13 (optional, separate package) | `relay-for-github/`: reusable workflows (idempotent intake, PR reconciliation, single status comment), triage-agent guide, branch-protection docs, end-to-end demo (issue → intake → binding PR → failing scaffold → fix → verification → human approval → reconciliation, with a retry/failure path) | – | D.11: 9–12 |
 
 **Phase 8 release tests:**
 - `release` changes only decorator lines, runtime imports and the registry. It never commits,
@@ -1024,6 +1232,19 @@ is done above, so the runtime package can ship before anything generates decorat
   CI command.
 - The pre-commit hook runs through `pre-commit try-repo` on a registry-only commit (marked
   `network`).
+
+**Phase 12 tests (Addendum D §D.11):**
+- A v1 registry migrates losslessly, unknown keys survive, and migrating twice changes nothing.
+- An unbound assignment is never marked missing, and binding it keeps its ID.
+- A source TODO's assignment keeps its pre-existing ID.
+- An issue ref and an assignment ID never collide or alias.
+- One commit links to several assignments, and one assignment to several commits/PRs. Both query
+  directions agree.
+- `resolve` is refused when approval is required and missing.
+- Neither a merge, a passing test, a deleted TODO nor a closed issue resolves anything.
+- Replaying an intake or a write with the same idempotency key is a no-op.
+- `impact` labels explicit links, overlap candidates and verified effects separately.
+- The merge driver merges links and approval three-way.
 
 **Phase 6b scaffold tests (Addendum B §B8):**
 - An untouched scaffold is collected and **fails** in a real pytest subprocess. It never passes,
