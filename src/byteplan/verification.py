@@ -16,8 +16,8 @@
   the fingerprint of its files at verification time, the run, and per-test results
   (outcome, duration in ms, up to 1 KB of failure text). Runs record argv, Python version,
   UTC time, Git HEAD and a dirty flag.
-* **Freshness.** A task's fingerprint is a sha256 over its source file and its linked test
-  files. Results are ``stale`` when it changed. It can't see imported helpers; with
+* **Freshness.** A task's fingerprint is a sha256 over its source file (while its annotation
+  is present) and its linked test files. Results are ``stale`` when it changed. It can't see imported helpers; with
   ``stale_on = "head"`` any HEAD change or a dirty tree makes results stale instead.
 * **Readiness** is derived, never stored, and never changes a task's status.
 """
@@ -39,6 +39,7 @@ from typing import TYPE_CHECKING, Any
 
 from byteplan.errors import ByteplanError, ConfigError
 from byteplan.gitio import git
+from byteplan.models import Presence
 from byteplan.persistence import STATE_DIR, atomic_write_bytes
 
 if TYPE_CHECKING:
@@ -85,9 +86,12 @@ class RunOutput:
 
 
 def task_files(task: Task) -> list[str]:
-    """The files a task's evidence depends on: its source file and its linked test files."""
+    """The files a task's evidence depends on: its linked test files, plus its source file while
+    its annotation is there. Once the annotation is gone (presence ``missing``, e.g. a finished
+    task whose TODO was removed), the old file says nothing about the work, so edits to it
+    don't make the evidence stale."""
     files = {node.split("::", 1)[0] for node in task.linked_tests()}
-    if task.source is not None:
+    if task.source is not None and task.presence is not Presence.MISSING:
         files.add(task.source.path)
     return sorted(files)
 
