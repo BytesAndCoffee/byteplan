@@ -5,6 +5,20 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+### Cleanup (Phase 7)
+- **`byteplan sync --remove-resolved`** and **`byteplan resolve ID --sync-source`** remove the
+  source annotations of resolved and dismissed tasks.
+  - Python: tags with their continuation lines, trailing tags, and whole-line `@todo(...)`
+    decorators, plus the `todo` import once unused.
+  - Markdown: HTML and link-reference comments.
+  - JSON: comments. A JSON string value is left for review.
+  - Safety: changes are previewed by default and journaled when written, checked against the
+    AST, and must round-trip through the scanner.
+  - The registry keeps the ID and history and logs `cleaned`.
+- **`resolved_but_stubbed`:** a closed task whose code is still a stub isn't cleaned (scan
+  reports it too). `--suppress-stubs` leaves a visible `# byteplan: ignore` instead.
+- **`[tool.byteplan.annotations] remove_resolved`** makes `sync --apply` clean up.
+
 ### Test scaffolding (Phase 6b)
 - **`byteplan tests scaffold ID`** writes a deliberately failing acceptance test for a task and
   links it.

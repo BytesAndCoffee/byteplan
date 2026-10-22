@@ -224,6 +224,31 @@ and BytePlan tracks tags there too, with the same IDs, registry and Git integrat
 
 ## Status, presence and resolution
 
+**Cleaning up after yourself.** Resolving never edits source on its own. When you want the
+finished TODOs gone, ask BytePlan to remove them rather than deleting them by hand:
+
+```console
+$ byteplan resolve a83f --sync-source           # one task
+$ byteplan sync --remove-resolved               # preview every closed task's annotation
+$ byteplan sync --remove-resolved --apply
+```
+
+- **What's removed:** only the exact annotation, in any format.
+  - Python: the tag and its continuation lines, a trailing tag from its `#`, or an `@todo(...)`
+    on lines of its own. The `todo` import goes too, once nothing uses it.
+  - Markdown: the HTML or link-reference comment.
+  - JSON: the comment.
+- **What's never touched:** other comments, decorators, code and tests. A JSON string value is
+  data, so it's left for you (`cleanup_needs_review`).
+- **How it's checked:** Python files must keep the same AST, and every file must re-scan to its
+  old tasks minus the removed ones.
+- **What the registry keeps:** the ID, the last source location and the history, with a
+  `cleaned` event added.
+- **Stubs:** a closed task whose code is still a stub is refused (`resolved_but_stubbed`), so the
+  next scan doesn't just rediscover it. Implement it, or use `--suppress-stubs` to leave a
+  visible `# byteplan: ignore` on its `def` line.
+- **Automatically:** set `remove_resolved = true` and plain `byteplan sync --apply` does it.
+
 Every task has two independent dimensions:
 
 | | Values | Changed by |
@@ -252,6 +277,8 @@ metadata, so moving or renaming code keeps the same task.
 | `byteplan tests list [ID]` | linked acceptance tests and where each link comes from |
 | `byteplan tests add ID NODE...` / `tests remove ID NODE...` | link or unlink pytest node IDs by hand |
 | `byteplan sync [--apply] [--only ID]` | decorator mode: rewrite attached comments and unowned stubs to `@todo(...)` (preview by default) |
+| `byteplan sync --remove-resolved [--apply] [--only ID] [--suppress-stubs]` | remove the source annotations of resolved and dismissed tasks |
+| `byteplan resolve ID --sync-source` | resolve, and remove the task's annotation in the same step |
 | `byteplan scan [PATHS] [--dry-run] [--staged]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing. `--staged --dry-run` previews against the Git index |
 | `byteplan scan --staged --apply` | add IDs to the staged commit (index and working tree) before it's finalized; what the pre-commit hook runs |
 | `byteplan check [--staged \| --commit REV]` | read-only validation, with policy-based exit code. `--staged` checks exactly what's staged (pre-commit); `--commit HEAD` checks a commit (CI) |
@@ -324,6 +351,7 @@ async_tests = ""                   # "pytest-asyncio" or "anyio" to scaffold asy
 mode = "comment"                   # or "preserve" / "decorator" (see `byteplan sync`)
 convert_attached_comments = false  # decorator mode: sync turns attached comments into @todo
 auto_decorate_stubs = false        # decorator mode: sync puts @todo on unowned stubs
+remove_resolved = false            # sync also removes closed tasks' annotations
 runtime_modules = ["byteplan_runtime"]   # add a project shim module here
 ```
 

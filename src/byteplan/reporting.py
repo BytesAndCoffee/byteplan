@@ -17,7 +17,7 @@ from byteplan.registry import task_to_dict
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from byteplan.api import ScanReport, SyncReport, VerifyReport
+    from byteplan.api import CleanupReport, ScanReport, SyncReport, VerifyReport
     from byteplan.models import Annotation, Task
     from byteplan.registry import Registry
     from byteplan.verification import Readiness
@@ -399,3 +399,32 @@ def readiness_text(state: Readiness) -> list[str]:
     lines = [f"  readiness: {state.state}"]
     lines.extend(f"    - {reason}" for reason in state.reasons)
     return lines
+
+
+# byteplan sync --remove-resolved ---------------------------------------------------------------
+
+
+def cleanup_json(report: CleanupReport) -> dict[str, Any]:
+    return {
+        "dry_run": report.dry_run,
+        "blocked": report.blocked,
+        "removed": [{"id": task_id, "path": path} for task_id, path in report.removed],
+        "suppressed": [{"id": task_id, "path": path} for task_id, path in report.suppressed],
+        "imports_removed": list(report.imports_removed),
+        "written": list(report.written),
+        "diagnostics": [d.to_dict() for d in report.diagnostics],
+    }
+
+
+def cleanup_text(report: CleanupReport) -> str:
+    if report.blocked:
+        return f"byteplan cleanup: {report.blocked}"
+    lines = [f"BytePlan cleanup: {len(report.removed)} annotation(s) removed · {len(report.suppressed)} suppressed"]
+    lines += [f"  - [{task_id}] {path}" for task_id, path in report.removed]
+    lines += [f"  ~ [{task_id}] {path}  (# byteplan: ignore)" for task_id, path in report.suppressed]
+    lines += [f"  - unused runtime import in {path}" for path in report.imports_removed]
+    if report.dry_run and (report.removed or report.suppressed):
+        lines += ["", "Dry run: nothing was written. Add --apply to remove them."]
+    elif report.written:
+        lines += ["", f"Wrote {len(report.written)} file(s)."]
+    return "\n".join(lines)

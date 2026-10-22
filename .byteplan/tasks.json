@@ -6,9 +6,12 @@
     "2887",
     "46b6",
     "4fb5",
+    "6639",
+    "6b83",
     "75b4",
     "82b3",
     "9054",
+    "9185",
     "93dd",
     "9b40",
     "a6b2",
@@ -59,7 +62,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1530,
+        "line": 1532,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -94,6 +97,60 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_removes_only_the_closed_tasks_annotations",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_runtime_import_stays_while_used",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_only_and_open_tasks",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_resolve_sync_source",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_resolved_stub_is_not_cleaned",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_suppress_stubs_leaves_a_visible_ignore",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_markdown_and_json",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_crlf_and_bom_survive",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_crash_recovers_through_the_journal",
+          "old": null
         }
       ],
       "id": "14ff",
@@ -110,13 +167,27 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1526,
+        "line": 1528,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
       "status": "open",
       "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_cleanup.py::test_crash_recovers_through_the_journal",
+          "tests/test_cleanup.py::test_crlf_and_bom_survive",
+          "tests/test_cleanup.py::test_markdown_and_json",
+          "tests/test_cleanup.py::test_only_and_open_tasks",
+          "tests/test_cleanup.py::test_removes_only_the_closed_tasks_annotations",
+          "tests/test_cleanup.py::test_resolve_sync_source",
+          "tests/test_cleanup.py::test_resolved_stub_is_not_cleaned",
+          "tests/test_cleanup.py::test_runtime_import_stays_while_used",
+          "tests/test_cleanup.py::test_suppress_stubs_leaves_a_visible_ignore"
+        ]
+      },
       "title": "Phase 7: cleanup",
       "title_override": null
     },
@@ -161,7 +232,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1548,
+        "line": 1550,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -404,6 +475,104 @@
       "title": "Update the status line for the next release",
       "title_override": null
     },
+    "6639": {
+      "assignee": null,
+      "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185449\nA name listed in __all__ is used by importers even with no local reference.",
+      "first_seen": "2026-10-22T18:48:22Z",
+      "history": [
+        {
+          "at": "2026-10-22T18:48:22Z",
+          "event": "created",
+          "new": {
+            "line": 232,
+            "path": "src/byteplan/cleanup.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:48:55Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_runtime_import_reexported_through_all_stays",
+          "old": null
+        }
+      ],
+      "id": "6639",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T18:48:22Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 224,
+        "line": 237,
+        "path": "src/byteplan/cleanup.py",
+        "representation": "comment",
+        "symbol": "_drop_unused_runtime_imports"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_cleanup.py::test_runtime_import_reexported_through_all_stays"
+        ]
+      },
+      "title": "Keep runtime imports that __all__ re-exports",
+      "title_override": null
+    },
+    "6b83": {
+      "assignee": null,
+      "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185466\nWith remove_resolved in comment mode the output lost dry_run, rewrites, written, ...",
+      "first_seen": "2026-10-22T18:48:22Z",
+      "history": [
+        {
+          "at": "2026-10-22T18:48:22Z",
+          "event": "created",
+          "new": {
+            "line": 67,
+            "path": "src/byteplan/cli.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:48:55Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_sync_json_keeps_its_shape_when_only_cleanup_runs",
+          "old": null
+        }
+      ],
+      "id": "6b83",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T18:48:22Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 60,
+        "line": 67,
+        "path": "src/byteplan/cli.py",
+        "representation": "comment",
+        "symbol": "cmd_sync"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_cleanup.py::test_sync_json_keeps_its_shape_when_only_cleanup_runs"
+        ]
+      },
+      "title": "Keep sync's top-level JSON fields when only cleanup runs",
+      "title_override": null
+    },
     "75b4": {
       "assignee": null,
       "description": "Includes the `TODO(owner):` syntax, also tracked on its own in comments.py.",
@@ -455,7 +624,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1542,
+        "line": 1544,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -634,7 +803,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1545,
+        "line": 1547,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -642,6 +811,55 @@
       "status": "open",
       "stub": null,
       "title": "Phase 11b (optional): Git reporting",
+      "title_override": null
+    },
+    "9185": {
+      "assignee": null,
+      "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185458\n`Hello <!-- TODO -->world.` must not become `Helloworld.`.",
+      "first_seen": "2026-10-22T18:48:22Z",
+      "history": [
+        {
+          "at": "2026-10-22T18:48:22Z",
+          "event": "created",
+          "new": {
+            "line": 157,
+            "path": "src/byteplan/cleanup.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:48:55Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_inline_markdown_comment_keeps_word_spacing",
+          "old": null
+        }
+      ],
+      "id": "9185",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T18:48:22Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 138,
+        "line": 157,
+        "path": "src/byteplan/cleanup.py",
+        "representation": "comment",
+        "symbol": "_span"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_cleanup.py::test_inline_markdown_comment_keeps_word_spacing"
+        ]
+      },
+      "title": "Keep the space between words around an inline Markdown comment",
       "title_override": null
     },
     "93dd": {
@@ -685,7 +903,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1538,
+        "line": 1540,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -853,8 +1071,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 260,
-        "line": 264,
+        "decl_line": 262,
+        "line": 266,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"
@@ -915,7 +1133,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1523,
+        "line": 1525,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -976,7 +1194,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1552,
+        "line": 1554,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1027,7 +1245,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1534,
+        "line": 1536,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"

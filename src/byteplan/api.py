@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any
 
 import pathspec
 
-from byteplan import normalize, reporting, scaffold, verification
+from byteplan import cleanup, normalize, reporting, scaffold, verification
 from byteplan import registry as registry_io
 from byteplan.annotate import annotate
 from byteplan.config import (
@@ -125,6 +125,17 @@ class ScaffoldResult:
     dry_run: bool = False
     text: str = ""  # the planned file text
     written: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class CleanupReport:
+    removed: tuple[tuple[str, str], ...]  # (task ID, path) whose annotation was removed
+    suppressed: tuple[tuple[str, str], ...] = ()  # replaced by `# byteplan: ignore` (--suppress-stubs)
+    diagnostics: tuple[Diagnostic, ...] = ()
+    dry_run: bool = True
+    blocked: str | None = None
+    written: tuple[str, ...] = ()
+    imports_removed: tuple[str, ...] = ()  # files that lost an unused runtime import
 
 
 @dataclass(frozen=True)
@@ -425,6 +436,20 @@ class Project:
         if self.snapshot is None and implementation:
             implementation = self._complete_candidates(implementation, new_registry)
         diagnostics.extend(implementation)
+        diagnostics.extend(
+            Diagnostic(
+                Code.RESOLVED_BUT_STUBBED,
+                Severity.INFO,
+                f"task {tag.task_id} is {new_registry.tasks[tag.task_id].status} but {tag.symbol} still looks unfinished",
+                task_id=tag.task_id,
+                locations=(Location(tag.path, tag.decl_line or tag.line),),
+                hint="implement it, or `byteplan sync --remove-resolved --suppress-stubs` if it's an intentional no-op",
+            )
+            for tag in observed
+            if tag.decl_is_stub
+            and tag.task_id in new_registry.tasks
+            and new_registry.tasks[tag.task_id].status.is_closed
+        )
         # Consistency describes a read-only view ("is this already reconciled?"). After a
         # successful writing scan the state *is* reconciled, so it doesn't apply.
         if self.enforce_consistency and dry_run:
@@ -974,6 +999,108 @@ class Project:
             if state.state == "ready_for_review":
                 found.append((task, state))
         return found
+
+    # Cleanup (`byteplan sync --remove-resolved`, `resolve --sync-source`) -----------------
+
+    def cleanup(
+        self, only: Sequence[str] | None = None, *, dry_run: bool = True, suppress_stubs: bool = False
+    ) -> CleanupReport:
+        """Remove the source annotations of resolved and dismissed tasks (only ``only``, if given).
+
+        Open tasks are never touched. Each edit must keep Python's AST equal apart from
+        BytePlan's own decorators and imports, and every edited file must re-scan to its old
+        tasks minus the removed ones. The registry keeps the ID, the last source reference and
+        the history, and logs ``cleaned`` (or ``suppressed``).
+        """
+        context = contextlib.nullcontext(()) if dry_run else self._writing()
+        with context:
+            preview = self._scan(None, None, dry_run=True, recovered=())
+            if preview.blocked:
+                return CleanupReport((), (), preview.diagnostics, dry_run, blocked="duplicate IDs; fix them first")
+            registry_hash, registry = self._read_registry()
+            wanted = None if only is None else {task_id.lower() for task_id in only}
+            diagnostics: list[Diagnostic] = []
+            for task_id in sorted(wanted or ()):
+                task = registry.get(task_id)
+                if task is None:
+                    raise _not_found(task_id)
+                if not task.status.is_closed:
+                    diagnostics.append(
+                        Diagnostic(
+                            Code.CLEANUP_NEEDS_REVIEW,
+                            Severity.WARNING,
+                            f"task {task_id} is {task.status}; only resolved or dismissed tasks are cleaned up",
+                            task_id=task_id,
+                            hint=f"`byteplan resolve {task_id}` first",
+                        )
+                    )
+            annotations, sources, hierarchy = self._scan_sources()
+            closed = {task_id for task_id, task in registry.tasks.items() if task.status.is_closed}
+            targets: defaultdict[str, list[Annotation]] = defaultdict(list)
+            for tag in annotations:
+                if tag.task_id in closed and (wanted is None or tag.task_id in wanted):
+                    targets[tag.path].append(tag)
+
+            runtime_modules = self.config.annotations.runtime_modules
+            removed: list[tuple[str, str]] = []
+            suppressed: list[tuple[str, str]] = []
+            imports: list[str] = []
+            writes: list[FileWrite] = []
+            rescanned: dict[str, list[Annotation]] = {}
+            for path, remove in sorted(targets.items()):
+                source, before = sources[path]
+                plan = cleanup.plan_file(source, remove, runtime_modules=runtime_modules, suppress_stubs=suppress_stubs)
+                diagnostics.extend(plan.diagnostics)
+                if plan.text == source.text:
+                    continue
+                edited = dataclasses.replace(source, text=plan.text)
+                language = language_for(path)
+                if language is Language.PYTHON:
+                    normalize.ensure_equivalent_without_runtime(path, source.text, edited.text, runtime_modules)
+                elif language is Language.JSON:
+                    ensure_unchanged(path, source.text, edited.text, self.config.detect.todo_tags)
+                after = scan_file(edited, self.config.detect, runtime_modules, hierarchy).tags
+                gone = set(plan.removed) | set(plan.suppressed)
+                expected = Counter(
+                    _cleanup_identity(t) for t in annotations if t.path == path and t.task_id not in gone
+                )
+                if expected != Counter(_cleanup_identity(t) for t in after):
+                    msg = f"{path}: cleanup didn't round-trip through the scanner; nothing was written"
+                    raise EditError(msg)
+                rescanned[path] = after
+                removed += [(task_id, path) for task_id in plan.removed]
+                suppressed += [(task_id, path) for task_id in plan.suppressed]
+                if plan.imports_removed:
+                    imports.append(path)
+                writes.append(FileWrite(path, before, edited.encode()))
+
+            if not writes:
+                return CleanupReport((), (), tuple(diagnostics), dry_run)
+            observed = [
+                tag
+                for path in sorted(sources)
+                for tag in rescanned.get(path, [a for a in annotations if a.path == path])
+            ]
+            observations = [Observation(tag.task_id, tag, new=False) for tag in observed if tag.task_id is not None]
+            new_registry, _ = reconcile(
+                registry, observations, self.clock(), absence_check=ScopeMatcher(self.config).contains
+            )
+            now = self.clock()
+            for event, entries in (("cleaned", removed), ("suppressed", suppressed)):
+                for task_id, path in entries:
+                    new_registry.tasks[task_id].history.append(
+                        HistoryEvent(event, now, old={"path": path}, note="annotation removed by byteplan cleanup")
+                    )
+            writes.extend(self._registry_writes(registry_hash, new_registry))
+            written = () if dry_run else tuple(commit(self.root, writes))
+            return CleanupReport(
+                tuple(removed),
+                tuple(suppressed),
+                tuple(diagnostics),
+                dry_run,
+                written=written,
+                imports_removed=tuple(imports),
+            )
 
     # Normalization (decorator mode, `byteplan sync`) ---------------------------------------
 
@@ -1530,6 +1657,10 @@ def _apply_discovered_tests(
         task.tests_discovered = sorted(
             unique.values(), key=lambda e: (e["node"], e["provenance"], e["path"], e["line"])
         )
+
+
+def _cleanup_identity(tag: Annotation) -> tuple[object, ...]:
+    return (tag.task_id, tag.kind, tag.title, tag.description, tag.representation)
 
 
 def normalize_review(task_id: str, message: str) -> Diagnostic:

@@ -27,10 +27,66 @@
       "head": "d32feb014973cc62f301b21da5f7f7a676fbffa4",
       "python": "3.11.0",
       "timed_out": false
+    },
+    "e4e6fd13169c": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T18:52:27Z",
+      "dirty": true,
+      "head": "810be50170de5d49654d6a03a700a9c0f810f24a",
+      "python": "3.11.0",
+      "timed_out": false
     }
   },
   "schema_version": 1,
   "tasks": {
+    "14ff": {
+      "fingerprint": "6d8ab6f1e34696f16fd00c55085aff334462cfdd16ffd03b7cbcc4086c35175e",
+      "run": "e4e6fd13169c",
+      "tests": {
+        "tests/test_cleanup.py::test_crash_recovers_through_the_journal": {
+          "duration_ms": 56,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_crlf_and_bom_survive": {
+          "duration_ms": 16,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_markdown_and_json": {
+          "duration_ms": 54,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_only_and_open_tasks": {
+          "duration_ms": 32,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_removes_only_the_closed_tasks_annotations": {
+          "duration_ms": 57,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_resolve_sync_source": {
+          "duration_ms": 27,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_resolved_stub_is_not_cleaned": {
+          "duration_ms": 21,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_runtime_import_stays_while_used": {
+          "duration_ms": 29,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_suppress_stubs_leaves_a_visible_ignore": {
+          "duration_ms": 20,
+          "outcome": "passed"
+        }
+      }
+    },
     "2887": {
       "fingerprint": "90d404f34f6f6cbd44211f28bbe34dd4e2eeac4b76b06fc91fc1b412667e501c",
       "run": "c6c988fe2179",
@@ -81,6 +137,26 @@
         }
       }
     },
+    "6639": {
+      "fingerprint": "4d7ecc87a37c3ec7ee0c5ca47f76a156962cef22da63518ce590fcdafc9952e4",
+      "run": "e4e6fd13169c",
+      "tests": {
+        "tests/test_cleanup.py::test_runtime_import_reexported_through_all_stays": {
+          "duration_ms": 17,
+          "outcome": "passed"
+        }
+      }
+    },
+    "6b83": {
+      "fingerprint": "3cc2ff687702162b590851dfc19da66e9c1024e80d39412824259399a5044e10",
+      "run": "e4e6fd13169c",
+      "tests": {
+        "tests/test_cleanup.py::test_sync_json_keeps_its_shape_when_only_cleanup_runs": {
+          "duration_ms": 28,
+          "outcome": "passed"
+        }
+      }
+    },
     "82b3": {
       "fingerprint": "ef294fe06ad210141389679929a0ed37baefed91e50c032d2fb665b4654e9c64",
       "run": "64043655efb3",
@@ -111,6 +187,16 @@
         },
         "tests/test_normalize.py::test_rewritten_module_behaves_identically": {
           "duration_ms": 39,
+          "outcome": "passed"
+        }
+      }
+    },
+    "9185": {
+      "fingerprint": "4d7ecc87a37c3ec7ee0c5ca47f76a156962cef22da63518ce590fcdafc9952e4",
+      "run": "e4e6fd13169c",
+      "tests": {
+        "tests/test_cleanup.py::test_inline_markdown_comment_keeps_word_spacing": {
+          "duration_ms": 78,
           "outcome": "passed"
         }
       }

@@ -57,6 +57,8 @@ class AnnotationsConfig:
     convert_attached_comments: bool = False
     # decorator mode, `sync`: put @todo(...) on unowned stubs.
     auto_decorate_stubs: bool = False
+    # `byteplan sync` also removes the source annotations of resolved and dismissed tasks.
+    remove_resolved: bool = False
     # Modules whose `todo`/`verifies` BytePlan recognizes (a project shim can be added).
     runtime_modules: tuple[str, ...] = ("byteplan_runtime",)
 
