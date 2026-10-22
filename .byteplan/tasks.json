@@ -1,11 +1,227 @@
 {
   "reserved_ids": [
+    "0413",
+    "14ff",
+    "15df",
+    "2887",
     "46b6",
     "4fb5",
-    "a6b2"
+    "75b4",
+    "82b3",
+    "9054",
+    "93dd",
+    "9b40",
+    "a6b2",
+    "de66",
+    "ec99",
+    "f853"
   ],
   "schema_version": 1,
   "tasks": {
+    "0413": {
+      "assignee": null,
+      "description": "`byteplan release` / `byteplan restore`, presence `stripped`, registry `release`/`releases`\nrecords, release warnings, Hatch `require_stripped`, the release-branch workflow.",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1537,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:18Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "0413",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1537,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 8: release stripping",
+      "title_override": null
+    },
+    "14ff": {
+      "assignee": null,
+      "description": "`cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`,\n`--suppress-stubs`.",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1533,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:18Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "14ff",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1533,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 7: cleanup",
+      "title_override": null
+    },
+    "15df": {
+      "assignee": null,
+      "description": "Schema v2 and `byteplan migrate`, unbound assignments, binding proposals, approvals, typed\nlinks, intake, event provenance, merge-driver support, and the MCP assignment contract.",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1555,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:20Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "15df",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1555,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 12: assignment model (Addendum D stages D0-D2, D4)",
+      "title_override": null
+    },
+    "2887": {
+      "assignee": null,
+      "description": "`scaffold.py` planner, `byteplan tests scaffold ID`, placeholder detection,\n`[tool.byteplan.tests.scaffold]`.",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1526,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:17Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "2887",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1526,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 6b: test scaffolding",
+      "title_override": null
+    },
     "46b6": {
       "assignee": null,
       "description": "Today `TODO(alice):` doesn't match the grammar and is silently not tracked. Accept an\noptional `(owner)` after the tag and record it as the assignee when a task is created.",
@@ -80,6 +296,281 @@
       "title": "Update the status line for the next release",
       "title_override": null
     },
+    "75b4": {
+      "assignee": null,
+      "description": "Includes the `TODO(owner):` syntax, also tracked on its own in comments.py.",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1549,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:06Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-22T03:54:19Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "75b4",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1549,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 11 (optional): spec section 14 phase 5 items",
+      "title_override": null
+    },
+    "82b3": {
+      "assignee": null,
+      "description": "`init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, and\n`byteplan sync --dry-run/--apply` (byteplan-runtime 0.1.0 has already shipped).",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1518,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:16Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "82b3",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1518,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 5: runtime and normalization",
+      "title_override": null
+    },
+    "9054": {
+      "assignee": null,
+      "description": "`byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations.",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1552,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:07Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-22T03:54:19Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "9054",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1552,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 11b (optional): Git reporting",
+      "title_override": null
+    },
+    "93dd": {
+      "assignee": null,
+      "description": "README end-to-end developer journey, docs for every config key, dogfooding and CI on\nubuntu/macos/windows.",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1545,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:19Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "93dd",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1545,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 10: integration",
+      "title_override": null
+    },
+    "9b40": {
+      "assignee": null,
+      "description": "Test links and provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`,\n`verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness and freshness.",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1522,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:17Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "9b40",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1522,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 6a: acceptance tests",
+      "title_override": null
+    },
     "a6b2": {
       "assignee": null,
       "description": "Module-level `name = ...` / `= NotImplemented` stubs need a declaration model for\nplain assignments (position, attachment, annotation slot). Until then the option\nis rejected rather than silently ignored.",
@@ -115,6 +606,179 @@
       "status": "open",
       "stub": null,
       "title": "Support detect.placeholder_assignments",
+      "title_override": null
+    },
+    "de66": {
+      "assignee": null,
+      "description": "`acceptance_criteria`, `byteplan criteria ...`, `depends_on`, lifecycle facts in reports.",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1530,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:06Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-22T03:54:17Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "de66",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1530,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 6c (optional): acceptance criteria and dependencies",
+      "title_override": null
+    },
+    "ec99": {
+      "assignee": null,
+      "description": "Separate package: reusable workflows, triage-agent guide, branch-protection docs, end-to-end\ndemo.",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1559,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:07Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-22T03:54:20Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "ec99",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1559,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 13 (optional): relay-for-github",
+      "title_override": null
+    },
+    "f853": {
+      "assignee": null,
+      "description": "`[mcp]` extra, `mcp_server.py` with every tool, the three permissions, `byteplan mcp`,\nREADME client snippets.",
+      "first_seen": "2026-10-22T03:53:56Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:53:56Z",
+          "event": "created",
+          "new": {
+            "line": 1541,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T03:54:18Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "f853",
+      "kind": "TODO",
+      "labels": [
+        "phase"
+      ],
+      "last_seen": "2026-10-22T03:53:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1541,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Phase 9: MCP server",
       "title_override": null
     }
   }

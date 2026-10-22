@@ -19,6 +19,10 @@ IDs are never reused, so registries from two branches combine by task ID:
   recomputed by the next scan from the merged source. If both sides changed
   one differently, ours is kept and the result is flagged as needing a scan.
   ``first_seen`` takes the earlier value and ``last_seen`` the later.
+* Unknown top-level keys (from a newer BytePlan) merge three-way and
+  structurally: objects key by key, lists that both sides only appended to as
+  the base plus both sides' additions, anything else changed differently on
+  both sides is a conflict.
 
 Anything that can't be merged this way is reported and left to a normal text
 merge with conflict markers. Nothing is ever chosen silently.
@@ -33,6 +37,7 @@ from byteplan.registry import SCHEMA_VERSION
 
 _DISCOVERED = frozenset({"kind", "title", "description", "presence", "origin", "scope_state", "source", "stub"})
 _SET_LIKE = frozenset({"labels"})
+_TOP_LEVEL_KEYS = frozenset({"schema_version", "reserved_ids", "tasks"})
 
 
 @dataclass
@@ -107,6 +112,34 @@ def _merge_task(
     return merged
 
 
+def _merge_value(where: str, base: Any, ours: Any, theirs: Any, conflicts: list[str]) -> Any:
+    """Generic three-way merge of a JSON value. Returns ``_ABSENT`` for a deleted key."""
+    if theirs in (ours, base):  # `in` compares by identity first, so the absent marker works too
+        return ours
+    if ours == base:
+        return theirs
+    if isinstance(ours, dict) and isinstance(theirs, dict) and isinstance(base, dict | _Absent):
+        old_map: dict[str, Any] = base if isinstance(base, dict) else {}
+        merged = {}
+        for key in sorted({*old_map, *ours, *theirs}):
+            value = _merge_value(
+                f"{where}.{key}", old_map.get(key, _ABSENT), ours.get(key, _ABSENT), theirs.get(key, _ABSENT), conflicts
+            )
+            if value is not _ABSENT:
+                merged[key] = value
+        return merged
+    if isinstance(ours, list) and isinstance(theirs, list) and isinstance(base, list | _Absent):
+        old_list: list[Any] = base if isinstance(base, list) else []
+        if ours[: len(old_list)] == old_list and theirs[: len(old_list)] == old_list:  # both sides only appended
+            added: list[Any] = []
+            for item in [*ours[len(old_list) :], *theirs[len(old_list) :]]:
+                if item not in added:
+                    added.append(item)
+            return [*old_list, *added]
+    conflicts.append(f"{where} changed on both sides ({ours!r} vs {theirs!r})")
+    return ours
+
+
 def _list(value: Any) -> list[Any]:
     return [] if value is _ABSENT or value is None else list(value)
 
@@ -142,6 +175,14 @@ def merge_registries(base: dict[str, Any], ours: dict[str, Any], theirs: dict[st
             # else: removed on one side, untouched on the other -> stays removed
         # Removed on both sides: stays removed. The ID remains reserved either way.
 
+    extra: dict[str, Any] = {}
+    for key in sorted({*base, *ours, *theirs} - _TOP_LEVEL_KEYS):
+        value = _merge_value(
+            key, base.get(key, _ABSENT), ours.get(key, _ABSENT), theirs.get(key, _ABSENT), result.conflicts
+        )
+        if value is not _ABSENT:
+            extra[key] = value
+
     if not result.conflicts:
-        result.data = {"schema_version": SCHEMA_VERSION, "reserved_ids": reserved, "tasks": tasks}
+        result.data = {**extra, "schema_version": SCHEMA_VERSION, "reserved_ids": reserved, "tasks": tasks}
     return result

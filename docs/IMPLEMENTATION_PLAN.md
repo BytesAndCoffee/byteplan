@@ -1135,7 +1135,7 @@ alongside Phase 4e.
 
 - **Pure function of the registry:** no clock and no scan diagnostics, so the same registry
   always renders the same bytes and staleness is a plain comparison. Open work comes first
-  (`in_progress`, `blocked`, then `open`, by path), then closed tasks. Locations link
+  (`in_progress`, `blocked`, then `open`, by path and line), then closed tasks. Locations link
   relative to the report's directory, with paths percent-encoded so `#` and spaces don't break
   links. Missing locations are struck through.
 - **Written with the registry:** `_registry_writes` puts the report write before the registry
@@ -1366,8 +1366,10 @@ misread by older readers, so silently reusing v1 is not acceptable.
   load and save. I found this while planning Addendum D and confirmed it with a round-trip test.
   It's a general forward-compatibility bug rather than an Addendum D feature, and Phase 8's
   top-level `release` records depend on it. So it's fixed in Phase 4d, not deferred with
-  Addendum D. Unknown top-level keys will round-trip as task-level ones already do, and the merge
-  driver will merge them three-way.
+  Addendum D. **Done:** unknown top-level keys round-trip as task-level ones do. The merge driver
+  merges them three-way and structurally: objects key by key, and lists that both sides only
+  appended to as the base plus both sides' additions. Anything else changed on both sides is a
+  conflict.
 
 ### Remaining open questions (§D.12)
 
@@ -1482,8 +1484,8 @@ D builds on nearly everything before it (verification, scaffolding, release, MCP
 earlier depends on it.
 
 Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4c (IDs at
-commit time) is done. Phase 4e (Markdown and JSON) was brought forward and is done,
-ahead of 4d. **Phase 4d comes next.** Addendum A's step 2 (choosing the runtime design) is already done, and the
+commit time) is done. Phases 4d (registry forward compatibility) and 4e (Markdown and
+JSON) are done. **Phase 5 comes next.** Addendum A's step 2 (choosing the runtime design) is already done, and the
 runtime package has shipped.
 
 | Phase | Deliverables | Spec §12 tests | Addendum §9 tests |
@@ -1495,7 +1497,7 @@ runtime package has shipped.
 | 4. Hatch ✅ | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
 | 4b. Git lifecycle (read-only) ✅ | `snapshot.py` + `gitio.py` (index/commit snapshots via NUL-safe plumbing, no-optional-locks), `check --staged`, `scan --staged --dry-run`, staged diagnostics and policy keys, `.pre-commit-hooks.yaml`, `git install-hooks` / `git hooks-status`, `docs/ci.md` GitHub Actions recipe | – | C: 1–6, 8–14, 17–21 (C: 7, 22 with Phase 8) |
 | 4c. Git staged reconciliation ✅ | `scan --staged --apply`; fully-staged / partial-stage classification against HEAD, index and working tree (`partial_stage_conflict`, `registry_partial_stage_conflict`); blobs → journal → index swap under the index lock (`$GIT_INDEX_FILE`-aware inside `git commit`) → hash-guarded working-tree writes, with index rollback on conflict → revalidation; crash recovery and idempotent retries; `install-hooks --mode reconcile` (new default) and a `byteplan-reconcile` framework hook (fixer behaviour); `[tool.byteplan.git] on_reconcile`; `unsupported_index_format` | – | C: 15, 16 + 4c tests below |
-| 4d. Registry forward compatibility | unknown **top-level** registry keys round-trip (today they're dropped on save; task-level ones already survive), and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
+| 4d. Registry forward compatibility ✅ | unknown **top-level** registry keys round-trip (today they're dropped on save; task-level ones already survive), and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
 | 4e. Markdown and JSON sources ✅ | suffix-based file types (`.md`/`.markdown`, `.json`/`.jsonc`); Markdown HTML-comment tags with heading symbols, skipping code; JSON comment tags and tagged string values with JSON Pointer symbols; per-format edit guards; `detect.json_string_values`; registry never scanned. See [Markdown and JSON sources](#markdown-and-json-sources-phase-4e) | – | Phase 4e tests |
 | 5. Runtime + normalization | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
 | 6a. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |
@@ -1509,6 +1511,54 @@ runtime package has shipped.
 | 11b (optional) | Git reporting: `byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations | – | – |
 | 12. Assignment model (Addendum D: D0–D2, D4) | schema v2 + `byteplan migrate` (also converts `depends_on` to `blocked_by` links); `presence: unbound`; `binding_proposals`; `approval` + `approve` / `request-changes`, approval-gated `resolve`; `coverage_review`; typed `links` with ref grammar and patch IDs; `create`, `intake` (offline, idempotent), `bind`, `propose-binding`, `link` / `unlink`, `links`, `refs`, `history`, `impact REV`, `links discover` (trailers), `links reconcile` (patch IDs); event actor/revision/idempotency fields; merge driver handles the new fields; MCP gains the §D.7.1 contract (`intake_issue`, `propose_binding`, `bind_source`, `link_artifact`, `scaffold_regression`, `record_verification`, `get_assignment`, `get_handoff`, policy-checked `request_resolution`; no `approve`) | – | D.11: 1–8 (9 for local retries) |
 | 13 (optional, separate package) | `relay-for-github/`: reusable workflows (idempotent intake, PR reconciliation, single status comment), triage-agent guide, branch-protection docs, end-to-end demo (issue → intake → binding PR → failing scaffold → fix → verification → human approval → reconciliation, with a retry/failure path) | – | D.11: 9–12 |
+
+<!-- The phases still to build, tracked by BytePlan itself (see byteplan.md). Remove a TODO when
+     its phase is marked ✅ in the table above, then `byteplan resolve` it. -->
+
+<!-- TODO[82b3]: Phase 5: runtime and normalization
+     `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, and
+     `byteplan sync --dry-run/--apply` (byteplan-runtime 0.1.0 has already shipped). -->
+
+<!-- TODO[9b40]: Phase 6a: acceptance tests
+     Test links and provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`,
+     `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness and freshness. -->
+
+<!-- TODO[2887]: Phase 6b: test scaffolding
+     `scaffold.py` planner, `byteplan tests scaffold ID`, placeholder detection,
+     `[tool.byteplan.tests.scaffold]`. -->
+
+<!-- TODO[de66]: Phase 6c (optional): acceptance criteria and dependencies
+     `acceptance_criteria`, `byteplan criteria ...`, `depends_on`, lifecycle facts in reports. -->
+
+<!-- TODO[14ff]: Phase 7: cleanup
+     `cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`,
+     `--suppress-stubs`. -->
+
+<!-- TODO[0413]: Phase 8: release stripping
+     `byteplan release` / `byteplan restore`, presence `stripped`, registry `release`/`releases`
+     records, release warnings, Hatch `require_stripped`, the release-branch workflow. -->
+
+<!-- TODO[f853]: Phase 9: MCP server
+     `[mcp]` extra, `mcp_server.py` with every tool, the three permissions, `byteplan mcp`,
+     README client snippets. -->
+
+<!-- TODO[93dd]: Phase 10: integration
+     README end-to-end developer journey, docs for every config key, dogfooding and CI on
+     ubuntu/macos/windows. -->
+
+<!-- TODO[75b4]: Phase 11 (optional): spec section 14 phase 5 items
+     Includes the `TODO(owner):` syntax, also tracked on its own in comments.py. -->
+
+<!-- TODO[9054]: Phase 11b (optional): Git reporting
+     `byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations. -->
+
+<!-- TODO[15df]: Phase 12: assignment model (Addendum D stages D0-D2, D4)
+     Schema v2 and `byteplan migrate`, unbound assignments, binding proposals, approvals, typed
+     links, intake, event provenance, merge-driver support, and the MCP assignment contract. -->
+
+<!-- TODO[ec99]: Phase 13 (optional): relay-for-github
+     Separate package: reusable workflows, triage-agent guide, branch-protection docs, end-to-end
+     demo. -->
 
 **Phase 8 release tests:**
 - `release` changes only decorator lines, runtime imports and the registry. It never commits,

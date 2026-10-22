@@ -231,3 +231,10 @@ def test_link_targets_are_percent_encoded(reported: ProjectFactory, run_cli: Run
     text = report(reported)
     assert "[`src/issue#1.py:1`](src/issue%231.py#L1)" in text
     assert "[`src/my file\\|x.py:1`](src/my%20file%7Cx.py#L1)" in text
+
+
+def test_open_tasks_are_in_source_order(reported: ProjectFactory, run_cli: RunCli) -> None:
+    reported.write("notes.md", "".join(f"<!-- TODO: step {n} -->\n" for n in range(1, 6)))
+    assert run_cli("scan", "--project", reported.root).code == EXIT_OK
+    steps = re.findall(r"\| step (\d) \|", report(reported))
+    assert steps == ["1", "2", "3", "4", "5"]

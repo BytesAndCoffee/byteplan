@@ -13,6 +13,11 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
   New `[tool.byteplan.detect] json_string_values` option.
 - The registry file is never scanned, even when `include` matches it.
 
+### Registry
+- **Forward compatibility:** unknown top-level registry keys, from a newer BytePlan, are kept on
+  save instead of dropped, as unknown task fields already were. The merge driver merges them
+  three-way: objects key by key, and appended lists combined.
+
 ### Git and reporting
 - **`report_file`:** set `[tool.byteplan] report_file = "byteplan.md"` for a committed Markdown
   task list rendered from the registry. Every registry write regenerates it, and the commit hook

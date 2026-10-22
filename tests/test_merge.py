@@ -310,3 +310,82 @@ def test_field_added_on_one_side_is_kept() -> None:
     merged = merge_registries(BASE, changed(BASE, "aaaa", extension={"new": 1}), BASE)
     assert merged.data is not None
     assert merged.data["tasks"]["aaaa"]["extension"] == {"new": 1}
+
+
+# Phase 4d: unknown top-level keys ----------------------------------------------------------------
+
+
+def with_extra(base: dict[str, Any], **extra: Any) -> dict[str, Any]:
+    return {**copy.deepcopy(base), **extra}
+
+
+def test_top_level_keys_added_on_one_side_are_kept() -> None:
+    result = merge_registries(BASE, with_extra(BASE, release={"version": "1.0"}), BASE)
+    assert result.data is not None
+    assert result.data["release"] == {"version": "1.0"}
+
+
+def test_top_level_objects_merge_key_by_key() -> None:
+    base = with_extra(BASE, settings={"a": 1, "b": 1, "gone": 1})
+    ours = with_extra(BASE, settings={"a": 2, "b": 1, "new": "ours"})
+    theirs = with_extra(BASE, settings={"a": 1, "b": 3, "gone": 1, "also": "theirs"})
+    result = merge_registries(base, ours, theirs)
+    assert result.data is not None
+    assert result.data["settings"] == {"a": 2, "b": 3, "new": "ours", "also": "theirs"}
+
+
+def test_top_level_lists_appended_on_both_sides_combine() -> None:
+    base = with_extra(BASE, releases=[{"v": "1.0"}])
+    ours = with_extra(BASE, releases=[{"v": "1.0"}, {"v": "1.1"}])
+    theirs = with_extra(BASE, releases=[{"v": "1.0"}, {"v": "2.0"}, {"v": "1.1"}])
+    result = merge_registries(base, ours, theirs)
+    assert result.data is not None
+    assert result.data["releases"] == [{"v": "1.0"}, {"v": "1.1"}, {"v": "2.0"}]
+    # Added on both sides from nothing: also a combination.
+    both = merge_registries(BASE, with_extra(BASE, log=["a"]), with_extra(BASE, log=["b"]))
+    assert both.data is not None
+    assert both.data["log"] == ["a", "b"]
+
+
+@pytest.mark.parametrize(
+    ("base", "ours", "theirs", "conflict"),
+    [
+        ({"mode": "x"}, {"mode": "y"}, {"mode": "z"}, "mode changed on both sides"),
+        ({"cfg": {"k": 1}}, {"cfg": {"k": 2}}, {"cfg": {"k": 3}}, "cfg.k changed on both sides"),
+        ({"log": ["a", "b"]}, {"log": ["a"]}, {"log": ["a", "b", "c"]}, "log changed on both sides"),
+        ({"gone": 1}, {}, {"gone": 2}, "gone changed on both sides"),
+    ],
+)
+def test_top_level_conflicts(base: dict[str, Any], ours: dict[str, Any], theirs: dict[str, Any], conflict: str) -> None:
+    result = merge_registries(with_extra(BASE, **base), with_extra(BASE, **ours), with_extra(BASE, **theirs))
+    assert result.data is None
+    assert any(conflict in c for c in result.conflicts)
+
+
+def test_top_level_key_deleted_on_one_side_stays_deleted() -> None:
+    result = merge_registries(with_extra(BASE, old=1), BASE, with_extra(BASE, old=1))
+    assert result.data is not None
+    assert "old" not in result.data
+
+
+def test_driver_keeps_top_level_keys_end_to_end(repo: ProjectFactory, run_cli: RunCli) -> None:
+    root = repo.root
+    assert run_cli("git", "install-merge-driver", "--project", root).code == 0
+    git(root, "add", "-A")
+    git(root, "commit", "-qm", "driver")
+    path = root / ".byteplan/tasks.json"
+
+    def commit_extra(branch: str, key: str, value: Any) -> None:
+        git(root, "switch", "-q", *(["-c"] if branch != "main" else []), branch)
+        data = json.loads(path.read_text())
+        data[key] = value
+        path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
+        git(root, "commit", "-qam", key)
+
+    commit_extra("feature", "release", {"version": "1.0"})
+    commit_extra("main", "releases", [{"v": "0.9"}])
+    merged = git(root, "merge", "-q", "--no-edit", "feature", check=False)
+    assert merged.returncode == 0, merged.stdout + merged.stderr
+    data = json.loads(path.read_text())
+    assert data["release"] == {"version": "1.0"}
+    assert data["releases"] == [{"v": "0.9"}]
