@@ -97,6 +97,20 @@
       "head": "7a68d14f4c5eac4a36a244aa38dd9e36bf8a564b",
       "python": "3.11.0",
       "timed_out": false
+    },
+    "f9371bbb192a": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T22:28:38Z",
+      "dirty": true,
+      "head": "2348aa62df36bc8d8085a0763263db79ae00af2b",
+      "python": "3.11.0",
+      "timed_out": false
     }
   },
   "schema_version": 1,
@@ -177,6 +191,16 @@
       "tests": {
         "tests/test_release.py::test_dynamic_decorator_arguments_refuse_the_release": {
           "duration_ms": 685,
+          "outcome": "passed"
+        }
+      }
+    },
+    "0b12": {
+      "fingerprint": "99840689335e6a1b397024e6aecc5b70022ee437bf8b82c830ab349b074d1f9f",
+      "run": "f9371bbb192a",
+      "tests": {
+        "tests/test_release_guards.py::test_offline_find_links_relative_to_root": {
+          "duration_ms": 1,
           "outcome": "passed"
         }
       }
@@ -475,6 +499,16 @@
       "tests": {
         "tests/test_release_guards.py::test_require_stripped_checks_source_despite_a_release_record": {
           "duration_ms": 302,
+          "outcome": "passed"
+        }
+      }
+    },
+    "a067": {
+      "fingerprint": "99840689335e6a1b397024e6aecc5b70022ee437bf8b82c830ab349b074d1f9f",
+      "run": "f9371bbb192a",
+      "tests": {
+        "tests/test_release_guards.py::test_top_level_modules_include_native_extensions": {
+          "duration_ms": 3,
           "outcome": "passed"
         }
       }

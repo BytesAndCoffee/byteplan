@@ -71,6 +71,8 @@ def top_level_modules(wheel: Path) -> list[str]:
             names.add(first)
         elif first.endswith(".py"):
             names.add(first.removesuffix(".py"))
+        elif first.endswith((".so", ".pyd")):  # extension module: name.<abi tag>.so, or name.so
+            names.add(first.split(".", 1)[0])
     return sorted(n for n in names if n.isidentifier())
 
 
@@ -86,7 +88,8 @@ def run_smoke(root: Path, config: ReleaseConfig, *, offline: bool) -> SmokeResul
 
         install = [sys.executable, "-m", "pip", "install", "--quiet", "--target", str(target), str(wheels[0])]
         if offline:
-            install += ["--no-index", *(arg for link in config.find_links for arg in ("--find-links", link))]
+            links = (link if "://" in link else str(root / link) for link in config.find_links)
+            install += ["--no-index", *(arg for link in links for arg in ("--find-links", link))]
         ok, output = _run(install, tmp, config.smoke_timeout)
         if not ok:
             return SmokeResult(False, "install", output)

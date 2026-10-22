@@ -2,6 +2,7 @@
   "reserved_ids": [
     "0413",
     "0591",
+    "0b12",
     "0c28",
     "14ff",
     "15df",
@@ -25,6 +26,7 @@
     "93dd",
     "9b40",
     "9f8d",
+    "a067",
     "a6b2",
     "a703",
     "aedf",
@@ -302,6 +304,77 @@
         ]
       },
       "title": "Refuse decorator arguments whose evaluation stripping would skip",
+      "title_override": null
+    },
+    "0b12": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/34#discussion_r4354182649",
+      "first_seen": "2026-10-22T22:28:29Z",
+      "history": [
+        {
+          "at": "2026-10-22T22:28:29Z",
+          "event": "created",
+          "new": {
+            "line": 91,
+            "path": "src/byteplan/smoke.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:28:37Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_offline_find_links_relative_to_root",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:28:45Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Relative find_links resolved against project root, URLs kept; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:28:46Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:28:46Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/smoke.py"
+          }
+        }
+      ],
+      "id": "0b12",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T22:28:29Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 79,
+        "line": 91,
+        "path": "src/byteplan/smoke.py",
+        "representation": "comment",
+        "symbol": "run_smoke"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release_guards.py::test_offline_find_links_relative_to_root"
+        ]
+      },
+      "title": "relative find_links paths resolve against the scratch dir, not the project root",
       "title_override": null
     },
     "0c28": {
@@ -2081,6 +2154,77 @@
         ]
       },
       "title": "Check the current source even when a stripped release is on record",
+      "title_override": null
+    },
+    "a067": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/34#discussion_r4354182656",
+      "first_seen": "2026-10-22T22:28:29Z",
+      "history": [
+        {
+          "at": "2026-10-22T22:28:29Z",
+          "event": "created",
+          "new": {
+            "line": 72,
+            "path": "src/byteplan/smoke.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:28:37Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_top_level_modules_include_native_extensions",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:28:44Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Extension modules (.so/.pyd) now discovered; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:28:45Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:28:45Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/smoke.py"
+          }
+        }
+      ],
+      "id": "a067",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T22:28:29Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 59,
+        "line": 72,
+        "path": "src/byteplan/smoke.py",
+        "representation": "comment",
+        "symbol": "top_level_modules"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release_guards.py::test_top_level_modules_include_native_extensions"
+        ]
+      },
+      "title": "top-level native extension modules (.so/.pyd) are left out of smoke imports",
       "title_override": null
     },
     "a6b2": {

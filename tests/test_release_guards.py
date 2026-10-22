@@ -18,17 +18,18 @@ import shutil
 import subprocess
 import sys
 import zipfile
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from byteplan import smoke
 from byteplan.cli import EXIT_ERROR, EXIT_OK
+from byteplan.config import ReleaseConfig
 from byteplan.smoke import top_level_modules
 from tests.test_hatch_hook import COVERAGE_FILE, build
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from tests.conftest import ProjectFactory, RunCli
 
 pytest.importorskip("build")
@@ -165,6 +166,36 @@ def test_top_level_modules_from_record(tmp_path: Path) -> None:
             "demo/__init__.py,,\ndemo/sub/x.py,,\nsingle.py,,\ndemo-1.0.dist-info/METADATA,,\n../../bin/tool,,\n",
         )
     assert top_level_modules(wheel) == ["demo", "single"]
+
+
+def test_top_level_modules_include_native_extensions(tmp_path: Path) -> None:
+    wheel = tmp_path / "demo-1.0-cp314-cp314-linux_x86_64.whl"
+    with zipfile.ZipFile(wheel, "w") as archive:
+        archive.writestr(
+            "demo-1.0.dist-info/RECORD",
+            "native.cpython-314-x86_64-linux-gnu.so,,\nwinmod.cp314-win_amd64.pyd,,\nplain.abi3.so,,\nlibfoo.so.1,,\n",
+        )
+    assert top_level_modules(wheel) == ["native", "plain", "winmod"]
+
+
+def test_offline_find_links_relative_to_root(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[list[str]] = []
+
+    def fake_run(argv: list[str], cwd: Path, timeout: float) -> tuple[bool, str]:  # noqa: ARG001
+        calls.append(list(argv))
+        if "build" in argv:
+            out = Path(argv[argv.index("--outdir") + 1])
+            out.mkdir(parents=True)
+            (out / "demo-1.0-py3-none-any.whl").write_bytes(b"")
+            return True, ""
+        return False, "stop"
+
+    monkeypatch.setattr(smoke, "_run", fake_run)
+    config = ReleaseConfig(find_links=("vendor/wheels", "https://example.com/simple"))
+    smoke.run_smoke(tmp_path, config, offline=True)
+    install = calls[1]
+    assert str(tmp_path / "vendor/wheels") in install
+    assert "https://example.com/simple" in install
 
 
 # Release warnings ----------------------------------------------------------------------------------
