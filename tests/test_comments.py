@@ -11,11 +11,12 @@ import pytest
 from byteplan.config import DetectConfig
 from byteplan.diagnostics import Code
 from byteplan.errors import SourceError
+from byteplan.models import IdSlot
 from byteplan.scanner import FileScan, scan_file
 from byteplan.scanner.source import decode_source
 
 if TYPE_CHECKING:
-    from byteplan.models import CommentTag
+    from byteplan.models import Annotation
 
 
 def scan(code: str, *, tags: tuple[str, ...] = DetectConfig().todo_tags, dedent: bool = True) -> FileScan:
@@ -23,7 +24,7 @@ def scan(code: str, *, tags: tuple[str, ...] = DetectConfig().todo_tags, dedent:
     return scan_file(decode_source("mod.py", text.encode()), DetectConfig(todo_tags=tags))
 
 
-def only(code: str) -> CommentTag:
+def only(code: str) -> Annotation:
     result = scan(code)
     assert len(result.tags) == 1, result.tags
     return result.tags[0]
@@ -32,7 +33,12 @@ def only(code: str) -> CommentTag:
 def test_single_line_todo() -> None:
     tag = only("# TODO: Implement route poisoning\n")
     assert (tag.kind, tag.title, tag.description, tag.task_id) == ("TODO", "Implement route poisoning", "", None)
-    assert (tag.line, tag.col, tag.insert_col) == (1, 0, len("# TODO"))
+    assert (tag.line, tag.col) == (1, 0)
+    assert tag.id_slot == IdSlot(1, len("# TODO"), "[{id}]")
+
+
+def test_tagged_comment_has_no_id_slot() -> None:
+    assert only("# TODO[7fa2]: x\n").id_slot is None
 
 
 @pytest.mark.parametrize("kind", ["TODO", "FIXME", "HACK", "XXX"])

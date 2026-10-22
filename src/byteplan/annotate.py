@@ -26,7 +26,13 @@ def annotate(source: SourceFile, proposals: Sequence[Proposal], detect: DetectCo
     The result is validated: it must parse to the same AST, and re-scanning it
     must find exactly the original tags, with the new IDs on the proposed lines.
     """
-    insertions = [Insertion(p.tag.line, p.tag.insert_col, f"[{p.task_id}]") for p in proposals]
+    insertions = []
+    for p in proposals:
+        slot = p.tag.id_slot
+        if slot is None:
+            msg = f"{p.tag.location}: annotation already has an ID"
+            raise EditError(msg)
+        insertions.append(Insertion(slot.line, slot.col, slot.text(p.task_id)))
     edited = dataclasses.replace(source, text=apply_insertions(source.text, insertions))
     ensure_equivalent(source.path, source.text, edited.text)
 

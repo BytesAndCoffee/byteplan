@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from byteplan.errors import SourceError
+from byteplan.models import AttachmentKind
 
 if TYPE_CHECKING:
     from byteplan.scanner.source import SourceFile
@@ -26,6 +27,14 @@ class Declaration:
     start: int
     end: int
     col: int
+    kind: AttachmentKind
+    parent: ast.ClassDef | None = None  # the enclosing class, for methods
+
+    @property
+    def header_end(self) -> int:
+        """Last line of the ``def``/``class`` header (before the body)."""
+        first = self.node.body[0].lineno
+        return first - 1 if first > self.node.lineno else self.node.lineno
 
 
 def parse_module(source: SourceFile) -> ast.Module:
@@ -45,18 +54,25 @@ def declarations(tree: ast.Module) -> list[Declaration]:
     """All function and class declarations, with Python ``__qualname__``-style names."""
     found: list[Declaration] = []
 
-    def visit(node: ast.AST, prefix: str) -> None:
+    def visit(node: ast.AST, prefix: str, owner: ast.ClassDef | None) -> None:
         for child in ast.iter_child_nodes(node):
             if isinstance(child, _Def):
                 qualname = f"{prefix}{child.name}"
                 start = min([child.lineno, *(d.lineno for d in child.decorator_list)])
-                found.append(Declaration(qualname, child, start, child.end_lineno or child.lineno, child.col_offset))
-                inner = f"{qualname}." if isinstance(child, ast.ClassDef) else f"{qualname}.<locals>."
-                visit(child, inner)
+                if isinstance(child, ast.ClassDef):
+                    kind = AttachmentKind.CLASS
+                else:
+                    kind = AttachmentKind.METHOD if owner is not None else AttachmentKind.FUNCTION
+                end = child.end_lineno or child.lineno
+                found.append(Declaration(qualname, child, start, end, child.col_offset, kind, owner))
+                if isinstance(child, ast.ClassDef):
+                    visit(child, f"{qualname}.", child)
+                else:
+                    visit(child, f"{qualname}.<locals>.", None)
             else:
-                visit(child, prefix)
+                visit(child, prefix, owner)
 
-    visit(tree, "")
+    visit(tree, "", None)
     return found
 
 
@@ -75,6 +91,10 @@ class SymbolIndex:
             if decl.start <= line <= decl.end and (inner is None or decl.start >= inner.start):
                 inner = decl
         return inner
+
+    @property
+    def all(self) -> list[Declaration]:
+        return list(self._decls)
 
     def symbol_for(self, line: int, end_line: int, col: int) -> str | None:
         decl = self.attached(end_line, col) or self.enclosing(line)

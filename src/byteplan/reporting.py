@@ -15,14 +15,14 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from byteplan.api import ScanReport
-    from byteplan.models import CommentTag, Task
+    from byteplan.models import Annotation, Task
 
 
 def to_json(payload: Any) -> str:
     return json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True)
 
 
-def _tag_dict(tag: CommentTag) -> dict[str, Any]:
+def _tag_dict(tag: Annotation) -> dict[str, Any]:
     return {
         "id": tag.task_id,
         "kind": tag.kind,

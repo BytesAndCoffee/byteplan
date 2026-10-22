@@ -31,6 +31,21 @@ class Presence(StrEnum):
 class Origin(StrEnum):
     COMMENT = "comment"
     STUB = "stub"
+    DECORATOR = "decorator"
+
+
+class Representation(StrEnum):
+    COMMENT = "comment"
+    DECORATOR = "decorator"
+
+
+class AttachmentKind(StrEnum):
+    FUNCTION = "function"
+    METHOD = "method"
+    CLASS = "class"
+    # Inside a function or class body, not attached to a declaration.
+    STATEMENT = "statement"
+    MODULE = "module"
 
 
 class ScopeState(StrEnum):
@@ -41,8 +56,11 @@ class ScopeState(StrEnum):
 @dataclass(frozen=True)
 class SourceRef:
     path: str
-    line: int
+    line: int  # the annotation's line
     symbol: str | None = None
+    decl_line: int | None = None  # the attached declaration's def/class line
+    attachment_kind: AttachmentKind | None = None
+    representation: Representation | None = None
 
 
 @dataclass(frozen=True)
@@ -87,11 +105,24 @@ class Task:
 
 
 @dataclass(frozen=True)
-class CommentTag:
-    """One tagged comment block discovered in source.
+class IdSlot:
+    """Where an allocated ID is written: insert ``template`` (``{id}`` replaced) at line/col."""
 
-    ``line`` and ``col`` locate the ``#`` of the first line (1-based line, 0-based
-    column). ``insert_col`` is where ``[abcd]`` goes when annotating an untagged tag.
+    line: int  # 1-based
+    col: int  # 0-based, in characters
+    template: str
+
+    def text(self, task_id: str) -> str:
+        return self.template.replace("{id}", task_id)
+
+
+@dataclass(frozen=True)
+class Annotation:
+    """One task declaration found in source: a tag comment, a ``@todo`` decorator, or a
+    proposed comment for an unowned stub.
+
+    ``line``/``col`` locate the annotation (the ``#`` or the ``@``). ``id_slot`` is set
+    when the annotation has no ID yet and says where one would be written.
     """
 
     path: str
@@ -105,7 +136,13 @@ class CommentTag:
     description: str
     symbol: str | None
     trailing: bool
-    insert_col: int
+    id_slot: IdSlot | None = None
+    representation: Representation = Representation.COMMENT
+    origin: Origin = Origin.COMMENT
+    decl_line: int | None = None
+    attachment_kind: AttachmentKind | None = None
+    # Whether the declaration this annotation owns is currently a stub (None: owns none).
+    decl_is_stub: bool | None = None
 
     @property
     def location(self) -> str:

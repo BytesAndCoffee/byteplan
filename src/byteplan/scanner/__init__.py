@@ -14,14 +14,14 @@ from byteplan.scanner.symbols import SymbolIndex, declarations, parse_module
 if TYPE_CHECKING:
     from byteplan.config import DetectConfig
     from byteplan.diagnostics import Diagnostic
-    from byteplan.models import CommentTag
+    from byteplan.models import Annotation
     from byteplan.scanner.source import SourceFile
 
 
 @dataclass(frozen=True)
 class FileScan:
     path: str
-    tags: list[CommentTag] = field(default_factory=list)
+    tags: list[Annotation] = field(default_factory=list)
     diagnostics: list[Diagnostic] = field(default_factory=list)
 
 

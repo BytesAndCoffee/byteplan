@@ -39,7 +39,7 @@ from byteplan.scanner.source import decode_source, read_source
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
 
-    from byteplan.models import CommentTag, Task
+    from byteplan.models import Annotation, Task
     from byteplan.scanner.source import SourceFile
 
 BYTEPLAN_GITIGNORE = "txn/\nscan.lock\n"
@@ -60,14 +60,14 @@ def utc_now() -> str:
 class Proposal:
     """An untagged discovery and the ID it is annotated with."""
 
-    tag: CommentTag
+    tag: Annotation
     task_id: str
 
 
 @dataclass(frozen=True)
 class ScanReport:
     scope: Scope
-    tags: tuple[CommentTag, ...]
+    tags: tuple[Annotation, ...]
     proposals: tuple[Proposal, ...]
     diagnostics: tuple[Diagnostic, ...]
     summary: Summary = field(default_factory=Summary)
@@ -85,7 +85,7 @@ class ScanReport:
         return len(self.scope.files)
 
     @property
-    def tagged(self) -> tuple[CommentTag, ...]:
+    def tagged(self) -> tuple[Annotation, ...]:
         return tuple(tag for tag in self.tags if tag.task_id is not None)
 
     @property
@@ -169,7 +169,7 @@ class Project:
         scope = collect_files(self.config, rel_targets)
 
         sources: dict[str, tuple[SourceFile, str]] = {}
-        tags: list[CommentTag] = []
+        tags: list[Annotation] = []
         diagnostics: list[Diagnostic] = []
         failures: list[SourceError] = []
         for path in scope.files:
@@ -367,8 +367,8 @@ def _not_found(task_id: str) -> TaskNotFoundError:
     return TaskNotFoundError(f"no task with ID {task_id!r}")
 
 
-def _id_diagnostics(tags: Sequence[CommentTag], registry: Registry) -> list[Diagnostic]:
-    by_id: defaultdict[str, list[CommentTag]] = defaultdict(list)
+def _id_diagnostics(tags: Sequence[Annotation], registry: Registry) -> list[Diagnostic]:
+    by_id: defaultdict[str, list[Annotation]] = defaultdict(list)
     for tag in tags:
         if tag.task_id is not None:
             by_id[tag.task_id].append(tag)
@@ -413,7 +413,7 @@ def _id_diagnostics(tags: Sequence[CommentTag], registry: Registry) -> list[Diag
     return diagnostics
 
 
-def _plan_allocations(tags: Sequence[CommentTag], registry: Registry) -> list[Proposal]:
+def _plan_allocations(tags: Sequence[Annotation], registry: Registry) -> list[Proposal]:
     """Assign IDs to untagged tags in scan order (sorted files, then line)."""
     used = set(registry.reserved_ids) | {tag.task_id for tag in tags if tag.task_id is not None}
     occurrences: Counter[tuple[str, str, str, str]] = Counter()

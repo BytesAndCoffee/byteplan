@@ -30,14 +30,14 @@ from byteplan.models import HistoryEvent, Presence, ScopeState, SourceRef, Task
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from byteplan.models import CommentTag
+    from byteplan.models import Annotation
     from byteplan.registry import Registry
 
 
 @dataclass(frozen=True)
 class Observation:
     task_id: str
-    tag: CommentTag
+    tag: Annotation
     new: bool  # True when the ID is being allocated by this scan
 
 

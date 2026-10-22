@@ -31,7 +31,7 @@ from typing import TYPE_CHECKING
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity
 from byteplan.errors import SourceError
 from byteplan.ids import is_valid_id
-from byteplan.models import CommentTag
+from byteplan.models import Annotation, IdSlot
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -78,14 +78,14 @@ def scan_comments(
     source: SourceFile,
     tags: Sequence[str],
     symbols: SymbolIndex,
-) -> tuple[list[CommentTag], list[Diagnostic]]:
+) -> tuple[list[Annotation], list[Diagnostic]]:
     comments = iter_comments(source)
     if any(c.line <= IGNORE_FILE_MAX_LINE and IGNORE_FILE_RE.match(c.text) for c in comments):
         return [], []
 
     pattern = tag_pattern(tags)
     canonical = {tag.upper(): tag for tag in tags}
-    found: list[CommentTag] = []
+    found: list[Annotation] = []
     diagnostics: list[Diagnostic] = []
 
     index = 0
@@ -136,7 +136,7 @@ def scan_comments(
             title = title[1:].strip()
         end_line = comment.line + len(continuation)
         found.append(
-            CommentTag(
+            Annotation(
                 path=source.path,
                 line=comment.line,
                 end_line=end_line,
@@ -148,7 +148,7 @@ def scan_comments(
                 description=textwrap.dedent("\n".join(continuation)),
                 symbol=symbols.symbol_for(comment.line, end_line, comment.col),
                 trailing=not comment.standalone,
-                insert_col=comment.col + match.end("tag"),
+                id_slot=None if raw_id is not None else IdSlot(comment.line, comment.col + match.end("tag"), "[{id}]"),
             )
         )
     return found, diagnostics
