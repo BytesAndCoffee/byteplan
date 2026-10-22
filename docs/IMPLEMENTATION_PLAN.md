@@ -480,6 +480,23 @@ If it fails, the stripped tree is restored automatically from the just-written r
 release is all-or-nothing, and the import traceback is reported. The release block records
 `smoke_test: "passed" | "not_run"`.
 
+**Design principle: refuse what can't be proven safe.** Release doesn't have to understand
+every Python program. It only has to refuse any transformation it can't establish as safe:
+- If an import can't be proven unused, it's kept.
+- If keeping it means the release would still depend on the runtime, the release is refused
+  with a diagnostic (`release_needs_review`). It never ships something that breaks on import.
+
+PR #32's thirteen Codex review rounds (20 findings) converged on this contract. Examples:
+- wildcard imports
+- re-exports reached through aliases, escaped modules or escaped parent packages
+- `__all__` mutations
+- non-literal decorator arguments
+- relative or parent-package imports of the runtime
+
+Each class closed as a refusal rule rather than deeper analysis. New findings should be judged
+against it: a missed refusal is a defect, an unhandled exotic form that's already refused is
+not.
+
 **What is stripped:**
 - every recognized `@todo(...)` and `@verifies(...)` decorator
 - every import of a `runtime_modules` module that's unused once those decorators are gone
@@ -1531,7 +1548,6 @@ runtime package has shipped.
 
 <!-- TODO[de66]: Phase 6c (optional): acceptance criteria and dependencies
      `acceptance_criteria`, `byteplan criteria ...`, `depends_on`, lifecycle facts in reports. -->
-
 
 <!-- TODO[0413]: Phase 8: release stripping
      `byteplan release` / `byteplan restore`, presence `stripped`, registry `release`/`releases`

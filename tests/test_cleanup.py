@@ -242,7 +242,7 @@ def test_markdown_and_json(project: ProjectFactory, run_cli: RunCli) -> None:
     setup(project, run_cli, files, include='["**/*.md", "**/*.json"]')
     resolve(project, run_cli, "aaaa", "bbbb", "cccc", "dddd", "eeee", "ffff")
     result = run_cli("sync", "--remove-resolved", "--apply", "--project", project.root)
-    assert (project.root / "README.md").read_text() == "# Doc\n\n\nProse continues.\n\n\nEnd.\n"
+    assert (project.root / "README.md").read_text() == "# Doc\n\nProse continues.\n\nEnd.\n"
     assert (project.root / "c.json").read_text() == '{\n  "a": 1,\n  "b": "TODO[ffff]: a value"\n}\n'
     assert "task ffff is a JSON string value, which is data; remove it by hand" in result.err
 
@@ -343,3 +343,21 @@ def test_cleanup_keeps_a_runtime_import_exported_through_an_all_mutation(
     after = (project.root / "src/a.py").read_text()
     assert "from byteplan_runtime import todo\n" in after
     assert "@todo" not in after
+
+
+@pytest.mark.parametrize(
+    ("document", "expected"),
+    [
+        ("Intro\n\n<!-- TODO[aaaa]: done -->\n\nNext\n", "Intro\n\nNext\n"),  # between blanks: no double gap
+        ("Intro\n<!-- TODO[aaaa]: done -->\nNext\n", "Intro\nNext\n"),  # no blanks around: just the line
+        ("<!-- TODO[aaaa]: done -->\n\nNext\n", "\nNext\n"),  # at the top: nothing above to merge with
+        ("Intro\n\n[//]: # (TODO[aaaa]: hidden)\n\nNext\n", "Intro\n\nNext\n"),
+    ],
+)
+def test_whole_line_markdown_removal_leaves_no_double_blank_line(
+    project: ProjectFactory, run_cli: RunCli, document: str, expected: str
+) -> None:
+    setup(project, run_cli, {"README.md": document}, include='["**/*.md"]')
+    resolve(project, run_cli, "aaaa")
+    assert run_cli("sync", "--remove-resolved", "--apply", "--project", project.root).code == EXIT_OK
+    assert (project.root / "README.md").read_text() == expected

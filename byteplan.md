@@ -8,14 +8,14 @@
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1532`](docs/IMPLEMENTATION_PLAN.md#L1532) | Phase 6c (optional): acceptance criteria and dependencies |
-| `0413` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1536`](docs/IMPLEMENTATION_PLAN.md#L1536) | Phase 8: release stripping |
-| `f853` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1540`](docs/IMPLEMENTATION_PLAN.md#L1540) | Phase 9: MCP server |
-| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1544`](docs/IMPLEMENTATION_PLAN.md#L1544) | Phase 10: integration |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1548`](docs/IMPLEMENTATION_PLAN.md#L1548) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1551`](docs/IMPLEMENTATION_PLAN.md#L1551) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1554`](docs/IMPLEMENTATION_PLAN.md#L1554) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1558`](docs/IMPLEMENTATION_PLAN.md#L1558) | Phase 13 (optional): relay-for-github |
+| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1549`](docs/IMPLEMENTATION_PLAN.md#L1549) | Phase 6c (optional): acceptance criteria and dependencies |
+| `0413` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1552`](docs/IMPLEMENTATION_PLAN.md#L1552) | Phase 8: release stripping |
+| `f853` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1556`](docs/IMPLEMENTATION_PLAN.md#L1556) | Phase 9: MCP server |
+| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1560`](docs/IMPLEMENTATION_PLAN.md#L1560) | Phase 10: integration |
+| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1564`](docs/IMPLEMENTATION_PLAN.md#L1564) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1567`](docs/IMPLEMENTATION_PLAN.md#L1567) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1570`](docs/IMPLEMENTATION_PLAN.md#L1570) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1574`](docs/IMPLEMENTATION_PLAN.md#L1574) | Phase 13 (optional): relay-for-github |
 | `90c6` | open | FIXME | normal | - | [`src/byteplan/api.py:412`](src/byteplan/api.py#L412) | Don't propose stub tasks for declarations whose @todo is stripped for a release |
 | `205d` | open | FIXME | normal | - | [`src/byteplan/api.py:1098`](src/byteplan/api.py#L1098) | Check for a pending journal before the write context recovers it |
 | `4d48` | open | FIXME | normal | - | [`src/byteplan/api.py:1240`](src/byteplan/api.py#L1240) | Keep decorators pending when their runtime import can't be restored |
