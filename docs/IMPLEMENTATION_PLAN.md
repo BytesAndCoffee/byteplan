@@ -1503,12 +1503,13 @@ earlier depends on it.
 Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4c (IDs at
 commit time) is done. Phases 4d, 4e and 5 (runtime and normalization: annotation modes,
 `byteplan sync`, `init --runtime-shim`) and 6a (test links, `byteplan tests`, `byteplan verify`
-with evidence, freshness and readiness) 6b (test scaffolding) and 7 (cleanup, for Python, Markdown and JSON annotations) are done. **Phase 8
-is in progress:** part 1 (`release` / `restore`, presence `stripped`, frozen
-behaviour while stripped, refusals, anchored restore and `--partial`) is done; part 2 is the opt-in
-`--smoke-test`, the Hatch `require_stripped` guard, `runtime_dependency_in_release` and
-`unfinished_scaffold_in_sdist`. Finished phases' TODOs stay in this file until their task is
-resolved; BytePlan's own cleanup (`resolve --sync-source`) removes them.
+with evidence, freshness and readiness) 6b (test scaffolding) and 7 (cleanup, for Python, Markdown and JSON annotations) are done. **Phase 8 is done** (`release`/`restore`, the opt-in `--smoke-test`, Hatch
+`require_stripped`, and the two release warnings). **Phase 9 comes next.** Deviations: the smoke
+test installs into an isolated target directory run with `python -I -S` rather than a venv (the
+same isolation, without creating one); `unfinished_scaffold_in_sdist` is reported at release time and
+by `check` while stripped, not on every development `check`, where placeholders are expected.
+Finished phases' TODOs stay in this file until their task is resolved; BytePlan's own cleanup
+(`resolve --sync-source`) removes them.
 **Schema note:** the plan below says schema v1 hadn't shipped with real data; it has (0.1.0 and
 0.2.0). Adding presence `stripped` without a version bump means byteplan 0.2 refuses a stripped
 registry with a clear error. That only happens on release commits made by this version, so the
@@ -1535,7 +1536,7 @@ runtime package has shipped.
 | 6b. Test scaffolding ✅ | `scaffold.py` planner, `byteplan tests scaffold ID [--path] [--name] [--policy] [--force-new] [--dry-run]`, placeholder detection, `[tool.byteplan.tests.scaffold]` | – | B: 1–9, 11 (CLI), 12 |
 | 6c. Criteria + dependencies (optional) | `acceptance_criteria`, `byteplan criteria …`, `depends_on`, lifecycle facts in reports (Phase 12 later turns `depends_on` into `blocked_by` links) | – | – |
 | 7. Cleanup ✅ | `cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`, `--suppress-stubs` | – | 13 (cleanup), 14 |
-| 8. Release | `release.py`, `byteplan release [--version] [--dry-run] [--allow-dirty] [--smoke-test]`, `byteplan restore [--dry-run] [--partial]`, presence `stripped`, registry `release`/`releases`, `release_on_default_branch` and `unfinished_scaffold_in_sdist` warnings, Hatch `require_stripped`, documented release-branch workflow | – | release tests below · B: 13–18 |
+| 8. Release ✅ | `release.py`, `byteplan release [--version] [--dry-run] [--allow-dirty] [--smoke-test]`, `byteplan restore [--dry-run] [--partial]`, presence `stripped`, registry `release`/`releases`, `release_on_default_branch` and `unfinished_scaffold_in_sdist` warnings, Hatch `require_stripped`, documented release-branch workflow | – | release tests below · B: 13–18 |
 | 9. MCP | `[mcp]` extra, `mcp_server.py` with all tools above (including scaffold preview / `scaffold_test`), the three permissions, `byteplan mcp`, README client snippets | – | A: 16 (MCP part), 20 · B: 11 (MCP) |
 | 10. Integration | README end-to-end developer journey (`# TODO` → `scan` → `tests scaffold` → implement → `verify` → `resolve` → `sync`, including where BytePlan notices but never closes work), docs for every config key, dogfood `hatch run byteplan scan` on BytePlan itself, CI on ubuntu/macos/windows | DoD | full suite · B: 19 |
 | 11 (optional) | spec §14 phase 5 items, `TODO(owner):` syntax | – | – |

@@ -1,5 +1,19 @@
 {
   "runs": {
+    "16fb924938af": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T22:09:34Z",
+      "dirty": true,
+      "head": "3f5f480f3f0f9a31b7f85cf9276bd9124e00b7d5",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "1d738a9dea73": {
       "argv": [
         "hatch",
@@ -74,43 +88,71 @@
   "schema_version": 1,
   "tasks": {
     "0413": {
-      "fingerprint": "05d6e0d4fa2b3db2d7b650bc84e8f70013667ac3e820e0d0fc4dbdb8755f5cd1",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "f67ebeddff26c277cb797a5d7d05a953d794833882dca3e124d41b04c831819b",
+      "run": "16fb924938af",
       "tests": {
         "tests/test_release.py::test_crash_mid_release_rolls_forward": {
-          "duration_ms": 327,
+          "duration_ms": 309,
           "outcome": "passed"
         },
         "tests/test_release.py::test_refusals_write_nothing": {
-          "duration_ms": 338,
+          "duration_ms": 326,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_strips_only_decorators_imports_and_the_registry": {
-          "duration_ms": 157,
+          "duration_ms": 132,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_then_restore_is_byte_identical": {
-          "duration_ms": 1665,
+          "duration_ms": 1496,
           "outcome": "passed"
         },
         "tests/test_release.py::test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record": {
-          "duration_ms": 122,
+          "duration_ms": 116,
           "outcome": "passed"
         },
         "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast": {
-          "duration_ms": 115,
+          "duration_ms": 114,
           "outcome": "passed"
         },
         "tests/test_release.py::test_stripped_tree_imports_without_the_runtime": {
-          "duration_ms": 179,
+          "duration_ms": 153,
           "outcome": "passed"
         },
         "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen": {
-          "duration_ms": 136,
+          "duration_ms": 127,
           "outcome": "passed"
         },
         "tests/test_release.py::test_writing_commands_refuse_while_stripped": {
-          "duration_ms": 134,
+          "duration_ms": 122,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_import_failure_restores_the_tree": {
+          "duration_ms": 471,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_require_stripped_fails_an_unstripped_build": {
+          "duration_ms": 628,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_runtime_dependency_in_release": {
+          "duration_ms": 26,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_runtime_pulled_in_as_a_dependency_fails": {
+          "duration_ms": 697,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_smoke_test_passes_for_a_clean_strip": {
+          "duration_ms": 623,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_unfinished_scaffold_in_sdist": {
+          "duration_ms": 26,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_without_the_flag_nothing_is_built": {
+          "duration_ms": 22,
           "outcome": "passed"
         }
       }

@@ -40,6 +40,7 @@ from byteplan.api import Project
 from byteplan.config import load_config
 from byteplan.diagnostics import EXIT_OK, Severity
 from byteplan.errors import ByteplanError
+from byteplan.models import Representation
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -51,7 +52,8 @@ PLUGIN_NAME = "byteplan"
 _HATCH_KEYS = frozenset(
     {"dependencies", "enable-by-default", "require-runtime-dependencies", "require-runtime-features"}
 )
-_KEYS = frozenset({"scan", "write_source", "fail_build", "allow_in_ci"})
+_SHOWN = 5  # files listed in the require_stripped failure
+_KEYS = frozenset({"scan", "write_source", "fail_build", "allow_in_ci", "require_stripped"})
 
 
 class HookConfigError(ValueError):
@@ -64,6 +66,9 @@ class HookSettings:
     write_source: bool | str = False
     fail_build: bool = False
     allow_in_ci: bool = False
+    # Fail standard wheel/sdist builds while recognized @todo/@verifies decorators are present:
+    # a guard against shipping an unstripped tree (see `byteplan release`).
+    require_stripped: bool = False
 
     @classmethod
     def parse(cls, config: Mapping[str, Any]) -> HookSettings:
@@ -71,7 +76,7 @@ class HookSettings:
         if unknown:
             msg = f"unknown option(s) in [tool.hatch.build.hooks.byteplan]: {', '.join(unknown)}"
             raise HookConfigError(msg)
-        for key in ("scan", "fail_build", "allow_in_ci"):
+        for key in ("scan", "fail_build", "allow_in_ci", "require_stripped"):
             if key in config and not isinstance(config[key], bool):
                 msg = f"[tool.hatch.build.hooks.byteplan] {key} must be true or false"
                 raise HookConfigError(msg)
@@ -85,6 +90,7 @@ class HookSettings:
             write_source=write_source,
             fail_build=config.get("fail_build", False),
             allow_in_ci=config.get("allow_in_ci", False),
+            require_stripped=config.get("require_stripped", False),
         )
 
 
@@ -144,6 +150,16 @@ class BytePlanBuildHook(BuildHookInterface):  # type: ignore[type-arg]
             f"byteplan {mode} ({self.target_name}): {report.files_scanned} files, {report.tracked} tasks{written}"
         )
         self._show(report.diagnostics)
+        if settings.require_stripped and version == "standard" and project.stripped_release() is None:
+            decorated = sorted({t.path for t in report.tags if t.representation is Representation.DECORATOR})
+            decorated += sorted({link.path for link in report.links} - set(decorated))
+            if decorated:
+                self.app.abort(
+                    f"byteplan: require_stripped: {len(decorated)} file(s) still carry @todo/@verifies "
+                    f"({', '.join(decorated[:_SHOWN])}{', ...' if len(decorated) > _SHOWN else ''}); "
+                    "run `byteplan release` first (or build from your release branch)"
+                )
+                return
         if project.exit_code(report.diagnostics) != EXIT_OK:
             self._fail_or_warn(settings, "byteplan: findings fail the configured check policy")
 

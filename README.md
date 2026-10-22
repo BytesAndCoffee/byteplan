@@ -278,7 +278,7 @@ metadata, so moving or renaming code keeps the same task.
 | `byteplan tests add ID NODE...` / `tests remove ID NODE...` | link or unlink pytest node IDs by hand |
 | `byteplan sync [--apply] [--only ID]` | decorator mode: rewrite attached comments and unowned stubs to `@todo(...)` (preview by default) |
 | `byteplan sync --remove-resolved [--apply] [--only ID] [--suppress-stubs]` | remove the source annotations of resolved and dismissed tasks |
-| `byteplan release [--version V] [--dry-run] [--allow-dirty]` | strip `@todo`/`@verifies` and runtime imports in place for a release, recording each one (no git or build) |
+| `byteplan release [--version V] [--dry-run] [--allow-dirty] [--smoke-test [--offline]]` | strip `@todo`/`@verifies` and runtime imports in place for a release, recording each one (no git or build) |
 | `byteplan restore [--dry-run] [--partial]` | put back what `release` stripped (byte-identical when the files haven't changed) |
 | `byteplan resolve ID --sync-source` | resolve, and remove the task's annotation in the same step |
 | `byteplan scan [PATHS] [--dry-run] [--staged]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing. `--staged --dry-run` previews against the Git index |
@@ -486,6 +486,17 @@ $ git switch main                        # main never had the strip
   already-stripped tree.
 - **While stripped:** `sync`, scaffolding and cleanup refuse, and Hatch builds only check. On
   your default branch, `release` warns: release from a short-lived branch instead.
+- **`--smoke-test`** (opt-in, since it builds and imports your code):
+  - It builds a wheel from the stripped tree into a temporary directory and installs it in
+    isolation.
+  - It checks that `byteplan_runtime` isn't importable, and imports every top-level module.
+  - If that fails, the strip is restored automatically and the traceback is shown.
+  - Configure it in `[tool.byteplan.release]` (`smoke_build`, `smoke_imports`,
+    `smoke_timeout`, `find_links` for `--offline`).
+- **Warnings:** `runtime_dependency_in_release` (`byteplan-runtime` is still a project
+  dependency) and `unfinished_scaffold_in_sdist` (a failing placeholder test would ship).
+- **Guard:** `[tool.hatch.build.hooks.byteplan] require_stripped = true` fails wheel and sdist
+  builds while decorators are still present.
 
 ## A committed task list: `report_file`
 

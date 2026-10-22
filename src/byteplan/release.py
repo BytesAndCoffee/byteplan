@@ -45,6 +45,7 @@ UNTAGGED = "untagged_decorator"
 NEEDS_REVIEW = "release_needs_review"
 STRIPPED = "release_stripped"
 CONFLICT = "restore_conflict"
+SMOKE_FAILED = "smoke_test_failed"
 
 
 class ReleaseError(ByteplanError):
