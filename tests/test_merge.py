@@ -266,3 +266,43 @@ def test_install_outside_git_fails_cleanly(project: ProjectFactory, run_cli: Run
     result = run_cli("git", "install-merge-driver", "--project", project.root)
     assert result.code == 2
     assert "rev-parse" in result.err
+
+
+# Codex review of #11: absent keys vs explicit nulls ----------------------------------------------
+
+
+def test_deleted_extension_field_stays_deleted() -> None:
+    base = changed(BASE, "aaaa", extension={"enabled": True})
+    ours = copy.deepcopy(base)
+    del ours["tasks"]["aaaa"]["extension"]
+    theirs = changed(base, "aaaa", priority="high")
+    merged = merge_registries(base, ours, theirs)
+    assert merged.data is not None
+    result = merged.data["tasks"]["aaaa"]
+    assert "extension" not in result
+    assert result["priority"] == "high"
+
+
+def test_explicit_null_is_kept_and_distinct_from_absent() -> None:
+    base = changed(BASE, "aaaa", extension={"enabled": True})
+    ours = changed(base, "aaaa", extension=None)
+    merged = merge_registries(base, ours, base)
+    assert merged.data is not None
+    assert "extension" in merged.data["tasks"]["aaaa"]
+    assert merged.data["tasks"]["aaaa"]["extension"] is None
+
+
+def test_deleted_on_one_side_changed_on_the_other_is_a_conflict() -> None:
+    base = changed(BASE, "aaaa", extension={"enabled": True})
+    ours = copy.deepcopy(base)
+    del ours["tasks"]["aaaa"]["extension"]
+    theirs = changed(base, "aaaa", extension={"enabled": False})
+    merged = merge_registries(base, ours, theirs)
+    assert merged.data is None
+    assert merged.conflicts == ["task aaaa: extension changed on both sides (<absent> vs {'enabled': False})"]
+
+
+def test_field_added_on_one_side_is_kept() -> None:
+    merged = merge_registries(BASE, changed(BASE, "aaaa", extension={"new": 1}), BASE)
+    assert merged.data is not None
+    assert merged.data["tasks"]["aaaa"]["extension"] == {"new": 1}

@@ -65,32 +65,50 @@ def _merge_set(base: list[Any], ours: list[Any], theirs: list[Any]) -> list[Any]
     return result
 
 
+class _Absent:
+    """A key that isn't present at all, as opposed to one explicitly set to JSON null."""
+
+    def __repr__(self) -> str:
+        return "<absent>"
+
+
+_ABSENT: Any = _Absent()
+
+
 def _merge_task(
     task_id: str, base: dict[str, Any], ours: dict[str, Any], theirs: dict[str, Any], result: MergeResult
 ) -> dict[str, Any]:
     merged: dict[str, Any] = {}
     for key in sorted({*base, *ours, *theirs}):
-        b, o, t = base.get(key), ours.get(key), theirs.get(key)
+        b, o, t = base.get(key, _ABSENT), ours.get(key, _ABSENT), theirs.get(key, _ABSENT)
+        value: Any
         if key == "history":
-            merged[key] = _merge_history(task_id, b or [], o or [], t or [], result.conflicts)
+            value = _merge_history(task_id, _list(b), _list(o), _list(t), result.conflicts)
         elif key in _SET_LIKE:
-            merged[key] = _merge_set(b or [], o or [], t or [])
-        elif key == "first_seen":
-            merged[key] = min((v for v in (o, t) if v is not None), default=None)
-        elif key == "last_seen":
-            merged[key] = max((v for v in (o, t) if v is not None), default=None)
-        elif t in (o, b):
-            merged[key] = o
+            value = _merge_set(_list(b), _list(o), _list(t))
+        elif key in {"first_seen", "last_seen"}:
+            present = [v for v in (o, t) if v is not _ABSENT and v is not None]
+            earliest_or_latest = min if key == "first_seen" else max
+            fallback = o if o is not _ABSENT else t
+            value = earliest_or_latest(present) if present else fallback
+        elif t in (o, b):  # `in` compares by identity first, so the absent marker works too
+            value = o
         elif o == b:
-            merged[key] = t
+            value = t
         elif key in _DISCOVERED:
-            merged[key] = o
+            value = o
             if task_id not in result.rescan_needed:
                 result.rescan_needed.append(task_id)
         else:
             result.conflicts.append(f"task {task_id}: {key} changed on both sides ({o!r} vs {t!r})")
-            merged[key] = o
+            value = o
+        if value is not _ABSENT:  # a key deleted on one side (and untouched on the other) stays deleted
+            merged[key] = value
     return merged
+
+
+def _list(value: Any) -> list[Any]:
+    return [] if value is _ABSENT or value is None else list(value)
 
 
 def merge_registries(base: dict[str, Any], ours: dict[str, Any], theirs: dict[str, Any]) -> MergeResult:
