@@ -59,7 +59,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1535,
+        "line": 1530,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -110,7 +110,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1531,
+        "line": 1526,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -161,7 +161,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1553,
+        "line": 1548,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -212,7 +212,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1524,
+        "line": 1519,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -360,7 +360,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1547,
+        "line": 1542,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -408,6 +408,48 @@
           "event": "missing",
           "new": "missing",
           "old": "present"
+        },
+        {
+          "at": "2026-10-22T17:33:21Z",
+          "event": "test_linked",
+          "new": "tests/test_normalize.py::test_attached_comment_becomes_a_decorator",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:21Z",
+          "event": "test_linked",
+          "new": "tests/test_normalize.py::test_refusals_leave_comments_exactly_as_they_were",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:21Z",
+          "event": "test_linked",
+          "new": "tests/test_normalize.py::test_rewritten_module_behaves_identically",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:21Z",
+          "event": "test_linked",
+          "new": "tests/test_normalize.py::test_only_unowned_stubs_are_decorated",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:21Z",
+          "event": "test_linked",
+          "new": "tests/test_normalize.py::test_byte_level_safety",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:21Z",
+          "event": "test_linked",
+          "new": "tests/test_normalize.py::test_conditional_or_late_imports_are_not_reused",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:21Z",
+          "event": "test_linked",
+          "new": "tests/test_normalize.py::test_init_writes_a_runtime_shim_and_registers_it",
+          "old": null
         }
       ],
       "id": "82b3",
@@ -431,6 +473,18 @@
       },
       "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_normalize.py::test_attached_comment_becomes_a_decorator",
+          "tests/test_normalize.py::test_byte_level_safety",
+          "tests/test_normalize.py::test_conditional_or_late_imports_are_not_reused",
+          "tests/test_normalize.py::test_init_writes_a_runtime_shim_and_registers_it",
+          "tests/test_normalize.py::test_only_unowned_stubs_are_decorated",
+          "tests/test_normalize.py::test_refusals_leave_comments_exactly_as_they_were",
+          "tests/test_normalize.py::test_rewritten_module_behaves_identically"
+        ]
+      },
       "title": "Phase 5: runtime and normalization",
       "title_override": null
     },
@@ -485,7 +539,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1550,
+        "line": 1545,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -536,7 +590,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1543,
+        "line": 1538,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -571,6 +625,73 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-22T17:30:03Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T17:30:04Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Phase 6a done: test links, byteplan tests, byteplan verify",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T17:33:22Z",
+          "event": "test_linked",
+          "new": "tests/test_test_links.py::test_links_from_source_with_provenance",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:22Z",
+          "event": "test_linked",
+          "new": "tests/test_test_links.py::test_managed_links",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:22Z",
+          "event": "test_linked",
+          "new": "tests/test_test_links.py::test_managed_and_discovered_combine",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:22Z",
+          "event": "test_linked",
+          "new": "tests/test_test_links.py::test_link_line_drift_is_position_drift",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:22Z",
+          "event": "test_linked",
+          "new": "tests/test_verify.py::test_every_outcome_with_no_false_passes",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:22Z",
+          "event": "test_linked",
+          "new": "tests/test_verify.py::test_collection_error_is_an_error",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:22Z",
+          "event": "test_linked",
+          "new": "tests/test_verify.py::test_timeout_kills_the_run",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:22Z",
+          "event": "test_linked",
+          "new": "tests/test_verify.py::test_evidence_store_and_staleness",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T17:33:22Z",
+          "event": "test_linked",
+          "new": "tests/test_verify.py::test_all_passing_is_ready_for_review_and_never_resolves",
+          "old": null
         }
       ],
       "id": "9b40",
@@ -581,7 +702,7 @@
       "last_seen": "2026-10-22T03:53:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -592,8 +713,22 @@
         "representation": "comment",
         "symbol": "Phases"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_test_links.py::test_link_line_drift_is_position_drift",
+          "tests/test_test_links.py::test_links_from_source_with_provenance",
+          "tests/test_test_links.py::test_managed_and_discovered_combine",
+          "tests/test_test_links.py::test_managed_links",
+          "tests/test_verify.py::test_all_passing_is_ready_for_review_and_never_resolves",
+          "tests/test_verify.py::test_collection_error_is_an_error",
+          "tests/test_verify.py::test_every_outcome_with_no_false_passes",
+          "tests/test_verify.py::test_evidence_store_and_staleness",
+          "tests/test_verify.py::test_timeout_kills_the_run"
+        ]
+      },
       "title": "Phase 6a: acceptance tests",
       "title_override": null
     },
@@ -623,8 +758,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 221,
-        "line": 225,
+        "decl_line": 233,
+        "line": 237,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"
@@ -685,7 +820,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1528,
+        "line": 1523,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -746,7 +881,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1557,
+        "line": 1552,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -797,7 +932,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1539,
+        "line": 1534,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"

@@ -17,9 +17,10 @@ from byteplan.registry import task_to_dict
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from byteplan.api import ScanReport, SyncReport
+    from byteplan.api import ScanReport, SyncReport, VerifyReport
     from byteplan.models import Annotation, Task
     from byteplan.registry import Registry
+    from byteplan.verification import Readiness
 
 
 def to_json(payload: Any) -> str:
@@ -104,7 +105,7 @@ def task_table(tasks: Sequence[Task]) -> str:
     )
 
 
-def task_text(task: Task) -> str:
+def task_text(task: Task, readiness: Readiness | None = None) -> str:
     lines = [f"[{task.id}] {task.kind}: {task.display_title}"]
     if task.title_override:
         lines.append(f"  source title: {task.title}")
@@ -121,8 +122,14 @@ def task_text(task: Task) -> str:
     lines.append(f"  origin:    {task.origin}")
     tests = task.linked_tests()
     if tests:
+        outcomes = readiness.tests if readiness is not None else {}
         lines.append("  tests:")
-        lines.extend(f"    {node}  ({', '.join(provenances)})" for node, provenances in tests.items())
+        lines.extend(
+            f"    {node}  ({', '.join(provenances)})" + (f"  {outcomes[node]}" if node in outcomes else "")
+            for node, provenances in tests.items()
+        )
+    if readiness is not None:
+        lines.extend(readiness_text(readiness))
     lines.append(f"  seen:      {task.first_seen or '-'} … {task.last_seen or '-'}")
     if task.notes:
         lines.append("  notes:")
@@ -338,3 +345,57 @@ def tests_text(tasks: Sequence[Task]) -> str:
     lines = [f"{'ID':<5} {'TEST':<{width}}  PROVENANCE"]
     lines += [f"{r['id']:<5} {r['node']:<{width}}  {', '.join(r['provenance'])}" for r in rows]
     return "\n".join(lines)
+
+
+# byteplan verify -----------------------------------------------------------------------------------
+
+
+def verify_json(report: VerifyReport) -> dict[str, Any]:
+    return {
+        "argv": list(report.argv),
+        "returncode": report.returncode,
+        "timed_out": report.timed_out,
+        "tasks": [
+            {
+                "id": tv.task.id,
+                "title": tv.task.display_title,
+                "readiness": tv.readiness.state,
+                "reasons": list(tv.readiness.reasons),
+                "tests": {node: result.to_dict() for node, result in tv.results.items()},
+            }
+            for tv in report.tasks
+        ],
+    }
+
+
+def verify_text(report: VerifyReport) -> str:
+    if not report.tasks:
+        return "byteplan verify: no linked tests to run (link some with @todo(tests=...), @verifies or `byteplan tests add`)"
+    results = [r for tv in report.tasks for r in tv.results.values()]
+    counts = Counter(r.outcome for r in results)
+    summary = " · ".join(f"{n} {outcome}" for outcome, n in sorted(counts.items()))
+    lines = [f"BytePlan verify: {len(results)} test result(s) for {len(report.tasks)} task(s) · {summary}"]
+    for tv in report.tasks:
+        lines.append(f"  [{tv.task.id}] {tv.readiness.state:<16} {tv.task.display_title}")
+        for node, result in tv.results.items():
+            lines.append(f"      {result.outcome:<9} {node}")
+            if result.message and result.outcome != "passed":
+                lines.extend(f"                {line}" for line in result.message.splitlines()[-3:])
+    if report.timed_out:
+        lines.append("  the run timed out and was killed ([tool.byteplan.tests] timeout)")
+    lines.append("Readiness never changes a task's status; resolve tasks yourself.")
+    return "\n".join(lines)
+
+
+def ready_text(found: Sequence[tuple[Task, Readiness]]) -> str:
+    if not found:
+        return "No tasks are ready for review."
+    lines = ["Ready for review (every linked test is a fresh pass):"]
+    lines += [f"  [{task.id}] {task.kind:<5} {task.display_title}" for task, _ in found]
+    return "\n".join(lines)
+
+
+def readiness_text(state: Readiness) -> list[str]:
+    lines = [f"  readiness: {state.state}"]
+    lines.extend(f"    - {reason}" for reason in state.reasons)
+    return lines

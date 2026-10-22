@@ -7,9 +7,12 @@ from __future__ import annotations
 
 import contextlib
 import dataclasses
+import hashlib
 import json
 import os
+import platform
 import re
+import sys
 import tomllib
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
@@ -19,7 +22,7 @@ from typing import TYPE_CHECKING, Any
 
 import pathspec
 
-from byteplan import normalize, reporting
+from byteplan import normalize, reporting, verification
 from byteplan import registry as registry_io
 from byteplan.annotate import annotate
 from byteplan.config import (
@@ -87,6 +90,28 @@ class Proposal:
 
     tag: Annotation
     task_id: str
+
+
+@dataclass(frozen=True)
+class TaskVerification:
+    task: Task
+    readiness: verification.Readiness
+    results: dict[str, verification.TestResult]  # this run's results for the task's tests
+
+
+@dataclass(frozen=True)
+class VerifyReport:
+    tasks: tuple[TaskVerification, ...]
+    argv: tuple[str, ...]
+    returncode: int | None
+    timed_out: bool = False
+    output: str = ""
+
+    @property
+    def failed(self) -> bool:
+        """Any requested test that didn't pass or skip as expected: no false passes."""
+        bad = {"failed", "error", "timeout", "not_found", "not_run"}
+        return self.timed_out or any(r.outcome in bad for t in self.tasks for r in t.results.values())
 
 
 @dataclass(frozen=True)
@@ -383,7 +408,10 @@ class Project:
         diagnostics.extend(self._test_link_diagnostics(new_registry, observed, scope_matcher))
         diagnostics.extend(self._missing_diagnostics(new_registry))
         diagnostics.extend(_link_diagnostics(links, new_registry))
-        diagnostics.extend(_implementation_diagnostics(summary, new_registry))
+        implementation = _implementation_diagnostics(summary, new_registry)
+        if self.snapshot is None and implementation:
+            implementation = self._complete_candidates(implementation, new_registry)
+        diagnostics.extend(implementation)
         # Consistency describes a read-only view ("is this already reconciled?"). After a
         # successful writing scan the state *is* reconciled, so it doesn't apply.
         if self.enforce_consistency and dry_run:
@@ -597,6 +625,26 @@ class Project:
                 )
         return found
 
+    def _complete_candidates(self, found: list[Diagnostic], registry: Registry) -> list[Diagnostic]:
+        """``implementation_changed`` becomes ``implementation_complete_candidate`` when the task's
+        linked tests are fresh and passing. Advisory only: nothing is resolved."""
+        evidence = verification.Evidence.load(self.root)
+        upgraded = []
+        for diagnostic in found:
+            task = registry.tasks.get(diagnostic.task_id or "")
+            if task is not None and self.readiness(task, evidence).state == "ready_for_review":
+                upgraded.append(
+                    dataclasses.replace(
+                        diagnostic,
+                        code=Code.IMPLEMENTATION_COMPLETE_CANDIDATE,
+                        message=f"{diagnostic.message}, and its linked tests pass",
+                        hint=f"review it, then `byteplan resolve {task.id}` (BytePlan never resolves tasks itself)",
+                    )
+                )
+            else:
+                upgraded.append(diagnostic)
+        return upgraded
+
     def _missing_diagnostics(self, registry: Registry) -> list[Diagnostic]:
         if self.config.missing_policy == "ignore":
             return []
@@ -673,6 +721,73 @@ class Project:
             "tasks": [registry_io.task_to_dict(t) for t in tasks],
             "diagnostics": [d.to_dict() for d in diagnostics],
         }
+
+    # Acceptance tests (`byteplan verify`) --------------------------------------------------
+
+    def runner(self) -> list[str]:
+        return list(self.config.tests.runner) or [sys.executable, "-m", "pytest"]
+
+    def readiness(self, task: Task, evidence: verification.Evidence | None = None) -> verification.Readiness:
+        """Derived, never stored: ``unverified``, ``failing``, ``needs_review`` or ``ready_for_review``."""
+        evidence = evidence if evidence is not None else verification.Evidence.load(self.root)
+        head = verification.git_state(self.root) if self.config.tests.stale_on == "head" else (None, False)
+        return verification.readiness(task, evidence, self.root, stale_on=self.config.tests.stale_on, head=head)
+
+    def verify(self, task_ids: Sequence[str] | None = None) -> VerifyReport:
+        """Run the linked tests of ``task_ids`` (default: every open task with links) and record
+        the evidence in ``.byteplan/verification.json``. Never changes a task's status."""
+        registry = self.load_registry()
+        if task_ids:
+            tasks = [self.get_task(task_id) for task_id in task_ids]
+        else:
+            tasks = [t for _, t in sorted(registry.tasks.items()) if not t.status.is_closed and t.linked_tests()]
+        tasks = [t for t in tasks if t.linked_tests()]
+        argv = (*self.runner(), "-p", verification.PLUGIN_MODULE)
+        if not tasks:
+            return VerifyReport((), argv, 0)
+        fingerprints = {t.id: verification.fingerprint(self.root, verification.task_files(t)) for t in tasks}
+        head, dirty = verification.git_state(self.root)
+        nodes = list(dict.fromkeys(node for t in tasks for node in t.linked_tests()))
+        started = self.clock()
+        run = verification.run_tests(self.root, nodes, self.runner(), self.config.tests.timeout)
+
+        run_id = hashlib.sha256(f"{started}\0{' '.join(argv)}".encode()).hexdigest()[:12]
+        with self._writing():  # brief: the tests ran without holding the project lock
+            evidence = verification.Evidence.load(self.root)
+            evidence.runs[run_id] = {
+                "argv": list(argv),
+                "python": platform.python_version(),
+                "at": started,
+                "head": head,
+                "dirty": dirty,
+                "timed_out": run.timed_out,
+            }
+            for task in tasks:
+                evidence.tasks[task.id] = {
+                    "fingerprint": fingerprints[task.id],
+                    "run": run_id,
+                    "tests": {node: run.results[node].to_dict() for node in task.linked_tests()},
+                }
+            evidence.save(self.root)
+        verified = tuple(
+            TaskVerification(
+                task, self.readiness(task, evidence), {node: run.results[node] for node in task.linked_tests()}
+            )
+            for task in tasks
+        )
+        return VerifyReport(verified, argv, run.returncode, run.timed_out, run.output)
+
+    def ready(self) -> list[tuple[Task, verification.Readiness]]:
+        """Open tasks whose evidence makes them ready for a human to review and resolve."""
+        evidence = verification.Evidence.load(self.root)
+        found = []
+        for _, task in sorted(self.load_registry().tasks.items()):
+            if task.status.is_closed:
+                continue
+            state = self.readiness(task, evidence)
+            if state.state == "ready_for_review":
+                found.append((task, state))
+        return found
 
     # Normalization (decorator mode, `byteplan sync`) ---------------------------------------
 

@@ -67,6 +67,12 @@ class TestsConfig:
     # Also link tests marked @pytest.mark.byteplan("abcd") (register the marker in your pytest
     # configuration until `byteplan verify`'s plugin does it).
     pytest_marker: bool = False
+    # `byteplan verify`: the pytest command as an argument list ([] = this Python's `-m pytest`),
+    # e.g. ["hatch", "test", "--"]; seconds before the run is killed; and what makes results
+    # stale: "files" (the task's source and test files changed) or "head" (HEAD moved or dirty).
+    runner: tuple[str, ...] = ()
+    timeout: int = 300
+    stale_on: str = "files"
 
 
 @dataclass(frozen=True)
@@ -201,6 +207,11 @@ def _coerce(value: Any, default: Any, name: str) -> Any:
             msg = f"{name} must be true or false"
             raise ConfigError(msg)
         return value
+    if isinstance(default, int):
+        if not isinstance(value, int) or isinstance(value, bool):
+            msg = f"{name} must be an integer"
+            raise ConfigError(msg)
+        return value
     if isinstance(default, str):
         if not isinstance(value, str):
             msg = f"{name} must be a string"
@@ -216,6 +227,7 @@ def _coerce(value: Any, default: Any, name: str) -> Any:
 
 ON_RECONCILE = ("commit", "stop")
 ANNOTATION_MODES = ("comment", "preserve", "decorator")
+STALE_ON = ("files", "head")
 
 
 def _validate(config: Config) -> None:
@@ -228,6 +240,12 @@ def _validate(config: Config) -> None:
     #   is rejected rather than silently ignored.
     if config.detect.placeholder_assignments:
         msg = "tool.byteplan.detect.placeholder_assignments is not supported yet; remove it or set it to false"
+        raise ConfigError(msg)
+    if config.tests.stale_on not in STALE_ON:
+        msg = f"tool.byteplan.tests.stale_on must be one of {', '.join(STALE_ON)}"
+        raise ConfigError(msg)
+    if config.tests.timeout <= 0:
+        msg = "tool.byteplan.tests.timeout must be a positive number of seconds"
         raise ConfigError(msg)
     if config.annotations.mode not in ANNOTATION_MODES:
         msg = f"tool.byteplan.annotations.mode must be one of {', '.join(ANNOTATION_MODES)}"
