@@ -267,7 +267,13 @@ def cmd_status(args: argparse.Namespace) -> int:
 
 
 def cmd_release(args: argparse.Namespace) -> int:
-    report = _project(args).release(args.version, dry_run=args.dry_run, allow_dirty=args.allow_dirty)
+    report = _project(args).release(
+        args.version,
+        dry_run=args.dry_run,
+        allow_dirty=args.allow_dirty,
+        smoke_test=args.smoke_test,
+        offline=args.offline,
+    )
     if args.format == "json":
         _out(
             reporting.to_json(
@@ -279,6 +285,9 @@ def cmd_release(args: argparse.Namespace) -> int:
                     "tasks": list(report.tasks),
                     "dry_run": report.dry_run,
                     "written": list(report.written),
+                    "smoke_test": report.smoke_test,
+                    "smoke_imports": list(report.smoke_imports),
+                    "warnings": [w.to_dict() for w in report.warnings],
                 }
             )
         )
@@ -290,6 +299,10 @@ def cmd_release(args: argparse.Namespace) -> int:
         )
         if report.tasks:
             _out(f"byteplan: {len(report.tasks)} task(s) marked stripped (on record, never missing)")
+        if report.smoke_test == "passed":
+            _out(
+                f"byteplan: smoke test passed: the wheel imports ({', '.join(report.smoke_imports)}) without byteplan_runtime"
+            )
         if not report.dry_run:
             _out("byteplan: next: review `git diff`, commit, tag, build; `byteplan restore` puts them back")
     for warning in report.warnings:
@@ -615,6 +628,14 @@ def build_parser() -> argparse.ArgumentParser:
     release.add_argument("--version", help="the release version (default: the project's)")
     release.add_argument("--dry-run", action="store_true", help="show what would be stripped")
     release.add_argument("--allow-dirty", action="store_true", help="strip even with uncommitted changes")
+    release.add_argument(
+        "--smoke-test",
+        action="store_true",
+        help="also build the stripped wheel, install it in isolation and import it (restores on failure)",
+    )
+    release.add_argument(
+        "--offline", action="store_true", help="smoke test without a package index ([tool.byteplan.release] find_links)"
+    )
     release.set_defaults(handler=cmd_release)
 
     restore = sub.add_parser("restore", parents=[common, formatted], help="put back what `byteplan release` stripped")

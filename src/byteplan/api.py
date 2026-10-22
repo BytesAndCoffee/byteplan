@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any
 
 import pathspec
 
-from byteplan import archive, cleanup, gitio, normalize, release, reporting, scaffold, verification
+from byteplan import archive, cleanup, gitio, normalize, release, reporting, scaffold, smoke, verification
 from byteplan import registry as registry_io
 from byteplan.annotate import annotate
 from byteplan.config import (
@@ -137,6 +137,8 @@ class ReleaseReport:
     dry_run: bool = False
     warnings: tuple[Diagnostic, ...] = ()
     written: tuple[str, ...] = ()
+    smoke_test: str = "not_run"  # or "passed" (a failure raises after restoring)
+    smoke_imports: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -191,6 +193,8 @@ class ScanReport:
     # Every file this scan would write (source edits, then the registry), with the hash of
     # the bytes it planned against. Populated for dry runs too.
     planned: tuple[FileWrite, ...] = ()
+    # @verifies / marker links found in source.
+    links: tuple[VerifiesLink, ...] = ()
     # Closed tasks moved to the archive after this (writing) scan.
     archived: tuple[str, ...] = ()
 
@@ -430,9 +434,6 @@ class Project:
                     hint="run `byteplan scan` (without --dry-run) to complete it",
                 )
             )
-        # FIXME[90c6]: Don't propose stub tasks for declarations whose @todo is stripped for a release
-        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850135
-        #   A stripped stub looks unowned, so a writing scan added a duplicate task and comment.
         stripped_block = self.stripped_release(registry)
         if stripped_block is not None:
             on_record = {
@@ -502,6 +503,8 @@ class Project:
                     hint="`byteplan restore` puts the decorators back",
                 )
             )
+            if self.snapshot is None:  # release warnings read the working tree (sdist file list)
+                diagnostics.extend(self._release_warnings())
         diagnostics.extend(self._test_link_diagnostics(new_registry, observed, scope_matcher))
         diagnostics.extend(self._missing_diagnostics(new_registry))
         diagnostics.extend(_link_diagnostics(links, new_registry))
@@ -547,6 +550,7 @@ class Project:
             written=tuple(written),
             recovered=recovered,
             planned=tuple(writes),
+            links=tuple(links),
         )
 
     def _read(self, path: str) -> SourceFile:
@@ -1254,7 +1258,76 @@ class Project:
         msg = "can't tell the version; pass --version"
         raise ConfigError(msg)
 
-    def release(self, version: str | None = None, *, dry_run: bool = False, allow_dirty: bool = False) -> ReleaseReport:
+    def release(
+        self,
+        version: str | None = None,
+        *,
+        dry_run: bool = False,
+        allow_dirty: bool = False,
+        smoke_test: bool = False,
+        offline: bool = False,
+    ) -> ReleaseReport:
+        """Strip for a release (see ``_strip_for_release``), then optionally smoke-test it.
+
+        ``smoke_test`` builds a wheel from the stripped tree, installs it in isolation and
+        imports it without ``byteplan_runtime``. If that fails, the strip is restored
+        automatically, so a release is all-or-nothing, and ``ReleaseError`` reports why.
+        """
+        report = self._strip_for_release(version, dry_run=dry_run, allow_dirty=allow_dirty)
+        report = dataclasses.replace(report, warnings=(*report.warnings, *self._release_warnings()))
+        if dry_run or not smoke_test:
+            return report
+        result = smoke.run_smoke(self.root, self.config.release, offline=offline)
+        if not result.passed:
+            self.restore()
+            raise release.ReleaseError(
+                release.SMOKE_FAILED,
+                [f"the {result.stage} step failed; the strip was restored", *result.detail.strip().splitlines()[-25:]],
+                "fix the problem (or drop --smoke-test) and release again",
+            )
+        with self._writing():
+            registry_hash, registry = self._read_registry()
+            block = dict(registry.extra.get("release", {}))
+            block["smoke_test"] = "passed"
+            registry.extra["release"] = block
+            commit(self.root, self._registry_writes(registry_hash, registry))
+        return dataclasses.replace(report, smoke_test="passed", smoke_imports=result.imports)
+
+    def _release_warnings(self) -> list[Diagnostic]:
+        """``runtime_dependency_in_release`` and ``unfinished_scaffold_in_sdist``, for a stripped tree."""
+        found: list[Diagnostic] = []
+        dependencies = read_pyproject(self.root).get("project", {}).get("dependencies", [])
+        if "byteplan-runtime" in {_requirement_name(d) for d in dependencies if isinstance(d, str)}:
+            found.append(
+                Diagnostic(
+                    Code.RUNTIME_DEPENDENCY_IN_RELEASE,
+                    Severity.WARNING,
+                    "byteplan-runtime is still in [project].dependencies, so the release depends on it anyway",
+                    hint="move it to a development dependency (a [dependency-groups] entry or a Hatch environment)",
+                )
+            )
+        shipped = sdist_files(self.root)
+        placeholders = sorted(
+            node
+            for path in shipped
+            if path.endswith(".py") and (data := _read_bytes(self.root / path)) is not None
+            for node in scaffold.placeholder_nodes(path, data.decode("utf-8", "replace"))
+        )
+        found.extend(
+            Diagnostic(
+                Code.UNFINISHED_SCAFFOLD_IN_SDIST,
+                Severity.WARNING,
+                f"{node} is an unfinished scaffold (it fails on purpose) and would ship in the sdist",
+                locations=(Location(node.split("::", 1)[0]),),
+                hint="finish the test, or exclude it from the sdist",
+            )
+            for node in placeholders
+        )
+        return found
+
+    def _strip_for_release(
+        self, version: str | None = None, *, dry_run: bool = False, allow_dirty: bool = False
+    ) -> ReleaseReport:
         """Strip BytePlan's runtime decorators and imports in place, recording each one.
 
         Never commits, tags, builds or resets, and never changes a task's status. Refuses (with
@@ -1263,9 +1336,6 @@ class Project:
         already-stripped tree.
         """
         version = self.release_version(version)
-        # FIXME[205d]: Check for a pending journal before the write context recovers it
-        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353030073
-        #   _writing() rolls an interrupted write forward first, so release changed files instead of refusing.
         if pending_journal(self.root) or (staged_dir(self.root) / "journal.json").exists():
             raise release.ReleaseError(
                 release.NEEDS_REVIEW,
@@ -1339,7 +1409,13 @@ class Project:
                 task.extra["stripped"] = entries
                 task.history.append(HistoryEvent("stripped_for_release", now, old=str(task.presence), new=version))
                 task.presence = Presence.STRIPPED
-            registry.extra["release"] = {"state": "stripped", "version": version, "stripped_at": now, "files": files}
+            registry.extra["release"] = {
+                "state": "stripped",
+                "version": version,
+                "stripped_at": now,
+                "smoke_test": "not_run",
+                "files": files,
+            }
             writes.extend(self._registry_writes(registry_hash, registry))
             warnings = [self._default_branch_warning()] if head is not None else []
             written = () if dry_run else tuple(commit(self.root, writes))
@@ -1405,9 +1481,6 @@ class Project:
                 else:
                     text, file_conflicts, left = release.restore_anchored(path, source.text, record)
                     conflicts += file_conflicts
-                # FIXME[4d48]: Keep decorators pending when their runtime import can't be restored
-                #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659130
-                #   Otherwise the equivalence check aborts the whole restore, even with --partial.
                 normalize.ensure_equivalent_without_runtime(path, source.text, text, runtime_modules, everything=True)
                 problem = release.ensure_compiles(path, text)
                 if problem is not None:
@@ -2150,6 +2223,19 @@ def _cleanup_identity(tag: Annotation) -> tuple[object, ...]:
 
 def normalize_review(task_id: str, message: str) -> Diagnostic:
     return Diagnostic(Code.CONVERSION_NEEDS_REVIEW, Severity.INFO, f"task {task_id} {message}", task_id=task_id)
+
+
+def sdist_files(root: Path) -> list[str]:
+    """Project-relative paths a Hatch sdist would include: Hatchling's own file selection when
+    it's importable, otherwise (conservatively) every file under ``tests/``."""
+    try:
+        from hatchling.builders.sdist import SdistBuilder  # noqa: PLC0415 - optional, build-time only
+
+        builder = SdistBuilder(str(root))
+        return sorted(Path(f.relative_path).as_posix() for f in builder.recurse_included_files())
+    except Exception:  # noqa: BLE001 - not a Hatch project, or Hatchling missing: fall back
+        tests = root / "tests"
+        return sorted(p.relative_to(root).as_posix() for p in tests.rglob("*.py")) if tests.is_dir() else []
 
 
 def _development_dependencies(pyproject: dict[str, Any]) -> list[Any]:

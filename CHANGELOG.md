@@ -18,6 +18,21 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 - `list --archived`, `archive --restore ID`, and a `byteplan-archive` merge driver (union by ID),
   installed by `git install-merge-driver`. An archived ID back in source gets its own hint.
 
+### Releases (Phase 8, part 2)
+- **`byteplan release --smoke-test [--offline]`** (opt-in):
+  - It builds a wheel from the stripped tree into a temporary directory and installs it in
+    isolation (`-I -S`).
+  - It asserts `byteplan_runtime` isn't importable, and imports every top-level module.
+  - A failure restores the strip automatically (`smoke_test_failed`), and the release records
+    `smoke_test: passed`.
+  - Configured in `[tool.byteplan.release]`.
+- **Hatch `require_stripped`:** wheel and sdist builds fail while `@todo`/`@verifies` remain.
+- **Warnings:**
+  - `runtime_dependency_in_release`: `byteplan-runtime` is still a project dependency.
+  - `unfinished_scaffold_in_sdist`: a placeholder test would ship. The file list comes from
+    Hatchling's own sdist selection.
+  - Both appear at release time and from `check` while stripped.
+
 ### Releases (Phase 8, part 1)
 - **`byteplan release`** strips every recognized `@todo`/`@verifies` decorator, and the runtime
   imports left unused, in place.

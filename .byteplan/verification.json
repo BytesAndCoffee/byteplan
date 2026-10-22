@@ -28,7 +28,7 @@
       "python": "3.11.0",
       "timed_out": false
     },
-    "8b0a97a19dd9": {
+    "6c689d061b5d": {
       "argv": [
         "hatch",
         "test",
@@ -36,9 +36,23 @@
         "-p",
         "_byteplan_verify_plugin"
       ],
-      "at": "2026-10-22T21:52:13Z",
+      "at": "2026-10-22T22:21:34Z",
       "dirty": true,
-      "head": "f45223631ea6841e132ac2ed835873207bfd551b",
+      "head": "7a68d14f4c5eac4a36a244aa38dd9e36bf8a564b",
+      "python": "3.11.0",
+      "timed_out": false
+    },
+    "7d4f28e5d140": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T22:10:31Z",
+      "dirty": false,
+      "head": "82dead2e34757f500924d8e09d87101a0914bd98",
       "python": "3.11.0",
       "timed_out": false
     },
@@ -69,58 +83,134 @@
       "head": "d32feb014973cc62f301b21da5f7f7a676fbffa4",
       "python": "3.11.0",
       "timed_out": false
+    },
+    "cc84d130d040": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T22:21:16Z",
+      "dirty": true,
+      "head": "7a68d14f4c5eac4a36a244aa38dd9e36bf8a564b",
+      "python": "3.11.0",
+      "timed_out": false
+    },
+    "f9371bbb192a": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T22:28:38Z",
+      "dirty": true,
+      "head": "2348aa62df36bc8d8085a0763263db79ae00af2b",
+      "python": "3.11.0",
+      "timed_out": false
     }
   },
   "schema_version": 1,
   "tasks": {
     "0413": {
-      "fingerprint": "05d6e0d4fa2b3db2d7b650bc84e8f70013667ac3e820e0d0fc4dbdb8755f5cd1",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "1ef2a128874d7bbea68d34d99291732b534b7d4f0a59dc4bbb1b86d10227e1f0",
+      "run": "6c689d061b5d",
       "tests": {
         "tests/test_release.py::test_crash_mid_release_rolls_forward": {
-          "duration_ms": 327,
+          "duration_ms": 302,
           "outcome": "passed"
         },
         "tests/test_release.py::test_refusals_write_nothing": {
-          "duration_ms": 338,
+          "duration_ms": 315,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_strips_only_decorators_imports_and_the_registry": {
-          "duration_ms": 157,
+          "duration_ms": 129,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_then_restore_is_byte_identical": {
-          "duration_ms": 1665,
+          "duration_ms": 1416,
           "outcome": "passed"
         },
         "tests/test_release.py::test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record": {
-          "duration_ms": 122,
+          "duration_ms": 114,
           "outcome": "passed"
         },
         "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast": {
-          "duration_ms": 115,
+          "duration_ms": 110,
           "outcome": "passed"
         },
         "tests/test_release.py::test_stripped_tree_imports_without_the_runtime": {
-          "duration_ms": 179,
+          "duration_ms": 150,
           "outcome": "passed"
         },
         "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen": {
-          "duration_ms": 136,
+          "duration_ms": 112,
           "outcome": "passed"
         },
         "tests/test_release.py::test_writing_commands_refuse_while_stripped": {
-          "duration_ms": 134,
+          "duration_ms": 112,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_import_failure_restores_the_tree": {
+          "duration_ms": 455,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_require_stripped_fails_an_unstripped_build": {
+          "duration_ms": 573,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_runtime_dependency_in_release": {
+          "duration_ms": 25,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_runtime_pulled_in_as_a_dependency_fails": {
+          "duration_ms": 679,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_smoke_test_passes_for_a_clean_strip": {
+          "duration_ms": 457,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_unfinished_scaffold_in_sdist": {
+          "duration_ms": 24,
+          "outcome": "passed"
+        },
+        "tests/test_release_guards.py::test_without_the_flag_nothing_is_built": {
+          "duration_ms": 21,
           "outcome": "passed"
         }
       }
     },
     "0591": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_dynamic_decorator_arguments_refuse_the_release": {
-          "duration_ms": 369,
+          "duration_ms": 685,
+          "outcome": "passed"
+        }
+      }
+    },
+    "0b12": {
+      "fingerprint": "99840689335e6a1b397024e6aecc5b70022ee437bf8b82c830ab349b074d1f9f",
+      "run": "f9371bbb192a",
+      "tests": {
+        "tests/test_release_guards.py::test_offline_find_links_relative_to_root": {
+          "duration_ms": 1,
+          "outcome": "passed"
+        }
+      }
+    },
+    "0c28": {
+      "fingerprint": "f2c96b53c7651ab10c3cfa3aa8dfc26896143f9c7383d14762a4dd7dcb9274e3",
+      "run": "cc84d130d040",
+      "tests": {
+        "tests/test_release_guards.py::test_require_stripped_ignores_pytest_markers": {
+          "duration_ms": 277,
           "outcome": "passed"
         }
       }
@@ -168,21 +258,21 @@
       }
     },
     "205d": {
-      "fingerprint": "a1649168b35630f169d26b89d27f60c8538256c7fbb01e211f13150fc99f6a25",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "512a31da49996f58909edfb33042007d1b0aed7350b7348827f08990c330fd34",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_release_refuses_a_pending_journal_without_recovering_it": {
-          "duration_ms": 109,
+          "duration_ms": 155,
           "outcome": "passed"
         }
       }
     },
     "2533": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_alias_reused_in_another_scope_still_counts_as_a_consumer": {
-          "duration_ms": 120,
+          "duration_ms": 128,
           "outcome": "passed"
         }
       }
@@ -238,41 +328,41 @@
       }
     },
     "34da": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_shadowed_todo_is_not_stripped": {
-          "duration_ms": 123,
+          "duration_ms": 125,
           "outcome": "passed"
         }
       }
     },
     "4518": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_escaping_package_exposes_its_submodules": {
-          "duration_ms": 243,
+          "duration_ms": 308,
           "outcome": "passed"
         }
       }
     },
     "478d": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_relative_import_of_the_runtime_refuses_the_release": {
-          "duration_ms": 249,
+          "duration_ms": 345,
           "outcome": "passed"
         }
       }
     },
     "4d48": {
-      "fingerprint": "a1649168b35630f169d26b89d27f60c8538256c7fbb01e211f13150fc99f6a25",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "512a31da49996f58909edfb33042007d1b0aed7350b7348827f08990c330fd34",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_partial_restore_keeps_decorators_whose_import_is_unplaced": {
-          "duration_ms": 110,
+          "duration_ms": 116,
           "outcome": "passed"
         }
       }
@@ -332,21 +422,21 @@
       }
     },
     "8b28": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_module_escaping_attribute_access_keeps_its_runtime_names": {
-          "duration_ms": 485,
+          "duration_ms": 1528,
           "outcome": "passed"
         }
       }
     },
     "90c6": {
-      "fingerprint": "a1649168b35630f169d26b89d27f60c8538256c7fbb01e211f13150fc99f6a25",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "512a31da49996f58909edfb33042007d1b0aed7350b7348827f08990c330fd34",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_stripped_stub_gets_no_duplicate_task": {
-          "duration_ms": 21,
+          "duration_ms": 22,
           "outcome": "passed"
         }
       }
@@ -403,120 +493,140 @@
         }
       }
     },
+    "9f8d": {
+      "fingerprint": "f2c96b53c7651ab10c3cfa3aa8dfc26896143f9c7383d14762a4dd7dcb9274e3",
+      "run": "cc84d130d040",
+      "tests": {
+        "tests/test_release_guards.py::test_require_stripped_checks_source_despite_a_release_record": {
+          "duration_ms": 302,
+          "outcome": "passed"
+        }
+      }
+    },
+    "a067": {
+      "fingerprint": "99840689335e6a1b397024e6aecc5b70022ee437bf8b82c830ab349b074d1f9f",
+      "run": "f9371bbb192a",
+      "tests": {
+        "tests/test_release_guards.py::test_top_level_modules_include_native_extensions": {
+          "duration_ms": 3,
+          "outcome": "passed"
+        }
+      }
+    },
     "a703": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_wildcard_runtime_import_refuses_the_release": {
-          "duration_ms": 120,
-          "outcome": "passed"
-        }
-      }
-    },
-    "aedf": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
-      "tests": {
-        "tests/test_release.py::test_other_runtime_imports_refuse_the_release": {
-          "duration_ms": 240,
-          "outcome": "passed"
-        },
-        "tests/test_release.py::test_unused_other_runtime_import_is_stripped": {
-          "duration_ms": 132,
-          "outcome": "passed"
-        }
-      }
-    },
-    "b68c": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
-      "tests": {
-        "tests/test_release.py::test_unanchored_import_goes_below_a_new_docstring_and_future_import": {
           "duration_ms": 135,
           "outcome": "passed"
         }
       }
     },
+    "aedf": {
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
+      "tests": {
+        "tests/test_release.py::test_other_runtime_imports_refuse_the_release": {
+          "duration_ms": 242,
+          "outcome": "passed"
+        },
+        "tests/test_release.py::test_unused_other_runtime_import_is_stripped": {
+          "duration_ms": 147,
+          "outcome": "passed"
+        }
+      }
+    },
+    "b68c": {
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
+      "tests": {
+        "tests/test_release.py::test_unanchored_import_goes_below_a_new_docstring_and_future_import": {
+          "duration_ms": 150,
+          "outcome": "passed"
+        }
+      }
+    },
     "baeb": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_runtime_names_exported_by_any_all_form_refuse_the_release": {
-          "duration_ms": 242,
+          "duration_ms": 272,
           "outcome": "passed"
         }
       }
     },
     "c242": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_restore_refuses_a_decorator_shadowed_since_the_release": {
-          "duration_ms": 114,
+          "duration_ms": 122,
           "outcome": "passed"
         }
       }
     },
     "c449": {
-      "fingerprint": "2a548a280598bf44ba0a4f87bbfeca7f68104f70e475bb4468f704d847ffbda9",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "79442f230fa1f5c4fdb46c41e6818fc0c2bd4d5486f737c62ce401d570fb0279",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_cleanup.py::test_cleanup_keeps_a_runtime_import_exported_through_an_all_mutation": {
-          "duration_ms": 18,
+          "duration_ms": 20,
           "outcome": "passed"
         },
         "tests/test_release.py::test_unresolvable_all_mutation_refuses_the_release": {
-          "duration_ms": 357,
+          "duration_ms": 407,
           "outcome": "passed"
         }
       }
     },
     "c8db": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_runtime_reexported_to_another_module_refuses_the_release": {
-          "duration_ms": 490,
+          "duration_ms": 609,
           "outcome": "passed"
         }
       }
     },
     "cc54": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_runtime_module_imported_through_its_parent_refuses_the_release": {
-          "duration_ms": 121,
+          "duration_ms": 631,
           "outcome": "passed"
         }
       }
     },
     "fb23": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_restored_import_stays_above_a_declaration_moved_before_its_anchor": {
-          "duration_ms": 134,
+          "duration_ms": 137,
           "outcome": "passed"
         }
       }
     },
     "fb9c": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_dotted_module_escape_keeps_its_runtime_names": {
-          "duration_ms": 121,
+          "duration_ms": 157,
           "outcome": "passed"
         }
       }
     },
     "fd44": {
-      "fingerprint": "f5e1e0b6f7ab2741a8772ad4448dd489887873bf172c06654b46d7596b4096ac",
-      "run": "8b0a97a19dd9",
+      "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
+      "run": "7d4f28e5d140",
       "tests": {
         "tests/test_release.py::test_anchored_import_goes_below_a_new_future_import": {
-          "duration_ms": 133,
+          "duration_ms": 173,
           "outcome": "passed"
         }
       }
