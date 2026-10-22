@@ -53,6 +53,10 @@ registry = ".byteplan/tasks.json"
 include = ["src/**/*.py", "byteplan-runtime/src/**/*.py", "**/*.md"]
 report_file = "byteplan.md"
 
+[tool.byteplan.tests]
+# `byteplan verify` runs pytest in the hatch-test environment (the default one has no pytest).
+runner = ["hatch", "test", "--"]
+
 [tool.hatch.version]
 path = "src/byteplan/__about__.py"
 

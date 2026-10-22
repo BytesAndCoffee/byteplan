@@ -1,0 +1,97 @@
+{
+  "runs": {
+    "bdd987e75d25": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T17:33:22Z",
+      "dirty": true,
+      "head": "6088260b6865025fe623afe8846c2cd9c0b85111",
+      "python": "3.11.0",
+      "timed_out": false
+    }
+  },
+  "schema_version": 1,
+  "tasks": {
+    "82b3": {
+      "fingerprint": "6fa0d4637de4e83a4148bd1f8fd9c8f730d50b121e73cabff518e849cf4409f3",
+      "run": "bdd987e75d25",
+      "tests": {
+        "tests/test_normalize.py::test_attached_comment_becomes_a_decorator": {
+          "duration_ms": 32,
+          "outcome": "passed"
+        },
+        "tests/test_normalize.py::test_byte_level_safety": {
+          "duration_ms": 45,
+          "outcome": "passed"
+        },
+        "tests/test_normalize.py::test_conditional_or_late_imports_are_not_reused": {
+          "duration_ms": 29,
+          "outcome": "passed"
+        },
+        "tests/test_normalize.py::test_init_writes_a_runtime_shim_and_registers_it": {
+          "duration_ms": 7,
+          "outcome": "passed"
+        },
+        "tests/test_normalize.py::test_only_unowned_stubs_are_decorated": {
+          "duration_ms": 16,
+          "outcome": "passed"
+        },
+        "tests/test_normalize.py::test_refusals_leave_comments_exactly_as_they_were": {
+          "duration_ms": 11,
+          "outcome": "passed"
+        },
+        "tests/test_normalize.py::test_rewritten_module_behaves_identically": {
+          "duration_ms": 16,
+          "outcome": "passed"
+        }
+      }
+    },
+    "9b40": {
+      "fingerprint": "d13de0b8cfe0fd95ae393c1c24eb9c23c6fa37a69e7fcd0a556235b7118e7a07",
+      "run": "bdd987e75d25",
+      "tests": {
+        "tests/test_test_links.py::test_link_line_drift_is_position_drift": {
+          "duration_ms": 21,
+          "outcome": "passed"
+        },
+        "tests/test_test_links.py::test_links_from_source_with_provenance": {
+          "duration_ms": 24,
+          "outcome": "passed"
+        },
+        "tests/test_test_links.py::test_managed_and_discovered_combine": {
+          "duration_ms": 25,
+          "outcome": "passed"
+        },
+        "tests/test_test_links.py::test_managed_links": {
+          "duration_ms": 30,
+          "outcome": "passed"
+        },
+        "tests/test_verify.py::test_all_passing_is_ready_for_review_and_never_resolves": {
+          "duration_ms": 195,
+          "outcome": "passed"
+        },
+        "tests/test_verify.py::test_collection_error_is_an_error": {
+          "duration_ms": 220,
+          "outcome": "passed"
+        },
+        "tests/test_verify.py::test_every_outcome_with_no_false_passes": {
+          "duration_ms": 247,
+          "outcome": "passed"
+        },
+        "tests/test_verify.py::test_evidence_store_and_staleness": {
+          "duration_ms": 237,
+          "outcome": "passed"
+        },
+        "tests/test_verify.py::test_timeout_kills_the_run": {
+          "duration_ms": 8031,
+          "outcome": "passed"
+        }
+      }
+    }
+  }
+}
