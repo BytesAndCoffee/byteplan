@@ -1147,6 +1147,11 @@ class Project:
                 normalize.ensure_equivalent_without_runtime(
                     path, source.text, plan.text, runtime_modules, everything=True
                 )
+                problem = release.ensure_compiles(path, plan.text)
+                if problem is not None:
+                    raise release.ReleaseError(
+                        release.NEEDS_REVIEW, [f"{path}: the stripped file wouldn't compile ({problem})"]
+                    )
                 data = dataclasses.replace(source, text=plan.text).encode()
                 files[path] = {"sha256": sha256(data), "decorators": plan.decorators, "imports": plan.imports}
                 writes.append(FileWrite(path, sha256(source.encode()), data))
@@ -1235,6 +1240,11 @@ class Project:
                 #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659130
                 #   Otherwise the equivalence check aborts the whole restore, even with --partial.
                 normalize.ensure_equivalent_without_runtime(path, source.text, text, runtime_modules, everything=True)
+                problem = release.ensure_compiles(path, text)
+                if problem is not None:
+                    conflicts.append(f"{path}: the restored file wouldn't compile ({problem})")
+                    remaining[path] = record
+                    continue
                 if left:
                     remaining[path] = {**record, **left}
                 placed = [d for d in record.get("decorators", []) if d not in left.get("decorators", [])]

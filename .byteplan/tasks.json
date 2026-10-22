@@ -22,11 +22,13 @@
     "a703",
     "aedf",
     "b68c",
+    "baeb",
     "c242",
     "c8db",
     "de66",
     "ec99",
-    "f853"
+    "f853",
+    "fd44"
   ],
   "schema_version": 1,
   "tasks": {
@@ -567,8 +569,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 85,
-        "line": 108,
+        "decl_line": 86,
+        "line": 109,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "strip_file"
@@ -653,8 +655,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 1202,
-        "line": 1234,
+        "decl_line": 1207,
+        "line": 1239,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "Project.restore"
@@ -1471,8 +1473,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 284,
-        "line": 281,
+        "decl_line": 285,
+        "line": 282,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_runtime_locals"
@@ -1526,8 +1528,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 85,
-        "line": 96,
+        "decl_line": 86,
+        "line": 97,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "strip_file"
@@ -1576,8 +1578,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 400,
-        "line": 403,
+        "decl_line": 413,
+        "line": 416,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"
@@ -1591,6 +1593,55 @@
         ]
       },
       "title": "Restore an unanchored import below the current docstring and __future__ imports",
+      "title_override": null
+    },
+    "baeb": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108715\n`__all__: list[str] = [...]` and `__all__ += [...]` were ignored, so exported names were stripped.",
+      "first_seen": "2026-10-22T20:21:13Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:21:13Z",
+          "event": "created",
+          "new": {
+            "line": 293,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:21:32Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_runtime_names_exported_by_any_all_form_refuse_the_release",
+          "old": null
+        }
+      ],
+      "id": "baeb",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:21:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 297,
+        "line": 294,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_used_names"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_runtime_names_exported_by_any_all_form_refuse_the_release"
+        ]
+      },
+      "title": "Count every __all__ assignment form as an export",
       "title_override": null
     },
     "c242": {
@@ -1625,8 +1676,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 371,
-        "line": 368,
+        "decl_line": 384,
+        "line": 381,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_decorator"
@@ -1674,8 +1725,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 85,
-        "line": 159,
+        "decl_line": 86,
+        "line": 160,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "strip_file"
@@ -1862,6 +1913,55 @@
       "status": "open",
       "stub": null,
       "title": "Phase 9: MCP server",
+      "title_override": null
+    },
+    "fd44": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108706\nAn anchor before a new `from __future__` line put the import above it (SyntaxError).",
+      "first_seen": "2026-10-22T20:21:13Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:21:13Z",
+          "event": "created",
+          "new": {
+            "line": 415,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:21:31Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_anchored_import_goes_below_a_new_future_import",
+          "old": null
+        }
+      ],
+      "id": "fd44",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:21:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 413,
+        "line": 425,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_insert_import"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_anchored_import_goes_below_a_new_future_import"
+        ]
+      },
+      "title": "Keep anchored imports below a __future__ import added since the release",
       "title_override": null
     }
   }

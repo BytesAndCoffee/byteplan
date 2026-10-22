@@ -29,6 +29,7 @@ import warnings
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+from byteplan.cleanup import _exported
 from byteplan.edits import header_end
 from byteplan.errors import ByteplanError
 from byteplan.scanner.decorators import _binds, _enclosing_scopes, resolve_runtime_names
@@ -290,12 +291,24 @@ def _runtime_locals(stmt: ast.stmt, runtime: set[str]) -> list[str]:
     return []
 
 
+# FIXME[baeb]: Count every __all__ assignment form as an export
+#   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108715
+#   `__all__: list[str] = [...]` and `__all__ += [...]` were ignored, so exported names were stripped.
 def _used_names(tree: ast.Module) -> set[str]:
-    used = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
-    for node in tree.body:  # names exported through __all__ are used by importers
-        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "__all__" for t in node.targets):
-            used |= {c.value for c in ast.walk(node.value) if isinstance(c, ast.Constant) and isinstance(c.value, str)}
-    return used
+    # Names exported through __all__ (=, +=, annotated) are used by importers.
+    return {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)} | _exported(tree)
+
+
+def ensure_compiles(path: str, text: str) -> str | None:
+    """Why ``text`` doesn't compile, or None. ``ast.parse`` accepts a misplaced
+    ``from __future__`` import; only compiling catches it."""
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", SyntaxWarning)
+            compile(text, path, "exec", dont_inherit=True)
+    except (SyntaxError, ValueError) as exc:
+        return str(exc)
+    return None
 
 
 # Restoring -------------------------------------------------------------------------------------
@@ -409,6 +422,9 @@ def _insert_import(path: str, text: str, entry: dict[str, Any]) -> str | None:
         anchors = [s for s in tree.body if lines[s.lineno - 1].rstrip("\r\n") == entry["anchor"]]
         if len(anchors) != 1:
             return None
-        at = anchors[0].end_lineno or anchors[0].lineno
+        # FIXME[fd44]: Keep anchored imports below a __future__ import added since the release
+        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108706
+        #   An anchor before a new `from __future__` line put the import above it (SyntaxError).
+        at = max(anchors[0].end_lineno or anchors[0].lineno, _header_statements_end(tree))
     lines[at:at] = [entry["text"]]
     return "".join(lines)

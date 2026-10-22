@@ -565,3 +565,39 @@ def test_release_refuses_a_pending_journal_without_recovering_it(
     assert "an interrupted write is pending" in result.err
     assert released_repo.snapshot() == before  # nothing rolled forward or written
     assert persistence.pending_journal(released_repo.root)
+
+
+# Codex review of #32, round 5 (tracked as the two FIXMEs below) ---------------------------------
+
+
+def test_anchored_import_goes_below_a_new_future_import(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    """An import anchored after the docstring must still follow a __future__ import added since."""
+    released_repo.write(
+        "src/pkg/doc.py",
+        '"""Doc."""\nfrom byteplan_runtime import todo\n\n\n@todo("d", id="d345")\ndef f():\n    return 1\n',
+        dedent=False,
+    )
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "doc")
+    assert release(released_repo, run_cli).code == EXIT_OK
+    path = released_repo.root / "src/pkg/doc.py"
+    path.write_text(path.read_text().replace('"""Doc."""\n', '"""Doc."""\nfrom __future__ import annotations\n'))
+    assert run_cli("restore", "--project", released_repo.root).code == EXIT_OK
+    restored = path.read_text()
+    assert restored.startswith('"""Doc."""\nfrom __future__ import annotations\nfrom byteplan_runtime import todo\n')
+    compile(restored, "doc.py", "exec")
+
+
+@pytest.mark.parametrize("export", ['__all__: list[str] = ["todo"]', '__all__ = []\n__all__ += ["todo"]'])
+def test_runtime_names_exported_by_any_all_form_refuse_the_release(
+    released_repo: ProjectFactory, run_cli: RunCli, export: str
+) -> None:
+    """Every __all__ assignment form counts as an export of the runtime name."""
+    released_repo.write("src/pkg/exports.py", f"from byteplan_runtime import todo\n\n{export}\n", dedent=False)
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "exports")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert "src/pkg/exports.py" in result.err
+    assert released_repo.snapshot() == before
