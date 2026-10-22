@@ -396,3 +396,31 @@ def test_pre_commit_manifest_is_valid() -> None:
         assert needle in text
     yaml_lines = [line for line in text.splitlines() if not line.lstrip().startswith("#")]
     assert not any(line.strip().startswith("types:") for line in yaml_lines)
+
+
+# Codex review of #13 ---------------------------------------------------------------------------------
+
+
+def test_project_is_found_in_the_snapshot_not_on_disk(repo: ProjectFactory, run_cli: RunCli) -> None:
+    (repo.root / "pyproject.toml").unlink()  # deleted in the working tree only
+    result = staged(run_cli, repo)
+    assert result.code == EXIT_OK, result.err
+    assert run_cli("check", "--commit", "HEAD", "--project", repo.root).code == EXIT_OK
+
+
+def test_unstaged_nested_pyproject_does_not_change_the_project(repo: ProjectFactory, run_cli: RunCli) -> None:
+    repo.write("src/pyproject.toml", '[project]\nname = "decoy"\n')  # untracked, never staged
+    result = run_cli("check", "--staged", "--format", "json", "--project", repo.root / "src")
+    assert result.code == EXIT_OK, result.err
+    assert json.loads(result.out)["diagnostics"] == []
+
+
+def test_writing_scan_with_require_reconciled_reports_the_result(repo: ProjectFactory, run_cli: RunCli) -> None:
+    pyproject = repo.root / "pyproject.toml"
+    pyproject.write_text(pyproject.read_text() + "\n[tool.byteplan.check]\nrequire_reconciled = true\n")
+    repo.write("src/c.py", "# TODO: new work\n")
+    assert run_cli("check", "--project", repo.root).code == EXIT_FINDINGS  # read-only: not reconciled yet
+    scanned = run_cli("scan", "--project", repo.root)
+    assert scanned.code == EXIT_OK, scanned.err
+    assert "NEW_UNREGISTERED" not in scanned.err
+    assert run_cli("check", "--project", repo.root).code == EXIT_OK

@@ -104,11 +104,12 @@ class GitSnapshot:
 
     writable = False
 
-    def __init__(self, project_root: Path, rev: str | None = None) -> None:
-        self.root = project_root
-        self.top = toplevel(project_root)
-        offset = project_root.resolve().relative_to(self.top).as_posix()
-        self.offset = "" if offset == "." else offset
+    def __init__(self, start: Path, rev: str | None = None) -> None:
+        """Open the snapshot and find the project in it: the nearest directory at or above
+        ``start`` whose ``pyproject.toml`` is *in the snapshot*, so unstaged additions or
+        deletions of ``pyproject.toml`` files can't change which project is checked."""
+        start = start.resolve()
+        self.top = toplevel(start)
         if rev is None:
             self.kind = "index"
             self.label = "index"
@@ -119,8 +120,21 @@ class GitSnapshot:
             self.kind = "commit"
             self.label = f"commit {self.commit[:12]}"
             self.entries = self._tree_entries(self.commit)
+        self.offset = self._discover_offset(start)
+        self.root = self.top / self.offset if self.offset else self.top
         self._cat: _CatFile | None = None
         self._cache: dict[str, bytes | None] = {}
+
+    def _discover_offset(self, start: Path) -> str:
+        rel = start.relative_to(self.top).as_posix()
+        parts = [] if rel == "." else rel.split("/")
+        for depth in range(len(parts), -1, -1):
+            candidate = "/".join(parts[:depth])
+            entry = self.entries.get(f"{candidate}/pyproject.toml" if candidate else "pyproject.toml")
+            if entry is not None and entry.mode in REGULAR_FILE_MODES:
+                return candidate
+        msg = f"no pyproject.toml in the {self.label} at or above {start}"
+        raise ConfigError(msg)
 
     def _index_entries(self) -> dict[str, Entry]:
         entries: dict[str, Entry] = {}

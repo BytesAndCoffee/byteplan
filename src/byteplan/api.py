@@ -133,8 +133,8 @@ class Project:
         Configuration, ``.gitignore`` files, the registry and all sources come from
         the snapshot, never from the working tree.
         """
-        root = find_project_root(start or Path.cwd())
-        snapshot = GitSnapshot(root, rev)
+        snapshot = GitSnapshot(start or Path.cwd(), rev)  # finds the project in the snapshot
+        root = snapshot.root
         try:
             config, notices = _snapshot_config(root, snapshot)
         except BaseException:
@@ -298,7 +298,9 @@ class Project:
         diagnostics.extend(self._missing_diagnostics(new_registry))
         diagnostics.extend(_link_diagnostics(links, new_registry))
         diagnostics.extend(_implementation_diagnostics(summary, new_registry))
-        if self.enforce_consistency:
+        # Consistency describes a read-only view ("is this already reconciled?"). After a
+        # successful writing scan the state *is* reconciled, so it doesn't apply.
+        if self.enforce_consistency and dry_run:
             diagnostics.extend(
                 self._consistency(registry, new_registry, proposals, diagnostics, registry_absent=registry_absent)
             )

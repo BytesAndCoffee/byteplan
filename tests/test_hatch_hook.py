@@ -295,3 +295,13 @@ def test_isolated_pep517_build(project: ProjectFactory, tmp_path: Path) -> None:
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert "TODO[" in wheel_source(tmp_path / "dist")
+
+
+def test_writing_build_with_require_reconciled_and_fail_build(project: ProjectFactory, tmp_path: Path) -> None:
+    """Codex review of #13: a build that successfully reconciles must not then fail on stale findings."""
+    make_demo(project, "write_source = true\nfail_build = true")
+    pyproject = project.root / "pyproject.toml"
+    pyproject.write_text(pyproject.read_text() + "\n[tool.byteplan.check]\nrequire_reconciled = true\n")
+    result = build(project.root, tmp_path / "dist", "wheel")
+    assert result.returncode == 0, result.output
+    assert "TODO[" in wheel_source(tmp_path / "dist")
