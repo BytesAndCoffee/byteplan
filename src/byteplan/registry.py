@@ -6,6 +6,10 @@
 Serialization is byte-stable: sorted keys, 2-space indentation, LF newlines,
 and a trailing newline, so an unchanged registry always re-serializes to the
 same bytes.
+
+Keys this version doesn't know, at the top level or in a task, are carried
+through unchanged, so a registry written by a newer BytePlan (with the same
+schema version) loses nothing when an older one saves it.
 """
 
 from __future__ import annotations
@@ -37,6 +41,7 @@ if TYPE_CHECKING:
 
 SCHEMA_VERSION = 1
 
+_TOP_LEVEL_KEYS = frozenset({"schema_version", "reserved_ids", "tasks"})
 _TASK_KEYS = frozenset({
     "id", "kind", "title", "description", "status", "priority", "assignee", "labels", "notes",
     "title_override", "presence", "origin", "scope_state", "source", "stub", "first_seen",
@@ -48,6 +53,8 @@ _TASK_KEYS = frozenset({
 class Registry:
     reserved_ids: set[str] = field(default_factory=set)
     tasks: dict[str, Task] = field(default_factory=dict)
+    # Unknown top-level keys from newer tools, carried through unchanged.
+    extra: dict[str, Any] = field(default_factory=dict)
 
     def get(self, task_id: str) -> Task | None:
         return self.tasks.get(task_id)
@@ -96,7 +103,7 @@ def from_dict(data: Any, name: str = "registry") -> Registry:
     if not isinstance(tasks_data, dict):
         fail("tasks must be an object")
 
-    registry = Registry(reserved_ids=set(reserved))
+    registry = Registry(reserved_ids=set(reserved), extra={k: v for k, v in data.items() if k not in _TOP_LEVEL_KEYS})
     for key, raw in tasks_data.items():
         task = _task_from_dict(key, raw, fail)
         if key not in registry.reserved_ids:
@@ -255,11 +262,15 @@ def _event_to_dict(event: HistoryEvent) -> dict[str, Any]:
 
 
 def to_dict(registry: Registry) -> dict[str, Any]:
-    return {
-        "schema_version": SCHEMA_VERSION,
-        "reserved_ids": sorted(registry.reserved_ids),
-        "tasks": {task_id: task_to_dict(registry.tasks[task_id]) for task_id in sorted(registry.tasks)},
-    }
+    data: dict[str, Any] = dict(registry.extra)
+    data.update(
+        {
+            "schema_version": SCHEMA_VERSION,
+            "reserved_ids": sorted(registry.reserved_ids),
+            "tasks": {task_id: task_to_dict(registry.tasks[task_id]) for task_id in sorted(registry.tasks)},
+        }
+    )
+    return data
 
 
 def dumps(registry: Registry) -> str:

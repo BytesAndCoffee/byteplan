@@ -15,6 +15,8 @@ from byteplan.registry import Registry, dumps, load_registry, loads
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from tests.conftest import ProjectFactory, RunCli
+
 
 def sample() -> Registry:
     task = Task(
@@ -104,3 +106,29 @@ def test_invalid_registry(text: str, message: str) -> None:
 def test_missing_registry_suggests_init(tmp_path: Path) -> None:
     with pytest.raises(RegistryError, match="byteplan init"):
         load_registry(tmp_path / "tasks.json")
+
+
+def test_unknown_top_level_keys_are_preserved() -> None:
+    """Phase 4d: a newer BytePlan's top-level data (e.g. release records) survives a save."""
+    text = task_json()
+    data = json.loads(text)
+    data["releases"] = [{"version": "1.0", "stripped": ["7fa2"]}]
+    data["x-tool"] = {"nested": True}
+    registry = loads(json.dumps(data))
+    saved = json.loads(dumps(registry))
+    assert saved["releases"] == [{"version": "1.0", "stripped": ["7fa2"]}]
+    assert saved["x-tool"] == {"nested": True}
+    assert dumps(loads(dumps(registry))) == dumps(registry)  # still byte-stable
+
+
+def test_unknown_top_level_keys_survive_a_writing_scan(project: ProjectFactory, run_cli: RunCli) -> None:
+    project.init()
+    path = project.root / ".byteplan/tasks.json"
+    data = json.loads(path.read_text())
+    data["release"] = {"version": "0.9", "at": "2026-10-22T00:00:00Z"}
+    path.write_text(json.dumps(data))
+    project.write("src/a.py", "# TODO: x\n")
+    assert run_cli("scan", "--project", project.root).code == 0
+    saved = json.loads(path.read_text())
+    assert saved["release"] == {"version": "0.9", "at": "2026-10-22T00:00:00Z"}
+    assert len(saved["tasks"]) == 1
