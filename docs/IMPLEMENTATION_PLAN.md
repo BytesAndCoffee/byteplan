@@ -1128,6 +1128,30 @@ they do for Python.
   - `repair --reassign` works in both formats.
   - The edit guard refuses changes outside comments and tag strings.
 
+## Committed report file (`report_file`)
+
+A readable, committed task list (`byteplan.md`), kept current at commit time. It was added
+alongside Phase 4e.
+
+- **Pure function of the registry:** no clock and no scan diagnostics, so the same registry
+  always renders the same bytes and staleness is a plain comparison. Open work comes first
+  (`in_progress`, `blocked`, then `open`, by path), then closed tasks. Locations link
+  relative to the report's directory, with paths percent-encoded so `#` and spaces don't break
+  links. Missing locations are struck through.
+- **Written with the registry:** `_registry_writes` puts the report write before the registry
+  write in every registry-writing command (scan, mutations, repair). The commit hook's
+  `scan --staged --apply` already stages every planned write, so the report needs no
+  hook-specific code: partial-stage refusal, journaling and crash recovery all apply.
+- **Checked:** snapshot consistency (`--staged`, `--commit`, `require_reconciled`) compares
+  the snapshot's copy with the render of the snapshot's registry. A copy whose only difference is
+  CRLF line endings counts as current, and isn't rewritten.
+- **Diagnostic:** `report_out_of_sync` is a warning, or a failure with
+  `[tool.byteplan.check] fail_on_stale_report`. It's a warning by default because merges can't
+  regenerate the file: a per-file merge driver can't see the merged registry. So
+  `install-merge-driver` registers `merge=byteplan-report` (driver `true`, which keeps ours), and
+  the next hooked commit or scan regenerates it.
+- **Never scanned,** like the registry.
+
 ## Registry format and merging
 
 **JSON stays the canonical registry, and SQLite is not used for it.** This was decided on

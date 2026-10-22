@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@icloud.com>
+# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@gmail.com>
 #
 # SPDX-License-Identifier: MIT
 """Read-only Git snapshots: the index (staging area) or a commit.

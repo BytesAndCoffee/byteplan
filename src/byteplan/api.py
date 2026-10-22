@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@icloud.com>
+# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@gmail.com>
 #
 # SPDX-License-Identifier: MIT
 """Programmatic surface shared by the CLI, the Hatch hook, and the MCP server."""
@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any
 import pathspec
 
 from byteplan import registry as registry_io
+from byteplan import reporting
 from byteplan.annotate import annotate
 from byteplan.config import (
     DEFAULT_REGISTRY,
@@ -168,8 +169,38 @@ class Project:
     def registry_rel(self) -> str:
         return self.config.registry_path.relative_to(self.root).as_posix()
 
+    @property
+    def report_rel(self) -> str | None:
+        if not self.config.report_file:
+            return None
+        return (self.root / self.config.report_file).resolve().relative_to(self.root.resolve()).as_posix()
+
     def load_registry(self) -> Registry:
         return load_registry(self.config.registry_path)
+
+    def render_report(self, registry: Registry) -> bytes:
+        """The ``report_file`` content for ``registry``."""
+        report_rel = self.report_rel or "byteplan.md"
+        return reporting.plan_markdown(registry, registry_rel=self.registry_rel, report_rel=report_rel).encode()
+
+    def _current_report(self) -> bytes | None:
+        if self.report_rel is None:
+            return None
+        if self.snapshot is not None:
+            return self.snapshot.read(self.report_rel)
+        return _read_bytes(self.root / self.report_rel)
+
+    def _registry_writes(self, registry_hash: str | None, registry: Registry) -> list[FileWrite]:
+        """The registry write, preceded by the report file's when one is configured."""
+        writes = []
+        if self.report_rel is not None:
+            current = self._current_report()
+            data = self.render_report(registry)
+            if current is not None and current.replace(b"\r\n", b"\n") == data:
+                data = current  # only the line endings differ (e.g. core.autocrlf): leave it
+            writes.append(FileWrite(self.report_rel, None if current is None else sha256(current), data))
+        writes.append(FileWrite(self.registry_rel, registry_hash, registry_io.dumps(registry).encode()))
+        return writes
 
     def _read_registry(self) -> tuple[str, Registry]:
         """The registry plus the hash of the exact bytes it was parsed from."""
@@ -323,7 +354,7 @@ class Project:
             diagnostics.extend(
                 self._consistency(registry, new_registry, proposals, diagnostics, registry_absent=registry_absent)
             )
-        writes.append(FileWrite(self.registry_rel, registry_hash, registry_io.dumps(new_registry).encode()))
+        writes.extend(self._registry_writes(registry_hash, new_registry))
 
         blocked = bool(duplicated)
         written: list[str] = []
@@ -462,6 +493,21 @@ class Project:
                         task_id=task_id,
                         locations=location,
                         hint="harmless; the next `byteplan scan` updates them",
+                    )
+                )
+
+        if self.report_rel is not None:
+            current = self._current_report()
+            if current is None or current.replace(b"\r\n", b"\n") != self.render_report(old):
+                state = "missing" if current is None else "out of date"
+                found.append(
+                    Diagnostic(
+                        Code.REPORT_OUT_OF_SYNC,
+                        Severity.WARNING,
+                        f"{self.report_rel} is {state}: it doesn't match the {where} registry",
+                        locations=(Location(self.report_rel),),
+                        hint="run `byteplan scan` to regenerate it"
+                        + (f", then `git add {self.report_rel}`" if staged else ""),
                     )
                 )
 
@@ -604,10 +650,7 @@ class Project:
             )
             task = new_registry.tasks[task_id]
             task.history[-1] = dataclasses.replace(task.history[-1], note="imported by `byteplan repair --import`")
-            written = commit(
-                self.root,
-                [FileWrite(self.registry_rel, registry_hash, registry_io.dumps(new_registry).encode())],
-            )
+            written = commit(self.root, self._registry_writes(registry_hash, new_registry))
             return RepairResult(task, tuple(written))
 
     def reassign(self, path: str, line: int) -> RepairResult:
@@ -655,10 +698,7 @@ class Project:
             )
             written = commit(
                 self.root,
-                [
-                    FileWrite(path, before, edited.encode()),
-                    FileWrite(self.registry_rel, registry_hash, registry_io.dumps(new_registry).encode()),
-                ],
+                [FileWrite(path, before, edited.encode()), *self._registry_writes(registry_hash, new_registry)],
             )
             return RepairResult(task, tuple(written), old_id=old_id)
 
@@ -673,8 +713,7 @@ class Project:
             events = change(task, self.clock())
             if events:
                 task.history.extend(events)
-                data = registry_io.dumps(registry).encode()
-                commit(self.root, [FileWrite(self.registry_rel, registry_hash, data)])
+                commit(self.root, self._registry_writes(registry_hash, registry))
             return task, bool(events)
 
     def set_status(self, task_id: str, status: Status, note: str | None = None) -> tuple[Task, bool]:

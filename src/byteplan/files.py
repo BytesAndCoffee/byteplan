@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@icloud.com>
+# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@gmail.com>
 #
 # SPDX-License-Identifier: MIT
 """Scan-scope collection.
@@ -6,7 +6,8 @@
 Rules, applied to POSIX paths relative to the project root:
 
 * Only regular files of a supported type are collected (``.py``, ``.md``/``.markdown``,
-  ``.json``/``.jsonc``; see ``languages.py``), and never the registry. Symlinks (files and directories) are
+  ``.json``/``.jsonc``; see ``languages.py``), and never the registry or report file.
+  Symlinks (files and directories) are
   never followed, so a file can't be scanned twice or from outside the root.
 * ``.git``, ``.hg``, ``.svn`` and ``.byteplan`` directories are always skipped.
 * A file is in scope when it matches ``include``, does not match ``exclude``,
@@ -124,7 +125,11 @@ class ScopeMatcher:
 
     def __init__(self, config: Config, source: TextSource | None = None) -> None:
         self.root = config.root
-        self._registry = config.registry_path.resolve().relative_to(config.root.resolve()).as_posix()
+        root = config.root.resolve()
+        # Generated files BytePlan writes itself are never scanned.
+        self._generated = {config.registry_path.resolve().relative_to(root).as_posix()}
+        if config.report_file:
+            self._generated.add((config.root / config.report_file).resolve().relative_to(root).as_posix())
         self._include = pathspec.PathSpec.from_lines("gitignore", config.include)
         self._exclude = pathspec.PathSpec.from_lines("gitignore", config.exclude)
         if config.respect_gitignore:
@@ -144,7 +149,7 @@ class ScopeMatcher:
         """Whether a file in a non-excluded directory is in scope (no symlink check)."""
         return (
             language_for(rel) is not None
-            and rel != self._registry
+            and rel not in self._generated
             and self._include.match_file(rel)
             and not self._exclude.match_file(rel)
             and not (self._gitignores is not None and self._gitignores.ignored(rel))

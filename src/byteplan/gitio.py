@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@icloud.com>
+# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@gmail.com>
 #
 # SPDX-License-Identifier: MIT
 """Git integration: the registry merge driver and its installation.
@@ -28,6 +28,11 @@ if TYPE_CHECKING:
 
 DRIVER = "byteplan"
 DRIVER_NAME = "BytePlan registry (merge by task ID)"
+# The report file is generated from the registry, so a text merge of two regenerated copies
+# only produces conflicts. Keep ours (`true` leaves %A as is); the next commit's hook, or
+# `byteplan scan`, regenerates it from the merged registry.
+REPORT_DRIVER = "byteplan-report"
+REPORT_DRIVER_NAME = "BytePlan report (generated; keep ours, the next scan regenerates it)"
 
 
 def git(args: list[str], cwd: Path, *, read_only: bool = True) -> str:
@@ -111,24 +116,31 @@ def driver_command() -> str:
     return f"{shlex.quote(sys.executable)} -m byteplan merge-registry %O %A %B %P"
 
 
-def install_merge_driver(project: Project) -> list[str]:
-    root = project.root
-    toplevel(root)  # fails clearly outside a Git work tree
-    actions: list[str] = []
-
-    registry = project.config.registry_path
-    attributes = registry.parent / ".gitattributes"
-    line = f"{registry.name} merge={DRIVER}"
+def _add_attribute(root: Path, target: Path, driver: str) -> list[str]:
+    """Add ``<name> merge=<driver>`` to the ``.gitattributes`` next to ``target``."""
+    attributes = target.parent / ".gitattributes"
+    line = f"{target.name} merge={driver}"
     try:
         existing = attributes.read_text(encoding="utf-8")
     except FileNotFoundError:
         existing = ""
-    if line not in existing.splitlines():
-        prefix = existing if not existing or existing.endswith("\n") else existing + "\n"
-        atomic_write_bytes(attributes, (prefix + line + "\n").encode())
-        actions.append(f"added `{line}` to {attributes.relative_to(root).as_posix()} (commit this file)")
+    if line in existing.splitlines():
+        return []
+    prefix = existing if not existing or existing.endswith("\n") else existing + "\n"
+    atomic_write_bytes(attributes, (prefix + line + "\n").encode())
+    return [f"added `{line}` to {attributes.relative_to(root).as_posix()} (commit this file)"]
 
-    for key, value in ((f"merge.{DRIVER}.name", DRIVER_NAME), (f"merge.{DRIVER}.driver", driver_command())):
+
+def install_merge_driver(project: Project) -> list[str]:
+    root = project.root
+    toplevel(root)  # fails clearly outside a Git work tree
+    actions = _add_attribute(root, project.config.registry_path, DRIVER)
+    settings = [(f"merge.{DRIVER}.name", DRIVER_NAME), (f"merge.{DRIVER}.driver", driver_command())]
+    if project.report_rel is not None:
+        actions += _add_attribute(root, root / project.report_rel, REPORT_DRIVER)
+        settings += [(f"merge.{REPORT_DRIVER}.name", REPORT_DRIVER_NAME), (f"merge.{REPORT_DRIVER}.driver", "true")]
+
+    for key, value in settings:
         try:
             current = git(["config", "--local", "--get", key], root).strip()
         except ConfigError:
