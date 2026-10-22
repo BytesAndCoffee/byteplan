@@ -54,6 +54,10 @@ class CheckConfig:
     fail_on_duplicate_ids: bool = True
     fail_on_missing: bool = False
     fail_on_stale_annotations: bool = False
+    # Apply the snapshot consistency rules (as `check --staged` / `--commit` always do)
+    # to the plain working-tree `check` too.
+    require_reconciled: bool = False
+    fail_on_position_drift: bool = False
 
 
 @dataclass(frozen=True)
@@ -101,6 +105,20 @@ def load_config(root: Path) -> Config:
     root = root.resolve()
     table = read_pyproject(root).get("tool", {}).get("byteplan", {})
     return parse_config(root, table)
+
+
+def parse_pyproject_text(text: str, label: str) -> dict[str, Any]:
+    try:
+        return tomllib.loads(text)
+    except tomllib.TOMLDecodeError as exc:
+        msg = f"invalid TOML in {label}: {exc}"
+        raise ConfigError(msg) from exc
+
+
+def config_from_text(root: Path, text: str, label: str) -> Config:
+    """Configuration from a ``pyproject.toml`` that isn't (necessarily) on disk, e.g. a staged one."""
+    table = parse_pyproject_text(text, label).get("tool", {}).get("byteplan", {})
+    return parse_config(root.resolve(), table)
 
 
 def parse_config(root: Path, table: Any) -> Config:

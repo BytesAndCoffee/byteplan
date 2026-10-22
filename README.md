@@ -142,8 +142,8 @@ metadata, so moving or renaming code keeps the same task.
 | Command | What it does |
 |---|---|
 | `byteplan init` | add configuration and an empty registry (safe to re-run) |
-| `byteplan scan [PATHS] [--dry-run]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing |
-| `byteplan check` | read-only validation for CI, with policy-based exit code |
+| `byteplan scan [PATHS] [--dry-run] [--staged]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing. `--staged --dry-run` previews against the Git index |
+| `byteplan check [--staged \| --commit REV]` | read-only validation, with policy-based exit code. `--staged` checks exactly what's staged (pre-commit); `--commit HEAD` checks a commit (CI) |
 | `byteplan list [--status S] [--presence P] [--kind K]` | list tasks |
 | `byteplan show ID` | details, location and history |
 | `byteplan status ID STATUS [--note]` | change lifecycle status |
@@ -155,6 +155,8 @@ metadata, so moving or renaming code keeps the same task.
 | `byteplan repair --import ID` | register an ID found in source but not in the registry |
 | `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID |
 | `byteplan git install-merge-driver` | merge the registry by task ID in Git merges (per clone) |
+| `byteplan git install-hooks [--mode check\|scan]` | direct pre-commit hook; never replaces a hook it didn't write |
+| `byteplan git hooks-status` | show the pre-commit framework hook, direct hook and merge driver |
 | `byteplan merge-registry BASE OURS THEIRS [PATH]` | the merge driver itself; Git runs it, you don't |
 
 - **Common options:** `--project PATH` and `--format json` go after the command.
@@ -227,6 +229,38 @@ allow_in_ci = false    # write_source still won't write when $CI is set, unless 
   hook (`[tool.hatch.build.hooks.custom]`) that does the read-only check.
 - **Without Hatch:** `byteplan scan` and `byteplan check` work in CI, pre-commit hooks and editor
   tasks.
+
+## Git hooks and CI
+
+The committed backlog should describe the committed code. Three read-only commands check that,
+with the same rules everywhere:
+
+```console
+$ byteplan check --staged          # pre-commit: exactly what's staged, never the working tree
+$ byteplan check --commit HEAD     # CI: the checked-out commit
+$ byteplan scan --staged --dry-run # preview what the staged snapshot still needs
+```
+
+**What fails a snapshot check:**
+- a TODO without an ID (`new_unregistered`)
+- source staged without the updated registry (`registry_not_staged`)
+- a registry that doesn't reflect its code (`registry_out_of_sync`)
+- IDs that aren't registered anywhere
+
+**What doesn't:** line numbers that merely shifted (`position_drift`) are informational.
+
+**How it reads the snapshot:**
+- **Git objects only.** It never reads the working tree, so a broken unstaged file can't block
+  a valid commit.
+- **Read-only.** It never changes `.git/index`, never runs your tests, and never imports your
+  code.
+
+**Setup:**
+- **pre-commit framework:** use the hook `byteplan-check` from this repository.
+- **Direct hook:** `byteplan git install-hooks`.
+- **CI recipe:** see [docs/ci.md](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/ci.md).
+
+The hooks are a convenience and can be skipped with `--no-verify`; CI is where to enforce.
 
 ## Merging the registry in Git
 

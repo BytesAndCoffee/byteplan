@@ -21,7 +21,7 @@ from byteplan.api import Project, init_project
 from byteplan.diagnostics import EXIT_ERROR, EXIT_FINDINGS, EXIT_OK, Code
 from byteplan.errors import ByteplanError, ConfigError
 from byteplan.files import resolve_targets
-from byteplan.gitio import install_merge_driver, merge_driver_main
+from byteplan.gitio import hooks_status, install_hooks, install_merge_driver, merge_driver_main
 from byteplan.models import Presence, Status
 
 if TYPE_CHECKING:
@@ -56,9 +56,24 @@ def cmd_init(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def _snapshot_project(args: argparse.Namespace) -> Project:
+    """The working tree, or a read-only Git snapshot for --staged / --commit."""
+    if getattr(args, "staged", False):
+        return Project.open_snapshot(args.project)
+    if getattr(args, "commit", None):
+        return Project.open_snapshot(args.project, rev=args.commit)
+    return _project(args)
+
+
 def cmd_scan(args: argparse.Namespace) -> int:
-    project = _project(args)
-    report = project.scan(args.paths or None, dry_run=args.dry_run)
+    if args.staged and not args.dry_run:
+        msg = "`scan --staged` is read-only: add --dry-run (writing to the index isn't implemented)"
+        raise ConfigError(msg)
+    project = _snapshot_project(args)
+    try:
+        report = project.scan(args.paths or None, dry_run=args.dry_run)
+    finally:
+        project.close()
     if args.format == "json":
         _out(reporting.to_json(reporting.scan_json(report)))
     else:
@@ -150,15 +165,21 @@ def cmd_duplicates(args: argparse.Namespace) -> int:
 
 
 def cmd_check(args: argparse.Namespace) -> int:
-    project = _project(args)
-    report = project.check()
+    project = _snapshot_project(args)
+    try:
+        report = project.check()
+    finally:
+        project.close()
     code = project.exit_code(report.diagnostics)
+    where = f" ({project.snapshot.label})" if project.snapshot is not None else ""
     counts = Counter(str(d.severity) for d in report.diagnostics)
     if args.format == "json":
-        _out(reporting.to_json({"exit_code": code, "diagnostics": [d.to_dict() for d in report.diagnostics]}))
+        snapshot = None if project.snapshot is None else project.snapshot.label
+        payload = {"exit_code": code, "snapshot": snapshot, "diagnostics": [d.to_dict() for d in report.diagnostics]}
+        _out(reporting.to_json(payload))
     else:
         _out(
-            f"BytePlan check: {report.files_scanned} files · {counts['error']} error(s) · "
+            f"BytePlan check{where}: {report.files_scanned} files · {counts['error']} error(s) · "
             f"{counts['warning']} warning(s) · {counts['info']} info" + (" · FAILED" if code else " · OK")
         )
     for diagnostic in report.diagnostics:
@@ -201,6 +222,24 @@ def cmd_merge_registry(args: argparse.Namespace) -> int:
     return merge_driver_main(args.base, args.ours, args.theirs, args.label)
 
 
+def cmd_git_install_hooks(args: argparse.Namespace) -> int:
+    actions = install_hooks(_project(args), args.mode)
+    for action in actions or ["pre-commit hook already installed"]:
+        _out(f"byteplan: {action}")
+    return EXIT_OK
+
+
+def cmd_git_hooks_status(args: argparse.Namespace) -> int:
+    status = hooks_status(_project(args))
+    if args.format == "json":
+        _out(reporting.to_json(status.to_dict()))
+    else:
+        _out(f"pre-commit framework (byteplan-check): {'yes' if status.pre_commit_framework else 'no'}")
+        _out(f"direct pre-commit hook: {status.direct_hook} ({status.direct_hook_path})")
+        _out(f"registry merge driver: {'installed' if status.merge_driver else 'not installed'}")
+    return EXIT_OK
+
+
 def cmd_git_install_merge_driver(args: argparse.Namespace) -> int:
     actions = install_merge_driver(_project(args))
     for action in actions or ["merge driver already installed"]:
@@ -230,6 +269,7 @@ def build_parser() -> argparse.ArgumentParser:
     scan = sub.add_parser("scan", parents=[common, formatted], help="discover, annotate, reconcile, report")
     scan.add_argument("paths", nargs="*", help="limit the scan to these files or directories")
     scan.add_argument("--dry-run", action="store_true", help="preview planned changes without writing")
+    scan.add_argument("--staged", action="store_true", help="scan the Git index instead (requires --dry-run)")
     scan.set_defaults(handler=cmd_scan)
 
     list_ = sub.add_parser("list", parents=[common, formatted], help="list registry tasks")
@@ -275,7 +315,10 @@ def build_parser() -> argparse.ArgumentParser:
     duplicates = sub.add_parser("duplicates", parents=[common, formatted], help="report duplicate embedded IDs")
     duplicates.set_defaults(handler=cmd_duplicates)
 
-    check = sub.add_parser("check", parents=[common, formatted], help="read-only validation for CI")
+    check = sub.add_parser("check", parents=[common, formatted], help="read-only validation for CI and hooks")
+    snapshot = check.add_mutually_exclusive_group()
+    snapshot.add_argument("--staged", action="store_true", help="check exactly what's staged (pre-commit)")
+    snapshot.add_argument("--commit", metavar="REV", help="check a commit, e.g. HEAD (CI)")
     check.set_defaults(handler=cmd_check)
 
     report = sub.add_parser("report", parents=[common], help="summarize tasks and findings")
@@ -306,6 +349,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="merge the registry by task ID instead of as text (per clone; commits a .gitattributes line)",
     )
     install.set_defaults(handler=cmd_git_install_merge_driver)
+    hooks = git_sub.add_parser(
+        "install-hooks", parents=[common], help="install a direct pre-commit hook (never replaces a foreign one)"
+    )
+    hooks.add_argument("--mode", choices=("check", "scan"), default="check")
+    hooks.set_defaults(handler=cmd_git_install_hooks)
+    status = git_sub.add_parser("hooks-status", parents=[common, formatted], help="show installed Git integration")
+    status.set_defaults(handler=cmd_git_hooks_status)
     return parser
 
 

@@ -116,8 +116,15 @@ class Built:
         self.output = process.stdout + process.stderr
 
 
+# Under `hatch test --cover`, subprocesses record coverage too. Send their data files to
+# this repository's coverage file (where they get combined), not into the project
+# under test, whose files the tests compare byte for byte.
+COVERAGE_FILE = str(Path(__file__).resolve().parents[1] / ".coverage")
+
+
 def build(root: Path, out: Path, *targets: str, env: dict[str, str] | None = None) -> Built:
     environ = {k: v for k, v in os.environ.items() if k != "CI"}
+    environ["COVERAGE_FILE"] = COVERAGE_FILE
     environ.update(env or {})
     flags = [f"--{target}" for target in targets or ("sdist", "wheel")]
     return Built(
@@ -277,7 +284,7 @@ def test_isolated_pep517_build(project: ProjectFactory, tmp_path: Path) -> None:
 
     make_demo(project, "write_source = true")
     environ = {k: v for k, v in os.environ.items() if k != "CI"}
-    environ.update({"PIP_NO_INDEX": "1", "PIP_FIND_LINKS": str(wheels)})
+    environ.update({"PIP_NO_INDEX": "1", "PIP_FIND_LINKS": str(wheels), "COVERAGE_FILE": COVERAGE_FILE})
     result = subprocess.run(
         [sys.executable, "-m", "build", "--wheel", "--outdir", str(tmp_path / "dist"), str(project.root)],
         capture_output=True,

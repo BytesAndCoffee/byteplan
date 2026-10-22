@@ -7,9 +7,11 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -17,8 +19,6 @@ import pytest
 from byteplan.merge import merge_registries
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from tests.conftest import ProjectFactory, RunCli
 
 
@@ -154,8 +154,12 @@ def test_schema_mismatch_is_a_conflict() -> None:
 # Git end to end -----------------------------------------------------------------------------------
 
 
+# Git runs BytePlan (merge driver) in subprocesses; keep their coverage data with ours.
+COVERAGE_ENV = {**os.environ, "COVERAGE_FILE": str(Path(__file__).resolve().parents[1] / ".coverage")}
+
+
 def git(root: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(["git", *args], cwd=root, capture_output=True, text=True, check=check)
+    return subprocess.run(["git", *args], cwd=root, capture_output=True, text=True, check=check, env=COVERAGE_ENV)
 
 
 def tasks_of(root: Path) -> dict[str, Any]:

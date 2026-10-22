@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import contextlib
 import dataclasses
+import os
 import tomllib
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
@@ -16,11 +17,19 @@ from typing import TYPE_CHECKING, Any
 
 from byteplan import registry as registry_io
 from byteplan.annotate import annotate
-from byteplan.config import PYPROJECT, Config, find_project_root, load_config, read_pyproject
+from byteplan.config import (
+    PYPROJECT,
+    Config,
+    config_from_text,
+    find_project_root,
+    load_config,
+    parse_pyproject_text,
+    read_pyproject,
+)
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity, exit_code
 from byteplan.edits import ensure_equivalent, physical_lines, replace_at
 from byteplan.errors import ConfigError, EditError, RegistryError, ScanError, SourceError, TaskNotFoundError
-from byteplan.files import Scope, ScopeMatcher, collect_files, resolve_targets
+from byteplan.files import Scope, ScopeMatcher, collect_files, resolve_targets, scope_from_paths
 from byteplan.ids import allocate
 from byteplan.models import HistoryEvent, Presence, Representation, ScopeState, Status
 from byteplan.persistence import (
@@ -37,6 +46,7 @@ from byteplan.reconcile import Observation, Summary, reconcile
 from byteplan.registry import Registry, load_registry
 from byteplan.scanner import FileScan, scan_file
 from byteplan.scanner.source import decode_source, read_source
+from byteplan.snapshot import GitSnapshot
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator, Sequence
@@ -97,13 +107,48 @@ class ScanReport:
 
 
 class Project:
-    def __init__(self, config: Config, clock: Callable[[], str] = utc_now) -> None:
+    def __init__(
+        self,
+        config: Config,
+        clock: Callable[[], str] = utc_now,
+        snapshot: GitSnapshot | None = None,
+        notices: Sequence[Diagnostic] = (),
+    ) -> None:
         self.config = config
         self.clock = clock
+        # None: the working tree. Otherwise a read-only Git index or commit snapshot.
+        self.snapshot = snapshot
+        self._notices = list(notices)
 
     @classmethod
     def open(cls, start: Path | None = None, clock: Callable[[], str] = utc_now) -> Project:
         return cls(load_config(find_project_root(start or Path.cwd())), clock)
+
+    @classmethod
+    def open_snapshot(
+        cls, start: Path | None = None, rev: str | None = None, clock: Callable[[], str] = utc_now
+    ) -> Project:
+        """A read-only project over the Git index (``rev=None``) or a commit.
+
+        Configuration, ``.gitignore`` files, the registry and all sources come from
+        the snapshot, never from the working tree.
+        """
+        root = find_project_root(start or Path.cwd())
+        snapshot = GitSnapshot(root, rev)
+        try:
+            config, notices = _snapshot_config(root, snapshot)
+        except BaseException:
+            snapshot.close()  # stop the cat-file process before propagating
+            raise
+        return cls(config, clock, snapshot, notices)
+
+    def close(self) -> None:
+        if self.snapshot is not None:
+            self.snapshot.close()
+
+    @property
+    def enforce_consistency(self) -> bool:
+        return self.snapshot is not None or self.config.check.require_reconciled
 
     @property
     def root(self) -> Path:
@@ -138,7 +183,7 @@ class Project:
             yield tuple(recover(self.root))
 
     def exit_code(self, diagnostics: Iterable[Diagnostic]) -> int:
-        return exit_code(diagnostics, self.config.check)
+        return exit_code(diagnostics, self.config.check, enforce_consistency=self.enforce_consistency)
 
     # Scanning -----------------------------------------------------------------
 
@@ -167,9 +212,24 @@ class Project:
         dry_run: bool,
         recovered: tuple[str, ...],
     ) -> ScanReport:
-        registry_hash, registry = self._read_registry()
-        rel_targets = None if targets is None else resolve_targets(self.root, targets, cwd)
-        scope = collect_files(self.config, rel_targets)
+        snapshot = self.snapshot
+        if snapshot is not None and not dry_run:
+            msg = f"scans of the {snapshot.label} are read-only; use --dry-run (staged --apply isn't implemented)"
+            raise ConfigError(msg)
+        registry_absent = False
+        if snapshot is None:
+            registry_hash, registry = self._read_registry()
+            rel_targets = None if targets is None else resolve_targets(self.root, targets, cwd)
+            scope = collect_files(self.config, rel_targets)
+            matcher: ScopeMatcher | None = None
+        else:
+            data = snapshot.read(self.registry_rel)
+            registry_absent = data is None
+            registry_hash = "" if data is None else sha256(data)
+            label = f"{snapshot.label}:{self.registry_rel}"
+            registry = Registry() if data is None else registry_io.loads(data.decode("utf-8", "replace"), label)
+            rel_targets = None if targets is None else _snapshot_targets(self.root, targets, cwd)
+            scope, matcher = scope_from_paths(self.config, list(snapshot.files()), snapshot, rel_targets)
 
         runtime_modules = self.config.annotations.runtime_modules
         sources: dict[str, tuple[SourceFile, str]] = {}
@@ -180,7 +240,10 @@ class Project:
         failures: list[SourceError] = []
         for path in scope.files:
             try:
-                source = read_source(self.root, path)
+                if snapshot is None:
+                    source = read_source(self.root, path)
+                else:
+                    source = decode_source(path, snapshot.read(path) or b"")
                 result = scan_file(source, self.config.detect, runtime_modules)
             except SourceError as exc:
                 failures.append(exc)
@@ -193,7 +256,7 @@ class Project:
         if failures:
             raise ScanError(failures)
 
-        if dry_run and pending_journal(self.root):
+        if dry_run and snapshot is None and pending_journal(self.root):
             diagnostics.append(
                 Diagnostic(
                     Code.PENDING_JOURNAL,
@@ -230,11 +293,15 @@ class Project:
             for tag in observed
             if tag.task_id is not None and tag.task_id not in duplicated
         ]
-        absence_check = None if scope.narrowed else ScopeMatcher(self.config).contains
+        absence_check = None if scope.narrowed else (matcher or ScopeMatcher(self.config)).contains
         new_registry, summary = reconcile(registry, observations, self.clock(), absence_check=absence_check)
         diagnostics.extend(self._missing_diagnostics(new_registry))
         diagnostics.extend(_link_diagnostics(links, new_registry))
         diagnostics.extend(_implementation_diagnostics(summary, new_registry))
+        if self.enforce_consistency:
+            diagnostics.extend(
+                self._consistency(registry, new_registry, proposals, diagnostics, registry_absent=registry_absent)
+            )
         writes.append(FileWrite(self.registry_rel, registry_hash, registry_io.dumps(new_registry).encode()))
 
         blocked = bool(duplicated)
@@ -253,6 +320,112 @@ class Project:
             written=tuple(written),
             recovered=recovered,
         )
+
+    def _consistency(
+        self,
+        old: Registry,
+        new: Registry,
+        proposals: Sequence[Proposal],
+        diagnostics: Sequence[Diagnostic],
+        *,
+        registry_absent: bool,
+    ) -> list[Diagnostic]:
+        """Is this snapshot's code already reconciled with this snapshot's registry?"""
+        snapshot = self.snapshot
+        staged = snapshot is not None and snapshot.kind == "index"
+        where = "staged" if staged else ("committed" if snapshot is not None else "on disk")
+        fix = (
+            f"run `byteplan scan`, review, then `git add` the changed source and {self.registry_rel}"
+            if staged
+            else f"run `byteplan scan` and commit the updated {self.registry_rel}"
+        )
+        found: list[Diagnostic] = list(self._notices)
+        worktree_registry = _read_bytes(self.config.registry_path) if snapshot is not None else None
+
+        if registry_absent:
+            found.append(
+                Diagnostic(
+                    Code.REGISTRY_NOT_STAGED,
+                    Severity.ERROR,
+                    f"{self.registry_rel} is not {where}",
+                    locations=(Location(self.registry_rel),),
+                    hint=f"`git add {self.registry_rel}`" if staged else f"commit {self.registry_rel}",
+                )
+            )
+            return found
+
+        for proposal in proposals:
+            tag = proposal.tag
+            found.append(
+                Diagnostic(
+                    Code.NEW_UNREGISTERED,
+                    Severity.ERROR,
+                    f"{tag.kind}: {tag.title}" if tag.title else f"untagged {tag.kind}",
+                    locations=(Location(tag.path, tag.line),),
+                    hint=fix,
+                )
+            )
+
+        if worktree_registry is not None and staged:
+            unregistered = [d.task_id for d in diagnostics if d.code is Code.UNREGISTERED_ID and d.task_id]
+            in_worktree = registry_io.loads(worktree_registry.decode("utf-8", "replace")).tasks if unregistered else {}
+            found.extend(
+                Diagnostic(
+                    Code.REGISTRY_NOT_STAGED,
+                    Severity.ERROR,
+                    f"task {task_id} is registered in the working tree but not in the staged registry",
+                    task_id=task_id,
+                    locations=(Location(self.registry_rel),),
+                    hint=f"`git add {self.registry_rel}`",
+                )
+                for task_id in unregistered
+                if task_id in in_worktree
+            )
+
+        out_of_sync = {"moved", "text_changed", "reappeared", "implementation_changed"}
+        for task_id, task in sorted(new.tasks.items()):
+            before = old.tasks.get(task_id)
+            if before is None:
+                continue  # created by this scan: reported as new_unregistered
+            events = [e.event for e in task.history[len(before.history) :]]
+            closed_and_gone = task.status.is_closed and events == ["missing"]
+            relevant = [e for e in events if e in out_of_sync or (e == "missing" and not task.status.is_closed)]
+            location = (Location(task.source.path, task.source.line),) if task.source else ()
+            if relevant:
+                found.append(
+                    Diagnostic(
+                        Code.REGISTRY_OUT_OF_SYNC,
+                        Severity.ERROR,
+                        f"task {task_id}: the {where} registry doesn't reflect the {where} code "
+                        f"({', '.join(relevant)})",
+                        task_id=task_id,
+                        locations=location,
+                        hint=fix,
+                    )
+                )
+            elif not closed_and_gone and registry_io.task_to_dict(before) != registry_io.task_to_dict(task):
+                found.append(
+                    Diagnostic(
+                        Code.POSITION_DRIFT,
+                        Severity.INFO,
+                        f"task {task_id}: only line positions differ from the {where} registry",
+                        task_id=task_id,
+                        locations=location,
+                        hint="harmless; the next `byteplan scan` updates them",
+                    )
+                )
+
+        if staged and snapshot is not None and worktree_registry not in {None, snapshot.read(self.registry_rel)}:
+            found.append(
+                Diagnostic(
+                    Code.WORKING_TREE_CHANGED_BUT_NOT_STAGED,
+                    Severity.INFO,
+                    f"{self.registry_rel} in the working tree differs from the staged copy",
+                    locations=(Location(self.registry_rel),),
+                    hint=f"if those changes belong in this commit, `git add {self.registry_rel}`",
+                )
+            )
+        return found
 
     def _missing_diagnostics(self, registry: Registry) -> list[Diagnostic]:
         if self.config.missing_policy == "ignore":
@@ -522,6 +695,60 @@ def _find_decorator_id(text: str, annotation: Annotation, task_id: str) -> tuple
                 return needle, line_no, col
     msg = f"{annotation.location}: can't find id={task_id!r} in the decorator; edit it by hand"
     raise EditError(msg)
+
+
+def _read_bytes(path: Path) -> bytes | None:
+    try:
+        return path.read_bytes()
+    except OSError:
+        return None
+
+
+def _snapshot_targets(root: Path, targets: Sequence[str | Path], cwd: Path | None) -> tuple[str, ...]:
+    """Like ``resolve_targets`` but without requiring the paths to exist on disk."""
+    base = (cwd or Path.cwd()).resolve()
+    resolved = []
+    for target in targets:
+        path = Path(os.path.abspath(base / target))
+        if not path.is_relative_to(root):
+            msg = f"{target} is outside the project root {root}"
+            raise ConfigError(msg)
+        rel = path.relative_to(root).as_posix()
+        resolved.append("" if rel == "." else rel)
+    return tuple(sorted(set(resolved)))
+
+
+def _snapshot_config(root: Path, snapshot: GitSnapshot) -> tuple[Config, list[Diagnostic]]:
+    data = snapshot.read(PYPROJECT)
+    if data is None:
+        msg = f"{PYPROJECT} is not in the {snapshot.label}"
+        raise ConfigError(msg)
+    text = data.decode("utf-8", "replace")
+    config = config_from_text(root, text, f"{snapshot.label}:{PYPROJECT}")
+    return config, (_config_mismatch(root, text) if snapshot.kind == "index" else [])
+
+
+def _config_mismatch(root: Path, staged_text: str) -> list[Diagnostic]:
+    """Warn when the working-tree [tool.byteplan] differs from the staged one (the staged one is used)."""
+    disk = _read_bytes(root / PYPROJECT)
+    if disk is None:
+        return []
+    try:
+        on_disk = parse_pyproject_text(disk.decode("utf-8", "replace"), PYPROJECT).get("tool", {}).get("byteplan")
+        staged = parse_pyproject_text(staged_text, PYPROJECT).get("tool", {}).get("byteplan")
+    except ConfigError:
+        return []
+    if on_disk == staged:
+        return []
+    return [
+        Diagnostic(
+            Code.STAGED_CONFIG_MISMATCH,
+            Severity.WARNING,
+            "[tool.byteplan] in the working tree differs from the staged pyproject.toml; using the staged one",
+            locations=(Location(PYPROJECT),),
+            hint="stage pyproject.toml if the new settings belong in this commit",
+        )
+    ]
 
 
 def _not_found(task_id: str) -> TaskNotFoundError:
