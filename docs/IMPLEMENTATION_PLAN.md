@@ -37,6 +37,7 @@ itself.
 |---|---|
 | **Now (with Phase 4b)** ✅ | Its own registry. `[tool.byteplan]` scopes `src/` of both packages; tests are excluded because they deliberately contain annotation fixtures. Real follow-ups live as tagged TODOs in the code they concern. The registry merges by task ID (`.byteplan/.gitattributes`). CI runs `byteplan check --commit HEAD` on every push and PR. |
 | Phase 4b ✅ | Staged commits are checked: `hatch run byteplan git install-hooks`, or the local `.pre-commit-config.yaml`. |
+| Phase 4c | BytePlan's own new TODOs get their IDs automatically when committed; no separate scan step. |
 | Phases 6a–6b | Its own tasks link to acceptance tests, and regression tests are scaffolded with `tests scaffold`. |
 | Phase 9 | Coding agents developing BytePlan query it over MCP for outstanding work, record evidence, and hand the next session an authoritative state snapshot. |
 | Phase 10 | A documented, fully integrated self-managed workflow. CI on ubuntu, macOS and Windows. |
@@ -781,9 +782,11 @@ The consistency diagnostics:
   `blob` OID. stdout stays pure JSON.
 
 `byteplan scan --staged --dry-run` shows the same snapshot's reconciliation plan: proposed ID
-insertions as they'd apply to the *staged* blobs, and the registry diff. It writes nothing. The
-remediation it prints is always the same: run `byteplan scan` (working tree), review, then stage
-the source and `.byteplan/tasks.json` explicitly. BytePlan never runs `git add`.
+insertions as they'd apply to the *staged* blobs, and the registry diff. It writes nothing. Until
+Phase 4c, the remediation it prints is: run `byteplan scan` (working tree), review, then stage the
+source and `.byteplan/tasks.json` explicitly. Phase 4c adds `--apply`, which performs exactly that
+reconciliation on the staged snapshot. It updates index entries through plumbing and never runs
+`git add` on user files.
 
 ### Hooks and CI (planned, Phase 4b)
 
@@ -797,7 +800,8 @@ must be checked too. They run in pre-commit's isolated environment with only Byt
 and never import the project. Consumer docs pin a published tag.
 
 **Direct Git hooks.**
-- **`byteplan git install-hooks [--mode check|scan]`:** writes `.git/hooks/pre-commit` (or the
+- **`byteplan git install-hooks [--mode check|scan]`** (Phase 4c adds `--mode reconcile`, which
+  becomes the default)**:** writes `.git/hooks/pre-commit` (or the
   `core.hooksPath` target) **only if it doesn't exist** or is a BytePlan-managed hook, identified
   by a marker line. Otherwise it refuses and prints how to chain the hook manually. This is the
   one Git-adjacent command that writes, and it never touches `.git/index`.
@@ -809,57 +813,134 @@ Hooks are a convenience, and documented as skippable (`--no-verify`). CI is the 
 **CI.** `docs/ci.md` and the README give a GitHub Actions recipe. It runs
 `byteplan check --commit HEAD --format json` on the checked-out commit, with pinned action versions
 and a published BytePlan version. That's the same enforcing snapshot policy as the pre-commit
-hook. CI never writes source; it fails with findings. Optional later additions are a SARIF or
-Markdown annotation publisher and `byteplan diff BASE...HEAD`, which compares two `GitCommit`
-snapshots (tasks added, resolved, made missing, newly blocked). That's a view over registry
-states, not a second database.
+hook. CI never writes source; it fails with findings. Optional later additions (Phase 11b) are a
+SARIF or Markdown annotation publisher and `byteplan diff BASE...HEAD`, which compares two
+`GitCommit` snapshots (tasks added, resolved, made missing, newly blocked). That's a view over
+registry states, not a second database.
 
-### Staged writeback: `scan --staged --apply` (optional, Phase 11b)
+### Staged reconciliation: `scan --staged --apply` (Phase 4c)
 
-This is deferred until read-only staged validation has been in use. The design is recorded here
-so it isn't improvised later.
+**Design principle:** *the first committed appearance of an obligation already carries its
+permanent ID.* The developer writes a plain TODO, stages, and commits. BytePlan does the
+bookkeeping before the commit is finalized:
 
-1. **Capture and plan.** Capture the index snapshot (path → mode, OID), the staged registry bytes
-   and the staged config, then build and validate the full edit plan against the staged blobs. This
-   uses the existing edit engine: tokenize, parse, AST equivalence, and a scanner round-trip.
-2. **Refuse partially staged files.** Any target whose working-tree bytes differ from its staged
-   blob gets `partial_stage_conflict`. Nothing is written; the dry-run preview and manual
-   instructions are printed.
-3. **Write new blobs** (`git hash-object -w --stdin`). This only adds objects and is safe to repeat.
-4. **Record a recovery manifest** under `.byteplan/txn/` before touching the index: each path's
-   before (mode, OID) and after (mode, OID).
-5. **Update the index under one held lock.** Re-checking entries and then calling
-   `git update-index --index-info` is *not* safe. Another process can stage a file between the two,
-   and `--index-info` has no expected-old-OID condition, so its change would be silently
-   overwritten (a lost update). BytePlan therefore uses Git's own lock protocol for the whole
-   validate-and-replace step:
-   1. Locate the index with `git rev-parse --git-path index`, which handles linked worktrees and
-      `GIT_INDEX_FILE`.
-   2. Create `<index>.lock` with `O_CREAT|O_EXCL`. If it already exists, another Git operation is
-      running, so abort. While BytePlan holds it, every other Git command that writes the index
-      fails instead of interleaving.
-   3. Read the index and verify every affected entry's (mode, OID) against the captured snapshot.
-      Any mismatch releases the lock and aborts.
-   4. Copy the index to a scratch file. Apply the planned entries to the copy with
-      `GIT_INDEX_FILE=<scratch> git update-index --index-info`, and verify the copy with
-      `GIT_INDEX_FILE=<scratch> git ls-files --stage -z`.
-   5. Write the verified bytes into `<index>.lock`, fsync, then `rename(<index>.lock, <index>)`.
-      That's Git's own commit step, so the swap is atomic and the lock is released by it.
-   6. On any failure, delete `<index>.lock` and leave the index untouched.
+```console
+$ echo '# FIXME: Handle withdrawn routes' >> src/rip.py
+$ git add . && git commit -m "Document route withdrawal bug"
+byteplan: annotated 1 staged file and .byteplan/tasks.json: [a83f] FIXME src/rip.py:42
+[main 3f9c2e1] Document route withdrawal bug
+$ git show HEAD:src/rip.py | tail -1
+# FIXME[a83f]: Handle withdrawn routes
+```
 
-   **Unsupported index formats.** A split index (`core.splitIndex`) or sparse index (`index.sparse`)
-   can't be replaced as a single file. With either, `--apply` refuses with
-   `unsupported_index_format`.
+**Phase 4b stays exactly as built:** read-only, never writing. Phase 4c is the only Git-writing
+phase, and everything it writes is limited to **BytePlan-managed annotations** (an inserted
+`[id]`, an `id="…"` decorator keyword, a stub comment line) and **the registry**. The existing
+edit engine enforces the boundary: AST equivalence and a scanner round-trip. It never stages
+anything the developer didn't stage, and never changes program behaviour.
 
-   **Recovery.** The manifest records the before and after entries. A crash before step 5 leaves the
-   index unchanged (at most a stale `index.lock`, reported with Git's usual guidance). A crash after
-   it means the change is complete, and revalidation in step 7 confirms which happened.
-6. **Index only.** Version 1 never touches the working tree. Afterwards it reports which
-   working-tree files now differ from the index and exits **1**, so the developer reviews before
-   committing. It never runs `git add` on user files.
-7. **Revalidate.** Success is claimed only after re-running `check --staged` on the new index.
+**Which files can be reconciled.** Each target is classified against three versions: HEAD, the
+index and the working tree.
+- **Fully staged** (working-tree bytes = staged blob bytes): eligible. The same annotated bytes are
+  written to **both** the index and the working tree. Updating the index alone would leave the
+  working-tree file *without* the ID, so Git would show the ID as an unstaged deletion, and the next
+  `git add .` would commit that deletion.
+- **Partially staged** (working tree ≠ staged blob): refused with `partial_stage_conflict`.
+  Nothing is written. The message names the file and shows the dry-run preview. The fix is to
+  stage the whole file or run `byteplan scan` and re-stage.
+- **Registry:** it must be absent from both, or byte-identical in the index and working tree.
+  Unstaged registry edits are refused (`registry_partial_stage_conflict`), so they can never be
+  swept into the commit.
+- **Deleted, renamed, untracked or unstaged-only files** are never touched. Untracked files stay
+  untracked.
 
-Phase 11b tests are Addendum C §C9 items 15 and 16.
+**Which index file.**
+- **Standalone** (`byteplan scan --staged --apply`): the index is `git rev-parse --git-path index`.
+- **Inside `git commit`**, `$GIT_INDEX_FILE` is authoritative. With `git commit -a`,
+  `git commit <paths>` or `--include`, Git runs hooks against a **temporary index** and already
+  holds the real `index.lock`. BytePlan writes to that temporary index (taking its `<file>.lock`),
+  not the main index, so the parent `git commit` stays the single owner of `.git/index`.
+- **To verify against the installed Git during implementation, with a test per mode:**
+  - that a pre-commit hook's index changes are included in the commit
+  - which index file and lock each `commit` mode uses
+
+**Transaction.** The writes span three stores: Git objects, the index and the working tree. They're
+made all-or-nothing as far as the platform allows, and recoverable beyond that.
+
+1. **Capture and plan.**
+   - **Capture:** the index snapshot (path → mode, OID), the staged registry bytes and the staged
+     config.
+   - **Plan:** build and validate the complete edit plan against the staged blobs: tokenize,
+     parse, AST equivalence, and a scanner round-trip.
+   - **Classify:** every target as above. Any refusal stops here with nothing written.
+2. **Write new blobs** with `git hash-object -w --stdin`. This only adds unreferenced objects and
+   is safe to repeat.
+3. **Record the journal.** Before touching the index, write a journal under `.byteplan/txn/`
+   (reusing `persistence`). It records:
+   - each index entry's before and after (mode, OID)
+   - each working-tree file's before and after hash
+   - the target index file
+4. **Update the index under one held lock.** This is Git's lock protocol: re-checking entries and
+   then calling `git update-index --index-info` would allow a lost update, because
+   `--index-info` has no expected-OID condition.
+   1. Create `<index>.lock` with `O_CREAT|O_EXCL`. In a commit with a temporary index, this is
+      `$GIT_INDEX_FILE.lock`.
+   2. While holding the lock, re-verify every affected entry's (mode, OID) **and** every target's
+      working-tree hash against the capture.
+   3. Build the new index in a scratch copy (`GIT_INDEX_FILE=<scratch> git update-index
+      --index-info`) and verify it with `ls-files --stage -z`.
+   4. Write the verified bytes into the lock, fsync, and `rename` the lock over the index.
+   5. On any failure, delete the lock and leave the index untouched.
+5. **Update the working tree.** Each fully staged target is replaced atomically through
+   `persistence`, keeping its permissions. That only happens if its bytes still equal the captured
+   staged blob, so a concurrent editor save is never overwritten.
+   - **If any of these writes can't proceed**, BytePlan restores the index entries from the journal
+     (taking the lock again, OID-guarded) and aborts with `concurrent_modification`. The commit
+     stops with nothing changed.
+6. **Revalidate.** Run `check --staged` against the new index. Success is reported only if it
+   passes. Otherwise the journal is kept and the hook exits non-zero.
+7. **Finish.** Delete the journal and print what was annotated. Exit 0, so the commit proceeds,
+   carrying the IDs in both the source blobs and the staged registry.
+
+**Unsupported formats.** A split index (`core.splitIndex`) or sparse index (`index.sparse`) can't be
+replaced as a single file. Either is refused with `unsupported_index_format`, and the read-only
+check still works.
+
+**Recovery and retries.**
+- **Crash before step 4:** the index is unchanged. At most a stale lock is left, reported with Git's
+  usual guidance.
+- **Crash between steps 4 and 5:** the next BytePlan run finds the journal. If every target's
+  working-tree bytes still equal the old staged blob, it rolls the working tree forward. If any
+  file changed since, it rolls the index **back** (OID-guarded), so the index never claims IDs the
+  working tree lacks.
+- **Retries are idempotent:** re-running on an already-annotated snapshot finds no untagged
+  annotations and writes nothing. A re-commit after an aborted commit just works.
+
+**Hooks.**
+- **Direct hook** (`byteplan git install-hooks --mode reconcile`, the default once Phase 4c ships):
+  runs `scan --staged --apply` and then `check --staged`. This is the transparent experience above.
+- **pre-commit framework** (`byteplan-reconcile` in `.pre-commit-hooks.yaml`): the framework
+  **stashes unstaged changes** before running hooks, so partial staging is invisible to the hook.
+  It also treats any hook that modifies files as **failed**.
+  - Under the framework (detected by `PRE_COMMIT=1`), the hook therefore acts like a formatter. It
+    writes the annotations to the working tree and index, and exits 1 with "annotated N files;
+    commit again".
+  - The framework restores the stash, and the second commit passes. That's the standard fixer
+    workflow, documented as such.
+- **Other hooks:** `byteplan-check` stays the read-only hook for teams that want validation only.
+
+**Policy.** `[tool.byteplan.git] on_reconcile = "commit"` (default) lets the commit proceed after a
+successful reconciliation. `"stop"` exits 1 after writing, so the developer reviews first, which
+was the earlier design's behaviour.
+
+**Never.**
+- **Never broadens the commit:** no `git add` of user files, and no staging of unrelated or
+  unstaged changes.
+- **Never guesses** in ambiguous states: partial staging, registry conflicts, unmerged index,
+  concurrent edits. These abort with an actionable diagnostic instead.
+- **Never resolves anything.**
+- **`--no-verify`** still skips the hook. CI (`check --commit HEAD`) is where consistency is
+  enforced.
 
 ### Phase 4b as built
 
@@ -1094,7 +1175,7 @@ misread by older readers, so silently reusing v1 is not acceptable.
 - **Prerequisite, scheduled early:** unknown **top-level** registry keys are currently dropped on
   load and save. I found this while planning Addendum D and confirmed it with a round-trip test.
   It's a general forward-compatibility bug rather than an Addendum D feature, and Phase 8's
-  top-level `release` records depend on it. So it's fixed in Phase 4c, not deferred with
+  top-level `release` records depend on it. So it's fixed in Phase 4d, not deferred with
   Addendum D. Unknown top-level keys will round-trip as task-level ones already do, and the merge
   driver will merge them three-way.
 
@@ -1210,9 +1291,11 @@ Each addendum's suggested order is merged in below: Addendum A §10, Addendum B 
 D builds on nearly everything before it (verification, scaffolding, release, MCP), and nothing
 earlier depends on it.
 
-Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4b comes
-next, since the engine it depends on (Phases 1–4) is in place and it's read-only. Addendum A's
-step 2 (choosing the runtime design) is already done, and the runtime package has shipped.
+Addendum items are planned, not implemented, until their phase is marked ✅. **Phase 4c comes
+next**, giving IDs at commit time. It builds directly on Phase 4b's snapshots and on the Phase 2
+journal, and it's a foundational part of the everyday workflow rather than a late optional extra.
+Phase 4d follows it. Addendum A's step 2 (choosing the runtime design) is already done, and the
+runtime package has shipped.
 
 | Phase | Deliverables | Spec §12 tests | Addendum §9 tests |
 |---|---|---|---|
@@ -1222,7 +1305,8 @@ step 2 (choosing the runtime design) is already done, and the runtime package ha
 | 3. Stubs + decorators ✅ | `stubs.py`, `decorators.py` (static `@todo`/`@verifies` discovery, alias resolution), `association.py` (comment / decorator / stub → one obligation), decorator `id=` allocation, schema fields, `implementation_changed`, `check`, `report`, `repair` | 2, 3, 4, 17 | 1, 2, 6 (comment mode), 7, 19 |
 | 4. Hatch ✅ | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
 | 4b. Git lifecycle (read-only) ✅ | `snapshot.py` + `gitio.py` (index/commit snapshots via NUL-safe plumbing, no-optional-locks), `check --staged`, `scan --staged --dry-run`, staged diagnostics and policy keys, `.pre-commit-hooks.yaml`, `git install-hooks` / `git hooks-status`, `docs/ci.md` GitHub Actions recipe | – | C: 1–6, 8–14, 17–21 (C: 7, 22 with Phase 8) |
-| 4c. Registry forward compatibility | unknown **top-level** registry keys round-trip (today they're dropped on save; task-level ones already survive), and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
+| 4c. Git staged reconciliation | `scan --staged --apply`; fully-staged / partial-stage classification against HEAD, index and working tree (`partial_stage_conflict`, `registry_partial_stage_conflict`); blobs → journal → index swap under the index lock (`$GIT_INDEX_FILE`-aware inside `git commit`) → hash-guarded working-tree writes, with index rollback on conflict → revalidation; crash recovery and idempotent retries; `install-hooks --mode reconcile` (new default) and a `byteplan-reconcile` framework hook (fixer behaviour); `[tool.byteplan.git] on_reconcile`; `unsupported_index_format` | – | C: 15, 16 + 4c tests below |
+| 4d. Registry forward compatibility | unknown **top-level** registry keys round-trip (today they're dropped on save; task-level ones already survive), and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
 | 5. Runtime + normalization | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
 | 6a. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |
 | 6b. Test scaffolding | `scaffold.py` planner, `byteplan tests scaffold ID [--path] [--name] [--policy] [--force-new] [--dry-run]`, placeholder detection, `[tool.byteplan.tests.scaffold]` | – | B: 1–9, 11 (CLI), 12 |
@@ -1232,7 +1316,7 @@ step 2 (choosing the runtime design) is already done, and the runtime package ha
 | 9. MCP | `[mcp]` extra, `mcp_server.py` with all tools above (including scaffold preview / `scaffold_test`), the three permissions, `byteplan mcp`, README client snippets | – | A: 16 (MCP part), 20 · B: 11 (MCP) |
 | 10. Integration | README end-to-end developer journey (`# TODO` → `scan` → `tests scaffold` → implement → `verify` → `resolve` → `sync`, including where BytePlan notices but never closes work), docs for every config key, dogfood `hatch run byteplan scan` on BytePlan itself, CI on ubuntu/macos/windows | DoD | full suite · B: 19 |
 | 11 (optional) | spec §14 phase 5 items, `TODO(owner):` syntax | – | – |
-| 11b (optional) | `scan --staged --apply` (index-only, partial-stage refusal, manifest recovery), `byteplan diff BASE...HEAD`, SARIF/Markdown PR annotations | – | C: 15, 16 |
+| 11b (optional) | Git reporting: `byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations | – | – |
 | 12. Assignment model (Addendum D: D0–D2, D4) | schema v2 + `byteplan migrate` (also converts `depends_on` to `blocked_by` links); `presence: unbound`; `binding_proposals`; `approval` + `approve` / `request-changes`, approval-gated `resolve`; `coverage_review`; typed `links` with ref grammar and patch IDs; `create`, `intake` (offline, idempotent), `bind`, `propose-binding`, `link` / `unlink`, `links`, `refs`, `history`, `impact REV`, `links discover` (trailers), `links reconcile` (patch IDs); event actor/revision/idempotency fields; merge driver handles the new fields; MCP gains the §D.7.1 contract (`intake_issue`, `propose_binding`, `bind_source`, `link_artifact`, `scaffold_regression`, `record_verification`, `get_assignment`, `get_handoff`, policy-checked `request_resolution`; no `approve`) | – | D.11: 1–8 (9 for local retries) |
 | 13 (optional, separate package) | `relay-for-github/`: reusable workflows (idempotent intake, PR reconciliation, single status comment), triage-agent guide, branch-protection docs, end-to-end demo (issue → intake → binding PR → failing scaffold → fix → verification → human approval → reconciliation, with a retry/failure path) | – | D.11: 9–12 |
 
@@ -1293,6 +1377,28 @@ step 2 (choosing the runtime design) is already done, and the runtime package ha
 - Replaying an intake or a write with the same idempotency key is a no-op.
 - `impact` labels explicit links, overlap candidates and verified effects separately.
 - The merge driver merges links and approval three-way.
+
+**Phase 4c tests.** These run against real Git repositories, like Phase 4b's. They carry over
+Addendum C §C9 items 15 and 16, plus:
+- **The design principle, end to end.** `git add` + `git commit` of a file with a plain TODO
+  produces a commit whose blob and staged registry carry the ID. The working tree matches afterwards
+  (no phantom unstaged diff).
+- **Every commit mode,** each with a test: plain `git commit`, `git commit -a`,
+  `git commit <path>`, `--amend`, and a `core.hooksPath` hook.
+- **Partial staging is refused** with nothing written, whether the extra change is in the same file
+  or in an unstaged registry edit. An untracked file with a TODO stays untracked and unannotated.
+- **Unstaged changes in other files** stay unstaged and out of the commit (index and working-tree
+  diffs compared before and after).
+- **Concurrency:** an editor save between capture and write, or a concurrent `git add` while
+  BytePlan holds the lock, aborts with the index unchanged (or rolled back) and nothing lost.
+- **Crash recovery:** a crash injected after the index swap but before the working-tree writes rolls
+  the working tree forward. If a file changed meanwhile, it rolls the index back instead.
+- **Retries:** an immediate re-commit is a no-op, and a second hook run writes nothing.
+- **pre-commit framework fixer flow:** the first commit exits 1 with the files annotated, and the
+  second commit passes (marked `network` if it needs to install `pre-commit`).
+- **Refusals:** split and sparse indexes are refused, and the read-only check still works on them.
+- **Safety:** program semantics are unchanged (AST equivalence) for every edit kind: comment `[id]`,
+  decorator `id=`, and stub comment line.
 
 **Phase 6b scaffold tests (Addendum B §B8):**
 - An untouched scaffold is collected and **fails** in a real pytest subprocess. It never passes,
