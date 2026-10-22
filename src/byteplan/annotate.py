@@ -14,9 +14,9 @@ import dataclasses
 from collections import Counter
 from typing import TYPE_CHECKING
 
-from byteplan.edits import Insertion, apply_insertions, ensure_equivalent
+from byteplan.edits import Insertion, apply_insertions
 from byteplan.errors import EditError
-from byteplan.scanner import DEFAULT_RUNTIME_MODULES, FileScan, scan_file
+from byteplan.scanner import DEFAULT_RUNTIME_MODULES, FileScan, ensure_unchanged, scan_file
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -49,7 +49,8 @@ def annotate(
     """Return ``source`` with every proposal's ID written, plus a scan of the result.
 
     The result is validated: it must parse to the same AST (apart from added
-    decorator ``id=`` keywords), and re-scanning it must find exactly the original
+    decorator ``id=`` keywords; for Markdown and JSON, be unchanged outside comments
+    and tagged strings' IDs), and re-scanning it must find exactly the original
     annotations, now carrying the proposed IDs.
     """
     insertions = []
@@ -62,7 +63,7 @@ def annotate(
         insertions.append(Insertion(slot.line, slot.col, slot.text(p.task_id)))
         proposed[(p.tag.line, p.tag.col)] = p.task_id
     edited = dataclasses.replace(source, text=apply_insertions(source.text, insertions))
-    ensure_equivalent(source.path, source.text, edited.text)
+    ensure_unchanged(source.path, source.text, edited.text, detect.todo_tags)
 
     before = scan_file(source, detect, runtime_modules, hierarchy).tags
     after = scan_file(edited, detect, runtime_modules, hierarchy)

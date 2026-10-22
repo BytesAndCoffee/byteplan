@@ -3,6 +3,15 @@
 All notable changes to `byteplan`. The runtime decorators ship separately as
 [`byteplan-runtime`](https://pypi.org/project/byteplan-runtime/), with their own versions.
 
+## Unreleased
+
+### Tracking
+- **Markdown and JSON:** tags in Markdown HTML comments (`<!-- TODO: ... -->`) and in JSON
+  `//` / `/* */` comments and string values (`"TODO: ..."`) are tracked like Python comments, with
+  IDs, Git integration and repair. Opt in through `include`; the default scope is still `**/*.py`.
+  New `[tool.byteplan.detect] json_string_values` option.
+- The registry file is never scanned, even when `include` matches it.
+
 ## 0.1.0 (2026-10-22)
 
 The first usable release. 0.0.1 was an empty placeholder that reserved the name.

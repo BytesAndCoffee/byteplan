@@ -30,10 +30,11 @@ from byteplan.config import (
     read_pyproject,
 )
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity, exit_code
-from byteplan.edits import ensure_equivalent, physical_lines, replace_at
+from byteplan.edits import physical_lines, replace_at
 from byteplan.errors import ConfigError, EditError, RegistryError, ScanError, SourceError, TaskNotFoundError
 from byteplan.files import Scope, ScopeMatcher, collect_files, resolve_targets, scope_from_paths
 from byteplan.ids import allocate
+from byteplan.languages import Language, language_for
 from byteplan.models import HistoryEvent, Presence, Representation, ScopeState, Status
 from byteplan.persistence import (
     STATE_DIR,
@@ -48,7 +49,7 @@ from byteplan.persistence import (
 )
 from byteplan.reconcile import Observation, Summary, reconcile
 from byteplan.registry import Registry, load_registry
-from byteplan.scanner import FileScan, scan_file
+from byteplan.scanner import FileScan, ensure_unchanged, scan_file
 from byteplan.scanner.hierarchy import ClassHierarchy, classes_in
 from byteplan.scanner.source import decode_source, read_source
 from byteplan.scanner.symbols import parse_module
@@ -363,7 +364,9 @@ class Project:
                     with contextlib.suppress(SourceError):  # out of the narrowed scan: best effort
                         sources[path] = self._read(path)
         classes = []
-        for source in sources.values():
+        for path, source in sources.items():
+            if language_for(path) is not Language.PYTHON:
+                continue
             with contextlib.suppress(SourceError):  # unparseable files are reported by the scan itself
                 classes.extend(classes_in(parse_module(source)))
         return ClassHierarchy(classes)
@@ -636,7 +639,7 @@ class Project:
                 col = physical_lines(source.text)[line_no - 1].find(f"[{old_id}]", target.col)
                 old_text, new_text = f"[{old_id}]", f"[{new_id}]"
             edited = dataclasses.replace(source, text=replace_at(source.text, line_no, col, old_text, new_text))
-            ensure_equivalent(path, source.text, edited.text)
+            ensure_unchanged(path, source.text, edited.text, self.config.detect.todo_tags)
             rescanned = scan_file(edited, self.config.detect, self.config.annotations.runtime_modules, hierarchy).tags
             moved = next((a for a in rescanned if a.line == line and a.task_id == new_id), None)
             if moved is None:

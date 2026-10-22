@@ -5,12 +5,18 @@
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from byteplan.edits import ensure_equivalent
+from byteplan.languages import Language, language_for
+from byteplan.models import AttachmentKind
 from byteplan.scanner.association import associate
 from byteplan.scanner.comments import IGNORE_RE, file_ignored, iter_comments, scan_comments
 from byteplan.scanner.decorators import VerifiesLink, scan_decorators
+from byteplan.scanner.jsonc import ensure_json_equivalent, scan_json
+from byteplan.scanner.markdown import ensure_markdown_equivalent, scan_markdown
 from byteplan.scanner.stubs import find_stubs
 from byteplan.scanner.symbols import SymbolIndex, declarations, parse_module
 
@@ -45,7 +51,13 @@ def scan_file(
 
     ``hierarchy`` is the project-wide class index; with ``respect_overrides`` it keeps
     interface methods and deliberate no-op overrides from being reported as stubs.
+    Markdown and JSON files have tags only: no stubs, decorators or declarations.
     """
+    language = language_for(source.path)
+    if language is Language.MARKDOWN:
+        return FileScan(source.path, *_loose(*scan_markdown(source, detect.todo_tags)))
+    if language is Language.JSON:
+        return FileScan(source.path, *_loose(*scan_json(source, detect)))
     tree = parse_module(source)
     comments = iter_comments(source)
     if file_ignored(comments):
@@ -66,3 +78,26 @@ def scan_file(
         decorated.links,
         [*diagnostics, *decorated.diagnostics, *stub_diagnostics],
     )
+
+
+def _loose(
+    tags: list[Annotation], diagnostics: list[Diagnostic]
+) -> tuple[list[Annotation], list[VerifiesLink], list[Diagnostic]]:
+    """Attach non-Python tags to the file: ``statement`` when trailing, else ``module``."""
+    attached = [
+        dataclasses.replace(t, attachment_kind=AttachmentKind.STATEMENT if t.trailing else AttachmentKind.MODULE)
+        for t in tags
+    ]
+    return attached, [], diagnostics
+
+
+def ensure_unchanged(path: str, before: str, after: str, tags: Sequence[str]) -> None:
+    """Refuse an annotation edit that changes anything but comments (and, in JSON, tagged
+    strings' IDs). Raises ``EditError``."""
+    language = language_for(path)
+    if language is Language.MARKDOWN:
+        ensure_markdown_equivalent(path, before, after)
+    elif language is Language.JSON:
+        ensure_json_equivalent(path, before, after, tags)
+    else:
+        ensure_equivalent(path, before, after)

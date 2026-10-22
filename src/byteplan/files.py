@@ -5,7 +5,8 @@
 
 Rules, applied to POSIX paths relative to the project root:
 
-* Only regular ``.py`` files are collected. Symlinks (files and directories) are
+* Only regular files of a supported type are collected (``.py``, ``.md``/``.markdown``,
+  ``.json``/``.jsonc``; see ``languages.py``), and never the registry. Symlinks (files and directories) are
   never followed, so a file can't be scanned twice or from outside the root.
 * ``.git``, ``.hg``, ``.svn`` and ``.byteplan`` directories are always skipped.
 * A file is in scope when it matches ``include``, does not match ``exclude``,
@@ -27,6 +28,7 @@ from typing import TYPE_CHECKING, Protocol
 import pathspec
 
 from byteplan.errors import ConfigError, ScanError, SourceError
+from byteplan.languages import language_for
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -122,6 +124,7 @@ class ScopeMatcher:
 
     def __init__(self, config: Config, source: TextSource | None = None) -> None:
         self.root = config.root
+        self._registry = config.registry_path.resolve().relative_to(config.root.resolve()).as_posix()
         self._include = pathspec.PathSpec.from_lines("gitignore", config.include)
         self._exclude = pathspec.PathSpec.from_lines("gitignore", config.exclude)
         if config.respect_gitignore:
@@ -140,7 +143,8 @@ class ScopeMatcher:
     def file_selected(self, rel: str) -> bool:
         """Whether a file in a non-excluded directory is in scope (no symlink check)."""
         return (
-            rel.endswith(".py")
+            language_for(rel) is not None
+            and rel != self._registry
             and self._include.match_file(rel)
             and not self._exclude.match_file(rel)
             and not (self._gitignores is not None and self._gitignores.ignored(rel))

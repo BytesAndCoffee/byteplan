@@ -39,7 +39,16 @@ if TYPE_CHECKING:
     from byteplan.scanner.source import SourceFile
     from byteplan.scanner.symbols import SymbolIndex
 
-__all__ = ["IGNORE_RE", "Comment", "file_ignored", "iter_comments", "scan_comments", "tag_pattern"]
+__all__ = [
+    "IGNORE_FILE_MAX_LINE",
+    "IGNORE_RE",
+    "Comment",
+    "file_ignored",
+    "iter_comments",
+    "scan_comments",
+    "tag_annotation",
+    "tag_pattern",
+]
 
 IGNORE_RE = re.compile(r"\bbyteplan:\s*ignore(?![-\w])", re.IGNORECASE)
 IGNORE_FILE_RE = re.compile(r"^#\s*byteplan:\s*ignore-file\b", re.IGNORECASE)
@@ -59,11 +68,59 @@ class Comment:
 # TODO[46b6]: Recognize Google-style `TODO(owner): ...` tags
 #   Today `TODO(alice):` doesn't match the grammar and is silently not tracked. Accept an
 #   optional `(owner)` after the tag and record it as the assignee when a task is created.
-def tag_pattern(tags: Sequence[str]) -> re.Pattern[str]:
+def tag_pattern(tags: Sequence[str], opener: str = "#") -> re.Pattern[str]:
+    """The tag grammar after a comment opener (a regex: ``#``, ``<!--``, ``//``, ``/\\*``)."""
     alternatives = "|".join(re.escape(tag) for tag in sorted(tags, key=len, reverse=True))
     return re.compile(
-        rf"#\s*(?P<tag>{alternatives})(?:\[(?P<id>[^\]]*)\])?(?P<rest>(?:[:\s].*)?)",
+        rf"{opener}\s*(?P<tag>{alternatives})(?:\[(?P<id>[^\]]*)\])?(?P<rest>(?:[:\s].*)?)",
         re.IGNORECASE | re.DOTALL,
+    )
+
+
+def tag_annotation(
+    source: SourceFile,
+    match: re.Match[str],
+    canonical: dict[str, str],
+    *,
+    line: int,
+    end_line: int,
+    col: int,
+    slot_col: int,
+    title: str,
+    description: str,
+    symbol: str | None,
+    trailing: bool,
+) -> Annotation | Diagnostic:
+    """The annotation for a matched tag, or a ``malformed_id`` diagnostic.
+
+    ``slot_col`` is where an ``[id]`` goes (right after the tag); ``title`` is the text
+    after the tag and ID, from which a leading ``:`` is removed.
+    """
+    raw_id = match.group("id")
+    if raw_id is not None and not is_valid_id(raw_id):
+        return Diagnostic(
+            Code.MALFORMED_ID,
+            Severity.WARNING,
+            f"tag ID [{raw_id}] is not four lowercase hex digits; the tag is not tracked",
+            locations=(Location(source.path, line),),
+            hint=f"remove the brackets to get a new ID, or fix it to a registered ID, e.g. {match.group('tag')}[7fa2]",
+        )
+    title = title.strip()
+    if title.startswith(":"):
+        title = title[1:].strip()
+    return Annotation(
+        path=source.path,
+        line=line,
+        end_line=end_line,
+        col=col,
+        kind=canonical[match.group("tag").upper()],
+        tag_text=match.group("tag"),
+        task_id=raw_id,
+        title=title,
+        description=description,
+        symbol=symbol,
+        trailing=trailing,
+        id_slot=None if raw_id is not None else IdSlot(line, slot_col, "[{id}]"),
     )
 
 
@@ -129,37 +186,22 @@ def scan_comments(
         if IGNORE_RE.search(comment.text):
             continue
 
-        raw_id = match.group("id")
-        if raw_id is not None and not is_valid_id(raw_id):
-            diagnostics.append(
-                Diagnostic(
-                    Code.MALFORMED_ID,
-                    Severity.WARNING,
-                    f"tag ID [{raw_id}] is not four lowercase hex digits; the tag is not tracked",
-                    locations=(Location(source.path, comment.line),),
-                    hint=f"remove the brackets to get a new ID, or fix it to a registered ID, e.g. {match.group('tag')}[7fa2]",
-                )
-            )
-            continue
-
-        title = match.group("rest").strip()
-        if title.startswith(":"):
-            title = title[1:].strip()
         end_line = comment.line + len(continuation)
-        found.append(
-            Annotation(
-                path=source.path,
-                line=comment.line,
-                end_line=end_line,
-                col=comment.col,
-                kind=canonical[match.group("tag").upper()],
-                tag_text=match.group("tag"),
-                task_id=raw_id,
-                title=title,
-                description=textwrap.dedent("\n".join(continuation)),
-                symbol=symbols.symbol_for(comment.line, end_line, comment.col),
-                trailing=not comment.standalone,
-                id_slot=None if raw_id is not None else IdSlot(comment.line, comment.col + match.end("tag"), "[{id}]"),
-            )
+        result = tag_annotation(
+            source,
+            match,
+            canonical,
+            line=comment.line,
+            end_line=end_line,
+            col=comment.col,
+            slot_col=comment.col + match.end("tag"),
+            title=match.group("rest"),
+            description=textwrap.dedent("\n".join(continuation)),
+            symbol=symbols.symbol_for(comment.line, end_line, comment.col),
+            trailing=not comment.standalone,
         )
+        if isinstance(result, Diagnostic):
+            diagnostics.append(result)
+        else:
+            found.append(result)
     return found, diagnostics

@@ -5,11 +5,13 @@
 
 The decoded text keeps the file's original newlines, and ``encode()`` round-trips
 to the exact original bytes (including a UTF-8 BOM and a missing final newline),
-so edits only touch the characters they mean to.
+so edits only touch the characters they mean to. Python files honour coding
+cookies; Markdown and JSON are UTF-8 (with or without a BOM).
 """
 
 from __future__ import annotations
 
+import codecs
 import io
 import re
 import tokenize
@@ -17,6 +19,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from byteplan.errors import SourceError
+from byteplan.languages import Language, language_for
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -40,10 +43,13 @@ class SourceFile:
 
 
 def decode_source(path: str, data: bytes) -> SourceFile:
-    try:
-        encoding, _ = tokenize.detect_encoding(io.BytesIO(data).readline)
-    except SyntaxError as exc:
-        raise SourceError(path, f"cannot determine encoding: {exc.msg}") from exc
+    if language_for(path) in {Language.MARKDOWN, Language.JSON}:
+        encoding = "utf-8-sig" if data.startswith(codecs.BOM_UTF8) else "utf-8"
+    else:
+        try:
+            encoding, _ = tokenize.detect_encoding(io.BytesIO(data).readline)
+        except SyntaxError as exc:
+            raise SourceError(path, f"cannot determine encoding: {exc.msg}") from exc
     try:
         text = data.decode(encoding)
     except (UnicodeDecodeError, LookupError) as exc:
