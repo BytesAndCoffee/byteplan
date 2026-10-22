@@ -924,7 +924,7 @@ url:<https://...>                         # anything else
   note, never as a ref (§D.2.2).
 
 **Merging existing concepts into links:**
-- Addendum B's planned `depends_on` becomes `blocked_by` links, with cycle detection.
+- Phase 6c's `depends_on` is converted by `byteplan migrate` into `blocked_by` links, with cycle detection.
 - Test links (Addendum A `tests`) stay in their own subsystem, because they carry discovery and
   provenance details. Queries present them as `verified_by` relationships, so there's one view and
   two storage paths.
@@ -1008,7 +1008,8 @@ change, not proof".
   returned through MCP as clearly delimited untrusted content.
 - **Never executed or obeyed:** BytePlan never runs anything they contain and never treats them as
   instructions.
-- **MCP permissions:** the agent tools from §D.7.1 map onto the existing three permission flags.
+- **MCP permissions:** the agent tools from §D.7.1 are added to the MCP server in Phase 12, and map
+  onto its existing three permission flags.
   `request_resolution` is policy-checked: it is refused when approval is required and not given,
   or when evidence is stale. It is never an unconditional resolve. `approve` doesn't exist on MCP.
 - **Tokens:** least-privilege token guidance lives in the Relay docs, not core.
@@ -1028,23 +1029,26 @@ usable offline with no GitHub account.
   - a single updatable status comment
   - documentation for a triage agent that only *proposes* bindings
   - branch-protection and required-review guidance
-- **Prerequisites:** it's built only after the assignment model (Phase 4c), verification
+- **Prerequisites:** it's built only after the assignment model (Phase 12), verification
   (Phase 6a), scaffolding (6b) and MCP (Phase 9) exist.
 - **GitHub App or Checks API:** deferred until real use justifies it (§D.10 D5).
 
 ### Schema v2 and migration (§D.9)
 
-Phase 4c bumps the registry to **`schema_version: 2`**. The new presence value `unbound` would be
+Phase 12 bumps the registry to **`schema_version: 2`**. The new presence value `unbound` would be
 misread by older readers, so silently reusing v1 is not acceptable.
 - `byteplan migrate` upgrades v1 to v2 in place through the journal, idempotently.
 - Every write command refuses a v1 registry with a "run `byteplan migrate`" message. Reads still
   work.
 - **Migration is purely additive:** empty `links`, `approval: {required: false, state:
-  not_required}`, `coverage_review: unassessed`, and an empty `binding_proposals`. No existing value
-  changes.
-- **Round-trip fix (found while planning):** unknown **top-level** registry keys are currently
-  dropped on load and save. I confirmed this with a round-trip test. Phase 4c makes them
-  round-trip, as task-level unknown keys already do. The merge driver merges them three-way.
+  not_required}`, `coverage_review: unassessed`, and an empty `binding_proposals`. Phase 6c's
+  `depends_on` becomes `blocked_by` links. No other existing value changes.
+- **Prerequisite, scheduled early:** unknown **top-level** registry keys are currently dropped on
+  load and save. I found this while planning Addendum D and confirmed it with a round-trip test.
+  It's a general forward-compatibility bug rather than an Addendum D feature, and Phase 8's
+  top-level `release` records depend on it. So it's fixed in Phase 4c, not deferred with
+  Addendum D. Unknown top-level keys will round-trip as task-level ones already do, and the merge
+  driver will merge them three-way.
 
 ### Remaining open questions (§D.12)
 
@@ -1149,8 +1153,18 @@ contract as the CLI.
 
 Each phase ends green on `hatch fmt --check`, `hatch run types:check` and `hatch test --all`.
 
-Addendum A's six-step order (§10), Addendum B's order (§B9), Addendum C's order (§C10) and Addendum D's delivery phases (§D.10: D0–D2 in Phase 4c, D3 in Phase 12, D4 across Phases 9 and 12, D5 deferred) are merged in below. Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4b comes next: the engine it depends on (Phases 1–4) is in place, and it's read-only. Its step 2 (choosing the runtime design)
-is done above, so the runtime package can ship before anything generates decorators.
+Each addendum's suggested order is merged in below: Addendum A §10, Addendum B §B9 and Addendum C
+§C10. **Addendum D comes last:**
+- **Phase 12:** §D.10 stages D0–D2, plus the D4 agent tools.
+- **Phase 13:** D3, the optional `relay-for-github` package.
+- **D5:** deferred.
+
+D builds on nearly everything before it (verification, scaffolding, release, MCP), and nothing
+earlier depends on it.
+
+Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4b comes
+next, since the engine it depends on (Phases 1–4) is in place and it's read-only. Addendum A's
+step 2 (choosing the runtime design) is already done, and the runtime package has shipped.
 
 | Phase | Deliverables | Spec §12 tests | Addendum §9 tests |
 |---|---|---|---|
@@ -1160,18 +1174,19 @@ is done above, so the runtime package can ship before anything generates decorat
 | 3. Stubs + decorators ✅ | `stubs.py`, `decorators.py` (static `@todo`/`@verifies` discovery, alias resolution), `association.py` (comment / decorator / stub → one obligation), decorator `id=` allocation, schema fields, `implementation_changed`, `check`, `report`, `repair` | 2, 3, 4, 17 | 1, 2, 6 (comment mode), 7, 19 |
 | 4. Hatch ✅ | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
 | 4b. Git lifecycle (read-only) | `snapshot.py` + `gitio.py` (index/commit snapshots via NUL-safe plumbing, no-optional-locks), `check --staged`, `scan --staged --dry-run`, staged diagnostics and policy keys, `.pre-commit-hooks.yaml`, `git install-hooks` / `git hooks-status`, `docs/ci.md` GitHub Actions recipe | – | C: 1–6, 8–14, 17–21 (C: 7, 22 with Phase 8) |
-| 4c. Assignment model (D0 + local D1/D2) | schema v2 + `byteplan migrate`; top-level unknown-key round-trip; `presence: unbound`; `binding_proposals`; `approval` + `approve` / `request-changes`, approval-gated `resolve`; `coverage_review`; typed `links` with ref grammar and patch IDs; `create`, `intake` (offline, idempotent), `bind`, `propose-binding`, `link` / `unlink`, `links`, `refs`, `history`, `impact REV`; event actor/revision/idempotency fields; `blocked_by` replaces `depends_on`; merge driver handles the new fields | – | D.11: 1–8 (9 for local retries) |
+| 4c. Registry forward compatibility | unknown **top-level** registry keys round-trip (today they're dropped on save; task-level ones already survive), and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
 | 5. Runtime + normalization | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
 | 6a. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |
 | 6b. Test scaffolding | `scaffold.py` planner, `byteplan tests scaffold ID [--path] [--name] [--policy] [--force-new] [--dry-run]`, placeholder detection, `[tool.byteplan.tests.scaffold]` | – | B: 1–9, 11 (CLI), 12 |
-| 6c. Criteria (optional) | `acceptance_criteria`, `byteplan criteria …`, lifecycle facts in reports (dependencies moved to Phase 4c links as `blocked_by`) | – | – |
+| 6c. Criteria + dependencies (optional) | `acceptance_criteria`, `byteplan criteria …`, `depends_on`, lifecycle facts in reports (Phase 12 later turns `depends_on` into `blocked_by` links) | – | – |
 | 7. Cleanup | `cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`, `--suppress-stubs` | – | 13 (cleanup), 14 |
 | 8. Release | `release.py`, `byteplan release [--version] [--dry-run] [--allow-dirty] [--smoke-test]`, `byteplan restore [--dry-run] [--partial]`, presence `stripped`, registry `release`/`releases`, `release_on_default_branch` and `unfinished_scaffold_in_sdist` warnings, Hatch `require_stripped`, documented release-branch workflow | – | release tests below · B: 13–18 |
-| 9. MCP | `[mcp]` extra, `mcp_server.py` with all tools above (including scaffold preview / `scaffold_test`) plus the Addendum D §D.7.1 contract (`intake_issue`, `propose_binding`, `bind_source`, `link_artifact`, `scaffold_regression`, `record_verification`, `get_assignment`, `get_handoff`, policy-checked `request_resolution`; no `approve`), the three permissions, `byteplan mcp`, README client snippets | – | A: 16 (MCP part), 20 · B: 11 (MCP) |
+| 9. MCP | `[mcp]` extra, `mcp_server.py` with all tools above (including scaffold preview / `scaffold_test`), the three permissions, `byteplan mcp`, README client snippets | – | A: 16 (MCP part), 20 · B: 11 (MCP) |
 | 10. Integration | README end-to-end developer journey (`# TODO` → `scan` → `tests scaffold` → implement → `verify` → `resolve` → `sync`, including where BytePlan notices but never closes work), docs for every config key, dogfood `hatch run byteplan scan` on BytePlan itself, CI on ubuntu/macos/windows | DoD | full suite · B: 19 |
 | 11 (optional) | spec §14 phase 5 items, `TODO(owner):` syntax | – | – |
-| 11b (optional) | `scan --staged --apply` (index-only, partial-stage refusal, manifest recovery), `byteplan diff BASE...HEAD`, SARIF/Markdown PR annotations, `links discover` (trailers), `links reconcile` (patch IDs) | – | C: 15, 16 |
-| 12 (optional, separate package) | `relay-for-github/`: reusable workflows (idempotent intake, PR reconciliation, single status comment), triage-agent guide, branch-protection docs, end-to-end demo (issue → intake → binding PR → failing scaffold → fix → verification → human approval → reconciliation, with a retry/failure path) | – | D.11: 9–12 |
+| 11b (optional) | `scan --staged --apply` (index-only, partial-stage refusal, manifest recovery), `byteplan diff BASE...HEAD`, SARIF/Markdown PR annotations | – | C: 15, 16 |
+| 12. Assignment model (Addendum D: D0–D2, D4) | schema v2 + `byteplan migrate` (also converts `depends_on` to `blocked_by` links); `presence: unbound`; `binding_proposals`; `approval` + `approve` / `request-changes`, approval-gated `resolve`; `coverage_review`; typed `links` with ref grammar and patch IDs; `create`, `intake` (offline, idempotent), `bind`, `propose-binding`, `link` / `unlink`, `links`, `refs`, `history`, `impact REV`, `links discover` (trailers), `links reconcile` (patch IDs); event actor/revision/idempotency fields; merge driver handles the new fields; MCP gains the §D.7.1 contract (`intake_issue`, `propose_binding`, `bind_source`, `link_artifact`, `scaffold_regression`, `record_verification`, `get_assignment`, `get_handoff`, policy-checked `request_resolution`; no `approve`) | – | D.11: 1–8 (9 for local retries) |
+| 13 (optional, separate package) | `relay-for-github/`: reusable workflows (idempotent intake, PR reconciliation, single status comment), triage-agent guide, branch-protection docs, end-to-end demo (issue → intake → binding PR → failing scaffold → fix → verification → human approval → reconciliation, with a retry/failure path) | – | D.11: 9–12 |
 
 **Phase 8 release tests:**
 - `release` changes only decorator lines, runtime imports and the registry. It never commits,
@@ -1218,7 +1233,7 @@ is done above, so the runtime package can ship before anything generates decorat
 - The pre-commit hook runs through `pre-commit try-repo` on a registry-only commit (marked
   `network`).
 
-**Phase 4c tests (Addendum D §D.11):**
+**Phase 12 tests (Addendum D §D.11):**
 - A v1 registry migrates losslessly, unknown keys survive, and migrating twice changes nothing.
 - An unbound assignment is never marked missing, and binding it keeps its ID.
 - A source TODO's assignment keeps its pre-existing ID.
