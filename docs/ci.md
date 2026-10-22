@@ -49,7 +49,7 @@ finalized. It updates both the index and the working tree, and refuses partially
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/BytesAndCoffee/byteplan
-    rev: <a released tag, e.g. v0.1.0>
+    rev: v0.1.0
     hooks:
       - id: byteplan-reconcile   # add IDs (formatter-style: annotates, fails, commit again)
       - id: byteplan-check       # then validate
@@ -90,7 +90,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install "byteplan==<released version>"
+      - run: python -m pip install "byteplan==0.1.0"
       - run: byteplan check --commit HEAD --format json
 ```
 

@@ -17,8 +17,8 @@ resolved. Only you resolve tasks.
 
 > **Status: alpha, in active development.** The CLI, scanner, registry and Hatch hook described
 > here work today. Test linking and verification, test scaffolding, release stripping, and an MCP
-> server are planned; see the [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md). The `byteplan`
-> 0.0.1 release on PyPI is an empty placeholder, so install from GitHub until the next release.
+> server are planned; see the [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md) and the
+> [changelog](https://github.com/BytesAndCoffee/byteplan/blob/main/CHANGELOG.md).
 
 ## Contents
 
@@ -35,7 +35,7 @@ resolved. Only you resolve tasks.
 ## Installation
 
 ```console
-pip install "byteplan @ git+https://github.com/BytesAndCoffee/byteplan"
+pip install byteplan
 ```
 
 BytePlan needs Python 3.11+ and has one runtime dependency, `pathspec`. The optional
