@@ -278,7 +278,7 @@ def _crash_after(monkeypatch: pytest.MonkeyPatch, *, writes_before_crash: int) -
     calls = {"n": 0}
 
     def write(path: Path, data: bytes, mode: int | None = None) -> bool:
-        if path.name != gitwrite.STAGED_JOURNAL:
+        if "staged" not in path.parent.parts[-1:]:  # journal and copies live in txn/staged/
             if calls["n"] == writes_before_crash:
                 raise CrashError
             calls["n"] += 1
@@ -356,3 +356,66 @@ def test_pending_staged_journal_blocks_other_writes(
     assert "interrupted staged reconciliation" in result.err
     assert run_cli("scan", "--staged", "--apply", "--project", repo.root).code == EXIT_OK
     assert run_cli("scan", "--project", repo.root).code == EXIT_OK
+
+
+# Codex review of #15 ----------------------------------------------------------------------------------
+
+
+def test_overlapping_reconciliations_are_serialized(repo: ProjectFactory, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A second run must not "recover" the first run's live journal."""
+    _three_targets(repo)
+    real_swap = gitwrite._swap_index  # noqa: SLF001
+    second: list[BaseException] = []
+
+    def swap_with_a_second_run(*args: Any, **kwargs: Any) -> None:
+        try:
+            reconcile_staged(repo.root)
+        except Exception as exc:  # noqa: BLE001 - recorded for the assertion below
+            second.append(exc)
+        real_swap(*args, **kwargs)
+
+    monkeypatch.setattr(gitwrite, "_swap_index", swap_with_a_second_run)
+    outcome = reconcile_staged(repo.root)
+    monkeypatch.undo()
+    assert outcome.code == EXIT_OK, outcome.messages
+    assert len(second) == 1
+    assert "scan.lock" in str(second[0])
+    assert sorted(status(repo).splitlines()) == ["A  proj/src/c.py", "A  proj/src/d.py", "M  proj/.byteplan/tasks.json"]
+    assert not StagedJournal.path(repo.root).exists()
+
+
+def test_crlf_files_with_autocrlf(hooked: ProjectFactory) -> None:
+    top = hooked.root.parent
+    git(top, "config", "core.autocrlf", "true")
+    hooked.write("src/win.py", b"# TODO: crlf work\r\nx = 1\r\n")
+    git(top, "add", "proj/src/win.py")
+    result = git(top, "commit", "-qm", "crlf", check=False)
+    assert result.returncode == 0, result.stdout + result.stderr
+    blob = git(top, "show", "HEAD:proj/src/win.py").stdout
+    assert "# TODO[" in blob
+    assert "\r" not in blob  # normalized in the repository
+    on_disk = (hooked.root / "src/win.py").read_bytes()
+    assert on_disk.startswith(b"# TODO[")
+    assert b"\r\n" in on_disk  # CRLF kept in the working tree
+    assert status(hooked) == ""
+
+
+def test_missing_recorded_index_recovers_backward(repo: ProjectFactory, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A crash inside `git commit -a`, whose temporary index Git then discards."""
+    top = repo.root.parent
+    _three_targets(repo)
+    real_index_entries = git(top, "ls-files", "--stage").stdout
+    temp_index = top / ".git/index.hook-temp"
+    shutil.copyfile(top / ".git/index", temp_index)
+    monkeypatch.setenv("GIT_INDEX_FILE", str(temp_index))
+    _crash_after(monkeypatch, writes_before_crash=1)
+    with pytest.raises(CrashError):
+        reconcile_staged(repo.root)
+    monkeypatch.undo()
+    temp_index.unlink()  # the aborted commit discards its temporary index
+    messages = gitwrite.recover(repo.root)
+    assert any("its index no longer exists" in m for m in messages)
+    assert (repo.root / "src/c.py").read_text() == "# TODO: first\n"  # working tree undone
+    assert git(top, "ls-files", "--stage").stdout == real_index_entries  # real index untouched
+    assert not StagedJournal.path(repo.root).exists()
+    assert reconcile_staged(repo.root).code == EXIT_OK  # and a fresh run now succeeds

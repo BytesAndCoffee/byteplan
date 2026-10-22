@@ -160,6 +160,15 @@ def _pid_alive(pid: int) -> bool:
     return True
 
 
+def staged_dir(root: Path) -> Path:
+    """Working directory of an in-progress staged (Git index) reconciliation (Phase 4c).
+
+    A subdirectory, so the regular transaction's cleanup of plain files in ``txn/``
+    never touches it.
+    """
+    return root / STATE_DIR / TXN_DIR / "staged"
+
+
 def journal_path(root: Path) -> Path:
     return root / STATE_DIR / TXN_DIR / JOURNAL
 

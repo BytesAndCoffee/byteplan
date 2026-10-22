@@ -51,12 +51,12 @@ from byteplan.api import Project, utc_now
 from byteplan.diagnostics import EXIT_FINDINGS, EXIT_OK, Code
 from byteplan.errors import ByteplanError, ConfigError
 from byteplan.gitio import git, toplevel
-from byteplan.persistence import STATE_DIR, TXN_DIR, atomic_write_bytes, sha256
+from byteplan.persistence import atomic_write_bytes, project_lock, sha256, staged_dir
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
 
-STAGED_JOURNAL = "staged-journal.json"
+STAGED_JOURNAL = "journal.json"  # in persistence.staged_dir()
 ZERO_OID = "0" * 40
 NEW_FILE_MODE = "100644"
 
@@ -80,8 +80,12 @@ class JournalEntry:
     mode: str
     before_oid: str | None  # None: not in the index before
     after_oid: str
-    before_hash: str | None  # working tree before (= staged bytes); None: file absent
+    # Working-tree bytes, which may differ from the blobs (e.g. CRLF with core.autocrlf).
+    # Exact copies live next to the journal, so rollback restores the original bytes.
+    before_hash: str | None  # None: the file didn't exist
     after_hash: str
+    before_copy: str | None
+    after_copy: str
     written: bool = False
 
 
@@ -93,7 +97,7 @@ class StagedJournal:
 
     @staticmethod
     def path(root: Path) -> Path:
-        return root / STATE_DIR / TXN_DIR / STAGED_JOURNAL
+        return staged_dir(root) / STAGED_JOURNAL
 
     def save(self, root: Path) -> None:
         data = {
@@ -118,6 +122,7 @@ class StagedJournal:
     def delete(self, root: Path) -> None:
         with contextlib.suppress(FileNotFoundError):
             self.path(root).unlink()
+        shutil.rmtree(staged_dir(root), ignore_errors=True)
 
 
 def pending(root: Path) -> bool:
@@ -248,21 +253,36 @@ def _disk_hash(path: Path) -> str | None:
         return None
 
 
-def _blob(top: Path, oid: str) -> bytes:
+def _git_out(top: Path, args: list[str], data: bytes | None = None) -> bytes:
     return subprocess.run(
-        ["git", "cat-file", "blob", oid],  # noqa: S607 - git from PATH, like every Git call here
+        ["git", *args],  # noqa: S607 - git from PATH, like every Git call here
         cwd=top,
+        input=data,
         capture_output=True,
         check=True,
     ).stdout
 
 
-def _restore_file(top: Path, path: Path, oid: str | None) -> None:
-    if oid is None:
+def _normalized_oid(top: Path, top_path: str, data: bytes) -> str:
+    """The blob ID Git would store for ``data`` at ``top_path`` (eol/clean filters applied)."""
+    return _git_out(top, ["hash-object", "--stdin", f"--path={top_path}"], data).decode().strip()
+
+
+def _worktree_form(top: Path, top_path: str, oid: str) -> bytes:
+    """A blob as Git would check it out at ``top_path`` (eol/smudge filters applied)."""
+    return _git_out(top, ["cat-file", "--filters", f"--path={top_path}", oid])
+
+
+def _read_copy(root: Path, name: str) -> bytes:
+    return (staged_dir(root) / name).read_bytes()
+
+
+def _restore_file(root: Path, path: Path, copy: str | None) -> None:
+    if copy is None:
         with contextlib.suppress(FileNotFoundError):
             path.unlink()
     else:
-        atomic_write_bytes(path, _blob(top, oid))
+        atomic_write_bytes(path, _read_copy(root, copy))
 
 
 def _rollback(root: Path, top: Path, journal: StagedJournal) -> None:
@@ -276,7 +296,7 @@ def _rollback(root: Path, top: Path, journal: StagedJournal) -> None:
         path = root / entry.path
         current = _disk_hash(path)
         if current == entry.after_hash:
-            _restore_file(top, path, entry.before_oid)
+            _restore_file(root, path, entry.before_copy)
         elif current != entry.before_hash:
             conflicts.append(entry.path)
     if journal.index is not None:
@@ -304,7 +324,7 @@ def _before(journal: StagedJournal, top_path: str) -> tuple[str, str] | None:
     return None if entry.before_oid is None else (entry.mode, entry.before_oid)
 
 
-def _write_worktree(root: Path, top: Path, journal: StagedJournal) -> None:
+def _write_worktree(root: Path, journal: StagedJournal) -> None:
     # Sources first, registry last: a partial run never leaves IDs without registry entries.
     for entry in sorted(journal.entries, key=lambda e: e.path.endswith(".json")):
         if entry.written:
@@ -312,34 +332,42 @@ def _write_worktree(root: Path, top: Path, journal: StagedJournal) -> None:
         path = root / entry.path
         if _disk_hash(path) != entry.before_hash:
             raise _AbortError(entry.path)
-        atomic_write_bytes(path, _blob(top, entry.after_oid))
+        atomic_write_bytes(path, _read_copy(root, entry.after_copy))
         entry.written = True
         journal.save(root)
 
 
 def recover(root: Path) -> list[str]:
-    """Finish or undo an interrupted staged reconciliation. Returns messages."""
+    """Finish or undo an interrupted staged reconciliation, under the project lock."""
+    with project_lock(root):
+        return _recover_locked(root)
+
+
+def _recover_locked(root: Path) -> list[str]:
     journal = StagedJournal.load(root)
     if journal is None:
         return []
     top = toplevel(root)
-    if journal.direction == "forward" and _all_known(root, top, journal):
-        if journal.index is not None and Path(journal.index).exists():
+    index_gone = journal.index is not None and not Path(journal.index).exists()
+    for entry in journal.entries:  # anything already at BytePlan's bytes counts as written
+        entry.written = entry.written or _disk_hash(root / entry.path) == entry.after_hash
+    if journal.direction == "forward" and not index_gone and _all_known(root, top, journal):
+        if journal.index is not None:
             index = Path(journal.index)
             after = {e.top_path: (e.mode, e.after_oid) for e in journal.entries}
             current = _index_entries(top, index, list(after))
             pending_swap = {p: _before(journal, p) for p, v in after.items() if current.get(p) != v}
             if pending_swap:
                 _swap_index(top, index, pending_swap, {p: after[p] for p in pending_swap})
-        for entry in journal.entries:
-            entry.written = entry.written or _disk_hash(root / entry.path) == entry.after_hash
-        _write_worktree(root, top, journal)
+        _write_worktree(root, journal)
         journal.delete(root)
         return ["byteplan: completed an interrupted staged reconciliation"]
-    for entry in journal.entries:  # anything already at BytePlan's bytes counts as written
-        entry.written = entry.written or _disk_hash(root / entry.path) == entry.after_hash
+    # Backward. If the recorded index is gone (e.g. the temporary index of an aborted
+    # `git commit -a`), the real index never received the change: undoing the working
+    # tree is what makes everything consistent again.
     _rollback(root, top, journal)
-    return ["byteplan: undid an interrupted staged reconciliation (something changed since)"]
+    reason = "its index no longer exists" if index_gone else "something changed since"
+    return [f"byteplan: undid an interrupted staged reconciliation ({reason})"]
 
 
 def _all_known(root: Path, top: Path, journal: StagedJournal) -> bool:
@@ -376,69 +404,116 @@ def reconcile_staged(start: Path | None = None, clock: Callable[[], str] = utc_n
                 msg = f"unsupported_index_format: {key} is enabled; use `byteplan scan` and stage manually"
                 raise ConfigError(msg)
 
+    probe = Project.open_snapshot(start, clock=clock)
+    root = probe.root
+    probe.close()
+    # One reconciliation at a time: without the lock, a second run would mistake the first
+    # one's live journal for a crash and "recover" it.
+    with project_lock(root):
+        messages = _recover_locked(root)
+        planned = _plan(start, top, index, clock, framework=framework)
+        if isinstance(planned, StagedOutcome):
+            planned.messages[:0] = messages
+            return planned
+        journal, annotated, on_reconcile = planned
+        outcome = _apply(root, top, journal, messages)
+        if outcome is not None:
+            return outcome
+
+        summary = f"byteplan: annotated {len(journal.entries)} staged file(s)"
+        lines = [*messages, summary, *(f"  {line}" for line in annotated)]
+        if framework:
+            lines.append("byteplan: `git add` the annotated files and commit again")
+            return StagedOutcome(EXIT_FINDINGS, lines, annotated)
+        check = _check_only(start, None)
+    result = StagedOutcome(check.code, [*lines, *check.messages], annotated, wrote_index=True)
+    if result.code == EXIT_OK and on_reconcile == "stop":
+        result.code = EXIT_FINDINGS
+        result.messages.append('byteplan: on_reconcile = "stop": review the annotations, then commit again')
+    return result
+
+
+def _plan(
+    start: Path, top: Path, index: Path, clock: Callable[[], str], *, framework: bool
+) -> StagedOutcome | tuple[StagedJournal, list[str], str]:
+    """Build the journal for this reconciliation, or an outcome explaining why there's none."""
     project = Project.open_snapshot(start, clock=clock)
-    root = project.root
-    messages = recover(root)
     try:
-        if messages:  # the index may have changed: re-read it
-            project.close()
-            project = Project.open_snapshot(start, clock=clock)
         snapshot = project.snapshot
         assert snapshot is not None  # noqa: S101 - open_snapshot always sets it
+        root = project.root
         report = project.scan(dry_run=True)
         if report.blocked:
-            return StagedOutcome(
-                project.exit_code(report.diagnostics),
-                [*messages, *(d.format_text() for d in report.diagnostics)],
-            )
+            return StagedOutcome(project.exit_code(report.diagnostics), [d.format_text() for d in report.diagnostics])
         changes = [w for w in report.planned if snapshot.read(w.path) != w.data]
         if not changes:
-            project.close()
-            return _check_only(start, None, messages)
+            return _check_only(start, None)
 
+        journal = StagedJournal(None if framework else str(index))
+        copies: dict[str, bytes] = {}
         conflicts = []
-        for write in changes:
-            staged = snapshot.read(write.path)
-            on_disk = (root / write.path).read_bytes() if (root / write.path).exists() else None
-            if on_disk != staged:
+        for number, write in enumerate(changes):
+            top_path = f"{snapshot.offset}/{write.path}" if snapshot.offset else write.path
+            entry = snapshot.entries.get(top_path)
+            disk_path = root / write.path
+            on_disk = disk_path.read_bytes() if disk_path.exists() else None
+            # "Fully staged" is judged through Git's own normalization (eol conversion, clean
+            # filters): a CRLF file with core.autocrlf matches its LF blob.
+            if entry is None:
+                fully_staged = on_disk is None
+            else:
+                fully_staged = on_disk is not None and _normalized_oid(top, top_path, on_disk) == entry.oid
+            if not fully_staged:
                 code = (
                     "registry_partial_stage_conflict"
                     if write.path == project.registry_rel
                     else "partial_stage_conflict"
                 )
                 conflicts.append(f"{code}: {write.path} has unstaged changes")
-        if conflicts:
-            return StagedOutcome(
-                EXIT_FINDINGS,
-                [
-                    *messages,
-                    *conflicts,
-                    "byteplan: nothing was written. Stage the whole file(s) (or run `byteplan scan` "
-                    "and re-stage), then commit again. Preview: `byteplan scan --staged --dry-run`",
-                ],
-            )
-
-        journal = StagedJournal(None if framework else str(index))
-        for write in changes:
-            top_path = (Path(snapshot.offset) / write.path).as_posix() if snapshot.offset else write.path
-            entry = snapshot.entries.get(top_path)
-            staged = snapshot.read(write.path)
+                continue
+            after_oid = _hash_object(top, write.data)
+            after_disk = _worktree_form(top, top_path, after_oid)
+            if _normalized_oid(top, top_path, after_disk) != after_oid:
+                conflicts.append(f"partial_stage_conflict: {write.path} can't be mapped between index and working tree")
+                continue
+            before_copy = None if on_disk is None else f"{number}.before"
+            if on_disk is not None:
+                copies[f"{number}.before"] = on_disk
+            copies[f"{number}.after"] = after_disk
             journal.entries.append(
                 JournalEntry(
                     path=write.path,
                     top_path=top_path,
                     mode=entry.mode if entry else NEW_FILE_MODE,
                     before_oid=entry.oid if entry else None,
-                    after_oid=_hash_object(top, write.data),
-                    before_hash=None if staged is None else sha256(staged),
-                    after_hash=sha256(write.data),
+                    after_oid=after_oid,
+                    before_hash=None if on_disk is None else sha256(on_disk),
+                    after_hash=sha256(after_disk),
+                    before_copy=before_copy,
+                    after_copy=f"{number}.after",
                 )
+            )
+        if conflicts:
+            return StagedOutcome(
+                EXIT_FINDINGS,
+                [
+                    *conflicts,
+                    "byteplan: nothing was written. Stage the whole file(s) (or run `byteplan scan` "
+                    "and re-stage), then commit again. Preview: `byteplan scan --staged --dry-run`",
+                ],
             )
         annotated = [f"[{p.task_id}] {p.tag.kind} {p.tag.location}  {p.tag.title}" for p in report.proposals]
     finally:
         project.close()
 
+    for name, data in copies.items():  # exact working-tree bytes, before the journal exists
+        atomic_write_bytes(staged_dir(root) / name, data)
     journal.save(root)
+    return journal, annotated, project.config.git.on_reconcile
+
+
+def _apply(root: Path, top: Path, journal: StagedJournal, messages: list[str]) -> StagedOutcome | None:
+    """Index swap then working tree; on failure roll everything back. None means success."""
 
     def worktree_unchanged() -> None:
         for entry in journal.entries:
@@ -454,7 +529,7 @@ def reconcile_staged(start: Path | None = None, clock: Callable[[], str] = utc_n
                 {e.top_path: (e.mode, e.after_oid) for e in journal.entries},
                 precheck=worktree_unchanged,
             )
-        _write_worktree(root, top, journal)
+        _write_worktree(root, journal)
     except _AbortError as exc:
         _rollback(root, top, journal)
         return StagedOutcome(
@@ -467,18 +542,7 @@ def reconcile_staged(start: Path | None = None, clock: Callable[[], str] = utc_n
                 _rollback(root, top, journal)
         raise
     journal.delete(root)
-
-    summary = f"byteplan: annotated {len(journal.entries)} staged file(s)"
-    lines = [*messages, summary, *(f"  {line}" for line in annotated)]
-    if framework:
-        lines.append("byteplan: `git add` the annotated files and commit again")
-        return StagedOutcome(EXIT_FINDINGS, lines, annotated)
-    check = _check_only(start, None)
-    outcome = StagedOutcome(check.code, [*lines, *check.messages], annotated, wrote_index=True)
-    if outcome.code == EXIT_OK and project.config.git.on_reconcile == "stop":
-        outcome.code = EXIT_FINDINGS
-        outcome.messages.append('byteplan: on_reconcile = "stop": review the annotations, then commit again')
-    return outcome
+    return None
 
 
 def _check_only(start: Path, note: str | None, messages: Sequence[str] = ()) -> StagedOutcome:

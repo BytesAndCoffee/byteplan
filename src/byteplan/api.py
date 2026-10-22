@@ -41,6 +41,7 @@ from byteplan.persistence import (
     project_lock,
     recover,
     sha256,
+    staged_dir,
 )
 from byteplan.reconcile import Observation, Summary, reconcile
 from byteplan.registry import Registry, load_registry
@@ -182,7 +183,7 @@ class Project:
     @contextlib.contextmanager
     def _writing(self) -> Iterator[tuple[str, ...]]:
         """Hold the project lock and finish any interrupted write first."""
-        if (self.root / STATE_DIR / "txn" / "staged-journal.json").exists():
+        if (staged_dir(self.root) / "journal.json").exists():
             msg = (
                 "an interrupted staged reconciliation is pending; run `byteplan scan --staged --apply` "
                 "to finish or undo it first"
