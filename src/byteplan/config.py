@@ -41,6 +41,9 @@ class DetectConfig:
     not_implemented_stubs: bool = True
     empty_classes: bool = True
     placeholder_assignments: bool = False
+    # Don't treat a trivial method as a stub when a project subclass implements it
+    # (interface by convention) or it overrides a project base class's method (no-op).
+    respect_overrides: bool = True
 
 
 @dataclass(frozen=True)

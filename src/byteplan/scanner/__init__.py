@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from byteplan.config import DetectConfig
     from byteplan.diagnostics import Diagnostic
     from byteplan.models import Annotation
+    from byteplan.scanner.hierarchy import ClassHierarchy
     from byteplan.scanner.source import SourceFile
 
 DEFAULT_RUNTIME_MODULES = ("byteplan_runtime",)
@@ -38,8 +39,13 @@ def scan_file(
     source: SourceFile,
     detect: DetectConfig,
     runtime_modules: Sequence[str] = DEFAULT_RUNTIME_MODULES,
+    hierarchy: ClassHierarchy | None = None,
 ) -> FileScan:
-    """Scan one decoded file. Raises ``SourceError`` if it can't be tokenized or parsed."""
+    """Scan one decoded file. Raises ``SourceError`` if it can't be tokenized or parsed.
+
+    ``hierarchy`` is the project-wide class index; with ``respect_overrides`` it keeps
+    interface methods and deliberate no-op overrides from being reported as stubs.
+    """
     tree = parse_module(source)
     comments = iter_comments(source)
     if file_ignored(comments):
@@ -49,7 +55,8 @@ def scan_file(
     tags, diagnostics = scan_comments(source, detect.todo_tags, index, comments)
     decorated = scan_decorators(source, tree, decls, runtime_modules, detect.todo_tags)
     ignore_lines = {c.line for c in comments if IGNORE_RE.search(c.text)}
-    stubs = find_stubs(decls, detect, ignore_lines)
+    intentional = hierarchy.intentional if hierarchy is not None and detect.respect_overrides else None
+    stubs = find_stubs(decls, detect, ignore_lines, intentional)
     annotations, stub_diagnostics = associate(
         source, [*tags, *decorated.annotations], stubs, decls, index, detect.todo_tags
     )

@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from byteplan.api import Proposal
     from byteplan.config import DetectConfig
     from byteplan.models import Annotation
+    from byteplan.scanner.hierarchy import ClassHierarchy
     from byteplan.scanner.source import SourceFile
 
 
@@ -43,6 +44,7 @@ def annotate(
     proposals: Sequence[Proposal],
     detect: DetectConfig,
     runtime_modules: Sequence[str] = DEFAULT_RUNTIME_MODULES,
+    hierarchy: ClassHierarchy | None = None,
 ) -> tuple[SourceFile, FileScan]:
     """Return ``source`` with every proposal's ID written, plus a scan of the result.
 
@@ -62,8 +64,8 @@ def annotate(
     edited = dataclasses.replace(source, text=apply_insertions(source.text, insertions))
     ensure_equivalent(source.path, source.text, edited.text)
 
-    before = scan_file(source, detect, runtime_modules).tags
-    after = scan_file(edited, detect, runtime_modules)
+    before = scan_file(source, detect, runtime_modules, hierarchy).tags
+    after = scan_file(edited, detect, runtime_modules, hierarchy)
     expected = Counter(_identity(a, proposed.get((a.line, a.col), a.task_id)) for a in before)
     if expected != Counter(_identity(a, a.task_id) for a in after.tags):
         msg = f"{source.path}: annotation did not round-trip through the scanner; nothing was written"
