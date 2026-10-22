@@ -413,9 +413,6 @@ class Project:
                     hint="run `byteplan scan` (without --dry-run) to complete it",
                 )
             )
-        # FIXME[90c6]: Don't propose stub tasks for declarations whose @todo is stripped for a release
-        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850135
-        #   A stripped stub looks unowned, so a writing scan added a duplicate task and comment.
         stripped_block = self.stripped_release(registry)
         if stripped_block is not None:
             on_record = {
@@ -1171,9 +1168,6 @@ class Project:
         already-stripped tree.
         """
         version = self.release_version(version)
-        # FIXME[205d]: Check for a pending journal before the write context recovers it
-        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353030073
-        #   _writing() rolls an interrupted write forward first, so release changed files instead of refusing.
         if pending_journal(self.root) or (staged_dir(self.root) / "journal.json").exists():
             raise release.ReleaseError(
                 release.NEEDS_REVIEW,
@@ -1319,9 +1313,6 @@ class Project:
                 else:
                     text, file_conflicts, left = release.restore_anchored(path, source.text, record)
                     conflicts += file_conflicts
-                # FIXME[4d48]: Keep decorators pending when their runtime import can't be restored
-                #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659130
-                #   Otherwise the equivalence check aborts the whole restore, even with --partial.
                 normalize.ensure_equivalent_without_runtime(path, source.text, text, runtime_modules, everything=True)
                 problem = release.ensure_compiles(path, text)
                 if problem is not None:

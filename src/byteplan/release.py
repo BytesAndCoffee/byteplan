@@ -95,9 +95,6 @@ def strip_file(
     consumers = consumers or {}
     tree = _parse(path, text)
     names = resolve_runtime_names(tree, runtime_modules)
-    # FIXME[aedf]: Check every runtime import, not just decorator bindings, before skipping a file
-    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850109
-    #   `from byteplan_runtime import __version__` or an import inside a function survived a release.
     runtime = set(runtime_modules)
     package = package_of(path)
     if not names.direct and not names.modules and not names.ambiguous and not _runtime_imports(tree, runtime, package):
@@ -108,9 +105,6 @@ def strip_file(
     scopes = _enclosing_scopes(tree)
     for decl in declarations(tree):
         for index, decorator in enumerate(decl.node.decorator_list):
-            # FIXME[34da]: Respect enclosing scopes before stripping a decorator
-            #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659114
-            #   A class or function scope that rebinds `todo` makes the decorator not BytePlan's.
             name = dotted_name(decorator)
             marker = names.resolve(name) if name else None
             if marker is None:
@@ -136,9 +130,6 @@ def strip_file(
             untagged = isinstance(decorator, ast.Call) and not any(k.arg == "id" for k in decorator.keywords)
             if marker == "todo" and untagged:
                 raise ReleaseError(UNTAGGED, [f"{path}:{first}: @{name}(...) has no id="], "run `byteplan scan` first")
-            # FIXME[0591]: Refuse decorator arguments whose evaluation stripping would skip
-            #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353302171
-            #   `tests=EVENTS.append(...)` ran before release and not after; only literals are safe.
             if isinstance(decorator, ast.Call):
                 values = [*decorator.args, *(k.value for k in decorator.keywords)]
                 if any(k.arg is None for k in decorator.keywords) or not all(_is_literal(v) for v in values):
@@ -169,9 +160,6 @@ def strip_file(
     imports: list[dict[str, Any]] = []
     previous: ast.stmt | None = None
     for stmt in tree.body:
-        # FIXME[c8db]: Keep runtime imports that other modules consume through re-exports
-        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352941942
-        #   `from a import todo` in b.py broke once a.py's runtime import was stripped.
         locals_ = _runtime_locals(stmt, runtime, package)
         if "*" in locals_:
             raise ReleaseError(
@@ -255,9 +243,6 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
         except SyntaxError:
             continue
         package = package_of(path)
-        # FIXME[2533]: Keep every module an import alias may refer to, across scopes
-        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353183658
-        #   A function-local `import os as util` overwrote a module-level `import pkg.reexport as util`.
         # local name -> every module it may refer to (scopes aren't tracked, so keep them all)
         modules: dict[str, set[str]] = {}
         for node in ast.walk(tree):
@@ -269,14 +254,8 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
                         modules.setdefault(alias.asname or alias.name, set()).add(f"{base}.{alias.name}".strip("."))
             elif isinstance(node, ast.Import):
                 for alias in node.names:
-                    # FIXME[4518]: An escaping package exposes every submodule imported under it
-                    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353601498
-                    #   `import pkg.reexport; alias = pkg` reached pkg.reexport.todo unseen.
                     local = alias.asname or alias.name.split(".")[0]
                     modules.setdefault(local, set()).add(alias.name if alias.asname else local)
-        # FIXME[8b28]: Treat an imported module that escapes attribute access as consuming all its names
-        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353374785
-        #   `alias = markers; alias.todo` hid a use of a runtime re-export from the index.
         # A module used any way but `module.name` (assigned, passed, getattr, vars) may reach
         # every name it exports: count them all as consumed.
         attribute_roots = {id(node.value) for node in ast.walk(tree) if isinstance(node, ast.Attribute)}
@@ -284,9 +263,6 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
             if isinstance(node, ast.Name) and node.id in modules and id(node) not in attribute_roots:
                 for target in modules[node.id]:
                     record(target, "*", path)
-        # FIXME[fb9c]: Track escapes of dotted module expressions like `alias = pkg.reexport`
-        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353523681
-        #   Only plain names counted as escapes; `pkg.reexport` assigned elsewhere hid its re-exports.
         for node in ast.walk(tree):
             if isinstance(node, ast.Attribute):
                 dotted = dotted_name(node)
@@ -302,9 +278,6 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
     return found
 
 
-# FIXME[cc54]: Detect a runtime module imported through its parent package
-#   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353302177
-#   `from byteplan import _todo` imports runtime module byteplan._todo but wasn't recognized.
 def consumers_of(index: dict[str, dict[str, set[str]]], module: str) -> dict[str, set[str]]:
     """Who consumes which names of ``module``: direct imports and accesses, plus every escape
     (``"*"``) of ``module`` or of a package above it, since an escaped package reaches any
@@ -330,9 +303,6 @@ def _runtime_imports(tree: ast.Module, runtime: set[str], package: str) -> list[
 
 
 def _from_runtime(node: ast.ImportFrom, runtime: set[str], package: str) -> bool:
-    # FIXME[478d]: Resolve relative imports before deciding whether they import the runtime
-    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353523672
-    #   `from ._todo import todo` in pkg/m.py (runtime pkg._todo) survived a release.
     base = resolve_from(node, package)
     if not base and not node.level:
         return False
@@ -358,9 +328,6 @@ def _task_ids(decorator: ast.expr, marker: str) -> list[str]:
     return [a.value for a in decorator.args if isinstance(a, ast.Constant) and isinstance(a.value, str)]
 
 
-# FIXME[a703]: Refuse wildcard runtime imports, whose bindings can't be proven unused
-#   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352941930
-#   `from byteplan_runtime import *` was stripped even when its names were used.
 def _runtime_locals(stmt: ast.stmt, runtime: set[str], package: str) -> list[str]:
     """Local names bound by a top-level import of a runtime module (empty if it isn't one)."""
     if isinstance(stmt, ast.ImportFrom) and _from_runtime(stmt, runtime, package):
@@ -370,13 +337,7 @@ def _runtime_locals(stmt: ast.stmt, runtime: set[str], package: str) -> list[str
     return []
 
 
-# FIXME[baeb]: Count every __all__ assignment form as an export
-#   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108715
-#   `__all__: list[str] = [...]` and `__all__ += [...]` were ignored, so exported names were stripped.
 def _used_names(tree: ast.Module) -> set[str]:
-    # FIXME[c449]: Treat __all__ mutations the export collector can't resolve as exporting everything
-    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353676759
-    #   `__all__.append("todo")` exported the runtime name without being recognized.
     # Names exported through __all__ (=, +=, annotated) are used by importers.
     return {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)} | _exported(tree)
 
@@ -457,16 +418,10 @@ def restore_anchored(path: str, text: str, record: dict[str, Any]) -> tuple[str,
         else:
             text = placed
     text = _hoist_late_imports(path, text, [e for e in record.get("imports", []) if e not in left_imports])
-    # FIXME[fb23]: Keep a restored runtime import above every use of its names
-    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353449049
-    #   A declaration moved above the import's anchor got its decorator before the import (NameError).
     remaining = {"decorators": left_decorators, "imports": left_imports} if left_decorators or left_imports else {}
     return text, conflicts, remaining
 
 
-# FIXME[c242]: Check the current binding before restoring a decorator
-#   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850126
-#   A class-local `todo` added while stripped would take over the restored decorator.
 def _hoist_late_imports(path: str, text: str, entries: Sequence[dict[str, Any]]) -> str:
     """Move a restored import that ends up after a use of its names up to the header (after the
     docstring and ``__future__`` imports): its anchor may now sit below the code using it."""
@@ -529,18 +484,12 @@ def _header_statements_end(tree: ast.Module) -> int:
 def _insert_import(path: str, text: str, entry: dict[str, Any]) -> str | None:
     lines = _lines(text)
     tree = _parse(path, text)
-    # FIXME[b68c]: Restore an unanchored import below the current docstring and __future__ imports
-    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659119
-    #   A hotfix that adds either would otherwise get the import above it (SyntaxError for __future__).
     if entry["anchor"] is None:
         at = max(header_end(lines), _header_statements_end(tree))
     else:
         anchors = [s for s in tree.body if lines[s.lineno - 1].rstrip("\r\n") == entry["anchor"]]
         if len(anchors) != 1:
             return None
-        # FIXME[fd44]: Keep anchored imports below a __future__ import added since the release
-        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108706
-        #   An anchor before a new `from __future__` line put the import above it (SyntaxError).
         at = max(anchors[0].end_lineno or anchors[0].lineno, _header_statements_end(tree))
     lines[at:at] = [entry["text"]]
     return "".join(lines)

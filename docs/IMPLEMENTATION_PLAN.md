@@ -1550,10 +1550,6 @@ runtime package has shipped.
 <!-- TODO[de66]: Phase 6c (optional): acceptance criteria and dependencies
      `acceptance_criteria`, `byteplan criteria ...`, `depends_on`, lifecycle facts in reports. -->
 
-<!-- TODO[0413]: Phase 8: release stripping
-     `byteplan release` / `byteplan restore`, presence `stripped`, registry `release`/`releases`
-     records, release warnings, Hatch `require_stripped`, the release-branch workflow. -->
-
 <!-- TODO[f853]: Phase 9: MCP server
      `[mcp]` extra, `mcp_server.py` with every tool, the three permissions, `byteplan mcp`,
      README client snippets. -->
