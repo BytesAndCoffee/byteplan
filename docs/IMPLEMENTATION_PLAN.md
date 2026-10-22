@@ -1,8 +1,10 @@
 # BytePlan implementation plan
 
 The behavioural contract is [`spec.md`](spec.md), extended by
-[`spec-addendum-a.md`](spec-addendum-a.md). The addendum covers `@todo` decorators, stub decoration,
-acceptance-test links, verification, and registry-to-source cleanup. This document records how it is
+[`spec-addendum-a.md`](spec-addendum-a.md) and [`spec-addendum-b.md`](spec-addendum-b.md).
+Addendum A covers `@todo` decorators, stub decoration, acceptance-test links, verification, and
+registry-to-source cleanup. Addendum B covers test scaffolding, optional acceptance criteria,
+release-stripping semantics, and the end-to-end development workflow. This document records how it is
 built, the decisions both documents leave open, and the phase order. Toolchain: Hatch / Hatchling
 (verified against Hatch 1.18.1, Hatchling 1.32.4).
 
@@ -53,6 +55,7 @@ src/byteplan/
   reconcile.py      pure: (registry, scan, scope, clock) -> (registry', edits, diagnostics)
   registry.py       JSON load / validate / migrate / deterministic serialize
   verification.py   test links, pytest runner, evidence store, readiness, freshness
+  scaffold.py       pure planner for failing acceptance-test skeletons (path, name, template, conflicts)
   persistence.py    lock, staged writes, journal, atomic replace, roll-forward recovery
   diagnostics.py    codes, severity, remediation text, exit-code policy
   reporting.py      text / json / markdown
@@ -315,7 +318,7 @@ A result is `stale` when the current fingerprint differs from the stored one.
 | `unverified` | no linked tests, or none run |
 | `failing` | any fresh `failed`/`error`/`timeout` |
 | `needs_review` | fresh results include `skipped`/`xfailed`/`not_found`, any result is stale, or the declaration is still a stub |
-| `ready_for_review` | every linked test is fresh `passed` and the declaration is not a stub |
+| `ready_for_review` | every linked test is fresh `passed`, none is still a scaffold placeholder, and the declaration is not a stub |
 
 `verify --ready` lists `ready_for_review` tasks. Nothing is ever resolved automatically.
 
@@ -345,81 +348,69 @@ diagnostic is `implementation_complete_candidate`. Both are advisories only.
 
 ### Release stripping: `byteplan release` / `byteplan restore`
 
-`byteplan release` produces a commit whose tree has none of BytePlan's runtime decorators, so every
-artifact built from it has no `byteplan_runtime` import. The registry in that commit records exactly
-what was removed and where. Stripping is neither resolution nor disappearance: no task changes
-`status`, and none becomes `missing`.
+`byteplan release` strips BytePlan's runtime decorators from the working tree **in place**, so a
+commit you make from that tree, and every artifact built from it, has no `byteplan_runtime` import.
+The registry records exactly what was removed and where. `byteplan restore` puts every decorator
+back. Stripping is a description of a deliberate source transformation. It isn't resolution, it
+isn't disappearance, and it isn't verification evidence: no task changes `status`, and none becomes
+`missing`.
 
-**Guiding constraint: no Git churn on the development line.** The stripped and decorated forms are
-two representations of the same code, so they must never take turns on `main`. A workflow where
-every release strips decorators in one commit and restores them in the next would double the noise
-in history, cause merge conflicts on decorator lines, and leave `main`'s registry flipping between
-`stripped` and `present`. BytePlan should make development simpler, not add a ritual of commits.
+**What BytePlan does not do** (Addendum B §B5.1). `release` prepares the tree and records what it
+did. It never runs `git commit`, `git tag`, `git reset`, a build, the test suite or a publish, and it
+never marks tasks resolved. It doesn't claim to leave a clean Git tree: it deliberately changes
+tracked files, and `git status` shows that.
 
-#### Release modes
+> **Revision note.** An earlier draft of this plan made the default an automated "branch mode": a
+> temporary worktree, an automatic commit on `release/<version>`, an optional tag, and a smoke test
+> on by default. Addendum B §B5 settles it the other way: in-place stripping plus a separate
+> restore, no Git or build operations, and an opt-in smoke test. That draft's goal, keeping
+> strip/restore churn off the development line, is kept below as a documented workflow that you run
+> yourself.
 
-**Branch mode (default).** The stripped tree lives only on a release branch. `main`, the working
-tree and `main`'s registry are never touched.
+#### Supported Git workflow (documented, not automated)
+
+The stripped and decorated forms are two snapshots of the same code. If they took turns on `main`,
+history would get a strip commit and a restore commit for every release, plus merge conflicts on
+decorator lines. Releasing from a short-lived release branch avoids that:
 
 ```console
-$ byteplan release --version 1.2.0 --tag
-byteplan: worktree for release/1.2.0 in a temporary directory (from 3f9c2e1, main)
+$ git switch -c release/1.2.0            # from a clean main
+$ byteplan release --version 1.2.0       # strip in place; registry records it
 byteplan: stripped 14 decorators (12 @todo, 2 @verifies) and 5 imports from 9 files
-byteplan: smoke test: built byteplan_demo-1.2.0-py3-none-any.whl, installed in a clean venv, imported byteplan_demo ✓
-byteplan: committed 7d41a0b on release/1.2.0 ("Release 1.2.0 (byteplan: decorators stripped)"), tagged v1.2.0
-byteplan: working tree unchanged
-$ git push origin release/1.2.0 v1.2.0
+byteplan: registry marked stripped for release 1.2.0
+byteplan: next: review `git diff`, commit, tag, build; then switch back to your development branch
+$ git commit -am "Release 1.2.0" && git tag v1.2.0 && hatch build
+$ git switch main                        # main never had the strip: nothing to restore
 ```
 
-1. Require a clean tree and a successful full scan of `HEAD`.
-2. `git worktree add` a worktree in a system temporary directory (outside the repo) at `HEAD` on a new branch `release/<version>`. The
-   template is `[tool.byteplan.release] branch = "release/{version}"`. An existing branch is refused
-   unless `--branch-exists=append` adds the release commit on top of it, which is the
-   maintenance-release case.
-3. Strip in the worktree and record the stripped state in **that worktree's** registry, through the
-   usual journal.
-4. Run the smoke test (below) in the worktree.
-5. Commit on the release branch, with a commit message template and the user's normal Git identity
-   and signing. With `--tag`, create an annotated tag (template `v{version}`) on that commit. With
-   `--build`, also copy the built artifacts to `dist/`.
-6. Remove the worktree. On any failure, remove both the worktree and the new branch, so the repo
-   ends up exactly as it started.
+- **`main` and its registry never change.** The "where were the decorators" record lives in the
+  release commit's registry, which is the snapshot it describes.
+- **Hotfixes:** fix on `main` and cherry-pick onto the release branch. Stripping removes only whole
+  decorator lines, so ordinary fixes apply cleanly.
+- **`restore`** is for in-place use without a branch (strip, build, then restore before
+  committing), and for getting a decorated tree back on a release branch for local debugging.
+- **Expected diffs:** after a restore, `git status` shows the expected decorator diffs relative to a
+  stripped commit. BytePlan reports them and never commits or resets them.
+- **Default-branch guard:** `release` warns `release_on_default_branch` when run on the repository's
+  default branch, pointing to this workflow. It doesn't refuse.
 
-So `main` never contains a strip or a restore. The "where were the decorators" record lives in the
-release commit's registry, which is the commit it describes. `byteplan releases` lists past releases
-by reading `.byteplan/tasks.json` from each `release/*` branch and tag with `git show`, giving
-version, commit, date and counts. `byteplan show ID` adds "stripped in 1.2.0 (release/1.2.0) from
-src/x.py:42", so `main` can answer the question without storing anything.
+#### Smoke test (opt-in: `--smoke-test`)
 
-**Hotfixes.** Fix on `main`, then run `byteplan release --version 1.2.1 --from v1.2.0 --cherry-pick
-<sha>…`, or cherry-pick by hand onto the release branch. Stripping only removes whole decorator
-lines, so cherry-picks of ordinary fixes apply cleanly. A fix that touches a decorator line
-conflicts like any other overlapping change. `restore` on a release branch gives a decorated tree
-for local debugging, and it is never committed there.
+The static rule "no remaining runtime-module references" is necessary but not sufficient. With
+`--smoke-test`, `release` also checks that the stripped tree produces a working wheel. Because this
+builds and imports code, it never runs without the flag.
 
-**In-place mode (`--in-place`).** This is the original design, for projects not in Git or with
-their own branching. It strips the working tree itself and marks its registry stripped; then
-`byteplan restore` puts everything back. The guiding constraint still applies: `check` warns
-`in_place_release_on_default_branch` if this runs on the default branch. The plan documents this
-mode as an escape hatch, not the recommended workflow.
-
-#### Smoke test (both modes)
-
-The static rule "no remaining runtime-module references" is necessary but not sufficient, so a
-release also proves the artifact works.
-
-1. Build a wheel from the stripped tree with the project's own backend (`python -m build --wheel`,
-   or `hatch build -t wheel`).
+1. Build a wheel from the stripped tree into a temporary directory with the project's own backend
+   (`python -m build --wheel`). Nothing is written to `dist/`.
 2. Create a temporary venv with no `byteplan-runtime`, install the wheel (dependencies resolved
    normally; `--offline` uses `--no-index` with `--find-links` if configured), and assert that
    `byteplan_runtime` is not importable there.
 3. Import each top-level package/module the wheel installs, read from its `RECORD`, or the list
    `[tool.byteplan.release] smoke_imports`, in a subprocess with a timeout.
 
-Any failure aborts the release before the commit and reports the import traceback. The smoke test
-executes the project's import-time code, which is acceptable for an explicitly invoked release.
-It's on by default and can be skipped only with an explicit `--no-smoke-test`, which is recorded in
-the release block as `smoke_test: "skipped"`.
+If it fails, the stripped tree is restored automatically from the just-written records, so the
+release is all-or-nothing, and the import traceback is reported. The release block records
+`smoke_test: "passed" | "not_run"`.
 
 **What is stripped:**
 - every recognized `@todo(...)` and `@verifies(...)` decorator
@@ -432,16 +423,15 @@ tree must contain **no** remaining reference to a runtime module (for example
 production code would fail to import.
 
 **When it refuses.** The release is all-or-nothing, and nothing is written if any of these hold:
-- the Git tree is dirty (in-place mode allows `--allow-dirty`; branch mode never does, since the
-  release is cut from `HEAD`)
+- the Git tree is dirty (override with `--allow-dirty`, so the strip is the only change in what
+  you commit)
 - a journal is pending
 - the full scan fails or has blocking diagnostics
 - any `@todo` lacks an `id=` (`untagged_decorator`: run `scan` first)
 - any decorator shares a line with other code (`release_needs_review`)
 - the tree is already stripped
 
-**Registry record.** It's written in the same journaled transaction as the source edits. In branch
-mode, this is the release worktree's registry, and it's committed only on the release branch.
+**Registry record.** It's written in the same journaled transaction as the source edits.
 - **Top-level `release` block:** `state` (`stripped`), `version`, `stripped_at` (UTC), and
   `files` (path → sha256 of the stripped content).
   - The version comes from `--version`, or `[project].version`, or from Hatchling's metadata for a
@@ -465,8 +455,8 @@ mode, this is the release worktree's registry, and it's committed only on the re
   diagnostic `release_stripped`.
 - **`check` and `list`** show the stripped state, and `show ID` prints where the decorator was.
 
-**Restore** is for in-place mode, and for local debugging on a release branch. It re-inserts the
-recorded decorators and imports, then validates with re-parse and AST equivalence.
+**Restore** re-inserts the recorded decorators and imports, then validates with re-parse and AST
+equivalence.
 - **Fast path:** if a file's hash still matches the recorded stripped hash, restore uses the
   recorded line positions. The restored file is then byte-identical to the pre-release file.
 - **If the file changed after the release** (a version bump, a hotfix): each decorator is anchored
@@ -500,6 +490,146 @@ written. They are `source.decl_line`, `source.attachment_kind`, `source.represen
 `tests.managed`, `tests.discovered`, `origin` (adds `decorator`), presence `stripped`, task
 `stripped`, and the top-level `release` and `releases` blocks. Verification data lives in
 `verification.json`, not in tasks.
+
+## Addendum B decisions
+
+Addendum B is infrastructure, not a methodology. It supports TDD, ATDD and backlog-driven work
+through one task identity, and every part can be adopted on its own: comments only, without tests,
+and without MCP are all fully supported. The documentation won't claim BytePlan does Domain-Driven
+Design or any other `*DD` practice.
+
+### Test scaffolding: `byteplan tests scaffold ID` (planned, Phase 6b)
+
+`tests scaffold` creates a **deliberately failing** pytest test bound to a task. A pure planner
+(`scaffold.py`) decides the file, name and template. Writes go through the same lock, journal,
+hash checks and AST validation as every other source edit.
+
+```python
+import pytest
+from byteplan_runtime import verifies
+
+
+@verifies("a83f")
+def test_router_advertise_routes():
+    """Acceptance test scaffold for BytePlan task a83f.
+
+    Target: Router.advertise_routes (method)
+    Requirement: Implement poisoned reverse
+    """
+    # GIVEN: TODO - arrange the state this requirement depends on
+    # WHEN: TODO - exercise Router.advertise_routes
+    # THEN: TODO - assert the required result
+    pytest.fail("BytePlan a83f: acceptance test not implemented")
+```
+
+**Zero false greens.** The body always ends in an unconditional `pytest.fail(...)` whose message
+starts with `BytePlan <id>: acceptance test not implemented`.
+- **No body that passes:** never `pass`, `...`, a bare docstring or `assert True`.
+- **Skip/xfail only on request:** `--policy xfail` or `--policy skip` produce those outcomes, and
+  neither counts as evidence.
+- **No invented behaviour:** GIVEN/WHEN/THEN lines are comments, never synthesized assertions,
+  fixtures, constructor calls or imports of the target.
+- **The `# GIVEN: TODO - …` lines are not tasks.** A tag must open the comment, and these open with
+  `GIVEN`/`WHEN`/`THEN`, so a scaffold never creates new tasks. A Phase 6b test checks this.
+
+**Placeholder detection is static.** A test whose body, after the docstring and comments, is only
+that `pytest.fail` call is a **scaffold placeholder**.
+- Scans mark its link `placeholder: true`.
+- `verify --ready` never treats it as ready.
+- `check` reports `scaffold_placeholder` (info).
+- Editing the body is all it takes to stop being a placeholder; no flag has to be cleared.
+
+**Target file.** The defaults are in `[tool.byteplan.tests.scaffold]`:
+- **Location:** `directory = "tests"`, `filename = "test_{module}.py"`. So `src/pkg/routing.py` maps
+  to `tests/test_routing.py`. `mirror = true` maps to `tests/pkg/test_routing.py` instead.
+- **Ambiguous names:** if two in-scope modules share a stem and `mirror` is off, the result is a
+  `scaffold_needs_path` diagnostic asking for `--path`. BytePlan doesn't guess.
+- **Tasks with no source file** get `tests/test_byteplan_tasks.py`.
+- **`--path FILE`** overrides the location; it must be in scope and inside the project.
+
+**Test name.** It's `test_` plus the snake-cased qualname, without `<locals>`. For example,
+`Router.advertise_routes` becomes `test_router_advertise_routes`, and a TODO with no symbol becomes
+`test_task_<id>`.
+- **Collisions:** if the name is already used in the target file, `_<id>` is appended, then `_2`,
+  `_3` and so on.
+- **`--name`:** must be a valid, unused `test_*` identifier.
+
+**Templates by target kind.**
+- **Function or async function:** a plain synchronous test. An `async def` test is generated only
+  when `async_tests = "pytest-asyncio"` or `"anyio"` is configured; that adds the matching marker.
+  This way a missing plugin can never silently skip the scaffold.
+- **Method or property:** a comment names the owning class and says an instance is needed. No
+  fixture is invented.
+- **Class:** a behaviour-level test; there's no assumption that the constructor can be called.
+- **Module-level TODO:** a generic test bound to the task ID.
+- **Every kind:** the task's acceptance criteria, if any (below), go in as GIVEN/WHEN/THEN hint
+  comments.
+
+**Link style.** `link_style = "verifies"` is the default.
+- **`verifies`** adds `@verifies("id")` and the runtime import. It needs the runtime to be
+  available, as a development dependency or a configured shim. Otherwise the result is
+  `runtime_unavailable` with the two alternatives below.
+- **`marker`** uses `@pytest.mark.byteplan("id")` and needs `pytest_marker = true`.
+- **`managed`** adds no decorator and records the node ID in `tests.managed`.
+
+All three can be found statically.
+
+**Editing an existing test file.** BytePlan appends the function at the end with two blank lines,
+using the file's newline style. It inserts `import pytest` or the runtime import only if missing,
+after the existing top-level imports. The AST check is extended so that the old module body must
+equal the new one, minus the added imports and the added function. Existing tests can't be altered.
+A new file goes through the journal as a create; a file that exists by then is a concurrent
+modification.
+
+**Idempotence.** If the task already has a linked test (discovered, managed, or a placeholder), it
+reports that test and writes nothing. `--force-new` adds another distinct test, still
+collision-free.
+- **Registry record:** a `test_scaffolded` event with path, node ID and policy. The link carries the
+  provenance of the decorator plus `scaffold: true`.
+- **Generated code is never stored in the registry;** the source file is authoritative.
+- **Repeating it with unchanged inputs** creates no new file, function, link, event or timestamp.
+
+### Acceptance criteria and planning links (optional, Phase 6c)
+
+These are registry-managed planning metadata, separate from verification metadata.
+- **Criteria:** a task can carry `acceptance_criteria: [{id: "ac1", text, verification: [node IDs]}]`.
+  The minimum is the text entries. The criterion-to-test `verification` list is a later, optional
+  step.
+- **Managing them:** `byteplan criteria add/list/edit/remove ID`. Scans never touch them.
+- **No implied satisfaction:** a criterion is never shown as satisfied because some other test
+  passed. Readiness stays per task (Addendum A); per-criterion status appears only once
+  criterion-to-test links exist.
+- **Dependencies:** `depends_on: [ids]`, managed with `edit --depends-on/--no-depends-on`.
+  `list --blocked-by` and the reports show them. Nothing is enforced automatically.
+- **Scheduling:** these never hold up the scanner or scaffolding work. Phase 6c can ship after 6b.
+
+### Lifecycle vocabulary (Addendum B §B4)
+
+The reports describe a task with these computed facts, which are kept separate from `status`:
+
+| Fact | Source |
+|---|---|
+| discovered | an ID and a source reference exist |
+| planned | any managed field is set (priority, owner, labels, notes, criteria, dependencies) |
+| test scaffolded | a linked test is still a scaffold placeholder (not evidence) |
+| implemented (heuristic) | the attached declaration no longer matches the stub detector |
+| verified | every linked test is fresh `passed` on the current fingerprint, and none is a placeholder |
+| ready for review | the computed readiness (Addendum A), never stored |
+| resolved | only the explicit `status`/`resolve` transition |
+
+`missing`, `stripped`, `resolved` and `verified` are reported as distinct facts and never inferred
+from one another.
+
+### Releases and unfinished scaffolds (Addendum B §B5.2)
+
+- **Stripping keeps scaffolds failing.** A scaffold's `@verifies` may be stripped by `release`, but
+  its `pytest.fail` stays. Stripping never turns an unfinished test into a passing one.
+- **Warning when an sdist would ship them:** `release` and `check` warn
+  `unfinished_scaffold_in_sdist` when placeholder tests would go into the sdist.
+  - The file list comes from Hatchling's own sdist file selection when Hatchling is importable.
+  - Otherwise BytePlan conservatively assumes `tests/` is included.
+- **Wheels and tests are independent.** Wheel contents are unaffected, since tests are normally not
+  packaged. Test packaging follows the project's own build config; BytePlan only reports.
 
 ## Hatch build hook
 
@@ -563,6 +693,8 @@ contract as the CLI.
 | `add_task_test(id, node)` / `remove_task_test(id, node)` | registry | `byteplan tests add/remove` |
 | `sync_source(apply=false, only?)` | source, only with `apply=true` | `byteplan sync` |
 | `verify_task(id)` | executes tests | `byteplan verify ID` |
+| `preview_test_scaffold(id, path?, name?)` | no | `tests scaffold --dry-run` (returns the planned file edit) |
+| `scaffold_test(id, path?, name?, apply=false)` | source, only with `apply=true` | `byteplan tests scaffold` |
 | `release(version?, apply=false)` / `restore(apply=false, partial=false)` | source, only with `apply=true` | `byteplan release` / `restore` |
 
 - **Resources:** `byteplan://tasks` (the registry view as JSON) and `byteplan://tasks/{id}`.
@@ -581,7 +713,7 @@ contract as the CLI.
 
 Each phase ends green on `hatch fmt --check`, `hatch run types:check` and `hatch test --all`.
 
-The addendum's six-step order (§10) is merged in below. Its step 2 (choosing the runtime design)
+Addendum A's six-step order (§10) and Addendum B's order (§B9) are merged in below. Addendum B's items are planned, not implemented, until their phase is marked ✅. Its step 2 (choosing the runtime design)
 is done above, so the runtime package can ship before anything generates decorators.
 
 | Phase | Deliverables | Spec §12 tests | Addendum §9 tests |
@@ -591,23 +723,27 @@ is done above, so the runtime package can ship before anything generates decorat
 | 2. Write path ✅ | `edits.py` (span edits + equivalence guard), comment annotation, reconcile, persistence (journal, concurrent-modification check), `status/resolve/edit/missing/duplicates`, `--dry-run` | 6–17 | 13 (resolve without source edits), 15, 17, 18 |
 | 3. Stubs + decorators | `stubs.py`, `decorators.py` (static `@todo`/`@verifies` discovery, alias resolution), `association.py` (comment / decorator / stub → one obligation), decorator `id=` allocation, schema fields, `implementation_changed`, `check`, `report`, `repair` | 2, 3, 4, 17 | 1, 2, 6 (comment mode), 7, 19 |
 | 4. Hatch | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
-| 5. Runtime + normalization | `byteplan-runtime/` project (inert `todo`/`verifies`, own tests and release), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
-| 6. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | 9, 10, 11, 12 |
+| 5. Runtime + normalization | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
+| 6a. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |
+| 6b. Test scaffolding | `scaffold.py` planner, `byteplan tests scaffold ID [--path] [--name] [--policy] [--force-new] [--dry-run]`, placeholder detection, `[tool.byteplan.tests.scaffold]` | – | B: 1–9, 11 (CLI), 12 |
+| 6c. Criteria + dependencies (optional) | `acceptance_criteria`, `byteplan criteria …`, `depends_on`, lifecycle facts in reports | – | – |
 | 7. Cleanup | `cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`, `--suppress-stubs` | – | 13 (cleanup), 14 |
-| 8. Release | `release.py`, `byteplan release [--version] [--tag] [--build] [--dry-run] [--in-place]`, worktree branch mode, smoke test, `byteplan releases`, `byteplan restore [--dry-run] [--partial]`, presence `stripped`, registry `release`/`releases`, Hatch `require_stripped` | – | release tests below |
-| 9. MCP | `[mcp]` extra, `mcp_server.py` with all tools above, the three permissions, `byteplan mcp`, README client snippets | – | 16 (MCP part), 20 |
-| 10. Integration | README end-to-end walkthrough, docs for every config key, dogfood `hatch run byteplan scan` on BytePlan itself, CI on ubuntu/macos/windows | DoD | full suite |
+| 8. Release | `release.py`, `byteplan release [--version] [--dry-run] [--allow-dirty] [--smoke-test]`, `byteplan restore [--dry-run] [--partial]`, presence `stripped`, registry `release`/`releases`, `release_on_default_branch` and `unfinished_scaffold_in_sdist` warnings, Hatch `require_stripped`, documented release-branch workflow | – | release tests below · B: 13–18 |
+| 9. MCP | `[mcp]` extra, `mcp_server.py` with all tools above (including scaffold preview / `scaffold_test`), the three permissions, `byteplan mcp`, README client snippets | – | A: 16 (MCP part), 20 · B: 11 (MCP) |
+| 10. Integration | README end-to-end developer journey (`# TODO` → `scan` → `tests scaffold` → implement → `verify` → `resolve` → `sync`, including where BytePlan notices but never closes work), docs for every config key, dogfood `hatch run byteplan scan` on BytePlan itself, CI on ubuntu/macos/windows | DoD | full suite · B: 19 |
 | 11 (optional) | spec §14 phase 5 items, `TODO(owner):` syntax | – | – |
 
 **Phase 8 release tests:**
-- Branch mode leaves the working tree and `HEAD` exactly as they were, with no new commits on
-  `main`. The release branch has one commit whose diff contains only decorator and import lines
-  plus the registry.
-- A failure at any step (strip refusal, smoke test, commit) removes the worktree and the branch.
-- The smoke test catches a stripped wheel that fails to import, for example a module that uses the
-  runtime dynamically. It also catches `byteplan-runtime` being pulled in as a dependency.
-- `byteplan releases` and `show` report releases from release branches and tags.
-- A hotfix cherry-pick onto a release branch applies cleanly.
+- `release` changes only decorator lines, runtime imports and the registry. It never commits,
+  tags, builds or resets, and `HEAD` is unchanged afterwards.
+- On a release branch made by the documented workflow, the commit diff contains only
+  decorator/import lines plus the registry, and `main` is untouched. A hotfix cherry-pick applies
+  cleanly.
+- `--smoke-test` catches a stripped wheel that fails to import, for example a module that uses the
+  runtime dynamically. It also catches `byteplan-runtime` being pulled in as a dependency. A smoke
+  test failure leaves the tree exactly as before the release. Without the flag, nothing is built.
+- A scaffold placeholder in an sdist-included test file stays failing after stripping, and it
+  triggers `unfinished_scaffold_in_sdist`.
 - `release` followed by `restore` gives back byte-identical files: CRLF, BOM, coding cookie,
   shebang, `__future__`, stacked decorators, and no final newline.
 - The stripped tree has no runtime-module references and imports in an environment without
@@ -620,6 +756,19 @@ is done above, so the runtime package can ship before anything generates decorat
   already-stripped tree, and a remaining runtime reference.
 - A crash mid-release rolls forward through the journal.
 - `--dry-run` writes nothing, and `require_stripped` fails an unstripped wheel build.
+
+**Phase 6b scaffold tests (Addendum B §B8):**
+- An untouched scaffold is collected and **fails** in a real pytest subprocess. It never passes,
+  and it never skips or xfails unless asked to.
+- A repeated scaffold writes nothing.
+- An existing file keeps every test byte for byte, with no duplicate imports or names.
+- Sync, async (with and without a configured plugin), class, method, property and module-level
+  targets each get a safe template.
+- A moved or shifted source keeps the same ID and a single association.
+- `@verifies` round-trips through a scan.
+- A placeholder is never `ready_for_review`.
+- `--dry-run` and MCP preview write nothing.
+- A crash between the test file and the registry write recovers through the journal.
 
 **Phase 5 runtime tests:** `todo(...)(f) is f` and `verifies(...)(cls) is cls`, including stacked
 under `@staticmethod`, `@classmethod`, `@property` and `@functools.wraps`-style decorators.
