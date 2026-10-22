@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**16 open** · 8 closed (resolved 8)
+**18 open** · 8 closed (resolved 8)
 
 ## Open
 
@@ -17,12 +17,14 @@
 | `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1554`](docs/IMPLEMENTATION_PLAN.md#L1554) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
 | `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1558`](docs/IMPLEMENTATION_PLAN.md#L1558) | Phase 13 (optional): relay-for-github |
 | `90c6` | open | FIXME | normal | - | [`src/byteplan/api.py:412`](src/byteplan/api.py#L412) | Don't propose stub tasks for declarations whose @todo is stripped for a release |
-| `4d48` | open | FIXME | normal | - | [`src/byteplan/api.py:1223`](src/byteplan/api.py#L1223) | Keep decorators pending when their runtime import can't be restored |
+| `4d48` | open | FIXME | normal | - | [`src/byteplan/api.py:1229`](src/byteplan/api.py#L1229) | Keep decorators pending when their runtime import can't be restored |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:266`](src/byteplan/config.py#L266) | Support detect.placeholder_assignments |
-| `aedf` | open | FIXME | normal | - | [`src/byteplan/release.py:89`](src/byteplan/release.py#L89) | Check every runtime import, not just decorator bindings, before skipping a file |
-| `34da` | open | FIXME | normal | - | [`src/byteplan/release.py:101`](src/byteplan/release.py#L101) | Respect enclosing scopes before stripping a decorator |
-| `c242` | open | FIXME | normal | - | [`src/byteplan/release.py:291`](src/byteplan/release.py#L291) | Check the current binding before restoring a decorator |
-| `b68c` | open | FIXME | normal | - | [`src/byteplan/release.py:326`](src/byteplan/release.py#L326) | Restore an unanchored import below the current docstring and __future__ imports |
+| `aedf` | open | FIXME | normal | - | [`src/byteplan/release.py:96`](src/byteplan/release.py#L96) | Check every runtime import, not just decorator bindings, before skipping a file |
+| `34da` | open | FIXME | normal | - | [`src/byteplan/release.py:108`](src/byteplan/release.py#L108) | Respect enclosing scopes before stripping a decorator |
+| `c8db` | open | FIXME | normal | - | [`src/byteplan/release.py:159`](src/byteplan/release.py#L159) | Keep runtime imports that other modules consume through re-exports |
+| `a703` | open | FIXME | normal | - | [`src/byteplan/release.py:281`](src/byteplan/release.py#L281) | Refuse wildcard runtime imports, whose bindings can't be proven unused |
+| `c242` | open | FIXME | normal | - | [`src/byteplan/release.py:368`](src/byteplan/release.py#L368) | Check the current binding before restoring a decorator |
+| `b68c` | open | FIXME | normal | - | [`src/byteplan/release.py:403`](src/byteplan/release.py#L403) | Restore an unanchored import below the current docstring and __future__ imports |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
 
 ## Closed

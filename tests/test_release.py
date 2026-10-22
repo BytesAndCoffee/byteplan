@@ -490,3 +490,45 @@ def test_stripped_stub_gets_no_duplicate_task(project: ProjectFactory, run_cli: 
     assert "+0 added" in result.out
     assert (project.root / "src/stub.py").read_text() == stripped  # no new TODO comment
     assert sorted(tasks(project)["tasks"]) == ["abcd"]
+
+
+# Codex review of #32, round 3 (tracked as a703, c8db) -------------------------------------------
+
+
+def test_wildcard_runtime_import_refuses_the_release(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    """a703: `import *` binds names the module may use; it can't be proven unused."""
+    released_repo.write("src/pkg/star.py", "from byteplan_runtime import *\n\nMARK = todo\n", dedent=False)
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "star")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert "src/pkg/star.py" in result.err
+    assert "wildcard" in result.err
+    assert released_repo.snapshot() == before
+
+
+@pytest.mark.parametrize(
+    "consumer",
+    [
+        "from pkg.reexport import todo\n\nMARK = todo\n",
+        "import pkg.reexport\n\nMARK = pkg.reexport.todo\n",
+        "from pkg import reexport\n\nMARK = reexport.todo\n",
+        "from .reexport import todo\n\nMARK = todo\n",
+    ],
+)
+def test_runtime_reexported_to_another_module_refuses_the_release(
+    released_repo: ProjectFactory, run_cli: RunCli, consumer: str
+) -> None:
+    """c8db: another module importing the runtime binding from this one keeps it in use."""
+    released_repo.write("src/pkg/__init__.py", "", dedent=False)
+    released_repo.write("src/pkg/reexport.py", "from byteplan_runtime import todo as todo\n", dedent=False)
+    released_repo.write("src/pkg/consumer.py", consumer, dedent=False)
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "re-export")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert "src/pkg/reexport.py" in result.err
+    assert "imported from this module by src/pkg/consumer.py" in result.err
+    assert released_repo.snapshot() == before

@@ -82,8 +82,15 @@ def _block(lines: Sequence[str], first: int, last: int) -> str:
 # Stripping -------------------------------------------------------------------------------------
 
 
-def strip_file(path: str, text: str, runtime_modules: Sequence[str]) -> FileStrip | None:
-    """Plan stripping one file, or None if it has nothing of BytePlan's. Raises ``ReleaseError``."""
+def strip_file(
+    path: str, text: str, runtime_modules: Sequence[str], consumers: dict[str, set[str]] | None = None
+) -> FileStrip | None:
+    """Plan stripping one file, or None if it has nothing of BytePlan's. Raises ``ReleaseError``.
+
+    ``consumers`` maps names other modules import from this one (``"*"`` for a star import)
+    to the importing files: a runtime binding they use isn't removable.
+    """
+    consumers = consumers or {}
     tree = _parse(path, text)
     names = resolve_runtime_names(tree, runtime_modules)
     # FIXME[aedf]: Check every runtime import, not just decorator bindings, before skipping a file
@@ -149,7 +156,23 @@ def strip_file(path: str, text: str, runtime_modules: Sequence[str]) -> FileStri
     imports: list[dict[str, Any]] = []
     previous: ast.stmt | None = None
     for stmt in tree.body:
+        # FIXME[c8db]: Keep runtime imports that other modules consume through re-exports
+        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352941942
+        #   `from a import todo` in b.py broke once a.py's runtime import was stripped.
         locals_ = _runtime_locals(stmt, runtime)
+        if "*" in locals_:
+            raise ReleaseError(
+                NEEDS_REVIEW,
+                [f"{path}:{stmt.lineno}: wildcard import from the runtime; its names can't be proven unused"],
+                "import the names you need explicitly",
+            )
+        consumed = sorted({c for name in locals_ for c in consumers.get(name, set()) | consumers.get("*", set())})
+        if locals_ and consumed:
+            raise ReleaseError(
+                NEEDS_REVIEW,
+                [f"{path}:{stmt.lineno}: `{', '.join(locals_)}` is imported from this module by {', '.join(consumed)}"],
+                "import it from the runtime where it's used, or drop the re-export",
+            )
         if locals_ and not (set(locals_) & used):
             first, last = stmt.lineno, stmt.end_lineno or stmt.lineno
             if stmt.col_offset != 0 or lines[last - 1].rstrip("\r\n")[stmt.end_col_offset or 0 :].strip():
@@ -182,6 +205,57 @@ def strip_file(path: str, text: str, runtime_modules: Sequence[str]) -> FileStri
     return FileStrip(path, stripped, decorators, imports)
 
 
+def module_name(path: str) -> str:
+    """The import name of a project-relative Python file (``src/`` layouts supported)."""
+    stem = path.removesuffix(".py").removeprefix("src/")
+    return stem.removesuffix("/__init__").replace("/", ".")
+
+
+def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]:
+    """For each module, the names other files import from it, with the importing files:
+    ``from m import x``, ``import m`` + ``m.x``, ``from pkg import m`` + ``m.x``, relative
+    imports, and ``from m import *`` (recorded as ``"*"``)."""
+    found: dict[str, dict[str, set[str]]] = {}
+
+    def record(module: str, name: str, path: str) -> None:
+        found.setdefault(module, {}).setdefault(name, set()).add(path)
+
+    for path, text in sources.items():
+        try:
+            tree = _parse(path, text)
+        except SyntaxError:
+            continue
+        here = module_name(path)
+        package = here if path.endswith("__init__.py") else here.rpartition(".")[0]
+        modules: dict[str, str] = {}  # local name -> module it refers to
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                base = node.module or ""
+                if node.level:
+                    parts = package.split(".") if package else []
+                    parent = ".".join(parts[: len(parts) - (node.level - 1)]) if node.level > 1 else package
+                    base = f"{parent}.{base}".strip(".") if base else parent
+                for alias in node.names:
+                    record(base, alias.name, path)
+                    if alias.name != "*":
+                        modules[alias.asname or alias.name] = f"{base}.{alias.name}".strip(".")
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.asname:
+                        modules[alias.asname] = alias.name
+                    else:
+                        modules[alias.name.split(".")[0]] = alias.name.split(".")[0]
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Attribute):
+                dotted = dotted_name(node)
+                root = (dotted or "").split(".")[0]
+                if dotted and root in modules:
+                    full = modules[root] + dotted[len(root) :]
+                    module, _, name = full.rpartition(".")
+                    record(module, name, path)
+    return found
+
+
 def _runtime_imports(tree: ast.Module, runtime: set[str]) -> list[ast.Import | ast.ImportFrom]:
     """Every import of a runtime module, at any depth, whatever it imports."""
     return [
@@ -204,6 +278,9 @@ def _task_ids(decorator: ast.expr, marker: str) -> list[str]:
     return [a.value for a in decorator.args if isinstance(a, ast.Constant) and isinstance(a.value, str)]
 
 
+# FIXME[a703]: Refuse wildcard runtime imports, whose bindings can't be proven unused
+#   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352941930
+#   `from byteplan_runtime import *` was stripped even when its names were used.
 def _runtime_locals(stmt: ast.stmt, runtime: set[str]) -> list[str]:
     """Local names bound by a top-level import of a runtime module (empty if it isn't one)."""
     if isinstance(stmt, ast.ImportFrom) and stmt.level == 0 and stmt.module in runtime:

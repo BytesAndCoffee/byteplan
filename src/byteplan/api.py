@@ -1126,11 +1126,17 @@ class Project:
             files: dict[str, Any] = {}
             writes: list[FileWrite] = []
             stripped_tasks: dict[str, list[dict[str, Any]]] = defaultdict(list)
-            for path in preview.scope.files:
-                if language_for(path) is not Language.PYTHON:
-                    continue
-                source = read_source(self.root, path)
-                plan = release.strip_file(path, source.text, runtime_modules)
+            python = [p for p in preview.scope.files if language_for(p) is Language.PYTHON]
+            sources = {path: read_source(self.root, path) for path in python}
+            consumers = release.project_consumers({path: s.text for path, s in sources.items()})
+            for path in python:
+                source = sources[path]
+                imported_here = {
+                    name: users - {path} for name, users in consumers.get(release.module_name(path), {}).items()
+                }
+                plan = release.strip_file(
+                    path, source.text, runtime_modules, {n: u for n, u in imported_here.items() if u}
+                )
                 if plan is None or (not plan.decorators and not plan.imports):
                     continue
                 normalize.ensure_equivalent_without_runtime(

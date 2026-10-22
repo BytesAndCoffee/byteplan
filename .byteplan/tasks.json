@@ -18,9 +18,11 @@
     "93dd",
     "9b40",
     "a6b2",
+    "a703",
     "aedf",
     "b68c",
     "c242",
+    "c8db",
     "de66",
     "ec99",
     "f853"
@@ -516,7 +518,7 @@
       "source": {
         "attachment_kind": "statement",
         "decl_line": 85,
-        "line": 101,
+        "line": 108,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "strip_file"
@@ -601,8 +603,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 1191,
-        "line": 1223,
+        "decl_line": 1197,
+        "line": 1229,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "Project.restore"
@@ -1387,6 +1389,55 @@
       "title": "Support detect.placeholder_assignments",
       "title_override": null
     },
+    "a703": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352941930\n`from byteplan_runtime import *` was stripped even when its names were used.",
+      "first_seen": "2026-10-22T20:03:29Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:03:29Z",
+          "event": "created",
+          "new": {
+            "line": 210,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:04:08Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_wildcard_runtime_import_refuses_the_release",
+          "old": null
+        }
+      ],
+      "id": "a703",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:03:29Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 284,
+        "line": 281,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_runtime_locals"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_wildcard_runtime_import_refuses_the_release"
+        ]
+      },
+      "title": "Refuse wildcard runtime imports, whose bindings can't be proven unused",
+      "title_override": null
+    },
     "aedf": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850109\n`from byteplan_runtime import __version__` or an import inside a function survived a release.",
@@ -1426,7 +1477,7 @@
       "source": {
         "attachment_kind": "statement",
         "decl_line": 85,
-        "line": 89,
+        "line": 96,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "strip_file"
@@ -1475,8 +1526,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 323,
-        "line": 326,
+        "decl_line": 400,
+        "line": 403,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"
@@ -1524,8 +1575,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 294,
-        "line": 291,
+        "decl_line": 371,
+        "line": 368,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_decorator"
@@ -1539,6 +1590,55 @@
         ]
       },
       "title": "Check the current binding before restoring a decorator",
+      "title_override": null
+    },
+    "c8db": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352941942\n`from a import todo` in b.py broke once a.py's runtime import was stripped.",
+      "first_seen": "2026-10-22T20:03:29Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:03:29Z",
+          "event": "created",
+          "new": {
+            "line": 152,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:04:08Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_runtime_reexported_to_another_module_refuses_the_release",
+          "old": null
+        }
+      ],
+      "id": "c8db",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:03:29Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 85,
+        "line": 159,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "strip_file"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_runtime_reexported_to_another_module_refuses_the_release"
+        ]
+      },
+      "title": "Keep runtime imports that other modules consume through re-exports",
       "title_override": null
     },
     "de66": {
