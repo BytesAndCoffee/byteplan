@@ -35,7 +35,7 @@ DRIVER_NAME = "BytePlan registry (merge by task ID)"
 REPORT_DRIVER = "byteplan-report"
 REPORT_DRIVER_NAME = "BytePlan report (generated; keep ours, the next scan regenerates it)"
 ARCHIVE_DRIVER = "byteplan-archive"
-ARCHIVE_DRIVER_NAME = "BytePlan archive index (union by task ID)"
+ARCHIVE_DRIVER_NAME = "BytePlan archive index (three-way per task ID)"
 
 
 def git(args: list[str], cwd: Path, *, read_only: bool = True) -> str:
@@ -171,15 +171,28 @@ def merge_driver_main(base: str, ours: str, theirs: str, label: str | None) -> i
 
 
 def archive_driver_main(base: str, ours: str, theirs: str, label: str | None) -> int:
-    """Merge two archive indexes by task ID into ``ours`` (entries never change once written)."""
+    """Merge two archive indexes into ``ours``, three-way per task ID."""
+    label = label or archive.INDEX
     try:
         texts = [Path(p).read_text(encoding="utf-8") for p in (base, ours, theirs)]
-        merged = archive.merge(*texts)
+        merged, conflicts = archive.merge(*texts)
     except (OSError, ValueError, AttributeError, TypeError) as exc:
-        sys.stderr.write(f"byteplan: can't merge {label or archive.INDEX} by task ID: {exc}\n")
-        return 1
-    Path(ours).write_text(merged, encoding="utf-8", newline="\n")
-    return 0
+        merged, conflicts = None, [f"can't merge by task ID: {exc}"]
+    if merged is not None:
+        Path(ours).write_text(merged, encoding="utf-8", newline="\n")
+        return 0
+    # As for the registry: Git's own text merge, so the user resolves with familiar tools.
+    subprocess.run(
+        ["git", "merge-file", "-L", "ours", "-L", "base", "-L", "theirs", ours, base, theirs],  # noqa: S607
+        capture_output=True,
+        check=False,
+    )
+    sys.stderr.write(
+        f"byteplan: {label} needs a manual merge; both sides archived or restored "
+        f"{', '.join(conflicts)} differently. Keep the entry matching the merged registry's history, "
+        "then `git add` it.\n"
+    )
+    return 1
 
 
 __all__ = [
