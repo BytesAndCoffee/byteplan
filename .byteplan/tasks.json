@@ -272,6 +272,19 @@
             "path": "README.md"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-22T16:40:23Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "README status line updated for 0.2.0",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T16:40:24Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "4fb5",
@@ -280,7 +293,7 @@
       "last_seen": "2026-10-22T03:14:55Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -291,7 +304,7 @@
         "representation": "comment",
         "symbol": "BytePlan"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "title": "Update the status line for the next release",
       "title_override": null

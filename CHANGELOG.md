@@ -3,7 +3,11 @@
 All notable changes to `byteplan`. The runtime decorators ship separately as
 [`byteplan-runtime`](https://pypi.org/project/byteplan-runtime/), with their own versions.
 
-## Unreleased
+## 0.2.0 (2026-10-22)
+
+Markdown and JSON tracking, a committed task list, decorator mode, and registry forward
+compatibility. Everything new is opt-in: projects that don't change their configuration see the
+same behaviour as 0.1.0, apart from the scan summary now saying "files scanned".
 
 ### Tracking
 - **Markdown and JSON:** tags in Markdown HTML comments (`<!-- TODO: ... -->`) and fully hidden
@@ -29,6 +33,8 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 - **Forward compatibility:** unknown top-level registry keys, from a newer BytePlan, are kept on
   save instead of dropped, as unknown task fields already were. The merge driver merges them
   three-way: objects key by key, and appended lists combined.
+- **Merge driver fix:** `true` and `1` (and `false` and `0`) are now different values, as in
+  JSON. Before, a change between them could be taken as "unchanged" and one side kept silently.
 
 ### Git and reporting
 - **`report_file`:** set `[tool.byteplan] report_file = "byteplan.md"` for a committed Markdown

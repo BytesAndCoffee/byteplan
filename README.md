@@ -15,14 +15,16 @@ or leave a function unfinished, and BytePlan does the rest:
 It never decides that work is done. If a TODO disappears, its task is marked **missing**, not
 resolved. Only you resolve tasks.
 
-<!-- TODO[4fb5]: Update the status line for the next release
-     It lists only the CLI, scanner, registry and Hatch hook. Also mention the Git integration (IDs
-     added at commit time by `scan --staged --apply` / `git install-hooks`, `check --staged` and
-     `check --commit` for pre-commit and CI, the registry merge driver) and Markdown/JSON tracking. -->
-> **Status: alpha, in active development.** The CLI, scanner, registry and Hatch hook described
-> here work today. Test linking and verification, test scaffolding, release stripping, and an MCP
-> server are planned; see the [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md) and the
-> [changelog](https://github.com/BytesAndCoffee/byteplan/blob/main/CHANGELOG.md).
+> **Status: alpha, in active development.** Everything described here works today:
+> - the CLI, scanner and registry, for Python, Markdown and JSON
+> - Git integration: IDs added at commit time, staged and CI checks, and the registry merge driver
+> - the committed `byteplan.md` task list
+> - decorator mode (`byteplan sync`)
+> - the Hatch hook
+>
+> Test linking and verification, test scaffolding, release stripping and an MCP server are
+> planned. See the [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md)
+> and the [changelog](https://github.com/BytesAndCoffee/byteplan/blob/main/CHANGELOG.md).
 
 ## Contents
 
