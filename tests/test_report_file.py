@@ -221,3 +221,13 @@ def test_merging_branches_never_conflicts_on_the_report(hooked: ProjectFactory, 
     assert run_cli("scan", "--project", hooked.root).code == EXIT_OK
     assert "feature work" in report(hooked)
     assert "main work" in report(hooked)
+
+
+def test_link_targets_are_percent_encoded(reported: ProjectFactory, run_cli: RunCli) -> None:
+    """Codex review of #21: '#', spaces and '|' in a path must not break the link or the table."""
+    reported.write("src/issue#1.py", "# TODO: hash\n")
+    reported.write("src/my file|x.py", "# TODO: space and pipe\n")
+    assert run_cli("scan", "--project", reported.root).code == EXIT_OK
+    text = report(reported)
+    assert "[`src/issue#1.py:1`](src/issue%231.py#L1)" in text
+    assert "[`src/my file\\|x.py:1`](src/my%20file%7Cx.py#L1)" in text

@@ -1136,7 +1136,8 @@ alongside Phase 4e.
 - **Pure function of the registry:** no clock and no scan diagnostics, so the same registry
   always renders the same bytes and staleness is a plain comparison. Open work comes first
   (`in_progress`, `blocked`, then `open`, by path), then closed tasks. Locations link
-  relative to the report's directory, and missing ones are struck through.
+  relative to the report's directory, with paths percent-encoded so `#` and spaces don't break
+  links. Missing locations are struck through.
 - **Written with the registry:** `_registry_writes` puts the report write before the registry
   write in every registry-writing command (scan, mutations, repair). The commit hook's
   `scan --staged --apply` already stages every planned write, so the report needs no

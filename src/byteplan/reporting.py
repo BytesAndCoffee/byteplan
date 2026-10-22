@@ -9,6 +9,7 @@ import json
 import posixpath
 from collections import Counter
 from typing import TYPE_CHECKING, Any
+from urllib.parse import quote
 
 from byteplan.models import Presence
 from byteplan.registry import task_to_dict
@@ -216,8 +217,9 @@ _OPEN_ORDER = {"in_progress": 0, "blocked": 1, "open": 2}
 def _where(task: Task, report_dir: str) -> str:
     if task.source is None:
         return "-"
-    target = posixpath.relpath(task.source.path, report_dir or ".")
-    link = f"[`{task.source.path}:{task.source.line}`]({target}#L{task.source.line})"
+    # Percent-encode the path ("issue#1.py", spaces) so only "#L<line>" is the fragment.
+    target = quote(posixpath.relpath(task.source.path, report_dir or "."))
+    link = f"[`{_md(task.source.path)}:{task.source.line}`]({target}#L{task.source.line})"
     return f"~~{link}~~ (missing)" if task.presence is Presence.MISSING else link
 
 
