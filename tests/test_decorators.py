@@ -366,3 +366,48 @@ def test_unicode_line_separator_in_a_string_does_not_shift_lines(project: Projec
     path = project.write("a.py", code, dedent=False)
     (task_id,) = [p.task_id for p in write_scan(project, clock).proposals]
     assert path.read_text(encoding="utf-8") == code.replace('@todo("x")', f'@todo("x", id="{task_id}")')
+
+
+# Codex review of PR #7: don't over-report shadowing ------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "inner",
+    [
+        "def outer():\n    names = [todo for todo in range(3)]\n    @todo('real task')\n    def inner():\n        return names\n",
+        "def outer():\n    pairs = {todo: 1 for todo in 'ab'}\n    @todo('real task')\n    def inner():\n        return pairs\n",
+        "class C:\n    todo = None\n    def outer(self):\n        @todo('real task')\n        def inner():\n            return 1\n        return inner\n",
+    ],
+    ids=["list-comprehension-target", "dict-comprehension-target", "class-attribute-vs-method-body"],
+)
+def test_names_that_do_not_shadow(inner: str) -> None:
+    result = scan("from byteplan_runtime import todo\n\n\n" + inner)
+    assert [a.title for a in result.tags] == ["real task"]
+    assert result.diagnostics == []
+
+
+def test_walrus_in_comprehension_does_shadow() -> None:
+    code = (
+        "from byteplan_runtime import todo\n"
+        "def outer():\n    [(todo := x) for x in range(3)]\n    @todo('x')\n    def inner():\n        return 1\n"
+    )
+    result = scan(code)
+    assert result.tags == []
+    assert [d.code for d in result.diagnostics] == [Code.UNRESOLVED_TODO_DECORATOR]
+
+
+def test_registered_task_is_not_marked_missing_by_a_comprehension(project: ProjectFactory, clock: FakeClock) -> None:
+    """The review's consequence: a dropped decorator would make its task go missing."""
+    project.init()
+    project.write(
+        "a.py",
+        "from byteplan_runtime import todo\n\n\ndef outer():\n    @todo('real task')\n    def inner():\n        return 1\n",
+    )
+    write_scan(project, clock)
+    path = project.root / "a.py"
+    path.write_text(
+        path.read_text().replace("def outer():\n", "def outer():\n    names = [todo for todo in range(3)]\n")
+    )
+    write_scan(project, clock)
+    (task,) = json.loads((project.root / ".byteplan/tasks.json").read_text())["tasks"].values()
+    assert task["presence"] == "present"

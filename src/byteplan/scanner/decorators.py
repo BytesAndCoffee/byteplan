@@ -140,17 +140,22 @@ _Scope = ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef
 
 
 def _enclosing_scopes(tree: ast.Module) -> dict[ast.AST, list[_Scope]]:
-    """For each def/class, the function and class scopes it's nested in (outermost first).
+    """For each def/class, the scopes Python searches when evaluating its decorators.
 
-    A declaration's decorators are evaluated in those scopes, so a binding there
-    can shadow the module-level import.
+    Decorators run in the immediately enclosing scope. From there, lookup goes
+    through enclosing *function* scopes only: a class namespace is visible to
+    code directly in the class body, never to code inside its methods.
     """
     found: dict[ast.AST, list[_Scope]] = {}
 
     def visit(node: ast.AST, stack: list[_Scope]) -> None:
         for child in ast.iter_child_nodes(node):
             if isinstance(child, _Scope):
-                found[child] = list(stack)
+                found[child] = [
+                    scope
+                    for depth, scope in enumerate(stack)
+                    if not isinstance(scope, ast.ClassDef) or depth == len(stack) - 1
+                ]
                 visit(child, [*stack, child])
             else:
                 visit(child, stack)
@@ -173,6 +178,17 @@ def _binds(scope: _Scope, name: str) -> bool:
             if not isinstance(node, ast.Lambda) and node.name == name:
                 return True
             continue  # its body is its own scope
+        if isinstance(node, ast.ListComp | ast.SetComp | ast.DictComp | ast.GeneratorExp):
+            # Iteration targets are local to the comprehension. Only the first
+            # iterable is evaluated in this scope, and a walrus (:=) inside the
+            # comprehension binds here too.
+            if any(
+                isinstance(sub, ast.NamedExpr) and isinstance(sub.target, ast.Name) and sub.target.id == name
+                for sub in ast.walk(node)
+            ):
+                return True
+            pending.append(node.generators[0].iter)
+            continue
         if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store | ast.Del) and node.id == name:
             return True
         if isinstance(node, ast.Import | ast.ImportFrom):
