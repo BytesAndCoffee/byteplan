@@ -134,6 +134,14 @@ def advertise_routes(self):
   - Links declared in source are refreshed by every scan.
   - Hand-added links are only changed by `tests add/remove`.
   - A linked test file that doesn't exist, or isn't scanned, is reported as `test_not_in_scope`.
+- **Scaffolding:** `byteplan tests scaffold ID` writes a test for the task that fails on purpose
+  (`pytest.fail("BytePlan a83f: acceptance test not implemented")`), with GIVEN/WHEN/THEN
+  comments and no invented fixtures or assertions.
+  - Where it goes: it's linked with `@verifies` by default, and appended to the matching test
+    file (`tests/test_<module>.py`) without touching existing code.
+  - Re-running: it reports the existing test instead of adding another.
+  - Until you replace the `pytest.fail(...)` body, it's a placeholder: `check` notes it, and
+    it can never make the task `ready_for_review`.
 - **Verifying:** `byteplan verify` runs the linked tests with pytest in a subprocess and records
   each result in `.byteplan/verification.json`.
   - Outcomes: `passed`, `failed`, `skipped`, `xfailed`, `xpassed`, `error`, `not_found`,
@@ -240,6 +248,7 @@ metadata, so moving or renaming code keeps the same task.
 |---|---|
 | `byteplan init [--runtime-shim PATH]` | add configuration and an empty registry (safe to re-run); optionally write an inert runtime shim |
 | `byteplan verify [ID...]` | run linked tests with pytest, record evidence, show readiness (`--ready` lists tasks ready for review; runs nothing) |
+| `byteplan tests scaffold ID [--path] [--name] [--policy] [--link] [--force-new] [--dry-run]` | write a deliberately failing acceptance test for a task and link it |
 | `byteplan tests list [ID]` | linked acceptance tests and where each link comes from |
 | `byteplan tests add ID NODE...` / `tests remove ID NODE...` | link or unlink pytest node IDs by hand |
 | `byteplan sync [--apply] [--only ID]` | decorator mode: rewrite attached comments and unowned stubs to `@todo(...)` (preview by default) |
@@ -302,6 +311,14 @@ pytest_marker = false              # also link tests marked @pytest.mark.bytepla
 runner = []                        # verify's pytest command; [] = this Python's -m pytest
 timeout = 300                      # seconds before a verify run is killed
 stale_on = "files"                 # or "head": any HEAD change or dirty tree makes results stale
+
+[tool.byteplan.tests.scaffold]
+directory = "tests"
+filename = "test_{module}.py"      # mirror = true puts src/pkg/x.py's test in tests/pkg/
+mirror = false
+link_style = "verifies"            # or "marker" (needs pytest_marker) / "managed"
+policy = "fail"                    # or "xfail" / "skip"; neither counts as evidence
+async_tests = ""                   # "pytest-asyncio" or "anyio" to scaffold async tests
 
 [tool.byteplan.annotations]
 mode = "comment"                   # or "preserve" / "decorator" (see `byteplan sync`)

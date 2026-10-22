@@ -5,6 +5,21 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+### Test scaffolding (Phase 6b)
+- **`byteplan tests scaffold ID`** writes a deliberately failing acceptance test for a task and
+  links it.
+  - Linking: through `@verifies` (default), `@pytest.mark.byteplan` or a managed link.
+  - Where it goes: a new file, or appended to an existing one. Existing code is never altered,
+    which an AST check enforces.
+  - What it contains: the body always ends in an unconditional `pytest.fail(...)`, so it can't
+    pass by accident. GIVEN/WHEN/THEN hints are comments, and no fixtures or assertions are
+    invented.
+  - Re-running: it's idempotent. `--force-new` adds another test, without name collisions.
+    `--dry-run` previews it.
+  - Placeholders: they're detected statically. `check` reports `scaffold_placeholder`, and a
+    placeholder never counts as ready for review.
+  - Configured in `[tool.byteplan.tests.scaffold]`.
+
 ### Acceptance tests (Phase 6a)
 - **`byteplan verify [ID...]`** runs a task's linked tests with pytest and records the evidence
   in `.byteplan/verification.json`.

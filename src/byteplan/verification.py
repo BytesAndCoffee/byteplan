@@ -336,7 +336,16 @@ class Readiness:
     reasons: tuple[str, ...] = ()
 
 
-def readiness(task: Task, evidence: Evidence, root: Path, *, stale_on: str, head: tuple[str | None, bool]) -> Readiness:
+def readiness(
+    task: Task,
+    evidence: Evidence,
+    root: Path,
+    *,
+    stale_on: str,
+    head: tuple[str | None, bool],
+    placeholders: frozenset[str] = frozenset(),
+) -> Readiness:
+    """``placeholders`` are linked tests that are still scaffold placeholders: never ready."""
     linked = list(task.linked_tests())
     entry = evidence.tasks.get(task.id)
     if not linked:
@@ -364,6 +373,7 @@ def readiness(task: Task, evidence: Evidence, root: Path, *, stale_on: str, head
     reasons.extend(
         f"{node}: {outcome}" for node, outcome in sorted(tests.items()) if outcome not in {"passed", "stale"}
     )
+    reasons.extend(f"{node}: still a scaffold placeholder" for node in sorted(set(linked) & placeholders))
     if task.stub is not None and not task.stub.get("implemented"):
         reasons.append("the declaration is still a stub")
     return Readiness("needs_review" if reasons else "ready_for_review", tests, tuple(reasons))

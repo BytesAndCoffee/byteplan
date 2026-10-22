@@ -62,6 +62,20 @@ class AnnotationsConfig:
 
 
 @dataclass(frozen=True)
+class ScaffoldConfig:
+    """``[tool.byteplan.tests.scaffold]``: where and how ``byteplan tests scaffold`` writes."""
+
+    directory: str = "tests"
+    filename: str = "test_{module}.py"
+    # tests/pkg/test_routing.py for src/pkg/routing.py instead of tests/test_routing.py.
+    mirror: bool = False
+    link_style: str = "verifies"  # verifies | marker | managed
+    policy: str = "fail"  # fail | xfail | skip (only fail can never look finished)
+    # Async targets get `async def` tests only with a plugin named here: "pytest-asyncio" or "anyio".
+    async_tests: str = ""
+
+
+@dataclass(frozen=True)
 class TestsConfig:
     __test__ = False  # not a pytest test class
     # Also link tests marked @pytest.mark.byteplan("abcd") (register the marker in your pytest
@@ -73,6 +87,7 @@ class TestsConfig:
     runner: tuple[str, ...] = ()
     timeout: int = 300
     stale_on: str = "files"
+    scaffold: ScaffoldConfig = field(default_factory=ScaffoldConfig)
 
 
 @dataclass(frozen=True)
@@ -171,7 +186,16 @@ def parse_config(root: Path, table: Any) -> Config:
     check = _parse_section(CheckConfig, table.pop("check", {}), "tool.byteplan.check")
     annotations = _parse_section(AnnotationsConfig, table.pop("annotations", {}), "tool.byteplan.annotations")
     git = _parse_section(GitConfig, table.pop("git", {}), "tool.byteplan.git")
-    tests = _parse_section(TestsConfig, table.pop("tests", {}), "tool.byteplan.tests")
+    tests_table = table.pop("tests", {})
+    if not isinstance(tests_table, dict):
+        msg = "[tool.byteplan.tests] must be a table"
+        raise ConfigError(msg)
+    tests_table = dict(tests_table)
+    scaffold = _parse_section(ScaffoldConfig, tests_table.pop("scaffold", {}), "tool.byteplan.tests.scaffold")
+    tests = TestsConfig(
+        **_parse_values(TestsConfig, tests_table, "tool.byteplan.tests", skip=frozenset({"scaffold"})),
+        scaffold=scaffold,
+    )
     skip = frozenset({"root", "detect", "check", "annotations", "git", "tests"})
     values = _parse_values(Config, table, "tool.byteplan", skip=skip)
     config = Config(root=root, detect=detect, check=check, annotations=annotations, git=git, tests=tests, **values)
@@ -228,6 +252,9 @@ def _coerce(value: Any, default: Any, name: str) -> Any:
 ON_RECONCILE = ("commit", "stop")
 ANNOTATION_MODES = ("comment", "preserve", "decorator")
 STALE_ON = ("files", "head")
+LINK_STYLES = ("verifies", "marker", "managed")
+SCAFFOLD_POLICIES = ("fail", "xfail", "skip")
+ASYNC_PLUGINS = ("", "pytest-asyncio", "anyio")
 
 
 def _validate(config: Config) -> None:
@@ -243,6 +270,18 @@ def _validate(config: Config) -> None:
         raise ConfigError(msg)
     if config.tests.stale_on not in STALE_ON:
         msg = f"tool.byteplan.tests.stale_on must be one of {', '.join(STALE_ON)}"
+        raise ConfigError(msg)
+    scaffold = config.tests.scaffold
+    for name, value, allowed in (
+        ("link_style", scaffold.link_style, LINK_STYLES),
+        ("policy", scaffold.policy, SCAFFOLD_POLICIES),
+        ("async_tests", scaffold.async_tests, ASYNC_PLUGINS),
+    ):
+        if value not in allowed:
+            msg = f"tool.byteplan.tests.scaffold.{name} must be one of {', '.join(repr(a) for a in allowed)}"
+            raise ConfigError(msg)
+    if "{module}" not in scaffold.filename or not scaffold.filename.endswith(".py"):
+        msg = 'tool.byteplan.tests.scaffold.filename must end in .py and contain "{module}"'
         raise ConfigError(msg)
     if config.tests.timeout <= 0:
         msg = "tool.byteplan.tests.timeout must be a positive number of seconds"

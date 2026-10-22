@@ -307,7 +307,7 @@ def test_inert_shim_returns_the_identical_object() -> None:
     namespace: dict[str, Any] = {}
     exec(compile(RUNTIME_SHIM, "shim", "exec"), namespace)
 
-    def f() -> None: ...
+    def f() -> None: ...  # byteplan: ignore - a stand-in object, not unfinished work
 
     assert namespace["todo"]("x", id="abcd", kind="FIXME", description="d", tests=("t",))(f) is f
     assert namespace["verifies"]("abcd")(f) is f

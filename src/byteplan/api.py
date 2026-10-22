@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import ast
 import contextlib
 import dataclasses
 import hashlib
@@ -22,7 +23,7 @@ from typing import TYPE_CHECKING, Any
 
 import pathspec
 
-from byteplan import normalize, reporting, verification
+from byteplan import normalize, reporting, scaffold, verification
 from byteplan import registry as registry_io
 from byteplan.annotate import annotate
 from byteplan.config import (
@@ -42,7 +43,7 @@ from byteplan.errors import ConfigError, EditError, RegistryError, ScanError, So
 from byteplan.files import Scope, ScopeMatcher, collect_files, resolve_targets, scope_from_paths
 from byteplan.ids import allocate
 from byteplan.languages import Language, language_for
-from byteplan.models import HistoryEvent, Origin, Presence, Representation, ScopeState, Status
+from byteplan.models import AttachmentKind, HistoryEvent, Origin, Presence, Representation, ScopeState, Status
 from byteplan.persistence import (
     STATE_DIR,
     FileWrite,
@@ -112,6 +113,18 @@ class VerifyReport:
         """Any requested test that didn't pass or skip as expected: no false passes."""
         bad = {"failed", "error", "timeout", "not_found", "not_run"}
         return self.timed_out or any(r.outcome in bad for t in self.tasks for r in t.results.values())
+
+
+@dataclass(frozen=True)
+class ScaffoldResult:
+    task: Task
+    node: str  # the new test, or the existing one when nothing was written
+    path: str
+    created_file: bool = False
+    existing: tuple[str, ...] = ()  # already-linked tests (then nothing was written)
+    dry_run: bool = False
+    text: str = ""  # the planned file text
+    written: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -623,6 +636,23 @@ class Project:
                         hint="fix the node ID, or add the test files to [tool.byteplan] include",
                     )
                 )
+        open_links = {
+            node: task_id
+            for task_id, task in sorted(registry.tasks.items())
+            if not task.status.is_closed
+            for node in task.linked_tests()
+        }
+        found.extend(
+            Diagnostic(
+                Code.SCAFFOLD_PLACEHOLDER,
+                Severity.INFO,
+                f"{node} is still a scaffold placeholder for task {open_links[node]} (it fails on purpose)",
+                task_id=open_links[node],
+                locations=(Location(node.split("::", 1)[0]),),
+                hint="write the real test; replacing the pytest.fail(...) body is all it takes",
+            )
+            for node in sorted(self._placeholders(open_links) & open_links.keys())
+        )
         return found
 
     def _complete_candidates(self, found: list[Diagnostic], registry: Registry) -> list[Diagnostic]:
@@ -731,7 +761,24 @@ class Project:
         """Derived, never stored: ``unverified``, ``failing``, ``needs_review`` or ``ready_for_review``."""
         evidence = evidence if evidence is not None else verification.Evidence.load(self.root)
         head = verification.git_state(self.root) if self.config.tests.stale_on == "head" else (None, False)
-        return verification.readiness(task, evidence, self.root, stale_on=self.config.tests.stale_on, head=head)
+        return verification.readiness(
+            task,
+            evidence,
+            self.root,
+            stale_on=self.config.tests.stale_on,
+            head=head,
+            placeholders=self._placeholders(task.linked_tests()),
+        )
+
+    def _placeholders(self, nodes: Iterable[str]) -> frozenset[str]:
+        """Which of these node IDs are still scaffold placeholders (read statically from the
+        working tree, or from the snapshot)."""
+        found: set[str] = set()
+        for path in sorted({node.split("::", 1)[0] for node in nodes}):
+            data = self.snapshot.read(path) if self.snapshot is not None else _read_bytes(self.root / path)
+            if data is not None:
+                found |= scaffold.placeholder_nodes(path, data.decode("utf-8", "replace"))
+        return frozenset(found)
 
     def verify(self, task_ids: Sequence[str] | None = None) -> VerifyReport:
         """Run the linked tests of ``task_ids`` (default: every open task with links) and record
@@ -777,6 +824,133 @@ class Project:
         )
         return VerifyReport(verified, argv, run.returncode, run.timed_out, run.output)
 
+    def scaffold_test(
+        self,
+        task_id: str,
+        *,
+        path: str | None = None,
+        name: str | None = None,
+        policy: str | None = None,
+        link_style: str | None = None,
+        force_new: bool = False,
+        dry_run: bool = False,
+    ) -> ScaffoldResult:
+        """Write a deliberately failing acceptance test for a task and link it.
+
+        If the task already has linked tests, nothing is written (unless ``force_new``).
+        Raises ``ScaffoldError`` when it can't be done safely.
+        """
+        settings = self.config.tests.scaffold
+        policy = policy or settings.policy
+        link_style = link_style or settings.link_style
+        context = contextlib.nullcontext(()) if dry_run else self._writing()
+        with context:
+            registry_hash, registry = self._read_registry()
+            task = registry.get(task_id.lower())
+            if task is None:
+                raise _not_found(task_id)
+            existing_links = tuple(task.linked_tests())
+            if existing_links and not force_new:
+                first = existing_links[0]
+                return ScaffoldResult(task, first, first.split("::", 1)[0], existing=existing_links, dry_run=dry_run)
+            if link_style == "marker" and not self.config.tests.pytest_marker:
+                raise scaffold.ScaffoldError(
+                    scaffold.MARKER_NOT_ENABLED,
+                    "--link marker needs [tool.byteplan.tests] pytest_marker = true",
+                    "enable it, or use --link verifies or --link managed",
+                )
+            scope = collect_files(self.config)
+            target_rel = self._scaffold_path(task, path, scope)
+            target = self._scaffold_target(task)
+            before = _read_bytes(self.root / target_rel)
+            plan = scaffold.plan(
+                task,
+                target,
+                target_rel,
+                None if before is None else decode_source(target_rel, before).text,
+                name=name,
+                policy=policy,
+                link_style=link_style,
+                runtime=self.runtime_module(development=True) if link_style == "verifies" else None,
+                async_tests=settings.async_tests,
+            )
+            new_source = dataclasses.replace(decode_source(target_rel, before or b""), path=target_rel, text=plan.text)
+            # The new test must be found again: as a placeholder, and through its link.
+            if plan.node not in scaffold.placeholder_nodes(target_rel, plan.text):
+                msg = f"{target_rel}: the scaffold didn't round-trip; nothing was written"
+                raise EditError(msg)
+            entry: dict[str, Any] | None = None
+            if link_style != "managed":
+                rescan = scan_file(
+                    new_source,
+                    self.config.detect,
+                    self.config.annotations.runtime_modules,
+                    pytest_marker=link_style == "marker",
+                )
+                link = next((ln for ln in rescan.links if ln.node_id == plan.node and task.id in ln.task_ids), None)
+                if link is None:
+                    msg = f"{target_rel}: the scaffold's @{'verifies' if link_style == 'verifies' else 'pytest.mark.byteplan'} wasn't recognized; nothing was written"
+                    raise EditError(msg)
+                entry = {"node": plan.node, "provenance": link.provenance, "path": link.path, "line": link.line}
+            if dry_run:
+                return ScaffoldResult(task, plan.node, target_rel, plan.created, dry_run=True, text=plan.text)
+
+            now = self.clock()
+            if entry is not None:
+                task.tests_discovered = sorted(
+                    [*task.tests_discovered, entry], key=lambda e: (e["node"], e["provenance"], e["path"], e["line"])
+                )
+            else:
+                task.tests_managed = sorted({*task.tests_managed, plan.node})
+            task.history.append(
+                HistoryEvent("test_scaffolded", now, new={"path": target_rel, "node": plan.node, "policy": policy})
+            )
+            writes = [
+                FileWrite(target_rel, None if before is None else sha256(before), new_source.encode()),
+                *self._registry_writes(registry_hash, registry),
+            ]
+            written = tuple(commit(self.root, writes))
+            return ScaffoldResult(task, plan.node, target_rel, plan.created, text=plan.text, written=written)
+
+    def _scaffold_path(self, task: Task, override: str | None, scope: Scope) -> str:
+        matcher = ScopeMatcher(self.config)
+        if override is not None:
+            resolved = (self.root / override).resolve()
+            if not resolved.is_relative_to(self.root.resolve()) or resolved.suffix != ".py":
+                raise scaffold.ScaffoldError(
+                    scaffold.NEEDS_PATH, f"--path {override!r} must be a .py file inside the project"
+                )
+            rel = resolved.relative_to(self.root.resolve()).as_posix()
+        else:
+            python = [p for p in scope.files if language_for(p) is Language.PYTHON]
+            rel = scaffold.target_path(task, self.config.tests.scaffold, python)
+        if not matcher.contains(rel):
+            raise scaffold.ScaffoldError(
+                scaffold.NEEDS_PATH,
+                f"{rel} isn't in the scan scope, so the new test's link and placeholder state couldn't be seen",
+                "add the test files to [tool.byteplan] include, or pass --path",
+            )
+        return rel
+
+    def _scaffold_target(self, task: Task) -> scaffold.Target:
+        source = task.source
+        if source is None or source.attachment_kind not in {
+            AttachmentKind.FUNCTION,
+            AttachmentKind.METHOD,
+            AttachmentKind.CLASS,
+        }:
+            return scaffold.Target(source.attachment_kind if source else None, None)
+        is_async = False
+        data = _read_bytes(self.root / source.path)
+        if data is not None and language_for(source.path) is Language.PYTHON:
+            with contextlib.suppress(SourceError):
+                tree = parse_module(decode_source(source.path, data))
+                is_async = any(
+                    isinstance(node, ast.AsyncFunctionDef) and node.lineno == source.decl_line
+                    for node in ast.walk(tree)
+                )
+        return scaffold.Target(source.attachment_kind, source.symbol, is_async)
+
     def ready(self) -> list[tuple[Task, verification.Readiness]]:
         """Open tasks whose evidence makes them ready for a human to review and resolve."""
         evidence = verification.Evidence.load(self.root)
@@ -791,11 +965,16 @@ class Project:
 
     # Normalization (decorator mode, `byteplan sync`) ---------------------------------------
 
-    def runtime_module(self) -> str | None:
-        """The module to import ``todo`` from: ``byteplan_runtime`` when ``byteplan-runtime`` is a
-        declared dependency, else a configured shim module present in scope, else None."""
+    def runtime_module(self, *, development: bool = False) -> str | None:
+        """The module to import ``todo``/``verifies`` from: ``byteplan_runtime`` when
+        ``byteplan-runtime`` is a declared dependency, else a configured shim module present in
+        scope, else None. ``development`` also counts dev dependencies (optional dependencies,
+        dependency groups, Hatch environments), which is enough for test code."""
         modules = self.config.annotations.runtime_modules
-        dependencies = read_pyproject(self.root).get("project", {}).get("dependencies", [])
+        pyproject = read_pyproject(self.root)
+        dependencies = list(pyproject.get("project", {}).get("dependencies", []))
+        if development:
+            dependencies += _development_dependencies(pyproject)
         names = {_requirement_name(dep) for dep in dependencies if isinstance(dep, str)}
         if "byteplan-runtime" in names and "byteplan_runtime" in modules:
             return "byteplan_runtime"
@@ -1343,6 +1522,20 @@ def _apply_discovered_tests(
 
 def normalize_review(task_id: str, message: str) -> Diagnostic:
     return Diagnostic(Code.CONVERSION_NEEDS_REVIEW, Severity.INFO, f"task {task_id} {message}", task_id=task_id)
+
+
+def _development_dependencies(pyproject: dict[str, Any]) -> list[Any]:
+    """Requirement strings from optional dependencies, dependency groups and Hatch environments."""
+    found: list[Any] = []
+    for extra in pyproject.get("project", {}).get("optional-dependencies", {}).values():
+        found += list(extra) if isinstance(extra, list) else []
+    for group in pyproject.get("dependency-groups", {}).values():
+        found += list(group) if isinstance(group, list) else []
+    for env in pyproject.get("tool", {}).get("hatch", {}).get("envs", {}).values():
+        if isinstance(env, dict):
+            for key in ("dependencies", "extra-dependencies"):
+                found += list(env.get(key, [])) if isinstance(env.get(key), list) else []
+    return found
 
 
 def _requirement_name(requirement: str) -> str:
