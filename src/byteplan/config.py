@@ -70,6 +70,9 @@ class CheckConfig:
     # to the plain working-tree `check` too.
     require_reconciled: bool = False
     fail_on_position_drift: bool = False
+    # The committed report_file not matching the registry (warning by default: a merge
+    # keeps one side's copy until the next commit regenerates it).
+    fail_on_stale_report: bool = False
 
 
 @dataclass(frozen=True)
@@ -81,6 +84,9 @@ class Config:
     respect_gitignore: bool = True
     auto_annotate: bool = True
     missing_policy: str = "warn"
+    # A Markdown view of the registry, regenerated whenever the registry is written (so the
+    # commit hook stages it with the registry). Empty: no report file.
+    report_file: str = ""
     detect: DetectConfig = field(default_factory=DetectConfig)
     check: CheckConfig = field(default_factory=CheckConfig)
     annotations: AnnotationsConfig = field(default_factory=AnnotationsConfig)
@@ -226,3 +232,14 @@ def _validate(config: Config) -> None:
     if registry.suffix != ".json":
         msg = "tool.byteplan.registry must be a .json file"
         raise ConfigError(msg)
+    if config.report_file:
+        report = (config.root / config.report_file).resolve()
+        if not report.is_relative_to(config.root) or report == config.root:
+            msg = f"tool.byteplan.report_file {config.report_file!r} resolves outside the project root"
+            raise ConfigError(msg)
+        if report.suffix != ".md":
+            msg = "tool.byteplan.report_file must be a .md file"
+            raise ConfigError(msg)
+        if report == registry:
+            msg = "tool.byteplan.report_file must differ from the registry"
+            raise ConfigError(msg)

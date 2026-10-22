@@ -51,6 +51,7 @@ Source = "https://github.com/BytesAndCoffee/byteplan"
 [tool.byteplan]
 registry = ".byteplan/tasks.json"
 include = ["src/**/*.py", "byteplan-runtime/src/**/*.py", "**/*.md"]
+report_file = "byteplan.md"
 
 [tool.hatch.version]
 path = "src/byteplan/__about__.py"

@@ -32,8 +32,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 71,
-        "line": 68,
+        "decl_line": 72,
+        "line": 69,
         "path": "src/byteplan/scanner/comments.py",
         "representation": "comment",
         "symbol": "tag_pattern"
@@ -106,8 +106,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 197,
-        "line": 201,
+        "decl_line": 203,
+        "line": 207,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"

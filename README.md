@@ -222,6 +222,7 @@ exclude = ["**/.venv/**", "**/venv/**", "**/__pycache__/**", "**/build/**", "**/
 respect_gitignore = true
 auto_annotate = true          # false: only track comments that already carry an ID
 missing_policy = "warn"       # or "ignore"
+report_file = ""              # e.g. "byteplan.md": a committed Markdown view of the registry
 
 [tool.byteplan.detect]
 todo_tags = ["TODO", "FIXME", "HACK", "XXX"]
@@ -236,6 +237,7 @@ json_string_values = true      # JSON strings starting with "TODO:" are tasks
 fail_on_duplicate_ids = true
 fail_on_missing = false
 fail_on_stale_annotations = false
+fail_on_stale_report = false  # report_file not matching the registry is a warning by default
 
 [tool.byteplan.annotations]
 runtime_modules = ["byteplan_runtime"]   # add a project shim module here
@@ -344,6 +346,24 @@ $ byteplan scan --staged --dry-run # preview what the staged snapshot still need
 
 The hooks are a convenience and can be skipped with `--no-verify`; CI is where to enforce.
 
+## A committed task list: `report_file`
+
+Set `report_file = "byteplan.md"` and BytePlan keeps a readable task list next to your code,
+with open work first and each location linked to the file and line. It's what reviewers and
+GitHub visitors see without installing anything.
+
+- **Always current:** it's rendered from the registry alone, and every command that writes the
+  registry (`scan`, `resolve`, `status`, `edit`, `repair`) rewrites it. The commit hook
+  (`scan --staged --apply`) stages it with the registry, so each commit carries a matching copy.
+- **Checked:** `check --staged`, `check --commit` and `require_reconciled` report
+  `report_out_of_sync` when it doesn't match the registry. That's a warning unless
+  `fail_on_stale_report = true`.
+- **Merges:** two branches both regenerate it, so a text merge would only conflict.
+  `byteplan git install-merge-driver` also registers `byteplan.md merge=byteplan-report`, which
+  keeps our copy. The next hooked commit, or `byteplan scan`, regenerates it from the merged
+  registry; until then `check` warns that it's stale.
+- **Generated, not scanned:** the report file is never scanned for TODOs. Don't edit it by hand.
+
 ## Merging the registry in Git
 
 `.byteplan/tasks.json` is plain, deterministic JSON, so it diffs and reviews like code. Two
@@ -373,7 +393,8 @@ plus an explanation:
 If both branches moved the same annotation, the merged registry keeps our location and asks you
 to run `byteplan scan`, which refreshes it from the merged code.
 
-**Per clone, and safe to skip.** Commit `.byteplan/.gitattributes`. Each clone runs
+**Per clone, and safe to skip.** Commit `.byteplan/.gitattributes` (and, with a `report_file`, the
+`.gitattributes` next to it). Each clone runs
 `byteplan git install-merge-driver` once, because Git doesn't version merge-driver configuration.
 A clone that hasn't installed the driver just gets Git's ordinary text merge. The driver is
 recorded as `<this Python> -m byteplan`, so it works even when Git runs outside your virtualenv;

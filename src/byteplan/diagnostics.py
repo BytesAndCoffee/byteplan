@@ -47,6 +47,7 @@ class Code(StrEnum):
     POSITION_DRIFT = "position_drift"
     STAGED_CONFIG_MISMATCH = "staged_config_mismatch"
     WORKING_TREE_CHANGED_BUT_NOT_STAGED = "working_tree_changed_but_not_staged"
+    REPORT_OUT_OF_SYNC = "report_out_of_sync"
 
 
 @dataclass(frozen=True)
@@ -110,6 +111,8 @@ def is_failure(diagnostic: Diagnostic, policy: CheckConfig, *, enforce_consisten
             return policy.fail_on_stale_annotations
         case Code.POSITION_DRIFT:
             return policy.fail_on_position_drift
+        case Code.REPORT_OUT_OF_SYNC:
+            return policy.fail_on_stale_report
         case _:
             return False
 

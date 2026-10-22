@@ -6,9 +6,11 @@
 from __future__ import annotations
 
 import json
+import posixpath
 from collections import Counter
 from typing import TYPE_CHECKING, Any
 
+from byteplan.models import Presence
 from byteplan.registry import task_to_dict
 
 if TYPE_CHECKING:
@@ -16,6 +18,7 @@ if TYPE_CHECKING:
 
     from byteplan.api import ScanReport
     from byteplan.models import Annotation, Task
+    from byteplan.registry import Registry
 
 
 def to_json(payload: Any) -> str:
@@ -202,4 +205,57 @@ def report_markdown(report: dict[str, Any]) -> str:
             lines.append(f"- **{diag['severity']}** `{diag['code']}` {ident}{where}: {_md(diag['message'])}")
     else:
         lines.append("None.")
+    return "\n".join(lines) + "\n"
+
+
+# The committed plan file (`[tool.byteplan] report_file`) ------------------------------------------
+
+_OPEN_ORDER = {"in_progress": 0, "blocked": 1, "open": 2}
+
+
+def _where(task: Task, report_dir: str) -> str:
+    if task.source is None:
+        return "-"
+    target = posixpath.relpath(task.source.path, report_dir or ".")
+    link = f"[`{task.source.path}:{task.source.line}`]({target}#L{task.source.line})"
+    return f"~~{link}~~ (missing)" if task.presence is Presence.MISSING else link
+
+
+def plan_markdown(registry: Registry, *, registry_rel: str, report_rel: str) -> str:
+    """The committed plan: a pure function of the registry (no clock, no scan state), so the
+    same registry always renders byte-identically and staleness is a plain comparison."""
+    report_dir = posixpath.dirname(report_rel)
+    tasks = sorted(registry.tasks.values(), key=lambda t: t.id)
+    active = [t for t in tasks if not t.status.is_closed]
+    active.sort(key=lambda t: (_OPEN_ORDER.get(str(t.status), 3), t.source.path if t.source else "", t.id))
+    closed = [t for t in tasks if t.status.is_closed]
+    counts = Counter(str(t.status) for t in closed)
+
+    lines = [
+        "# BytePlan",
+        "",
+        f"<!-- Generated from {registry_rel} by BytePlan; don't edit. "
+        "`byteplan scan` and the commit hook keep it current. -->",
+        "",
+        f"**{len(active)} open** · {len(closed)} closed"
+        + (f" ({', '.join(f'{status} {n}' for status, n in sorted(counts.items()))})" if closed else ""),
+        "",
+        "## Open",
+        "",
+    ]
+    if active:
+        lines += ["| ID | Status | Kind | Priority | Assignee | Where | Title |", "|---|---|---|---|---|---|---|"]
+        lines += [
+            f"| `{t.id}` | {t.status} | {t.kind} | {_md(t.priority)} | {_md(t.assignee) or '-'} | "
+            f"{_where(t, report_dir)} | {_md(t.display_title)} |"
+            for t in active
+        ]
+    else:
+        lines.append("Nothing open.")
+    lines += ["", "## Closed", ""]
+    if closed:
+        lines += ["| ID | Status | Kind | Title |", "|---|---|---|---|"]
+        lines += [f"| `{t.id}` | {t.status} | {t.kind} | {_md(t.display_title)} |" for t in closed]
+    else:
+        lines.append("Nothing closed yet.")
     return "\n".join(lines) + "\n"

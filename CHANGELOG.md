@@ -13,6 +13,13 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
   New `[tool.byteplan.detect] json_string_values` option.
 - The registry file is never scanned, even when `include` matches it.
 
+### Git and reporting
+- **`report_file`:** set `[tool.byteplan] report_file = "byteplan.md"` for a committed Markdown
+  task list rendered from the registry. Every registry write regenerates it, and the commit hook
+  stages it with the registry. `check --staged`, `check --commit` and `require_reconciled` warn
+  with `report_out_of_sync` when it's stale (`[tool.byteplan.check] fail_on_stale_report` makes
+  that fail). `git install-merge-driver` keeps our copy on merges instead of conflicting.
+
 ## 0.1.0 (2026-10-22)
 
 The first usable release. 0.0.1 was an empty placeholder that reserved the name.
