@@ -67,9 +67,9 @@
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
-        "attachment_kind": "function",
-        "decl_line": 179,
-        "line": 180,
+        "attachment_kind": "statement",
+        "decl_line": 192,
+        "line": 196,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"
