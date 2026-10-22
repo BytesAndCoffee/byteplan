@@ -2,13 +2,12 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**12 open** · 3 closed (resolved 3)
+**11 open** · 4 closed (resolved 4)
 
 ## Open
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `2887` | open | TODO | normal | - | ~~[`docs/IMPLEMENTATION_PLAN.md:1519`](docs/IMPLEMENTATION_PLAN.md#L1519)~~ (missing) | Phase 6b: test scaffolding |
 | `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1523`](docs/IMPLEMENTATION_PLAN.md#L1523) | Phase 6c (optional): acceptance criteria and dependencies |
 | `14ff` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1526`](docs/IMPLEMENTATION_PLAN.md#L1526) | Phase 7: cleanup |
 | `0413` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1530`](docs/IMPLEMENTATION_PLAN.md#L1530) | Phase 8: release stripping |
@@ -25,6 +24,7 @@
 
 | ID | Status | Kind | Title |
 |---|---|---|---|
+| `2887` | resolved | TODO | Phase 6b: test scaffolding |
 | `4fb5` | resolved | TODO | Update the status line for the next release |
 | `82b3` | resolved | TODO | Phase 5: runtime and normalization |
 | `9b40` | resolved | TODO | Phase 6a: acceptance tests |
