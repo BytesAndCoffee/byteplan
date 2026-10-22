@@ -147,9 +147,32 @@ def cmd_tests_remove(args: argparse.Namespace) -> int:
 
 
 def cmd_show(args: argparse.Namespace) -> int:
-    task = _project(args).get_task(args.id)
-    _out(reporting.to_json(reporting.task_json(task)) if args.format == "json" else reporting.task_text(task))
+    project = _project(args)
+    task = project.get_task(args.id)
+    state = project.readiness(task)
+    if args.format == "json":
+        _out(
+            reporting.to_json(
+                {**reporting.task_json(task), "readiness": state.state, "readiness_reasons": list(state.reasons)}
+            )
+        )
+    else:
+        _out(reporting.task_text(task, state))
     return EXIT_OK
+
+
+def cmd_verify(args: argparse.Namespace) -> int:
+    project = _project(args)
+    if args.ready:
+        found = project.ready()
+        if args.format == "json":
+            _out(reporting.to_json([{"id": t.id, "title": t.display_title} for t, _ in found]))
+        else:
+            _out(reporting.ready_text(found))
+        return EXIT_OK
+    report = project.verify(args.ids)
+    _out(reporting.to_json(reporting.verify_json(report)) if args.format == "json" else reporting.verify_text(report))
+    return EXIT_FINDINGS if report.failed else EXIT_OK
 
 
 def _print_task_change(args: argparse.Namespace, task: Task, *, changed: bool, what: str) -> None:
@@ -411,6 +434,13 @@ def build_parser() -> argparse.ArgumentParser:
     merge.add_argument("theirs", help="%%B: their version")
     merge.add_argument("label", nargs="?", help="%%P: the registry's path, for messages")
     merge.set_defaults(handler=cmd_merge_registry)
+
+    verify = sub.add_parser(
+        "verify", parents=[common, formatted], help="run linked tests with pytest and record the evidence"
+    )
+    verify.add_argument("ids", nargs="*", metavar="ID", help="only these tasks (default: every open task with tests)")
+    verify.add_argument("--ready", action="store_true", help="list tasks ready for review; runs nothing")
+    verify.set_defaults(handler=cmd_verify)
 
     tests_cmd = sub.add_parser("tests", help="acceptance tests linked to tasks")
     tests_sub = tests_cmd.add_subparsers(dest="tests_command", metavar="COMMAND", required=True)

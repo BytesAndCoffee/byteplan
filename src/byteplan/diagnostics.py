@@ -39,6 +39,7 @@ class Code(StrEnum):
     DECORATOR_NEEDS_REVIEW = "decorator_needs_review"
     STUB_NEEDS_REVIEW = "stub_needs_review"
     IMPLEMENTATION_CHANGED = "implementation_changed"
+    IMPLEMENTATION_COMPLETE_CANDIDATE = "implementation_complete_candidate"
     UNKNOWN_TASK_REFERENCE = "unknown_task_reference"
     # Snapshot consistency (check --staged / --commit, or require_reconciled)
     NEW_UNREGISTERED = "new_unregistered"

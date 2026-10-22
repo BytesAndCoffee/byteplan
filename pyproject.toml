@@ -114,6 +114,9 @@ branch = true
 parallel = true
 omit = [
   "src/byteplan/__about__.py",
+  # Runs inside `byteplan verify`'s pytest subprocesses from a copied file, so coverage can't
+  # attribute it; tests/test_verify.py exercises every hook end to end.
+  "src/byteplan/_verify_plugin.py",
 ]
 
 [tool.coverage.paths]

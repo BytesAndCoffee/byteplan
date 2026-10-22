@@ -59,7 +59,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1535,
+        "line": 1530,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -110,7 +110,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1531,
+        "line": 1526,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -161,7 +161,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1553,
+        "line": 1548,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -212,7 +212,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1524,
+        "line": 1519,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -360,7 +360,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1547,
+        "line": 1542,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -485,7 +485,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1550,
+        "line": 1545,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -536,7 +536,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1543,
+        "line": 1538,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -571,6 +571,19 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-22T17:30:03Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T17:30:04Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Phase 6a done: test links, byteplan tests, byteplan verify",
+          "old": "open"
         }
       ],
       "id": "9b40",
@@ -581,7 +594,7 @@
       "last_seen": "2026-10-22T03:53:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -592,7 +605,7 @@
         "representation": "comment",
         "symbol": "Phases"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "title": "Phase 6a: acceptance tests",
       "title_override": null
@@ -623,8 +636,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 221,
-        "line": 225,
+        "decl_line": 233,
+        "line": 237,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"
@@ -685,7 +698,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1528,
+        "line": 1523,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -746,7 +759,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1557,
+        "line": 1552,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -797,7 +810,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1539,
+        "line": 1534,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"

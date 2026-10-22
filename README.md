@@ -134,6 +134,15 @@ def advertise_routes(self):
   - Links declared in source are refreshed by every scan.
   - Hand-added links are only changed by `tests add/remove`.
   - A linked test file that doesn't exist, or isn't scanned, is reported as `test_not_in_scope`.
+- **Verifying:** `byteplan verify` runs the linked tests with pytest in a subprocess and records
+  each result in `.byteplan/verification.json`.
+  - Outcomes: `passed`, `failed`, `skipped`, `xfailed`, `xpassed`, `error`, `not_found`,
+    `not_run` or `timeout`. Only `passed` counts as evidence.
+  - Readiness: each task is `unverified`, `failing`, `needs_review` (skips, stale results, or
+    a declaration that's still a stub) or `ready_for_review`.
+  - Results go stale when the task's source or test files change (or, with
+    `stale_on = "head"`, when HEAD moves).
+  - Readiness is advice: no task is ever resolved automatically.
 - **No new dependency?** `byteplan init --runtime-shim src/pkg/_byteplan.py` writes an inert
   `todo`/`verifies` module and registers it in `runtime_modules`.
 
@@ -230,6 +239,7 @@ metadata, so moving or renaming code keeps the same task.
 | Command | What it does |
 |---|---|
 | `byteplan init [--runtime-shim PATH]` | add configuration and an empty registry (safe to re-run); optionally write an inert runtime shim |
+| `byteplan verify [ID...]` | run linked tests with pytest, record evidence, show readiness (`--ready` lists tasks ready for review; runs nothing) |
 | `byteplan tests list [ID]` | linked acceptance tests and where each link comes from |
 | `byteplan tests add ID NODE...` / `tests remove ID NODE...` | link or unlink pytest node IDs by hand |
 | `byteplan sync [--apply] [--only ID]` | decorator mode: rewrite attached comments and unowned stubs to `@todo(...)` (preview by default) |
@@ -289,6 +299,9 @@ fail_on_stale_report = false  # report_file not matching the registry is a warni
 
 [tool.byteplan.tests]
 pytest_marker = false              # also link tests marked @pytest.mark.byteplan("id")
+runner = []                        # verify's pytest command; [] = this Python's -m pytest
+timeout = 300                      # seconds before a verify run is killed
+stale_on = "files"                 # or "head": any HEAD change or dirty tree makes results stale
 
 [tool.byteplan.annotations]
 mode = "comment"                   # or "preserve" / "decorator" (see `byteplan sync`)

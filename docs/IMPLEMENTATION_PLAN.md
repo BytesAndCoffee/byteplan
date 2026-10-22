@@ -1485,9 +1485,8 @@ earlier depends on it.
 
 Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4c (IDs at
 commit time) is done. Phases 4d, 4e and 5 (runtime and normalization: annotation modes,
-`byteplan sync`, `init --runtime-shim`) are done. **Phase 6a is in progress:** test links,
-their provenance and `byteplan tests list/add/remove` are done; `verify` (the pytest plugin,
-outcomes, `verification.json`, freshness and readiness) is next. Addendum A's step 2 (choosing the runtime design) is already done, and the
+`byteplan sync`, `init --runtime-shim`) and 6a (test links, `byteplan tests`, `byteplan verify`
+with evidence, freshness and readiness) are done. **Phase 6b comes next.** Addendum A's step 2 (choosing the runtime design) is already done, and the
 runtime package has shipped.
 
 | Phase | Deliverables | Spec §12 tests | Addendum §9 tests |
@@ -1502,7 +1501,7 @@ runtime package has shipped.
 | 4d. Registry forward compatibility ✅ | unknown **top-level** registry keys round-trip (today they're dropped on save; task-level ones already survive), and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
 | 4e. Markdown and JSON sources ✅ | suffix-based file types (`.md`/`.markdown`, `.json`/`.jsonc`); Markdown HTML-comment tags with heading symbols, skipping code; JSON comment tags and tagged string values with JSON Pointer symbols; per-format edit guards; `detect.json_string_values`; registry never scanned. See [Markdown and JSON sources](#markdown-and-json-sources-phase-4e) | – | Phase 4e tests |
 | 5. Runtime + normalization ✅ | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
-| 6a. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |
+| 6a. Acceptance tests ✅ | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |
 | 6b. Test scaffolding | `scaffold.py` planner, `byteplan tests scaffold ID [--path] [--name] [--policy] [--force-new] [--dry-run]`, placeholder detection, `[tool.byteplan.tests.scaffold]` | – | B: 1–9, 11 (CLI), 12 |
 | 6c. Criteria + dependencies (optional) | `acceptance_criteria`, `byteplan criteria …`, `depends_on`, lifecycle facts in reports (Phase 12 later turns `depends_on` into `blocked_by` links) | – | – |
 | 7. Cleanup | `cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`, `--suppress-stubs` | – | 13 (cleanup), 14 |
@@ -1516,10 +1515,6 @@ runtime package has shipped.
 
 <!-- The phases still to build, tracked by BytePlan itself (see byteplan.md). Remove a TODO when
      its phase is marked ✅ in the table above, then `byteplan resolve` it. -->
-
-<!-- TODO[9b40]: Phase 6a: acceptance tests
-     Test links and provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`,
-     `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness and freshness. -->
 
 <!-- TODO[2887]: Phase 6b: test scaffolding
      `scaffold.py` planner, `byteplan tests scaffold ID`, placeholder detection,

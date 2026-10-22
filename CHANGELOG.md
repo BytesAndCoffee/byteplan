@@ -5,7 +5,20 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
-### Acceptance tests (Phase 6a, part 1)
+### Acceptance tests (Phase 6a)
+- **`byteplan verify [ID...]`** runs a task's linked tests with pytest and records the evidence
+  in `.byteplan/verification.json`.
+  - How it runs: it passes the test files and lets its own plugin select the requested tests, so
+    one unknown test can't abort the run. It runs in its own process group, with a
+    configurable runner and timeout.
+  - Outcomes: `passed`, `failed`, `skipped`, `xfailed`, `xpassed`, `error`, `not_found`,
+    `not_run` or `timeout`. Only `passed` is evidence. A crash or kill never produces a pass.
+  - Readiness: `unverified`, `failing`, `needs_review` or `ready_for_review`. Results are
+    stale when the task's files change (`stale_on = "files"`) or HEAD moves (`"head"`).
+  - Reviewing it: `verify --ready` lists tasks ready for review, and `show` displays readiness
+    and per-test results.
+  - When an implemented stub's tests pass, scan reports `implementation_complete_candidate`.
+  - Readiness is advice only: no task is ever resolved automatically.
 - **Test links:** a task links to the pytest tests that verify it.
   - Where links come from: `@todo(tests=...)` / `@todo(test=...)`, `@verifies("id")` on the test,
     `@pytest.mark.byteplan("id")` (with `[tool.byteplan.tests] pytest_marker = true`), and
