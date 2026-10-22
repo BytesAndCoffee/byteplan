@@ -18,8 +18,9 @@ Grammar:
 * ``byteplan: ignore`` in a tag suppresses it; ``// byteplan: ignore-file`` within the
   first five lines suppresses the file.
 
-The lexer is tolerant (comments, trailing commas) but strict about structure:
-unterminated strings or comments and mismatched brackets fail the scan.
+The lexer is tolerant (comments, trailing commas) but otherwise strict: unterminated
+strings or comments, mismatched brackets, invalid literals and invalid string escapes
+fail the scan, so BytePlan never writes into malformed JSON.
 """
 
 from __future__ import annotations
@@ -46,6 +47,7 @@ if TYPE_CHECKING:
 CONTINUATION_INDENT = "  "
 _PUNCTUATION = frozenset("{}[]:,")
 _LITERAL_RE = re.compile(r"[^\s{}\[\]:,\"/]+")
+_VALID_LITERAL_RE = re.compile(r"true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?")
 _NEWLINE_RE = re.compile(r"\r\n|\n|\r")
 _IGNORE_FILE_RE = re.compile(r"^(?://|/\*)\s*byteplan:\s*ignore-file\b", re.IGNORECASE)
 
@@ -179,6 +181,13 @@ def _assign_pointers(path: str, tokens: list[Token]) -> list[Token]:
                 key = _escape(frame.key) if frame.is_object and frame.key is not None else str(frame.index)
                 pointer = f"{frame.pointer}/{key}"
                 frame.filled = True
+            if token.kind == "literal" and not _VALID_LITERAL_RE.fullmatch(token.text):
+                raise error(token, f"invalid value {token.text!r}")
+            if token.kind == "string":
+                try:
+                    json.loads(token.text)
+                except ValueError:
+                    raise error(token, "invalid string escape") from None
             if token.kind in {"{", "["}:
                 stack.append(_Frame(token, pointer, is_object=token.kind == "{"))
             result.append(dataclasses.replace(token, pointer=pointer, is_value=True))

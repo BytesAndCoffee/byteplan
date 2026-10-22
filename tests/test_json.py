@@ -156,3 +156,24 @@ def test_edit_guard_allows_only_comments_and_tag_ids() -> None:
         ensure_unchanged("a.json", before, '{"a": "TODO[7fa2]x", "b": 1}\n', TAGS)
     with pytest.raises(EditError, match="no longer parses"):
         ensure_unchanged("a.json", before, '{"a": "TODO: x", "b": 1\n', TAGS)
+
+
+@pytest.mark.parametrize(
+    ("text", "reason"),
+    [
+        ('{"x": garbage, "todo": "TODO: task"}', "invalid value 'garbage'"),
+        ('{"x": True}', "invalid value 'True'"),
+        ('{"x": 01}', "invalid value '01'"),
+        ('{"x": 1.}', "invalid value '1.'"),
+        ('{"x": "bad\\q", "todo": "TODO: task"}', "invalid string escape"),
+        ('["ok", "tab\there"]', "invalid string escape"),
+    ],
+)
+def test_invalid_values_fail_the_scan(text: str, reason: str) -> None:
+    """Codex review of #20: never annotate malformed JSON."""
+    with pytest.raises(SourceError, match=reason):
+        scan(text)
+
+
+def test_valid_literals() -> None:
+    assert summary('[0, -1, 2.5, 1e9, -0.5E-3, true, false, null, "TODO: ok"]') == [("ok", "/8")]

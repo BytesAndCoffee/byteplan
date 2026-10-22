@@ -173,3 +173,33 @@ def test_edit_guard_allows_only_comment_changes() -> None:
     ensure_unchanged("a.md", before, "# T\n<!-- TODO[7fa2]: x -->\ntext\n", ("TODO",))
     with pytest.raises(EditError, match="outside comments"):
         ensure_unchanged("a.md", before, "# T\n<!-- TODO: x -->\ntext!\n", ("TODO",))
+
+
+# Codex review of #20 ------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("marker", ["-", "*", "+", "1.", "2)", "> -", "- >"])
+def test_fence_opened_on_a_list_item_line(marker: str) -> None:
+    text = f"{marker} ```html\n  <!-- TODO: example -->\n  ```\n\n<!-- TODO: real -->\n"
+    assert titles(text) == ["real"]
+
+
+def test_inline_code_spans_continue_over_paragraph_lines() -> None:
+    text = "Inline code `example\n<!-- TODO: not real -->\nend` then <!-- TODO: real -->\n"
+    assert titles(text) == ["real"]
+    assert titles("Double ``code ` with\n<!-- TODO: no -->\n`` end\n<!-- TODO: yes -->\n") == ["yes"]
+
+
+def test_unclosed_code_span_ends_at_the_paragraph() -> None:
+    # A blank line, fence or heading ends the paragraph, so these backticks are literal.
+    assert titles("A ` tick\n\n<!-- TODO: after blank -->\n") == ["after blank"]
+    assert titles("A ` tick\n# Heading <!-- TODO: in heading -->\n`\n") == ["in heading"]
+
+
+def test_comment_opened_first_hides_backticks() -> None:
+    assert titles("<!-- TODO: has ` a tick -->\nand ` another\n") == ["has ` a tick"]
+
+
+def test_lines_inside_a_multi_line_code_span_are_not_headings() -> None:
+    text = "# Real\nText `span\nNot a heading\n---` <!-- TODO: x -->\n"
+    assert scan(text).tags[0].symbol == "Real"

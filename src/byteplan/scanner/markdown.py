@@ -11,7 +11,8 @@ Grammar:
 * The rest of that line is the title. The comment's remaining lines, up to ``-->``,
   are the description (dedented).
 * Comments inside fenced code blocks (backticks or tildes, also inside lists and
-  block quotes) and inline code spans are text, not comments. Indented (four-space)
+  block quotes) and inline code spans (which may continue over a paragraph's lines)
+  are text, not comments. Indented (four-space)
   code blocks are not recognized.
 * A tag's symbol is the nearest preceding heading (ATX or setext). YAML front matter
   is skipped.
@@ -38,7 +39,8 @@ if TYPE_CHECKING:
     from byteplan.scanner.source import SourceFile
 
 OPEN, CLOSE = "<!--", "-->"
-_FENCE_RE = re.compile(r"^[ \t>]*(?P<fence>`{3,}|~{3,})(?P<info>.*)$")
+# Container prefixes (block quotes, list markers) may precede a fence: "> ```", "- ```html".
+_FENCE_RE = re.compile(r"^(?:[ \t]*(?:>|(?:[-+*]|\d{1,9}[.)])(?=[ \t])))*[ \t]*(?P<fence>`{3,}|~{3,})(?P<info>.*)$")
 _ATX_RE = re.compile(r"^ {0,3}#{1,6}(?:[ \t]+(?P<text>.*?))?(?:[ \t]+#+)?[ \t]*$")
 _SETEXT_RE = re.compile(r"^ {0,3}(?:=+|-+)[ \t]*$")
 _LIST_RE = re.compile(r"^ {0,3}(?:[-+*]|\d{1,9}[.)])(?:[ \t]|$)")
@@ -85,29 +87,34 @@ def _front_matter_end(lines: Sequence[str]) -> int:
     return 0
 
 
-def _code_spans(content: str) -> list[tuple[int, int]]:
-    """Inline code spans on one line: a backtick run closed by a run of the same length."""
-    spans = []
-    runs = list(_BACKTICKS_RE.finditer(content))
-    index = 0
-    while index < len(runs):
-        opener = runs[index]
-        closer = next((i for i in range(index + 1, len(runs)) if len(runs[i].group()) == len(opener.group())), None)
-        if closer is None:
-            index += 1
-            continue
-        spans.append((opener.start(), runs[closer].end()))
-        index = closer + 1
-    return spans
+def _interrupts_paragraph(content: str) -> bool:
+    return not content.strip() or bool(_FENCE_RE.match(content) or _ATX_RE.match(content))
 
 
 class _Parser:
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: str, lines: Sequence[str]) -> None:
         self.text = text
+        self.lines = [line.rstrip("\r\n") for line in lines]
         self.offsets = line_offsets(text)
         self.comments: list[HtmlComment] = []
         # An open comment: (start offset, line, col, standalone).
         self.pending: tuple[int, int, int, bool] | None = None
+        # An inline code span continuing onto later lines: where it ends (line, col).
+        self.code_until: tuple[int, int] | None = None
+
+    def code_span_end(self, line: int, col: int, ticks: int) -> tuple[int, int] | None:
+        """Where a code span opened by ``ticks`` backticks ending at (line, col) closes: at the
+        next run of exactly that many, within the paragraph. None if it never closes (then
+        the backticks are literal)."""
+        closer = re.compile(rf"(?<!`)`{{{ticks}}}(?!`)")
+        for number in range(line, len(self.lines) + 1):
+            content = self.lines[number - 1]
+            if number > line and _interrupts_paragraph(content):
+                return None
+            match = closer.search(content, col if number == line else 0)
+            if match:
+                return number, match.end()
+        return None
 
     def close(self, line: int, end_col: int) -> None:
         if self.pending is not None:
@@ -117,10 +124,12 @@ class _Parser:
             )
             self.pending = None
 
-    def scan_line(self, content: str, line: int) -> None:
-        """Find comments on one line, outside inline code, continuing an open one first."""
-        spans = _code_spans(content)
-        pos = 0
+    def scan_line(self, content: str, line: int, pos: int = 0) -> None:
+        """Find comments on one line from ``pos``, outside inline code, continuing an open one first.
+
+        Scanning goes left to right, as Markdown's inline parsing does: a code span that
+        opens first hides a ``<!--`` inside it, and a comment that opens first hides backticks.
+        """
         while pos < len(content):
             if self.pending is not None:
                 end = content.find(CLOSE, pos)
@@ -130,12 +139,19 @@ class _Parser:
                 self.close(line, pos)
                 continue
             start = content.find(OPEN, pos)
+            ticks = _BACKTICKS_RE.search(content, pos)
+            if ticks is not None and (start < 0 or ticks.start() < start):
+                span_end = self.code_span_end(line, ticks.end(), len(ticks.group()))
+                if span_end is None:
+                    pos = ticks.end()  # unmatched backticks are literal
+                elif span_end[0] == line:
+                    pos = span_end[1]
+                else:
+                    self.code_until = span_end
+                    return
+                continue
             if start < 0:
                 return
-            span = next((s for s in spans if s[0] <= start < s[1]), None)
-            if span is not None:
-                pos = span[1]
-                continue
             self.pending = (self.offsets[line - 1] + start, line, start, not content[:start].strip())
             pos = start + len(OPEN)
             # "<!-->" and "<!--->" are complete (empty) comments.
@@ -147,13 +163,20 @@ class _Parser:
 
 def parse_markdown(text: str) -> MarkdownStructure:
     lines = physical_lines(text)
-    parser = _Parser(text)
+    parser = _Parser(text, lines)
     headings: list[tuple[int, str]] = []
     fence: tuple[str, int] | None = None
     previous_paragraph: str | None = None  # the line above, if it could be a setext heading's text
 
     for number, raw in enumerate(lines[_front_matter_end(lines) :], start=_front_matter_end(lines) + 1):
         content = raw.rstrip("\r\n")
+        if parser.code_until is not None:  # inside a multi-line inline code span
+            end_line, end_col = parser.code_until
+            if number == end_line:
+                parser.code_until = None
+                parser.scan_line(content, number, end_col)
+            previous_paragraph = None
+            continue
         if parser.pending is not None:
             parser.scan_line(content, number)
             previous_paragraph = None

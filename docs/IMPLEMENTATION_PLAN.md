@@ -1050,7 +1050,9 @@ Git integration and never-auto-resolve rule as Python.
 - **Title and description:** the comment's first line is the title. The rest of a multi-line
   comment, up to `-->`, is the description, dedented.
 - **Code is skipped:** comments inside fenced code blocks (` ``` ` / `~~~`, including in lists and
-  block quotes) and inline code spans are not comments.
+  block quotes, and fences opened on a list item's first line like `- ```html`) and inline code
+  spans are not comments. Inline code can continue over the lines of a paragraph, and is scanned
+  left to right as Markdown parses it.
   - Known gap: indented (four-space) code blocks are not recognized.
 - **Symbol:** the nearest preceding heading (ATX `##` or setext), so moving a TODO to another
   section records a `moved` event. YAML front matter is skipped.
@@ -1080,8 +1082,13 @@ Git integration and never-auto-resolve rule as Python.
   - Comment above a member: that member's pointer.
   - Trailing comment: the member it follows.
   - Otherwise the enclosing container's pointer, or none at the top level.
-- **Parsing:** a small tolerant lexer accepts comments and trailing commas. Unterminated strings
-  or comments and mismatched brackets are scan failures, like a Python syntax error.
+- **Parsing:** a small tolerant lexer accepts comments and trailing commas. Anything else that
+  isn't JSON fails the scan, like a Python syntax error, so BytePlan never writes into a malformed
+  file:
+  - unterminated strings or comments
+  - mismatched brackets
+  - invalid literals (`garbage`, `True`, `01`)
+  - invalid string escapes
 - **Edit guard:** the token stream without comments must be unchanged, except that a tagged
   string may gain an `[id]` right after its tag.
 
