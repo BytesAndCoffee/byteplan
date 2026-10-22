@@ -156,7 +156,11 @@ __all__ = ["DriverOutcome", "driver_command", "git", "install_merge_driver", "me
 # Pre-commit hooks -------------------------------------------------------------------------------
 
 HOOK_MARKER = "# byteplan-managed-hook"
-HOOK_COMMANDS = {"check": "check --staged", "scan": "scan --staged --dry-run"}
+HOOK_COMMANDS = {
+    "reconcile": "scan --staged --apply",
+    "check": "check --staged",
+    "scan": "scan --staged --dry-run",
+}
 
 
 def hooks_dir(root: Path) -> Path:
@@ -181,7 +185,7 @@ def hook_script(project: Project, mode: str) -> str:
     )
 
 
-def install_hooks(project: Project, mode: str = "check") -> list[str]:
+def install_hooks(project: Project, mode: str = "reconcile") -> list[str]:
     """Install a direct pre-commit hook, never replacing a hook BytePlan didn't write."""
     path = hooks_dir(project.root) / "pre-commit"
     script = hook_script(project, mode)

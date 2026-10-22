@@ -143,6 +143,7 @@ metadata, so moving or renaming code keeps the same task.
 |---|---|
 | `byteplan init` | add configuration and an empty registry (safe to re-run) |
 | `byteplan scan [PATHS] [--dry-run] [--staged]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing. `--staged --dry-run` previews against the Git index |
+| `byteplan scan --staged --apply` | add IDs to the staged commit (index and working tree) before it's finalized; what the pre-commit hook runs |
 | `byteplan check [--staged \| --commit REV]` | read-only validation, with policy-based exit code. `--staged` checks exactly what's staged (pre-commit); `--commit HEAD` checks a commit (CI) |
 | `byteplan list [--status S] [--presence P] [--kind K]` | list tasks |
 | `byteplan show ID` | details, location and history |
@@ -155,7 +156,7 @@ metadata, so moving or renaming code keeps the same task.
 | `byteplan repair --import ID` | register an ID found in source but not in the registry |
 | `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID |
 | `byteplan git install-merge-driver` | merge the registry by task ID in Git merges (per clone) |
-| `byteplan git install-hooks [--mode check\|scan]` | direct pre-commit hook; never replaces a hook it didn't write |
+| `byteplan git install-hooks [--mode reconcile\|check\|scan]` | direct pre-commit hook (default `reconcile`: IDs at commit time); never replaces a hook it didn't write |
 | `byteplan git hooks-status` | show the pre-commit framework hook, direct hook and merge driver |
 | `byteplan merge-registry BASE OURS THEIRS [PATH]` | the merge driver itself; Git runs it, you don't |
 
@@ -229,6 +230,42 @@ allow_in_ci = false    # write_source still won't write when $CI is set, unless 
   hook (`[tool.hatch.build.hooks.custom]`) that does the read-only check.
 - **Without Hatch:** `byteplan scan` and `byteplan check` work in CI, pre-commit hooks and editor
   tasks.
+
+## IDs at commit time
+
+Install the hook once per clone, and every new TODO gets its ID as you commit:
+
+```console
+$ byteplan git install-hooks
+$ echo '# FIXME: Handle withdrawn routes' >> src/rip.py
+$ git add . && git commit -m "Document route withdrawal bug"
+byteplan: annotated 2 staged file(s)
+  [a83f] FIXME src/rip.py:42  Handle withdrawn routes
+$ git show HEAD:src/rip.py | tail -1
+# FIXME[a83f]: Handle withdrawn routes
+```
+
+**What it writes.** Only BytePlan's own annotations (`[id]`, `id="…"`, stub comments) and
+`.byteplan/tasks.json`. They go into both the staged copy and your working tree, so nothing is left
+behind as an unstaged diff.
+
+**What it refuses.** If a file has unstaged changes as well as staged ones
+(`partial_stage_conflict`), or the registry has unstaged edits, it writes nothing and the commit
+stops. It never stages anything you didn't, and never runs `git add` on your files.
+
+**If anything goes wrong mid-way,** everything it changed is undone, and an interrupted run is
+finished or undone by the next one.
+
+**Commit modes:**
+- **`git commit`, `-a`, `--include` and `--amend`** all work.
+- **`git commit <paths>`** uses a temporary index BytePlan can't safely update, so it only checks
+  in that mode and tells you why.
+
+**Settings and alternatives:**
+- **Review first:** set `[tool.byteplan.git] on_reconcile = "stop"` to review annotations before
+  the commit proceeds.
+- **pre-commit framework:** the `byteplan-reconcile` hook works like a formatter. It annotates the
+  files and fails, and after `git add` the next commit passes.
 
 ## Git hooks and CI
 

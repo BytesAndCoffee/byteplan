@@ -36,6 +36,13 @@ These are informational and don't fail the check by default:
 **Never as a side effect:** hooks and CI checks don't run tests, import your code, use the network
 or modify anything.
 
+## Adding IDs at commit time
+
+`byteplan scan --staged --apply` gives new TODOs in the commit their IDs before the commit is
+finalized. It updates both the index and the working tree, and refuses partially staged files.
+`byteplan git install-hooks` installs it as the pre-commit hook; that's the default mode, and
+`--mode check` gives validation only. See the README section "IDs at commit time".
+
 ## pre-commit framework
 
 ```yaml
@@ -44,7 +51,8 @@ repos:
   - repo: https://github.com/BytesAndCoffee/byteplan
     rev: <a released tag, e.g. v0.1.0>
     hooks:
-      - id: byteplan-check
+      - id: byteplan-reconcile   # add IDs (formatter-style: annotates, fails, commit again)
+      - id: byteplan-check       # then validate
 ```
 
 The hook runs in pre-commit's own isolated environment with only BytePlan installed. It never

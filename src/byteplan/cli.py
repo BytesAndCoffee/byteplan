@@ -22,6 +22,7 @@ from byteplan.diagnostics import EXIT_ERROR, EXIT_FINDINGS, EXIT_OK, Code
 from byteplan.errors import ByteplanError, ConfigError
 from byteplan.files import resolve_targets
 from byteplan.gitio import hooks_status, install_hooks, install_merge_driver, merge_driver_main
+from byteplan.gitwrite import reconcile_staged
 from byteplan.models import Presence, Status
 
 if TYPE_CHECKING:
@@ -66,9 +67,27 @@ def _snapshot_project(args: argparse.Namespace) -> Project:
 
 
 def cmd_scan(args: argparse.Namespace) -> int:
-    if args.staged and not args.dry_run:
-        msg = "`scan --staged` is read-only: add --dry-run (writing to the index isn't implemented)"
+    if args.apply and not args.staged:
+        msg = "--apply is for --staged; a plain `byteplan scan` already writes"
         raise ConfigError(msg)
+    if args.staged and args.apply == args.dry_run:
+        msg = "`scan --staged` needs exactly one of --dry-run (preview) or --apply (reconcile the commit)"
+        raise ConfigError(msg)
+    if args.apply:
+        if args.paths:
+            msg = "`scan --staged --apply` reconciles the whole staged snapshot; it doesn't take paths"
+            raise ConfigError(msg)
+        outcome = reconcile_staged(args.project)
+        if args.format == "json":
+            _out(
+                reporting.to_json(
+                    {"exit_code": outcome.code, "annotated": outcome.annotated, "messages": outcome.messages}
+                )
+            )
+        else:
+            for line in outcome.messages:
+                _out(line)
+        return outcome.code
     project = _snapshot_project(args)
     try:
         report = project.scan(args.paths or None, dry_run=args.dry_run)
@@ -269,7 +288,12 @@ def build_parser() -> argparse.ArgumentParser:
     scan = sub.add_parser("scan", parents=[common, formatted], help="discover, annotate, reconcile, report")
     scan.add_argument("paths", nargs="*", help="limit the scan to these files or directories")
     scan.add_argument("--dry-run", action="store_true", help="preview planned changes without writing")
-    scan.add_argument("--staged", action="store_true", help="scan the Git index instead (requires --dry-run)")
+    scan.add_argument("--staged", action="store_true", help="scan the Git index instead (with --dry-run or --apply)")
+    scan.add_argument(
+        "--apply",
+        action="store_true",
+        help="with --staged: add IDs to the staged commit (index and working tree) before it's finalized",
+    )
     scan.set_defaults(handler=cmd_scan)
 
     list_ = sub.add_parser("list", parents=[common, formatted], help="list registry tasks")
@@ -352,7 +376,12 @@ def build_parser() -> argparse.ArgumentParser:
     hooks = git_sub.add_parser(
         "install-hooks", parents=[common], help="install a direct pre-commit hook (never replaces a foreign one)"
     )
-    hooks.add_argument("--mode", choices=("check", "scan"), default="check")
+    hooks.add_argument(
+        "--mode",
+        choices=("reconcile", "check", "scan"),
+        default="reconcile",
+        help="reconcile: add IDs at commit time (default); check: validate only; scan: preview only",
+    )
     hooks.set_defaults(handler=cmd_git_install_hooks)
     status = git_sub.add_parser("hooks-status", parents=[common, formatted], help="show installed Git integration")
     status.set_defaults(handler=cmd_git_hooks_status)

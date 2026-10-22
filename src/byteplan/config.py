@@ -50,6 +50,13 @@ class AnnotationsConfig:
 
 
 @dataclass(frozen=True)
+class GitConfig:
+    # After `scan --staged --apply` reconciles a commit: "commit" lets it proceed,
+    # "stop" exits 1 so the developer reviews first.
+    on_reconcile: str = "commit"
+
+
+@dataclass(frozen=True)
 class CheckConfig:
     fail_on_duplicate_ids: bool = True
     fail_on_missing: bool = False
@@ -72,6 +79,7 @@ class Config:
     detect: DetectConfig = field(default_factory=DetectConfig)
     check: CheckConfig = field(default_factory=CheckConfig)
     annotations: AnnotationsConfig = field(default_factory=AnnotationsConfig)
+    git: GitConfig = field(default_factory=GitConfig)
 
     @property
     def registry_path(self) -> Path:
@@ -129,8 +137,10 @@ def parse_config(root: Path, table: Any) -> Config:
     detect = _parse_section(DetectConfig, table.pop("detect", {}), "tool.byteplan.detect")
     check = _parse_section(CheckConfig, table.pop("check", {}), "tool.byteplan.check")
     annotations = _parse_section(AnnotationsConfig, table.pop("annotations", {}), "tool.byteplan.annotations")
-    values = _parse_values(Config, table, "tool.byteplan", skip=frozenset({"root", "detect", "check", "annotations"}))
-    config = Config(root=root, detect=detect, check=check, annotations=annotations, **values)
+    git = _parse_section(GitConfig, table.pop("git", {}), "tool.byteplan.git")
+    skip = frozenset({"root", "detect", "check", "annotations", "git"})
+    values = _parse_values(Config, table, "tool.byteplan", skip=skip)
+    config = Config(root=root, detect=detect, check=check, annotations=annotations, git=git, **values)
     _validate(config)
     return config
 
@@ -176,7 +186,13 @@ def _coerce(value: Any, default: Any, name: str) -> Any:
     return value  # no cov
 
 
+ON_RECONCILE = ("commit", "stop")
+
+
 def _validate(config: Config) -> None:
+    if config.git.on_reconcile not in ON_RECONCILE:
+        msg = f"tool.byteplan.git.on_reconcile must be one of {', '.join(ON_RECONCILE)}"
+        raise ConfigError(msg)
     # TODO[a6b2]: Support detect.placeholder_assignments
     #   Module-level `name = ...` / `= NotImplemented` stubs need a declaration model for
     #   plain assignments (position, attachment, annotation slot). Until then the option
