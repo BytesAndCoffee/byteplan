@@ -3,22 +3,256 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/byteplan.svg)](https://pypi.org/project/byteplan)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/byteplan.svg)](https://pypi.org/project/byteplan)
 
------
+*Plan in code. Track in one place.*
 
-> **Status: pre-alpha placeholder.** This release reserves the package name and ships only a
-> `byteplan --version` CLI. See [the implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md)
-> for what's coming: source-first TODO tracking with stable IDs, a Hatch build hook, and an MCP server.
+BytePlan is a source-first task tracker for Python projects. You write `# TODO:` where the work is,
+or leave a function unfinished, and BytePlan does the rest:
+- gives each obligation a permanent four-character ID, written back into the source (`# TODO[7fa2]:`)
+- keeps status, priority, owner, notes and history in a Git-versioned registry,
+  `.byteplan/tasks.json`
+- reconciles the two on every scan
 
-## Table of Contents
+It never decides that work is done. If a TODO disappears, its task is marked **missing**, not
+resolved. Only you resolve tasks.
+
+> **Status: alpha, in active development.** The CLI, scanner, registry and Hatch hook described
+> here work today. Test linking and verification, test scaffolding, release stripping, and an MCP
+> server are planned; see the [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md). The `byteplan`
+> 0.0.1 release on PyPI is an empty placeholder, so install from GitHub until the next release.
+
+## Contents
 
 - [Installation](#installation)
+- [Quick start](#quick-start)
+- [What BytePlan tracks](#what-byteplan-tracks)
+- [Status, presence and resolution](#status-presence-and-resolution)
+- [Commands](#commands)
+- [Configuration](#configuration)
+- [Hatch integration](#hatch-integration)
+- [Safety guarantees and tradeoffs](#safety-guarantees-and-tradeoffs)
 - [License](#license)
 
 ## Installation
 
 ```console
-pip install byteplan
+pip install "byteplan @ git+https://github.com/BytesAndCoffee/byteplan"
 ```
+
+BytePlan needs Python 3.11+ and has one runtime dependency, `pathspec`. The optional
+[`byteplan-runtime`](https://pypi.org/project/byteplan-runtime/) package (Python 3.8+, no
+dependencies) provides the `@todo` and `@verifies` decorators. It's only needed if you use them.
+
+## Quick start
+
+```console
+$ byteplan init                      # adds [tool.byteplan], creates .byteplan/tasks.json
+$ byteplan scan --dry-run            # preview: nothing is written
+$ byteplan scan                      # write IDs into source and update the registry
+BytePlan: 3 Python files scanned
+  3 annotations · 3 tracked tasks
+  +3 added · ~0 relocated · !0 missing · !0 duplicate · 0 stale
+
+Annotated:
+  + [33b4] TODO  src/pkg/rip.py:2  Implement route poisoning
+  + [dc20] FIXME src/pkg/rip.py:5  ARP entries outlive interfaces
+  + [243a] TODO  src/pkg/rip.py:22  Implement Router.withdraw (detected stub)
+$ byteplan list
+$ byteplan edit 33b4 --priority high --assignee sam --label routing
+$ byteplan status 33b4 in_progress
+$ byteplan resolve 33b4 --note "shipped in 1.2"
+```
+
+Commit `.byteplan/tasks.json` along with your code. `init` keeps `.byteplan/` out of Hatch sdists
+and ignores BytePlan's working files (`.byteplan/txn/`, `.byteplan/scan.lock`).
+
+## What BytePlan tracks
+
+**Tagged comments.** `TODO`, `FIXME`, `HACK` and `XXX` (case-insensitive, configurable) at the
+start of a comment. An indented comment line directly below becomes the description:
+
+```python
+# TODO: Implement route poisoning
+#   Support split horizon and poisoned reverse.
+```
+
+- **Continuation lines:** a line continues the description only if it's directly below, in the same
+  column, and has at least two spaces after `#`. A blank line, code, another tag or an ordinary
+  comment ends it.
+- **Ignored on purpose:** comments are found with `tokenize`, so strings, docstrings and
+  commented-out code such as `# x = f()  # TODO` are never tasks.
+- **Trailing comments:** `x = 1  # TODO: ...` counts too.
+
+**Unfinished implementations (stubs).** These are found with `ast`:
+- functions and methods whose body is `pass`, `...`, only a docstring, or
+  `raise NotImplementedError`
+- empty classes
+
+Excluded automatically:
+- `@abstractmethod`, `@overload`
+- `Protocol` classes and their methods
+- deliberately empty classes: exceptions, enums, `TypedDict`, `NamedTuple`
+
+A stub that already has a TODO above it or inside it, or a `@todo`, is the same task, not a
+second one. Otherwise BytePlan adds `# TODO[id]: Implement Router.withdraw (detected stub)` above
+it. One-line stubs like `def f(): pass` are reported for review instead of edited. Mark
+intentional no-ops with `# byteplan: ignore` on the `def` or decorator line.
+
+**Decorators** (optional, with `byteplan-runtime`):
+
+```python
+from byteplan_runtime import todo
+
+@todo("Implement poisoned reverse", tests=("tests/test_routing.py::test_poisoned_reverse",))
+def advertise_routes(self):
+    raise NotImplementedError
+```
+
+- **Runtime behaviour:** the decorators do nothing at all; they return the function unchanged.
+- **How BytePlan reads them:** statically, never by importing your code, and adds `id="…"` on the
+  first scan.
+- **What counts:** only names really imported from `byteplan_runtime`, or a shim module you list in
+  `runtime_modules`. A local or shadowed `todo` is ignored.
+
+**Suppression.**
+- `# byteplan: ignore` inside a tag comment skips that tag.
+- `# byteplan: ignore-file` in a file's first five lines skips the whole file.
+
+## Status, presence and resolution
+
+Every task has two independent dimensions:
+
+| | Values | Changed by |
+|---|---|---|
+| **status** | `open`, `in_progress`, `blocked`, `resolved`, `dismissed` | only you: `status`, `resolve` |
+| **presence** | `present`, `missing`, `unknown` | scans |
+
+- **Missing:** when the annotation disappears, the task becomes `missing` and keeps its status and
+  history.
+- **Reappeared:** if the annotation comes back (same ID), the task becomes `present` again.
+- **Stale annotation:** a resolved task whose annotation is still in source is reported, never
+  removed for you.
+- **`implementation_changed`:** when a tracked stub gets a real body, BytePlan reports it once. It
+  doesn't resolve the task.
+
+IDs never change and are never reused. Line numbers, file paths and function names are only
+metadata, so moving or renaming code keeps the same task.
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `byteplan init` | add configuration and an empty registry (safe to re-run) |
+| `byteplan scan [PATHS] [--dry-run]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing |
+| `byteplan check` | read-only validation for CI, with policy-based exit code |
+| `byteplan list [--status S] [--presence P] [--kind K]` | list tasks |
+| `byteplan show ID` | details, location and history |
+| `byteplan status ID STATUS [--note]` | change lifecycle status |
+| `byteplan resolve ID [--note]` | mark resolved (never edits source) |
+| `byteplan edit ID [--priority] [--assignee/--unassign] [--label] [--remove-label] [--notes/--add-note] [--title/--clear-title]` | managed fields; scans never overwrite them |
+| `byteplan missing` | tasks no longer found in source |
+| `byteplan duplicates` | the same ID on more than one annotation |
+| `byteplan report [--format text\|json\|markdown]` | summary by status, presence, kind and priority, plus findings |
+| `byteplan repair --import ID` | register an ID found in source but not in the registry |
+| `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID |
+
+- **Common options:** `--project PATH` and `--format json` go after the command.
+- **Output streams:** stdout carries only the result (pure JSON with `--format json`); diagnostics
+  go to stderr.
+- **Exit codes:** `0` OK, `1` findings that fail your `[tool.byteplan.check]` policy (duplicate IDs
+  by default), `2` errors (bad config, unreadable registry, a file that won't parse).
+
+## Configuration
+
+Everything lives in `pyproject.toml`. These are the defaults:
+
+```toml
+[tool.byteplan]
+registry = ".byteplan/tasks.json"
+include = ["**/*.py"]
+exclude = ["**/.venv/**", "**/venv/**", "**/__pycache__/**", "**/build/**", "**/dist/**",
+           "**/.tox/**", "**/.nox/**", "**/node_modules/**", "**/*.pyi"]
+respect_gitignore = true
+auto_annotate = true          # false: only track comments that already carry an ID
+missing_policy = "warn"       # or "ignore"
+
+[tool.byteplan.detect]
+todo_tags = ["TODO", "FIXME", "HACK", "XXX"]
+pass_stubs = true
+ellipsis_stubs = true
+not_implemented_stubs = true
+empty_classes = true
+
+[tool.byteplan.check]
+fail_on_duplicate_ids = true
+fail_on_missing = false
+fail_on_stale_annotations = false
+
+[tool.byteplan.annotations]
+runtime_modules = ["byteplan_runtime"]   # add a project shim module here
+```
+
+- **Paths and patterns:** paths are relative to the project root (the directory with
+  `pyproject.toml`), not your current directory. Patterns use `.gitignore` syntax.
+- **Strictness:** unknown keys are errors, so typos don't silently do nothing.
+
+## Hatch integration
+
+BytePlan ships a Hatchling build hook. Enable it in the project that uses BytePlan:
+
+```toml
+[build-system]
+requires = ["hatchling", "byteplan"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.hooks.byteplan]
+scan = true            # set false to disable without removing the table
+write_source = false   # false | true | "editable"
+fail_build = false     # fail the build on findings that fail [tool.byteplan.check]
+allow_in_ci = false    # write_source still won't write when $CI is set, unless this is true
+```
+
+- **Read-only by default.** A build runs `byteplan check` and prints its findings. Your checkout is
+  never modified, so release builds and CI stay reproducible.
+- **Writes are opt-in.** With `write_source = true`, every local `hatch build` runs `byteplan scan`
+  before packaging. New IDs land in your source, so you'll see Git changes after a build. That's
+  the point of this mode, but don't enable it unless you want it.
+  - `write_source = "editable"` writes only for editable installs (`pip install -e`, Hatch dev
+    environments).
+  - With `$CI` set, writes are refused unless `allow_in_ci = true`.
+- **Building from an sdist:** there's no registry in an unpacked sdist, so the hook does nothing.
+- **Registry packaging:** the hook warns if the sdist would include `.byteplan/`.
+- **Without the plugin:** [`examples/hatch_build.py`](https://github.com/BytesAndCoffee/byteplan/blob/main/examples/hatch_build.py) is a minimal custom
+  hook (`[tool.hatch.build.hooks.custom]`) that does the read-only check.
+- **Without Hatch:** `byteplan scan` and `byteplan check` work in CI, pre-commit hooks and editor
+  tasks.
+
+## Safety guarantees and tradeoffs
+
+**What BytePlan guarantees.**
+- **Scans are idempotent:** a second scan of unchanged code changes nothing, not even timestamps.
+- **Edits are minimal:** each edit inserts only the ID text, and must leave the parsed program
+  unchanged apart from added decorator `id=` keywords.
+- **Encodings and formatting survive:** BOMs, coding cookies, CRLF, tabs, shebangs and a missing
+  final newline are all preserved byte-for-byte.
+- **Writes are journaled and crash-safe:** a multi-file update is staged under a lock and journaled
+  before anything is replaced. Each file is replaced atomically with its permissions kept, and the
+  registry goes last.
+- **Interrupted writes finish safely:** the next write command completes them. If a file was
+  changed by something else in the meantime, BytePlan stops instead of overwriting it.
+- **Failures stop the scan cleanly:** a file that can't be read or parsed, or a directory that can't
+  be listed, fails the whole scan before anything is reconciled.
+
+**Tradeoffs worth knowing.**
+- **No cross-file atomicity.** Filesystems have no multi-file atomic rename. The journal guarantees
+  completion (roll-forward), not that all files change at the same instant.
+- **A small race window remains.** Each file's content is re-checked immediately before it's
+  replaced, but nothing portable can close the gap between that check and the rename.
+- **Symlinks are never followed.** That prevents scanning a file twice or reaching outside the
+  project.
+- **Only `.gitignore` files are honoured.** `.git/info/exclude` and global Git excludes aren't read.
+- **Stub detection is a heuristic.** It reports candidates; `# byteplan: ignore` and the
+  `[tool.byteplan.detect]` switches are there for intentional no-ops.
+- **Duplicate IDs block all writes** until you resolve them, so nothing ambiguous is ever rewritten.
 
 ## License
 

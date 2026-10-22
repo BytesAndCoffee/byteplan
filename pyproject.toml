@@ -35,9 +35,11 @@ dependencies = [
 [project.scripts]
 byteplan = "byteplan.cli:main"
 
-# The Hatch build-hook entry point is added in Phase 4, together with
-# byteplan.hatch_hook. Registering it before the module exists would break
-# every Hatchling build in an environment where byteplan is installed.
+# Hatchling discovers the build hook through this entry point; projects enable
+# it with [tool.hatch.build.hooks.byteplan]. BytePlan doesn't enable it for its
+# own build (that would need byteplan to build itself); use `hatch run byteplan scan`.
+[project.entry-points.hatch]
+byteplan = "byteplan.hatch_hook"
 
 [project.urls]
 Documentation = "https://github.com/BytesAndCoffee/byteplan#readme"
@@ -62,6 +64,7 @@ packages = ["src/byteplan"]
 extra-dependencies = [
   "build",
   "hatchling",
+  "pip",  # isolated PEP 517 builds in the `network` tests
 ]
 
 [[tool.hatch.envs.hatch-test.matrix]]
@@ -86,6 +89,7 @@ python_version = "3.11"
 [tool.ruff]
 lint.exclude = ["**/byteplan-runtime/**"]
 format.exclude = ["**/byteplan-runtime/**"]
+lint.extend-per-file-ignores = { "examples/*" = ["INP001"] }  # standalone files to copy, not a package
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
