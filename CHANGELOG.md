@@ -5,6 +5,19 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+### Archive
+- **Closed tasks leave `tasks.json`:** once a task has been resolved or dismissed for
+  `[tool.byteplan.archive] after_days` (7) and its annotation is gone, a writing `scan` archives
+  it, or run `byteplan archive [--dry-run] [--older-than DAYS]`. Its ID stays reserved.
+- **Local first:** the full record and its evidence go to `.byteplan/archive.sqlite`
+  (gitignored, zlib-compressed). The committed `.byteplan/archive.json` is the reconciliation
+  artifact: per task, its title, status, dates and record hash.
+- **Other clones reconcile from Git history:** `show` finds an archived record by hash in earlier
+  `tasks.json` versions, and `archive --reconcile` fills the store for every one. Only committed
+  records are archived, so this always works.
+- `list --archived`, `archive --restore ID`, and a `byteplan-archive` merge driver (union by ID),
+  installed by `git install-merge-driver`. An archived ID back in source gets its own hint.
+
 ### Releases (Phase 8, part 1)
 - **`byteplan release`** strips every recognized `@todo`/`@verifies` decorator, and the runtime
   imports left unused, in place.

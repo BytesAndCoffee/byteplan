@@ -1183,6 +1183,23 @@ alongside Phase 4e.
   queries on very large projects, the MCP server, or verification evidence (Phase 6). It would
   never be authoritative.
 
+**Archive ✅** (`archive.py`; `byteplan archive`, `list --archived`, `merge-archive`). This is the
+local SQLite use foreseen above, and the registry stays authoritative for every open task:
+- **Eligible:** closed for `[tool.byteplan.archive] after_days` (7), not stripped, annotation gone
+  (presence `missing`, or no source). In a Git repository, the current record must also equal
+  `HEAD`'s, so every archived record is in history.
+- **Store:** `.byteplan/archive.sqlite`, gitignored, one row per task: id, record sha256,
+  archived_at, zlib(canonical JSON `{task, evidence}`). Written before the journaled JSON writes,
+  so an interruption only leaves extra rows.
+- **Index:** `.byteplan/archive.json`, committed, deterministic, sorted. Entries never change once
+  written, so its merge driver is a union by ID. An entry for a registered task (a restore that a
+  merge brought back) is ignored.
+- **Reconcile:** walk `git log -- tasks.json` newest first, hash each version's records, and stop
+  once every wanted hash is found. Evidence isn't in history and isn't recovered.
+- **Automatic:** after every writing, unblocked, non-snapshot scan (`auto = true`).
+- **Registry merge:** an archived task is a removal, and "removed on one side and changed on the
+  other" is already a reported conflict.
+
 **Registry merge driver ✅** (`merge.py`, `gitio.py`; `byteplan git install-merge-driver`,
 `byteplan merge-registry`). It's a three-way merge by task ID:
 - unions reserved IDs and tasks

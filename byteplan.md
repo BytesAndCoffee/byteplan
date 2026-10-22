@@ -8,18 +8,18 @@
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1549`](docs/IMPLEMENTATION_PLAN.md#L1549) | Phase 6c (optional): acceptance criteria and dependencies |
-| `0413` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1552`](docs/IMPLEMENTATION_PLAN.md#L1552) | Phase 8: release stripping |
-| `f853` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1556`](docs/IMPLEMENTATION_PLAN.md#L1556) | Phase 9: MCP server |
-| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1560`](docs/IMPLEMENTATION_PLAN.md#L1560) | Phase 10: integration |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1564`](docs/IMPLEMENTATION_PLAN.md#L1564) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1567`](docs/IMPLEMENTATION_PLAN.md#L1567) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1570`](docs/IMPLEMENTATION_PLAN.md#L1570) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1574`](docs/IMPLEMENTATION_PLAN.md#L1574) | Phase 13 (optional): relay-for-github |
-| `90c6` | open | FIXME | normal | - | [`src/byteplan/api.py:412`](src/byteplan/api.py#L412) | Don't propose stub tasks for declarations whose @todo is stripped for a release |
-| `205d` | open | FIXME | normal | - | [`src/byteplan/api.py:1098`](src/byteplan/api.py#L1098) | Check for a pending journal before the write context recovers it |
-| `4d48` | open | FIXME | normal | - | [`src/byteplan/api.py:1240`](src/byteplan/api.py#L1240) | Keep decorators pending when their runtime import can't be restored |
-| `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:266`](src/byteplan/config.py#L266) | Support detect.placeholder_assignments |
+| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1566`](docs/IMPLEMENTATION_PLAN.md#L1566) | Phase 6c (optional): acceptance criteria and dependencies |
+| `0413` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1569`](docs/IMPLEMENTATION_PLAN.md#L1569) | Phase 8: release stripping |
+| `f853` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1573`](docs/IMPLEMENTATION_PLAN.md#L1573) | Phase 9: MCP server |
+| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1577`](docs/IMPLEMENTATION_PLAN.md#L1577) | Phase 10: integration |
+| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1581`](docs/IMPLEMENTATION_PLAN.md#L1581) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1584`](docs/IMPLEMENTATION_PLAN.md#L1584) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1587`](docs/IMPLEMENTATION_PLAN.md#L1587) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1591`](docs/IMPLEMENTATION_PLAN.md#L1591) | Phase 13 (optional): relay-for-github |
+| `90c6` | open | FIXME | normal | - | [`src/byteplan/api.py:433`](src/byteplan/api.py#L433) | Don't propose stub tasks for declarations whose @todo is stripped for a release |
+| `205d` | open | FIXME | normal | - | [`src/byteplan/api.py:1266`](src/byteplan/api.py#L1266) | Check for a pending journal before the write context recovers it |
+| `4d48` | open | FIXME | normal | - | [`src/byteplan/api.py:1408`](src/byteplan/api.py#L1408) | Keep decorators pending when their runtime import can't be restored |
+| `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:278`](src/byteplan/config.py#L278) | Support detect.placeholder_assignments |
 | `aedf` | open | FIXME | normal | - | [`src/byteplan/release.py:97`](src/byteplan/release.py#L97) | Check every runtime import, not just decorator bindings, before skipping a file |
 | `34da` | open | FIXME | normal | - | [`src/byteplan/release.py:110`](src/byteplan/release.py#L110) | Respect enclosing scopes before stripping a decorator |
 | `0591` | open | FIXME | normal | - | [`src/byteplan/release.py:138`](src/byteplan/release.py#L138) | Refuse decorator arguments whose evaluation stripping would skip |

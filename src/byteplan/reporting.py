@@ -15,7 +15,7 @@ from byteplan.models import Presence
 from byteplan.registry import task_to_dict
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
 
     from byteplan.api import CleanupReport, ScanReport, SyncReport, VerifyReport
     from byteplan.models import Annotation, Task
@@ -57,6 +57,7 @@ def scan_json(report: ScanReport) -> dict[str, Any]:
         "excluded": summary.excluded,
         "written": list(report.written),
         "recovered": list(report.recovered),
+        "archived": list(report.archived),
         "diagnostics": [d.to_dict() for d in report.diagnostics],
     }
 
@@ -74,6 +75,8 @@ def scan_text(report: ScanReport) -> str:
     ]
     if report.recovered:
         lines.append(f"  completed an interrupted write to {len(report.recovered)} file(s)")
+    if report.archived:
+        lines.append(f"  archived {len(report.archived)} long-closed task(s): {', '.join(report.archived)}")
     if report.proposals:
         verb = "Would annotate" if report.dry_run or report.blocked else "Annotated"
         lines.append("")
@@ -98,6 +101,23 @@ def task_table(tasks: Sequence[Task]) -> str:
         return "No tasks."
     header = ("ID", "STATUS", "PRESENCE", "KIND", "PRIORITY", "LOCATION", "TITLE")
     rows = [header, *(task_row(task) for task in tasks)]
+    widths = [max(len(row[i]) for row in rows) for i in range(len(header) - 1)]
+    return "\n".join(
+        "  ".join(cell.ljust(width) for cell, width in zip(row[:-1], widths, strict=True)) + "  " + row[-1]
+        for row in rows
+    )
+
+
+def archive_table(entries: Mapping[str, Mapping[str, Any]]) -> str:
+    if not entries:
+        return "No archived tasks."
+    header = ("ID", "STATUS", "KIND", "CLOSED", "TITLE")
+    rows = [header]
+    for task_id, entry in sorted(entries.items()):
+        closed = str(entry.get("closed_at") or "-")[:10]
+        rows.append(
+            (task_id, str(entry.get("status", "")), str(entry.get("kind", "")), closed, str(entry.get("title", "")))
+        )
     widths = [max(len(row[i]) for row in rows) for i in range(len(header) - 1)]
     return "\n".join(
         "  ".join(cell.ljust(width) for cell, width in zip(row[:-1], widths, strict=True)) + "  " + row[-1]
