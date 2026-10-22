@@ -129,6 +129,9 @@ class BytePlanBuildHook(BuildHookInterface):  # type: ignore[type-arg]
         write, reason = write_decision(settings, version, os.environ)
         if reason:
             self.app.display_warning(f"byteplan: {reason}")
+        if write and project.stripped_release() is not None:
+            write = False  # a build must never re-annotate a tree stripped for release
+            self.app.display_warning("byteplan: the tree is stripped for a release; checking only (release_stripped)")
         try:
             report = project.scan(dry_run=not write)
         except ByteplanError as exc:

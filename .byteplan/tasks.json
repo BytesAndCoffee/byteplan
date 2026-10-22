@@ -1,23 +1,43 @@
 {
   "reserved_ids": [
     "0413",
+    "0591",
     "14ff",
     "15df",
+    "205d",
+    "2533",
     "2887",
+    "34da",
+    "4518",
     "46b6",
+    "478d",
+    "4d48",
     "4fb5",
     "6639",
     "6b83",
     "75b4",
     "82b3",
+    "8b28",
     "9054",
+    "90c6",
     "9185",
     "93dd",
     "9b40",
     "a6b2",
+    "a703",
+    "aedf",
+    "b68c",
+    "baeb",
+    "c242",
+    "c449",
+    "c8db",
+    "cc54",
     "de66",
     "ec99",
-    "f853"
+    "f853",
+    "fb23",
+    "fb9c",
+    "fd44"
   ],
   "schema_version": 1,
   "tasks": {
@@ -46,6 +66,60 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_release_strips_only_decorators_imports_and_the_registry",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_stripped_tree_imports_without_the_runtime",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_writing_commands_refuse_while_stripped",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_release_then_restore_is_byte_identical",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_refusals_write_nothing",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_crash_mid_release_rolls_forward",
+          "old": null
         }
       ],
       "id": "0413",
@@ -62,14 +136,77 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1532,
+        "line": 1536,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
       "status": "open",
       "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_crash_mid_release_rolls_forward",
+          "tests/test_release.py::test_refusals_write_nothing",
+          "tests/test_release.py::test_release_strips_only_decorators_imports_and_the_registry",
+          "tests/test_release.py::test_release_then_restore_is_byte_identical",
+          "tests/test_release.py::test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record",
+          "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast",
+          "tests/test_release.py::test_stripped_tree_imports_without_the_runtime",
+          "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen",
+          "tests/test_release.py::test_writing_commands_refuse_while_stripped"
+        ]
+      },
       "title": "Phase 8: release stripping",
+      "title_override": null
+    },
+    "0591": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353302171\n`tests=EVENTS.append(...)` ran before release and not after; only literals are safe.",
+      "first_seen": "2026-10-22T20:41:44Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:41:44Z",
+          "event": "created",
+          "new": {
+            "line": 137,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:42:36Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_dynamic_decorator_arguments_refuse_the_release",
+          "old": null
+        }
+      ],
+      "id": "0591",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:41:44Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 86,
+        "line": 138,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "strip_file"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_dynamic_decorator_arguments_refuse_the_release"
+        ]
+      },
+      "title": "Refuse decorator arguments whose evaluation stripping would skip",
       "title_override": null
     },
     "14ff": {
@@ -151,6 +288,27 @@
           "event": "test_linked",
           "new": "tests/test_cleanup.py::test_crash_recovers_through_the_journal",
           "old": null
+        },
+        {
+          "at": "2026-10-22T19:17:17Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T19:17:17Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T19:17:17Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          }
         }
       ],
       "id": "14ff",
@@ -161,7 +319,7 @@
       "last_seen": "2026-10-22T03:53:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -172,7 +330,7 @@
         "representation": "comment",
         "symbol": "Phases"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -232,7 +390,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1550,
+        "line": 1554,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -240,6 +398,104 @@
       "status": "open",
       "stub": null,
       "title": "Phase 12: assignment model (Addendum D stages D0-D2, D4)",
+      "title_override": null
+    },
+    "205d": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353030073\n_writing() rolls an interrupted write forward first, so release changed files instead of refusing.",
+      "first_seen": "2026-10-22T20:12:59Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:12:59Z",
+          "event": "created",
+          "new": {
+            "line": 1098,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:13:49Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_release_refuses_a_pending_journal_without_recovering_it",
+          "old": null
+        }
+      ],
+      "id": "205d",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:12:59Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 1089,
+        "line": 1098,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.release"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_release_refuses_a_pending_journal_without_recovering_it"
+        ]
+      },
+      "title": "Check for a pending journal before the write context recovers it",
+      "title_override": null
+    },
+    "2533": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353183658\nA function-local `import os as util` overwrote a module-level `import pkg.reexport as util`.",
+      "first_seen": "2026-10-22T20:29:05Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:29:05Z",
+          "event": "created",
+          "new": {
+            "line": 231,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:29:31Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_alias_reused_in_another_scope_still_counts_as_a_consumer",
+          "old": null
+        }
+      ],
+      "id": "2533",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:29:05Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 242,
+        "line": 257,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "project_consumers"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_alias_reused_in_another_scope_still_counts_as_a_consumer"
+        ]
+      },
+      "title": "Keep every module an import alias may refer to, across scopes",
       "title_override": null
     },
     "2887": {
@@ -388,6 +644,104 @@
       "title": "Phase 6b: test scaffolding",
       "title_override": null
     },
+    "34da": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659114\nA class or function scope that rebinds `todo` makes the decorator not BytePlan's.",
+      "first_seen": "2026-10-22T19:33:13Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:33:13Z",
+          "event": "created",
+          "new": {
+            "line": 95,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:34:07Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_shadowed_todo_is_not_stripped",
+          "old": null
+        }
+      ],
+      "id": "34da",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T19:33:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 86,
+        "line": 110,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "strip_file"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_shadowed_todo_is_not_stripped"
+        ]
+      },
+      "title": "Respect enclosing scopes before stripping a decorator",
+      "title_override": null
+    },
+    "4518": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353601498\n`import pkg.reexport; alias = pkg` reached pkg.reexport.todo unseen.",
+      "first_seen": "2026-10-22T21:14:53Z",
+      "history": [
+        {
+          "at": "2026-10-22T21:14:53Z",
+          "event": "created",
+          "new": {
+            "line": 271,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T21:15:28Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_escaping_package_exposes_its_submodules",
+          "old": null
+        }
+      ],
+      "id": "4518",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T21:14:53Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 242,
+        "line": 271,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "project_consumers"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_escaping_package_exposes_its_submodules"
+        ]
+      },
+      "title": "An escaping package exposes every submodule imported under it",
+      "title_override": null
+    },
     "46b6": {
       "assignee": null,
       "description": "Today `TODO(alice):` doesn't match the grammar and is silently not tracked. Accept an\noptional `(owner)` after the tag and record it as the assignee when a task is created.",
@@ -423,6 +777,104 @@
       "status": "open",
       "stub": null,
       "title": "Recognize Google-style `TODO(owner): ...` tags",
+      "title_override": null
+    },
+    "478d": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353523672\n`from ._todo import todo` in pkg/m.py (runtime pkg._todo) survived a release.",
+      "first_seen": "2026-10-22T21:06:27Z",
+      "history": [
+        {
+          "at": "2026-10-22T21:06:27Z",
+          "event": "created",
+          "new": {
+            "line": 301,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T21:07:20Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_relative_import_of_the_runtime_refuses_the_release",
+          "old": null
+        }
+      ],
+      "id": "478d",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T21:06:27Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 331,
+        "line": 332,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_from_runtime"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_relative_import_of_the_runtime_refuses_the_release"
+        ]
+      },
+      "title": "Resolve relative imports before deciding whether they import the runtime",
+      "title_override": null
+    },
+    "4d48": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659130\nOtherwise the equivalence check aborts the whole restore, even with --partial.",
+      "first_seen": "2026-10-22T19:33:13Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:33:13Z",
+          "event": "created",
+          "new": {
+            "line": 1207,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:34:07Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_partial_restore_keeps_decorators_whose_import_is_unplaced",
+          "old": null
+        }
+      ],
+      "id": "4d48",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T19:33:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 1208,
+        "line": 1240,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.restore"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_partial_restore_keeps_decorators_whose_import_is_unplaced"
+        ]
+      },
+      "title": "Keep decorators pending when their runtime import can't be restored",
       "title_override": null
     },
     "4fb5": {
@@ -494,6 +946,27 @@
           "event": "test_linked",
           "new": "tests/test_cleanup.py::test_runtime_import_reexported_through_all_stays",
           "old": null
+        },
+        {
+          "at": "2026-10-22T19:17:25Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T19:17:26Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T19:17:26Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/cleanup.py"
+          }
         }
       ],
       "id": "6639",
@@ -502,7 +975,7 @@
       "last_seen": "2026-10-22T18:48:22Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -513,7 +986,7 @@
         "representation": "comment",
         "symbol": "_drop_unused_runtime_imports"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -543,6 +1016,27 @@
           "event": "test_linked",
           "new": "tests/test_cleanup.py::test_sync_json_keeps_its_shape_when_only_cleanup_runs",
           "old": null
+        },
+        {
+          "at": "2026-10-22T19:17:36Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T19:17:37Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T19:17:37Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/cli.py"
+          }
         }
       ],
       "id": "6b83",
@@ -551,7 +1045,7 @@
       "last_seen": "2026-10-22T18:48:22Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -562,7 +1056,7 @@
         "representation": "comment",
         "symbol": "cmd_sync"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -624,7 +1118,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1544,
+        "line": 1548,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -752,6 +1246,55 @@
       "title": "Phase 5: runtime and normalization",
       "title_override": null
     },
+    "8b28": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353374785\n`alias = markers; alias.todo` hid a use of a runtime re-export from the index.",
+      "first_seen": "2026-10-22T20:49:59Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:49:59Z",
+          "event": "created",
+          "new": {
+            "line": 261,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:50:35Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_module_escaping_attribute_access_keeps_its_runtime_names",
+          "old": null
+        }
+      ],
+      "id": "8b28",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:49:59Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 242,
+        "line": 276,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "project_consumers"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_module_escaping_attribute_access_keeps_its_runtime_names"
+        ]
+      },
+      "title": "Treat an imported module that escapes attribute access as consuming all its names",
+      "title_override": null
+    },
     "9054": {
       "assignee": null,
       "description": "`byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations.",
@@ -803,7 +1346,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1547,
+        "line": 1551,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -811,6 +1354,55 @@
       "status": "open",
       "stub": null,
       "title": "Phase 11b (optional): Git reporting",
+      "title_override": null
+    },
+    "90c6": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850135\nA stripped stub looks unowned, so a writing scan added a duplicate task and comment.",
+      "first_seen": "2026-10-22T19:54:16Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:54:16Z",
+          "event": "created",
+          "new": {
+            "line": 412,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:54:56Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_stripped_stub_gets_no_duplicate_task",
+          "old": null
+        }
+      ],
+      "id": "90c6",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T19:54:16Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 342,
+        "line": 412,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project._scan"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_stripped_stub_gets_no_duplicate_task"
+        ]
+      },
+      "title": "Don't propose stub tasks for declarations whose @todo is stripped for a release",
       "title_override": null
     },
     "9185": {
@@ -832,6 +1424,27 @@
           "event": "test_linked",
           "new": "tests/test_cleanup.py::test_inline_markdown_comment_keeps_word_spacing",
           "old": null
+        },
+        {
+          "at": "2026-10-22T19:17:43Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T19:17:44Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T19:17:44Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/cleanup.py"
+          }
         }
       ],
       "id": "9185",
@@ -840,7 +1453,7 @@
       "last_seen": "2026-10-22T18:48:22Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -851,7 +1464,7 @@
         "representation": "comment",
         "symbol": "_span"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],
@@ -903,7 +1516,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1540,
+        "line": 1544,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1082,6 +1695,436 @@
       "title": "Support detect.placeholder_assignments",
       "title_override": null
     },
+    "a703": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352941930\n`from byteplan_runtime import *` was stripped even when its names were used.",
+      "first_seen": "2026-10-22T20:03:29Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:03:29Z",
+          "event": "created",
+          "new": {
+            "line": 210,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:04:08Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_wildcard_runtime_import_refuses_the_release",
+          "old": null
+        }
+      ],
+      "id": "a703",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:03:29Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 363,
+        "line": 360,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_runtime_locals"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_wildcard_runtime_import_refuses_the_release"
+        ]
+      },
+      "title": "Refuse wildcard runtime imports, whose bindings can't be proven unused",
+      "title_override": null
+    },
+    "aedf": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850109\n`from byteplan_runtime import __version__` or an import inside a function survived a release.",
+      "first_seen": "2026-10-22T19:54:16Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:54:16Z",
+          "event": "created",
+          "new": {
+            "line": 88,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:54:55Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_other_runtime_imports_refuse_the_release",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:54:55Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_unused_other_runtime_import_is_stripped",
+          "old": null
+        }
+      ],
+      "id": "aedf",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T19:54:16Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 86,
+        "line": 97,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "strip_file"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_other_runtime_imports_refuse_the_release",
+          "tests/test_release.py::test_unused_other_runtime_import_is_stripped"
+        ]
+      },
+      "title": "Check every runtime import, not just decorator bindings, before skipping a file",
+      "title_override": null
+    },
+    "b68c": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659119\nA hotfix that adds either would otherwise get the import above it (SyntaxError for __future__).",
+      "first_seen": "2026-10-22T19:33:13Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:33:13Z",
+          "event": "created",
+          "new": {
+            "line": 271,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:34:07Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_unanchored_import_goes_below_a_new_docstring_and_future_import",
+          "old": null
+        }
+      ],
+      "id": "b68c",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T19:33:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 528,
+        "line": 531,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_insert_import"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_unanchored_import_goes_below_a_new_docstring_and_future_import"
+        ]
+      },
+      "title": "Restore an unanchored import below the current docstring and __future__ imports",
+      "title_override": null
+    },
+    "baeb": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108715\n`__all__: list[str] = [...]` and `__all__ += [...]` were ignored, so exported names were stripped.",
+      "first_seen": "2026-10-22T20:21:13Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:21:13Z",
+          "event": "created",
+          "new": {
+            "line": 293,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:21:32Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_runtime_names_exported_by_any_all_form_refuse_the_release",
+          "old": null
+        }
+      ],
+      "id": "baeb",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:21:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 375,
+        "line": 372,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_used_names"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_runtime_names_exported_by_any_all_form_refuse_the_release"
+        ]
+      },
+      "title": "Count every __all__ assignment form as an export",
+      "title_override": null
+    },
+    "c242": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850126\nA class-local `todo` added while stripped would take over the restored decorator.",
+      "first_seen": "2026-10-22T19:54:16Z",
+      "history": [
+        {
+          "at": "2026-10-22T19:54:16Z",
+          "event": "created",
+          "new": {
+            "line": 271,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:54:56Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_restore_refuses_a_decorator_shadowed_since_the_release",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:58:56Z",
+          "event": "moved",
+          "new": {
+            "path": "src/byteplan/release.py",
+            "symbol": "_hoist_late_imports"
+          },
+          "old": {
+            "path": "src/byteplan/release.py",
+            "symbol": "_insert_decorator"
+          }
+        }
+      ],
+      "id": "c242",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:58:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 469,
+        "line": 466,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_hoist_late_imports"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_restore_refuses_a_decorator_shadowed_since_the_release"
+        ]
+      },
+      "title": "Check the current binding before restoring a decorator",
+      "title_override": null
+    },
+    "c449": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353676759\n`__all__.append(\"todo\")` exported the runtime name without being recognized.",
+      "first_seen": "2026-10-22T21:23:32Z",
+      "history": [
+        {
+          "at": "2026-10-22T21:23:32Z",
+          "event": "created",
+          "new": {
+            "line": 376,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T21:23:50Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_unresolvable_all_mutation_refuses_the_release",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T21:23:50Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_cleanup_keeps_a_runtime_import_exported_through_an_all_mutation",
+          "old": null
+        }
+      ],
+      "id": "c449",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T21:23:32Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 375,
+        "line": 376,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_used_names"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_cleanup.py::test_cleanup_keeps_a_runtime_import_exported_through_an_all_mutation",
+          "tests/test_release.py::test_unresolvable_all_mutation_refuses_the_release"
+        ]
+      },
+      "title": "Treat __all__ mutations the export collector can't resolve as exporting everything",
+      "title_override": null
+    },
+    "c8db": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352941942\n`from a import todo` in b.py broke once a.py's runtime import was stripped.",
+      "first_seen": "2026-10-22T20:03:29Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:03:29Z",
+          "event": "created",
+          "new": {
+            "line": 152,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:04:08Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_runtime_reexported_to_another_module_refuses_the_release",
+          "old": null
+        }
+      ],
+      "id": "c8db",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:03:29Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 86,
+        "line": 171,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "strip_file"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_runtime_reexported_to_another_module_refuses_the_release"
+        ]
+      },
+      "title": "Keep runtime imports that other modules consume through re-exports",
+      "title_override": null
+    },
+    "cc54": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353302177\n`from byteplan import _todo` imports runtime module byteplan._todo but wasn't recognized.",
+      "first_seen": "2026-10-22T20:41:44Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:41:44Z",
+          "event": "created",
+          "new": {
+            "line": 266,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:42:36Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_runtime_module_imported_through_its_parent_refuses_the_release",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T21:15:29Z",
+          "event": "moved",
+          "new": {
+            "path": "src/byteplan/release.py",
+            "symbol": "consumers_of"
+          },
+          "old": {
+            "path": "src/byteplan/release.py",
+            "symbol": "_runtime_imports"
+          }
+        }
+      ],
+      "id": "cc54",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T21:15:29Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 307,
+        "line": 304,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "consumers_of"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_runtime_module_imported_through_its_parent_refuses_the_release"
+        ]
+      },
+      "title": "Detect a runtime module imported through its parent package",
+      "title_override": null
+    },
     "de66": {
       "assignee": null,
       "description": "`acceptance_criteria`, `byteplan criteria ...`, `depends_on`, lifecycle facts in reports.",
@@ -1133,7 +2176,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1525,
+        "line": 1532,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1194,7 +2237,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1554,
+        "line": 1558,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1245,7 +2288,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1536,
+        "line": 1540,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1253,6 +2296,153 @@
       "status": "open",
       "stub": null,
       "title": "Phase 9: MCP server",
+      "title_override": null
+    },
+    "fb23": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353449049\nA declaration moved above the import's anchor got its decorator before the import (NameError).",
+      "first_seen": "2026-10-22T20:58:18Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:58:18Z",
+          "event": "created",
+          "new": {
+            "line": 417,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:58:55Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_restored_import_stays_above_a_declaration_moved_before_its_anchor",
+          "old": null
+        }
+      ],
+      "id": "fb23",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:58:18Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 410,
+        "line": 459,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "restore_anchored"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_restored_import_stays_above_a_declaration_moved_before_its_anchor"
+        ]
+      },
+      "title": "Keep a restored runtime import above every use of its names",
+      "title_override": null
+    },
+    "fb9c": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353523681\nOnly plain names counted as escapes; `pkg.reexport` assigned elsewhere hid its re-exports.",
+      "first_seen": "2026-10-22T21:06:27Z",
+      "history": [
+        {
+          "at": "2026-10-22T21:06:27Z",
+          "event": "created",
+          "new": {
+            "line": 271,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T21:07:20Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_dotted_module_escape_keeps_its_runtime_names",
+          "old": null
+        }
+      ],
+      "id": "fb9c",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T21:06:27Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 242,
+        "line": 286,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "project_consumers"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_dotted_module_escape_keeps_its_runtime_names"
+        ]
+      },
+      "title": "Track escapes of dotted module expressions like `alias = pkg.reexport`",
+      "title_override": null
+    },
+    "fd44": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108706\nAn anchor before a new `from __future__` line put the import above it (SyntaxError).",
+      "first_seen": "2026-10-22T20:21:13Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:21:13Z",
+          "event": "created",
+          "new": {
+            "line": 415,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:21:31Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_anchored_import_goes_below_a_new_future_import",
+          "old": null
+        }
+      ],
+      "id": "fd44",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:21:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 528,
+        "line": 540,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "_insert_import"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_anchored_import_goes_below_a_new_future_import"
+        ]
+      },
+      "title": "Keep anchored imports below a __future__ import added since the release",
       "title_override": null
     }
   }

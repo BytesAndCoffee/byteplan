@@ -330,3 +330,16 @@ def test_sync_json_keeps_its_shape_when_only_cleanup_runs(project: ProjectFactor
     assert {"dry_run", "blocked", "rewrites", "imports_added", "written", "diagnostics", "cleanup"} <= set(data)
     assert data["rewrites"] == []
     assert data["cleanup"]["removed"] == [{"id": "aaaa", "path": "src/a.py"}]
+
+
+def test_cleanup_keeps_a_runtime_import_exported_through_an_all_mutation(
+    project: ProjectFactory, run_cli: RunCli
+) -> None:
+    """The same export rule protects cleanup: __all__.append("todo") keeps the import."""
+    text = '__all__ = []\n__all__.append("todo")\n\nfrom byteplan_runtime import todo\n\n\n@todo("x", id="aaaa")\ndef f():\n    return 1\n'
+    setup(project, run_cli, {"src/a.py": text})
+    resolve(project, run_cli, "aaaa")
+    assert run_cli("sync", "--remove-resolved", "--apply", "--project", project.root).code == EXIT_OK
+    after = (project.root / "src/a.py").read_text()
+    assert "from byteplan_runtime import todo\n" in after
+    assert "@todo" not in after

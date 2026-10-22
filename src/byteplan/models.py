@@ -26,6 +26,8 @@ class Presence(StrEnum):
     PRESENT = "present"
     MISSING = "missing"
     UNKNOWN = "unknown"
+    # Deliberately absent from source for a release (`byteplan release`); location on record.
+    STRIPPED = "stripped"
 
 
 class Origin(StrEnum):

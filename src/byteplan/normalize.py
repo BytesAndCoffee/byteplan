@@ -359,16 +359,26 @@ def plan_file(
 
 
 class _StripRuntime(ast.NodeTransformer):
-    """Remove BytePlan's ``todo`` decorators and runtime imports of ``todo``."""
+    """Remove BytePlan's ``todo`` decorators and runtime imports of ``todo``. With ``everything``
+    (release stripping), ``@verifies`` decorators and every runtime import go too."""
 
-    def __init__(self, tree: ast.Module, runtime_modules: Sequence[str]) -> None:
+    def __init__(self, tree: ast.Module, runtime_modules: Sequence[str], *, everything: bool = False) -> None:
         self.names = resolve_runtime_names(tree, runtime_modules)
         self.runtime = set(runtime_modules)
+        self.markers = {"todo", "verifies"} if everything else {"todo"}
+        self.everything = everything
 
     def _is_todo(self, decorator: ast.expr) -> bool:
         target = decorator.func if isinstance(decorator, ast.Call) else decorator
         name = dotted_name(target)
-        return name is not None and self.names.resolve(name) == "todo"
+        return name is not None and self.names.resolve(name) in self.markers
+
+    def visit_Import(self, node: ast.Import) -> ast.AST | None:
+        if self.everything:
+            node.names = [alias for alias in node.names if alias.name not in self.runtime]
+            if not node.names:
+                return None
+        return node
 
     def _strip(self, node: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef) -> ast.AST:
         node.decorator_list = [d for d in node.decorator_list if not self._is_todo(d)]
@@ -379,13 +389,13 @@ class _StripRuntime(ast.NodeTransformer):
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> ast.AST | None:
         if node.level == 0 and node.module in self.runtime:
-            node.names = [alias for alias in node.names if alias.name != "todo"]
+            node.names = [alias for alias in node.names if alias.name not in self.markers and not self.everything]
             if not node.names:
                 return None
         return node
 
 
-def _without_runtime(path: str, text: str, runtime_modules: Sequence[str]) -> str:
+def _without_runtime(path: str, text: str, runtime_modules: Sequence[str], *, everything: bool = False) -> str:
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", SyntaxWarning)
@@ -393,12 +403,17 @@ def _without_runtime(path: str, text: str, runtime_modules: Sequence[str]) -> st
     except (SyntaxError, ValueError) as exc:
         msg = f"{path}: rewritten source no longer parses ({exc}); nothing was written"
         raise EditError(msg) from exc
-    return ast.dump(_StripRuntime(tree, runtime_modules).visit(tree), include_attributes=False)
+    return ast.dump(_StripRuntime(tree, runtime_modules, everything=everything).visit(tree), include_attributes=False)
 
 
-def ensure_equivalent_without_runtime(path: str, before: str, after: str, runtime_modules: Sequence[str]) -> None:
-    """Refuse a rewrite that changes anything but BytePlan's own decorators and imports."""
-    if _without_runtime(path, before, runtime_modules) != _without_runtime(path, after, runtime_modules):
+def ensure_equivalent_without_runtime(
+    path: str, before: str, after: str, runtime_modules: Sequence[str], *, everything: bool = False
+) -> None:
+    """Refuse a rewrite that changes anything but BytePlan's own decorators and imports
+    (``todo`` only, or with ``everything`` also ``verifies`` and every runtime import)."""
+    if _without_runtime(path, before, runtime_modules, everything=everything) != _without_runtime(
+        path, after, runtime_modules, everything=everything
+    ):
         msg = f"{path}: rewrite would change program structure; nothing was written"
         raise EditError(msg)
 

@@ -64,9 +64,6 @@ def cmd_sync(args: argparse.Namespace) -> int:
     normalizing = settings.mode == "decorator" and (settings.convert_attached_comments or settings.auto_decorate_stubs)
     code = EXIT_OK
     payload: dict[str, Any] = {}
-    # FIXME[6b83]: Keep sync's top-level JSON fields when only cleanup runs
-    #   Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185466
-    #   With remove_resolved in comment mode the output lost dry_run, rewrites, written, ...
     # Always the original top-level shape; `sync` returns at once when normalization is off.
     report = project.sync(args.only, dry_run=not args.apply)
     payload.update(reporting.sync_json(report))
@@ -251,6 +248,66 @@ def cmd_status(args: argparse.Namespace) -> int:
     task, changed = _project(args).set_status(args.id, Status(args.status), note=args.note)
     _print_task_change(args, task, changed=changed, what=f"status is now {task.status}")
     return EXIT_OK
+
+
+def cmd_release(args: argparse.Namespace) -> int:
+    report = _project(args).release(args.version, dry_run=args.dry_run, allow_dirty=args.allow_dirty)
+    if args.format == "json":
+        _out(
+            reporting.to_json(
+                {
+                    "version": report.version,
+                    "files": list(report.files),
+                    "decorators": report.decorators,
+                    "imports": report.imports,
+                    "tasks": list(report.tasks),
+                    "dry_run": report.dry_run,
+                    "written": list(report.written),
+                }
+            )
+        )
+    else:
+        verb = "would strip" if report.dry_run else "stripped"
+        _out(
+            f"byteplan: {verb} {report.decorators} decorator(s) and {report.imports} import(s) "
+            f"from {len(report.files)} file(s) for release {report.version}"
+        )
+        if report.tasks:
+            _out(f"byteplan: {len(report.tasks)} task(s) marked stripped (on record, never missing)")
+        if not report.dry_run:
+            _out("byteplan: next: review `git diff`, commit, tag, build; `byteplan restore` puts them back")
+    for warning in report.warnings:
+        _err(warning.format_text())
+    return EXIT_OK
+
+
+def cmd_restore(args: argparse.Namespace) -> int:
+    report = _project(args).restore(dry_run=args.dry_run, partial=args.partial)
+    if args.format == "json":
+        _out(
+            reporting.to_json(
+                {
+                    "files": list(report.files),
+                    "decorators": report.decorators,
+                    "imports": report.imports,
+                    "tasks": list(report.tasks),
+                    "conflicts": list(report.conflicts),
+                    "partial": report.partial,
+                    "dry_run": report.dry_run,
+                    "written": list(report.written),
+                }
+            )
+        )
+    else:
+        verb = "would restore" if report.dry_run else "restored"
+        _out(
+            f"byteplan: {verb} {report.decorators} decorator(s) and {report.imports} import(s) in {len(report.files)} file(s)"
+        )
+        for conflict in report.conflicts:
+            _err(f"byteplan: restore_conflict: {conflict}")
+        if report.partial:
+            _out("byteplan: the entries above stay on record; fix them and run `byteplan restore` again")
+    return EXIT_FINDINGS if report.partial else EXIT_OK
 
 
 def cmd_resolve(args: argparse.Namespace) -> int:
@@ -466,6 +523,23 @@ def build_parser() -> argparse.ArgumentParser:
     status.add_argument("status", choices=[s.value for s in Status])
     status.add_argument("--note", help="reason, recorded in the task's history")
     status.set_defaults(handler=cmd_status)
+
+    release = sub.add_parser(
+        "release",
+        parents=[common, formatted],
+        help="strip BytePlan's decorators and runtime imports in place for a release (no git or build)",
+    )
+    release.add_argument("--version", help="the release version (default: the project's)")
+    release.add_argument("--dry-run", action="store_true", help="show what would be stripped")
+    release.add_argument("--allow-dirty", action="store_true", help="strip even with uncommitted changes")
+    release.set_defaults(handler=cmd_release)
+
+    restore = sub.add_parser("restore", parents=[common, formatted], help="put back what `byteplan release` stripped")
+    restore.add_argument("--dry-run", action="store_true", help="show what would be restored")
+    restore.add_argument(
+        "--partial", action="store_true", help="restore what can be placed; keep conflicting entries on record"
+    )
+    restore.set_defaults(handler=cmd_restore)
 
     resolve = sub.add_parser(
         "resolve", parents=[common, formatted], help="mark a task resolved (edits source only with --sync-source)"

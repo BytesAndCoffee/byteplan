@@ -157,8 +157,8 @@ def reconcile(
 
     if absence_check is not None:
         for task_id, task in sorted(result.tasks.items()):
-            if task_id in seen or task.source is None:
-                continue
+            if task_id in seen or task.source is None or task.presence is Presence.STRIPPED:
+                continue  # a stripped task is away for a release, on record: never missing
             if not absence_check(task.source.path):
                 if task.scope_state is not ScopeState.EXCLUDED:
                     task.scope_state = ScopeState.EXCLUDED
