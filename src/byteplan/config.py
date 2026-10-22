@@ -62,6 +62,14 @@ class AnnotationsConfig:
 
 
 @dataclass(frozen=True)
+class TestsConfig:
+    __test__ = False  # not a pytest test class
+    # Also link tests marked @pytest.mark.byteplan("abcd") (register the marker in your pytest
+    # configuration until `byteplan verify`'s plugin does it).
+    pytest_marker: bool = False
+
+
+@dataclass(frozen=True)
 class GitConfig:
     # After `scan --staged --apply` reconciles a commit: "commit" lets it proceed,
     # "stop" exits 1 so the developer reviews first.
@@ -98,6 +106,7 @@ class Config:
     check: CheckConfig = field(default_factory=CheckConfig)
     annotations: AnnotationsConfig = field(default_factory=AnnotationsConfig)
     git: GitConfig = field(default_factory=GitConfig)
+    tests: TestsConfig = field(default_factory=TestsConfig)
 
     @property
     def registry_path(self) -> Path:
@@ -156,9 +165,10 @@ def parse_config(root: Path, table: Any) -> Config:
     check = _parse_section(CheckConfig, table.pop("check", {}), "tool.byteplan.check")
     annotations = _parse_section(AnnotationsConfig, table.pop("annotations", {}), "tool.byteplan.annotations")
     git = _parse_section(GitConfig, table.pop("git", {}), "tool.byteplan.git")
-    skip = frozenset({"root", "detect", "check", "annotations", "git"})
+    tests = _parse_section(TestsConfig, table.pop("tests", {}), "tool.byteplan.tests")
+    skip = frozenset({"root", "detect", "check", "annotations", "git", "tests"})
     values = _parse_values(Config, table, "tool.byteplan", skip=skip)
-    config = Config(root=root, detect=detect, check=check, annotations=annotations, git=git, **values)
+    config = Config(root=root, detect=detect, check=check, annotations=annotations, git=git, tests=tests, **values)
     _validate(config)
     return config
 

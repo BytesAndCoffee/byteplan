@@ -126,6 +126,14 @@ def advertise_routes(self):
   first scan.
 - **What counts:** only names really imported from `byteplan_runtime`, or a shim module you list in
   `runtime_modules`. A local or shadowed `todo` is ignored.
+- **Acceptance tests:** `tests=("tests/test_routing.py::test_poison",)` on `@todo`, or
+  `@verifies("a83f")` on the test itself, links a task to the tests that prove it.
+  `@pytest.mark.byteplan("a83f")` works too with `[tool.byteplan.tests] pytest_marker = true`,
+  and `byteplan tests add` links tests by hand. `byteplan tests list` and `byteplan show` list
+  each link with its provenance (`decorator`, `verifies`, `marker`, `managed`).
+  - Links declared in source are refreshed by every scan.
+  - Hand-added links are only changed by `tests add/remove`.
+  - A linked test file that doesn't exist, or isn't scanned, is reported as `test_not_in_scope`.
 - **No new dependency?** `byteplan init --runtime-shim src/pkg/_byteplan.py` writes an inert
   `todo`/`verifies` module and registers it in `runtime_modules`.
 
@@ -222,6 +230,8 @@ metadata, so moving or renaming code keeps the same task.
 | Command | What it does |
 |---|---|
 | `byteplan init [--runtime-shim PATH]` | add configuration and an empty registry (safe to re-run); optionally write an inert runtime shim |
+| `byteplan tests list [ID]` | linked acceptance tests and where each link comes from |
+| `byteplan tests add ID NODE...` / `tests remove ID NODE...` | link or unlink pytest node IDs by hand |
 | `byteplan sync [--apply] [--only ID]` | decorator mode: rewrite attached comments and unowned stubs to `@todo(...)` (preview by default) |
 | `byteplan scan [PATHS] [--dry-run] [--staged]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing. `--staged --dry-run` previews against the Git index |
 | `byteplan scan --staged --apply` | add IDs to the staged commit (index and working tree) before it's finalized; what the pre-commit hook runs |
@@ -276,6 +286,9 @@ fail_on_duplicate_ids = true
 fail_on_missing = false
 fail_on_stale_annotations = false
 fail_on_stale_report = false  # report_file not matching the registry is a warning by default
+
+[tool.byteplan.tests]
+pytest_marker = false              # also link tests marked @pytest.mark.byteplan("id")
 
 [tool.byteplan.annotations]
 mode = "comment"                   # or "preserve" / "decorator" (see `byteplan sync`)

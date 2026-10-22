@@ -124,6 +124,28 @@ def cmd_list(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def cmd_tests_list(args: argparse.Namespace) -> int:
+    project = _project(args)
+    tasks = [project.get_task(args.id)] if args.id else [t for _, t in sorted(project.load_registry().tasks.items())]
+    if args.format == "json":
+        _out(reporting.to_json(reporting.tests_json(tasks)))
+    else:
+        _out(reporting.tests_text(tasks))
+    return EXIT_OK
+
+
+def cmd_tests_add(args: argparse.Namespace) -> int:
+    task, changed = _project(args).link_tests(args.id, args.nodes)
+    _print_task_change(args, task, changed=changed, what=f"linked {', '.join(args.nodes)}")
+    return EXIT_OK
+
+
+def cmd_tests_remove(args: argparse.Namespace) -> int:
+    task, changed = _project(args).unlink_tests(args.id, args.nodes)
+    _print_task_change(args, task, changed=changed, what=f"unlinked {', '.join(args.nodes)}")
+    return EXIT_OK
+
+
 def cmd_show(args: argparse.Namespace) -> int:
     task = _project(args).get_task(args.id)
     _out(reporting.to_json(reporting.task_json(task)) if args.format == "json" else reporting.task_text(task))
@@ -389,6 +411,22 @@ def build_parser() -> argparse.ArgumentParser:
     merge.add_argument("theirs", help="%%B: their version")
     merge.add_argument("label", nargs="?", help="%%P: the registry's path, for messages")
     merge.set_defaults(handler=cmd_merge_registry)
+
+    tests_cmd = sub.add_parser("tests", help="acceptance tests linked to tasks")
+    tests_sub = tests_cmd.add_subparsers(dest="tests_command", metavar="COMMAND", required=True)
+    tests_list = tests_sub.add_parser(
+        "list", parents=[common, formatted], help="show linked tests and their provenance"
+    )
+    tests_list.add_argument("id", nargs="?", help="only this task")
+    tests_list.set_defaults(handler=cmd_tests_list)
+    tests_add = tests_sub.add_parser("add", parents=[common, formatted], help="link pytest node IDs to a task")
+    tests_add.add_argument("id")
+    tests_add.add_argument("nodes", nargs="+", metavar="NODE", help="e.g. tests/test_routing.py::test_poison")
+    tests_add.set_defaults(handler=cmd_tests_add)
+    tests_remove = tests_sub.add_parser("remove", parents=[common, formatted], help="unlink tests added with `add`")
+    tests_remove.add_argument("id")
+    tests_remove.add_argument("nodes", nargs="+", metavar="NODE")
+    tests_remove.set_defaults(handler=cmd_tests_remove)
 
     git_cmd = sub.add_parser("git", help="Git integration")
     git_sub = git_cmd.add_subparsers(dest="git_command", metavar="COMMAND", required=True)
