@@ -15,6 +15,10 @@ or leave a function unfinished, and BytePlan does the rest:
 It never decides that work is done. If a TODO disappears, its task is marked **missing**, not
 resolved. Only you resolve tasks.
 
+<!-- TODO[4fb5]: Update the status line for the next release
+     It lists only the CLI, scanner, registry and Hatch hook. Also mention the Git integration (IDs
+     added at commit time by `scan --staged --apply` / `git install-hooks`, `check --staged` and
+     `check --commit` for pre-commit and CI, the registry merge driver) and Markdown/JSON tracking. -->
 > **Status: alpha, in active development.** The CLI, scanner, registry and Hatch hook described
 > here work today. Test linking and verification, test scaffolding, release stripping, and an MCP
 > server are planned; see the [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md) and the
@@ -48,7 +52,7 @@ dependencies) provides the `@todo` and `@verifies` decorators. It's only needed 
 $ byteplan init                      # adds [tool.byteplan], creates .byteplan/tasks.json
 $ byteplan scan --dry-run            # preview: nothing is written
 $ byteplan scan                      # write IDs into source and update the registry
-BytePlan: 3 Python files scanned
+BytePlan: 3 files scanned
   3 annotations · 3 tracked tasks
   +3 added · ~0 relocated · !0 missing · !0 duplicate · 0 stale
 
@@ -121,9 +125,40 @@ def advertise_routes(self):
 - **What counts:** only names really imported from `byteplan_runtime`, or a shim module you list in
   `runtime_modules`. A local or shadowed `todo` is ignored.
 
+**Markdown and JSON.** Add them to `include` (for example `"**/*.md"`, `"config/**/*.json"`)
+and BytePlan tracks tags there too, with the same IDs, registry and Git integration:
+
+```markdown
+<!-- TODO: Document the merge driver
+     Show the .gitattributes line and a conflict example. -->
+```
+
+```jsonc
+{
+  // FIXME: Turn on strict mode once the legacy modules are typed
+  "strict": false,
+  "scripts": { "todo": "TODO: pin the release script's version" }
+}
+```
+
+- **Markdown:** tags in HTML comments, so they don't render. The first line is the title and
+  the rest of the comment is the description. Prose and code (fenced blocks, inline code) are
+  never scanned. The symbol is the nearest heading.
+- **Fully hidden Markdown comments:** `[//]: # (TODO: title)` is an unused link definition, so
+  it's missing even from the generated HTML. Any label works, the title can use `()`, `""` or
+  `''`, and following `[//]: # (  more)` lines indented two spaces are the description. Like any
+  link definition it can't interrupt a paragraph, so leave a blank line (or a heading) above it.
+- **JSON** (`.json`, `.jsonc`): `//` and `/* */` comments, as in `tsconfig.json`. Strict JSON
+  can't hold comments, so a **string value** that starts with `TODO:` (case-sensitive, colon
+  required) is tracked too, and its ID goes inside the string. Turn that off with
+  `json_string_values = false`. The symbol is a JSON Pointer such as `/scripts/todo`.
+- **Not applicable:** stubs and decorators are Python-only. Other file types are never scanned,
+  even if `include` matches them.
+
 **Suppression.**
-- `# byteplan: ignore` inside a tag comment skips that tag.
-- `# byteplan: ignore-file` in a file's first five lines skips the whole file.
+- `# byteplan: ignore` inside a tag comment skips that tag (in any format).
+- `# byteplan: ignore-file` in a file's first five lines skips the whole file
+  (`<!-- byteplan: ignore-file -->` in Markdown, `// byteplan: ignore-file` in JSON).
 
 ## Status, presence and resolution
 
@@ -181,7 +216,7 @@ Everything lives in `pyproject.toml`. These are the defaults:
 ```toml
 [tool.byteplan]
 registry = ".byteplan/tasks.json"
-include = ["**/*.py"]
+include = ["**/*.py"]         # add "**/*.md", "**/*.json", ... to track those too
 exclude = ["**/.venv/**", "**/venv/**", "**/__pycache__/**", "**/build/**", "**/dist/**",
            "**/.tox/**", "**/.nox/**", "**/node_modules/**", "**/*.pyi"]
 respect_gitignore = true
@@ -195,6 +230,7 @@ ellipsis_stubs = true
 not_implemented_stubs = true
 empty_classes = true
 respect_overrides = true       # interface methods and no-op overrides aren't stubs (see below)
+json_string_values = true      # JSON strings starting with "TODO:" are tasks
 
 [tool.byteplan.check]
 fail_on_duplicate_ids = true

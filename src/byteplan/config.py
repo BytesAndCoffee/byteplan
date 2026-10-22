@@ -44,6 +44,8 @@ class DetectConfig:
     # Don't treat a trivial method as a stub when a project subclass implements it
     # (interface by convention) or it overrides a project base class's method (no-op).
     respect_overrides: bool = True
+    # In JSON, track value strings that start with a tag and a colon ("TODO: ...").
+    json_string_values: bool = True
 
 
 @dataclass(frozen=True)

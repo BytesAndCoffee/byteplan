@@ -62,7 +62,7 @@ def scan_text(report: ScanReport) -> str:
     summary = report.summary
     codes = Counter(str(d.code) for d in report.diagnostics)
     lines = [
-        f"BytePlan: {report.files_scanned} Python {noun} scanned{scope}",
+        f"BytePlan: {report.files_scanned} {noun} scanned{scope}",
         f"  {len(report.tags)} annotations · {report.tracked} tracked tasks",
         f"  +{len(summary.added)} added · ~{len(summary.relocated)} relocated · "
         f"!{codes['missing']} missing · !{codes['duplicate_id']} duplicate · {codes['stale_annotation']} stale",

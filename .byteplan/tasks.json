@@ -1,6 +1,7 @@
 {
   "reserved_ids": [
     "46b6",
+    "4fb5",
     "a6b2"
   ],
   "schema_version": 1,
@@ -31,8 +32,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 62,
-        "line": 59,
+        "decl_line": 71,
+        "line": 68,
         "path": "src/byteplan/scanner/comments.py",
         "representation": "comment",
         "symbol": "tag_pattern"
@@ -40,6 +41,43 @@
       "status": "open",
       "stub": null,
       "title": "Recognize Google-style `TODO(owner): ...` tags",
+      "title_override": null
+    },
+    "4fb5": {
+      "assignee": null,
+      "description": "It lists only the CLI, scanner, registry and Hatch hook. Also mention the Git integration (IDs\nadded at commit time by `scan --staged --apply` / `git install-hooks`, `check --staged` and\n`check --commit` for pre-commit and CI, the registry merge driver) and Markdown/JSON tracking.",
+      "first_seen": "2026-10-22T03:14:55Z",
+      "history": [
+        {
+          "at": "2026-10-22T03:14:55Z",
+          "event": "created",
+          "new": {
+            "line": 18,
+            "path": "README.md"
+          },
+          "old": null
+        }
+      ],
+      "id": "4fb5",
+      "kind": "TODO",
+      "labels": [],
+      "last_seen": "2026-10-22T03:14:55Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 18,
+        "path": "README.md",
+        "representation": "comment",
+        "symbol": "BytePlan"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Update the status line for the next release",
       "title_override": null
     },
     "a6b2": {
@@ -68,8 +106,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 192,
-        "line": 196,
+        "decl_line": 197,
+        "line": 201,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"

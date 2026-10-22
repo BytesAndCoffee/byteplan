@@ -101,7 +101,7 @@ def test_scan_text_and_dry_run_do_not_write(project: ProjectFactory, run_cli: Ru
     before = project.snapshot()
     result = run_cli("scan", "--dry-run", "--project", project.root)
     assert result.code == EXIT_OK
-    assert "1 Python file scanned" in result.out
+    assert "1 file scanned" in result.out
     assert "Implement route poisoning" in result.out
     assert project.snapshot() == before
 
