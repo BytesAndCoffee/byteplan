@@ -59,7 +59,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1530,
+        "line": 1532,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -94,6 +94,60 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_removes_only_the_closed_tasks_annotations",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_runtime_import_stays_while_used",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_only_and_open_tasks",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_resolve_sync_source",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_resolved_stub_is_not_cleaned",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_suppress_stubs_leaves_a_visible_ignore",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_markdown_and_json",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_crlf_and_bom_survive",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T18:41:02Z",
+          "event": "test_linked",
+          "new": "tests/test_cleanup.py::test_crash_recovers_through_the_journal",
+          "old": null
         }
       ],
       "id": "14ff",
@@ -110,13 +164,27 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1526,
+        "line": 1528,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
       "status": "open",
       "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_cleanup.py::test_crash_recovers_through_the_journal",
+          "tests/test_cleanup.py::test_crlf_and_bom_survive",
+          "tests/test_cleanup.py::test_markdown_and_json",
+          "tests/test_cleanup.py::test_only_and_open_tasks",
+          "tests/test_cleanup.py::test_removes_only_the_closed_tasks_annotations",
+          "tests/test_cleanup.py::test_resolve_sync_source",
+          "tests/test_cleanup.py::test_resolved_stub_is_not_cleaned",
+          "tests/test_cleanup.py::test_runtime_import_stays_while_used",
+          "tests/test_cleanup.py::test_suppress_stubs_leaves_a_visible_ignore"
+        ]
+      },
       "title": "Phase 7: cleanup",
       "title_override": null
     },
@@ -161,7 +229,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1548,
+        "line": 1550,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -455,7 +523,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1542,
+        "line": 1544,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -634,7 +702,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1545,
+        "line": 1547,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -685,7 +753,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1538,
+        "line": 1540,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -853,8 +921,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 260,
-        "line": 264,
+        "decl_line": 262,
+        "line": 266,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"
@@ -915,7 +983,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1523,
+        "line": 1525,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -976,7 +1044,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1552,
+        "line": 1554,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1027,7 +1095,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1534,
+        "line": 1536,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"

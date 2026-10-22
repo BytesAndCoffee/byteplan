@@ -55,6 +55,9 @@ class Code(StrEnum):
     SCAFFOLD_PLACEHOLDER = "scaffold_placeholder"
     # byteplan sync
     CONVERSION_NEEDS_REVIEW = "conversion_needs_review"
+    # byteplan sync --remove-resolved
+    RESOLVED_BUT_STUBBED = "resolved_but_stubbed"
+    CLEANUP_NEEDS_REVIEW = "cleanup_needs_review"
 
 
 @dataclass(frozen=True)

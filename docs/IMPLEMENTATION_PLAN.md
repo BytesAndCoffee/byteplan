@@ -1486,7 +1486,9 @@ earlier depends on it.
 Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4c (IDs at
 commit time) is done. Phases 4d, 4e and 5 (runtime and normalization: annotation modes,
 `byteplan sync`, `init --runtime-shim`) and 6a (test links, `byteplan tests`, `byteplan verify`
-with evidence, freshness and readiness) and 6b (test scaffolding) are done. **Phase 7 comes next.**
+with evidence, freshness and readiness) 6b (test scaffolding) and 7 (cleanup, for Python, Markdown and JSON annotations) are done. **Phase 8
+comes next.** Finished phases' TODOs now stay in this file until their task is resolved; BytePlan's
+own cleanup (`resolve --sync-source`) removes them.
 6b deviation: whether a linked test is still a placeholder is computed from source when needed
 (readiness, `check`), not stored as `placeholder: true` on the link, so editing the body is
 all it takes and the registry doesn't churn. Acceptance-criteria hints wait for Phase 6c, and
@@ -1508,7 +1510,7 @@ runtime package has shipped.
 | 6a. Acceptance tests ✅ | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |
 | 6b. Test scaffolding ✅ | `scaffold.py` planner, `byteplan tests scaffold ID [--path] [--name] [--policy] [--force-new] [--dry-run]`, placeholder detection, `[tool.byteplan.tests.scaffold]` | – | B: 1–9, 11 (CLI), 12 |
 | 6c. Criteria + dependencies (optional) | `acceptance_criteria`, `byteplan criteria …`, `depends_on`, lifecycle facts in reports (Phase 12 later turns `depends_on` into `blocked_by` links) | – | – |
-| 7. Cleanup | `cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`, `--suppress-stubs` | – | 13 (cleanup), 14 |
+| 7. Cleanup ✅ | `cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`, `--suppress-stubs` | – | 13 (cleanup), 14 |
 | 8. Release | `release.py`, `byteplan release [--version] [--dry-run] [--allow-dirty] [--smoke-test]`, `byteplan restore [--dry-run] [--partial]`, presence `stripped`, registry `release`/`releases`, `release_on_default_branch` and `unfinished_scaffold_in_sdist` warnings, Hatch `require_stripped`, documented release-branch workflow | – | release tests below · B: 13–18 |
 | 9. MCP | `[mcp]` extra, `mcp_server.py` with all tools above (including scaffold preview / `scaffold_test`), the three permissions, `byteplan mcp`, README client snippets | – | A: 16 (MCP part), 20 · B: 11 (MCP) |
 | 10. Integration | README end-to-end developer journey (`# TODO` → `scan` → `tests scaffold` → implement → `verify` → `resolve` → `sync`, including where BytePlan notices but never closes work), docs for every config key, dogfood `hatch run byteplan scan` on BytePlan itself, CI on ubuntu/macos/windows | DoD | full suite · B: 19 |

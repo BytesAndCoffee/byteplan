@@ -58,14 +58,33 @@ def cmd_init(args: argparse.Namespace) -> int:
 
 
 def cmd_sync(args: argparse.Namespace) -> int:
-    report = _project(args).sync(args.only, dry_run=not args.apply)
+    project = _project(args)
+    settings = project.config.annotations
+    remove = args.remove_resolved or settings.remove_resolved
+    normalizing = settings.mode == "decorator" and (settings.convert_attached_comments or settings.auto_decorate_stubs)
+    code = EXIT_OK
+    payload: dict[str, Any] = {}
+    if normalizing or not remove:
+        report = project.sync(args.only, dry_run=not args.apply)
+        payload.update(reporting.sync_json(report))  # the original top-level shape
+        if args.format == "text" and not (remove and report.blocked and report.blocked.startswith("nothing to do")):
+            _out(reporting.sync_text(report))
+        for diagnostic in report.diagnostics:
+            _err(diagnostic.format_text())
+        if report.blocked and not report.blocked.startswith("nothing to do"):
+            code = EXIT_FINDINGS
+    if remove:
+        cleaned = project.cleanup(args.only, dry_run=not args.apply, suppress_stubs=args.suppress_stubs)
+        payload["cleanup"] = reporting.cleanup_json(cleaned)
+        if args.format == "text":
+            _out(reporting.cleanup_text(cleaned))
+        for diagnostic in cleaned.diagnostics:
+            _err(diagnostic.format_text())
+        if cleaned.blocked or any(d.code is Code.RESOLVED_BUT_STUBBED for d in cleaned.diagnostics):
+            code = EXIT_FINDINGS
     if args.format == "json":
-        _out(reporting.to_json(reporting.sync_json(report)))
-    else:
-        _out(reporting.sync_text(report))
-    for diagnostic in report.diagnostics:
-        _err(diagnostic.format_text())
-    return EXIT_FINDINGS if report.blocked and not report.blocked.startswith("nothing to do") else EXIT_OK
+        _out(reporting.to_json(payload))
+    return code
 
 
 def _snapshot_project(args: argparse.Namespace) -> Project:
@@ -231,12 +250,22 @@ def cmd_status(args: argparse.Namespace) -> int:
 
 
 def cmd_resolve(args: argparse.Namespace) -> int:
-    task, changed = _project(args).set_status(args.id, Status.RESOLVED, note=args.note)
+    project = _project(args)
+    task, changed = project.set_status(args.id, Status.RESOLVED, note=args.note)
     _print_task_change(args, task, changed=changed, what="resolved")
+    if args.sync_source:
+        cleaned = project.cleanup([task.id], dry_run=False, suppress_stubs=args.suppress_stubs)
+        if args.format == "text":
+            _out(reporting.cleanup_text(cleaned))
+        for diagnostic in cleaned.diagnostics:
+            _err(diagnostic.format_text())
+        return (
+            EXIT_OK if cleaned.removed or cleaned.suppressed or task.presence is not Presence.PRESENT else EXIT_FINDINGS
+        )
     if changed and task.presence is Presence.PRESENT and args.format == "text" and task.source:
         _err(
             f"byteplan: note: the annotation at {task.source.path}:{task.source.line} is still in source; "
-            "remove it when you're ready (scans report it as a stale annotation until then)"
+            f"`byteplan resolve {task.id} --sync-source` or `byteplan sync --remove-resolved --apply` removes it"
         )
     return EXIT_OK
 
@@ -387,12 +416,24 @@ def build_parser() -> argparse.ArgumentParser:
     init.set_defaults(handler=cmd_init)
 
     sync = sub.add_parser(
-        "sync", parents=[common, formatted], help="rewrite comments and stubs to @todo(...) (decorator mode)"
+        "sync",
+        parents=[common, formatted],
+        help="source rewrites: @todo normalization (decorator mode) and --remove-resolved cleanup",
     )
     mode = sync.add_mutually_exclusive_group()
     mode.add_argument("--dry-run", action="store_true", help="preview the rewrites (the default)")
     mode.add_argument("--apply", action="store_true", help="write the rewrites and update the registry")
-    sync.add_argument("--only", action="append", metavar="ID", help="only convert these task IDs (repeatable)")
+    sync.add_argument("--only", action="append", metavar="ID", help="only these task IDs (repeatable)")
+    sync.add_argument(
+        "--remove-resolved",
+        action="store_true",
+        help="remove the source annotations of resolved and dismissed tasks (or set remove_resolved)",
+    )
+    sync.add_argument(
+        "--suppress-stubs",
+        action="store_true",
+        help="for a closed task whose code is still a stub, leave `# byteplan: ignore` instead of refusing",
+    )
     sync.set_defaults(handler=cmd_sync)
 
     scan = sub.add_parser("scan", parents=[common, formatted], help="discover, annotate, reconcile, report")
@@ -422,9 +463,17 @@ def build_parser() -> argparse.ArgumentParser:
     status.add_argument("--note", help="reason, recorded in the task's history")
     status.set_defaults(handler=cmd_status)
 
-    resolve = sub.add_parser("resolve", parents=[common, formatted], help="mark a task resolved (never edits source)")
+    resolve = sub.add_parser(
+        "resolve", parents=[common, formatted], help="mark a task resolved (edits source only with --sync-source)"
+    )
     resolve.add_argument("id")
     resolve.add_argument("--note", help="reason, recorded in the task's history")
+    resolve.add_argument("--sync-source", action="store_true", help="also remove the task's annotation from source")
+    resolve.add_argument(
+        "--suppress-stubs",
+        action="store_true",
+        help="with --sync-source: on a still-stub declaration, leave `# byteplan: ignore`",
+    )
     resolve.set_defaults(handler=cmd_resolve)
 
     edit = sub.add_parser("edit", parents=[common, formatted], help="update priority, assignee, labels, notes, title")

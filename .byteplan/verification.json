@@ -27,10 +27,66 @@
       "head": "d32feb014973cc62f301b21da5f7f7a676fbffa4",
       "python": "3.11.0",
       "timed_out": false
+    },
+    "fee06ae74b62": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T18:41:03Z",
+      "dirty": true,
+      "head": "3bf3e61969e64751584f4bf68e36392b674c800b",
+      "python": "3.11.0",
+      "timed_out": false
     }
   },
   "schema_version": 1,
   "tasks": {
+    "14ff": {
+      "fingerprint": "06d50770c53dce298e496e3c14de53c2e23de86f4a970fb0e271fd8ec8b67a3a",
+      "run": "fee06ae74b62",
+      "tests": {
+        "tests/test_cleanup.py::test_crash_recovers_through_the_journal": {
+          "duration_ms": 57,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_crlf_and_bom_survive": {
+          "duration_ms": 16,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_markdown_and_json": {
+          "duration_ms": 53,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_only_and_open_tasks": {
+          "duration_ms": 32,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_removes_only_the_closed_tasks_annotations": {
+          "duration_ms": 56,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_resolve_sync_source": {
+          "duration_ms": 27,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_resolved_stub_is_not_cleaned": {
+          "duration_ms": 20,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_runtime_import_stays_while_used": {
+          "duration_ms": 29,
+          "outcome": "passed"
+        },
+        "tests/test_cleanup.py::test_suppress_stubs_leaves_a_visible_ignore": {
+          "duration_ms": 20,
+          "outcome": "passed"
+        }
+      }
+    },
     "2887": {
       "fingerprint": "90d404f34f6f6cbd44211f28bbe34dd4e2eeac4b76b06fc91fc1b412667e501c",
       "run": "c6c988fe2179",
