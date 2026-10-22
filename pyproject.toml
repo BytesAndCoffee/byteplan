@@ -12,7 +12,7 @@ license = "MIT"
 license-files = ["LICENSE.txt"]
 keywords = ["todo", "fixme", "task-tracking", "hatch", "developer-tools"]
 authors = [
-  { name = "Michael Yazdani", email = "yazdmich@icloud.com" },
+  { name = "Michael Yazdani", email = "yazdmich@gmail.com" },
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
