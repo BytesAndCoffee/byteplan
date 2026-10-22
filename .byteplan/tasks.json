@@ -46,6 +46,60 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_release_strips_only_decorators_imports_and_the_registry",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_stripped_tree_imports_without_the_runtime",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_writing_commands_refuse_while_stripped",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_release_then_restore_is_byte_identical",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_refusals_write_nothing",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T19:29:51Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_crash_mid_release_rolls_forward",
+          "old": null
         }
       ],
       "id": "0413",
@@ -62,13 +116,27 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1529,
+        "line": 1536,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
       "status": "open",
       "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_crash_mid_release_rolls_forward",
+          "tests/test_release.py::test_refusals_write_nothing",
+          "tests/test_release.py::test_release_strips_only_decorators_imports_and_the_registry",
+          "tests/test_release.py::test_release_then_restore_is_byte_identical",
+          "tests/test_release.py::test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record",
+          "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast",
+          "tests/test_release.py::test_stripped_tree_imports_without_the_runtime",
+          "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen",
+          "tests/test_release.py::test_writing_commands_refuse_while_stripped"
+        ]
+      },
       "title": "Phase 8: release stripping",
       "title_override": null
     },
@@ -253,7 +321,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1547,
+        "line": 1554,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -687,7 +755,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1541,
+        "line": 1548,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -866,7 +934,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1544,
+        "line": 1551,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -987,7 +1055,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1537,
+        "line": 1544,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1217,7 +1285,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1525,
+        "line": 1532,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1278,7 +1346,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1551,
+        "line": 1558,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1329,7 +1397,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1533,
+        "line": 1540,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"

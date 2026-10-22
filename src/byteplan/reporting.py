@@ -120,6 +120,10 @@ def task_text(task: Task, readiness: Readiness | None = None) -> str:
         symbol = f"  ({task.source.symbol})" if task.source.symbol else ""
         lines.append(f"  source:    {task.source.path}:{task.source.line}{symbol}")
     lines.append(f"  origin:    {task.origin}")
+    lines.extend(
+        f"  stripped:  @todo at {entry['path']}:{entry['line']} on {entry['qualname']} (restore puts it back)"
+        for entry in task.extra.get("stripped", [])
+    )
     tests = task.linked_tests()
     if tests:
         outcomes = readiness.tests if readiness is not None else {}

@@ -1,0 +1,362 @@
+# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@gmail.com>
+#
+# SPDX-License-Identifier: MIT
+"""Phase 8 (part 1): `byteplan release` / `byteplan restore` against real Git repositories.
+
+The plan's release tests: only decorator/import lines and the registry change; no commit, tag
+or reset; byte-identical round trips; no status changes and nothing missing while stripped;
+anchored restore after hotfixes, conflicts and `--partial`; refusals; crash recovery; dry runs.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import shutil
+import subprocess
+import sys
+import textwrap
+from typing import TYPE_CHECKING, Any
+
+import pytest
+
+from byteplan import persistence
+from byteplan.api import Project
+from byteplan.cli import EXIT_ERROR, EXIT_FINDINGS, EXIT_OK
+from tests.gitutil import git
+
+if TYPE_CHECKING:
+    from tests.conftest import ProjectFactory, RunCli
+
+pytestmark = pytest.mark.skipif(shutil.which("git") is None, reason="git not installed")
+
+ROUTES = '''\
+"""Routes."""
+
+from __future__ import annotations
+
+import os
+
+from byteplan_runtime import todo
+
+
+class Router:
+    @staticmethod
+    @todo(
+        "Advertise routes",
+        id="a83f",
+        tests=("tests/test_routes.py::test_advertise",),
+    )
+    @staticmethod
+    def advertise():
+        return os.sep
+
+    @todo("Withdraw", id="b001")  # keep this note
+    def withdraw(self):
+        return 2
+
+
+# TODO[c002]: comments stay through a release
+def plain():
+    return 3
+'''
+
+TESTS = """\
+from byteplan_runtime import verifies
+
+
+@verifies("a83f")
+def test_advertise():
+    assert True
+"""
+
+
+def tasks(project: ProjectFactory) -> dict[str, Any]:
+    data: dict[str, Any] = json.loads((project.root / ".byteplan/tasks.json").read_text())
+    return data
+
+
+@pytest.fixture
+def released_repo(project: ProjectFactory, run_cli: RunCli) -> ProjectFactory:
+    project.write("pyproject.toml", '[project]\nname = "demo"\nversion = "1.2.0"\n', dedent=False)
+    project.init()
+    project.write("src/pkg/routes.py", ROUTES, dedent=False)
+    project.write("tests/test_routes.py", TESTS, dedent=False)
+    for task_id in ("a83f", "b001", "c002"):
+        assert run_cli("repair", "--import", task_id, "--project", project.root).code == EXIT_OK
+    assert run_cli("scan", "--project", project.root).code == EXIT_OK
+    root = project.root
+    git(root, "init", "-q", "-b", "main")
+    git(root, "config", "user.email", "t@example.com")
+    git(root, "config", "user.name", "T")
+    git(root, "config", "commit.gpgsign", "false")
+    git(root, "add", "-A")
+    git(root, "commit", "-qm", "base")
+    git(root, "switch", "-qc", "release/1.2.0")
+    return project
+
+
+def release(project: ProjectFactory, run_cli: RunCli, *extra: str) -> Any:
+    return run_cli("release", "--project", project.root, *extra)
+
+
+def test_release_strips_only_decorators_imports_and_the_registry(
+    released_repo: ProjectFactory, run_cli: RunCli
+) -> None:
+    root = released_repo.root
+    head = git(root, "rev-parse", "HEAD").stdout
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_OK, result.err
+    assert "stripped 3 decorator(s) and 2 import(s) from 2 file(s) for release 1.2.0" in result.out
+    assert "RELEASE_ON_DEFAULT_BRANCH" not in result.err  # on a release branch
+    assert git(root, "rev-parse", "HEAD").stdout == head  # never commits, tags or resets
+    assert git(root, "tag").stdout == ""
+    changed = sorted(line[3:] for line in git(root, "status", "--porcelain").stdout.splitlines())
+    assert changed == [".byteplan/tasks.json", "src/pkg/routes.py", "tests/test_routes.py"]
+
+    stripped = (root / "src/pkg/routes.py").read_text()
+    assert stripped == textwrap.dedent(
+        '''\
+        """Routes."""
+
+        from __future__ import annotations
+
+        import os
+
+        class Router:
+            @staticmethod
+            @staticmethod
+            def advertise():
+                return os.sep
+
+            def withdraw(self):
+                return 2
+
+
+        # TODO[c002]: comments stay through a release
+        def plain():
+            return 3
+        '''
+    )
+    assert (root / "tests/test_routes.py").read_text() == "def test_advertise():\n    assert True\n"
+
+    data = tasks(released_repo)
+    assert data["release"]["state"] == "stripped"
+    assert data["release"]["version"] == "1.2.0"
+    for task_id in ("a83f", "b001"):
+        task = data["tasks"][task_id]
+        assert task["status"] == "open"  # stripping isn't resolution
+        assert task["presence"] == "stripped"
+        assert task["history"][-1]["event"] == "stripped_for_release"
+    assert data["tasks"]["c002"]["presence"] == "present"  # comments stay
+    assert data["tasks"]["a83f"]["stripped"] == [
+        {"decl_line": 18, "index": 1, "line": 12, "path": "src/pkg/routes.py", "qualname": "Router.advertise"}
+    ]
+
+
+def test_stripped_tree_imports_without_the_runtime(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    assert release(released_repo, run_cli).code == EXIT_OK
+    root = released_repo.root
+    for path in ("src/pkg/routes.py", "tests/test_routes.py"):
+        assert "byteplan_runtime" not in (root / path).read_text()
+    # A clean interpreter with no byteplan-runtime on the path can import it.
+    code = "import sys; sys.path.insert(0, 'src'); import pkg.routes as r; assert r.Router.advertise() == __import__('os').sep"
+    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+    done = subprocess.run(
+        [sys.executable, "-I", "-c", code], cwd=root, capture_output=True, text=True, env=env, check=False
+    )
+    assert done.returncode == 0, done.stderr
+
+
+def test_while_stripped_nothing_goes_missing_and_links_are_frozen(
+    released_repo: ProjectFactory, run_cli: RunCli
+) -> None:
+    before = tasks(released_repo)["tasks"]["a83f"]["tests"]
+    assert release(released_repo, run_cli).code == EXIT_OK
+    scan = run_cli("scan", "--project", released_repo.root)
+    assert "!0 missing" in scan.out
+    assert "RELEASE_STRIPPED" in scan.err
+    data = tasks(released_repo)["tasks"]
+    assert data["a83f"]["presence"] == "stripped"
+    assert data["a83f"]["tests"] == before  # @todo(tests=) and @verifies links kept on record
+    assert data["a83f"]["title"] == "Advertise routes"
+    shown = run_cli("show", "a83f", "--project", released_repo.root).out
+    assert "stripped:  @todo at src/pkg/routes.py:12 on Router.advertise" in shown
+    pyproject = released_repo.root / "pyproject.toml"
+    pyproject.write_text(pyproject.read_text() + "\n[tool.byteplan.check]\nrequire_reconciled = true\n")
+    assert run_cli("check", "--project", released_repo.root).code == EXIT_OK
+
+
+def test_writing_commands_refuse_while_stripped(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    assert release(released_repo, run_cli).code == EXIT_OK
+    for args in (
+        ["sync", "--apply"],
+        ["sync", "--remove-resolved", "--apply"],
+        ["tests", "scaffold", "c002"],
+        ["release"],
+    ):
+        result = run_cli(*args, "--project", released_repo.root)
+        assert result.code == EXIT_ERROR, args
+        assert "release_stripped" in result.err, args
+
+
+@pytest.mark.parametrize(
+    "header",
+    [
+        "#!/usr/bin/env python\n# -*- coding: utf-8 -*-\n",
+        "﻿",
+        "",
+    ],
+)
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+@pytest.mark.parametrize("final_newline", [True, False])
+def test_release_then_restore_is_byte_identical(
+    released_repo: ProjectFactory,
+    run_cli: RunCli,
+    header: str,
+    newline: str,
+    final_newline: bool,  # noqa: FBT001 - pytest parameter
+) -> None:
+    text = (header + ROUTES).replace("\n", newline)
+    if not final_newline:
+        text = text.rstrip("\r\n")
+    data = text.encode("utf-8")
+    path = released_repo.root / "src/pkg/routes.py"
+    path.write_bytes(data)
+    git(released_repo.root, "commit", "-qam", "variant", "--allow-empty")
+    assert release(released_repo, run_cli).code == EXIT_OK
+    assert path.read_bytes() != data
+    result = run_cli("restore", "--project", released_repo.root)
+    assert result.code == EXIT_OK, result.err
+    assert path.read_bytes() == data
+    assert (released_repo.root / "tests/test_routes.py").read_text() == TESTS
+    data_after = tasks(released_repo)
+    assert "release" not in data_after
+    assert data_after["releases"][-1]["version"] == "1.2.0"
+    for task_id in ("a83f", "b001"):
+        task = data_after["tasks"][task_id]
+        assert task["presence"] == "present"
+        assert "stripped" not in task
+        assert task["history"][-1]["event"] == "restored"
+        assert task["status"] == "open"
+
+
+def test_restore_after_a_hotfix_uses_the_ast(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    assert release(released_repo, run_cli).code == EXIT_OK
+    path = released_repo.root / "src/pkg/routes.py"
+    path.write_text(path.read_text().replace("class Router:", "VERSION = 2\n\n\nclass Router:\n    '''Docs.'''\n"))
+    assert run_cli("restore", "--project", released_repo.root).code == EXIT_OK
+    restored = path.read_text()
+    assert "VERSION = 2" in restored
+    assert "from byteplan_runtime import todo" in restored
+    assert restored.index('@todo(\n        "Advertise routes"') < restored.index("def advertise")
+    assert restored.count("@staticmethod") == 2
+    assert '    @todo("Withdraw", id="b001")  # keep this note\n    def withdraw' in restored
+    assert "+0 added" in run_cli("scan", "--project", released_repo.root).out
+
+
+def test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record(
+    released_repo: ProjectFactory, run_cli: RunCli
+) -> None:
+    assert release(released_repo, run_cli).code == EXIT_OK
+    path = released_repo.root / "src/pkg/routes.py"
+    path.write_text(path.read_text().replace("def withdraw", "def retract"))
+    before = released_repo.snapshot()
+    refused = run_cli("restore", "--project", released_repo.root)
+    assert refused.code == EXIT_ERROR
+    assert "restore_conflict" in refused.err
+    assert "Router.withdraw no longer exists" in refused.err
+    assert released_repo.snapshot() == before
+
+    partial = run_cli("restore", "--partial", "--project", released_repo.root)
+    assert partial.code == EXIT_FINDINGS
+    data = tasks(released_repo)
+    assert data["release"]["state"] == "stripped"  # the unplaced entry is still on record
+    left = data["release"]["files"]["src/pkg/routes.py"]["decorators"]
+    assert [d["qualname"] for d in left] == ["Router.withdraw"]
+    assert data["tasks"]["a83f"]["presence"] == "present"
+    assert data["tasks"]["b001"]["presence"] == "stripped"
+
+
+@pytest.mark.parametrize(
+    ("change", "message"),
+    [
+        (lambda p: p.write("src/pkg/extra.py", "x = 1\n"), "uncommitted changes"),
+        (
+            lambda p: p.write(
+                "src/pkg/routes.py", ROUTES.replace('    @todo("Withdraw", id="b001")', '    @todo("Withdraw")')
+            ),
+            "has no id=",
+        ),
+        (
+            lambda p: p.write("src/pkg/other.py", "import byteplan_runtime\n\nMARK = byteplan_runtime.todo\n"),
+            "still used outside decorators",
+        ),
+    ],
+)
+def test_refusals_write_nothing(released_repo: ProjectFactory, run_cli: RunCli, change: Any, message: str) -> None:
+    change(released_repo)
+    if message != "uncommitted changes":
+        git(released_repo.root, "add", "-A")
+        git(released_repo.root, "commit", "-qm", "change")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert message in result.err
+    assert released_repo.snapshot() == before
+
+
+def test_allow_dirty_and_dry_run(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    released_repo.write("notes.txt", "wip\n")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli, "--allow-dirty", "--dry-run", "--version", "9.9")
+    assert result.code == EXIT_OK
+    assert "would strip 3 decorator(s)" in result.out
+    assert released_repo.snapshot() == before
+
+
+def test_default_branch_warning(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    git(released_repo.root, "switch", "-q", "main")
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_OK  # a warning, not a refusal
+    assert "RELEASE_ON_DEFAULT_BRANCH" in result.err
+
+
+def test_version_comes_from_hatch_dynamic_metadata(released_repo: ProjectFactory, run_cli: RunCli) -> None:
+    pyproject = released_repo.root / "pyproject.toml"
+    pyproject.write_text(
+        pyproject.read_text().replace('version = "1.2.0"', 'dynamic = ["version"]')
+        + '\n[tool.hatch.version]\npath = "src/pkg/__about__.py"\n'
+    )
+    released_repo.write("src/pkg/__about__.py", '__version__ = "3.1.4"\n')
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "dynamic")
+    assert "for release 3.1.4" in release(released_repo, run_cli).out
+
+
+@pytest.mark.parametrize("nth", [1, 2, 3])
+def test_crash_mid_release_rolls_forward(
+    released_repo: ProjectFactory, monkeypatch: pytest.MonkeyPatch, nth: int
+) -> None:
+    class CrashError(Exception):
+        pass
+
+    real_replace = os.replace
+    calls = {"n": 0}
+
+    def replace(src: Any, dst: Any) -> None:
+        if not str(dst).endswith("journal.json"):
+            calls["n"] += 1
+            if calls["n"] == nth:
+                raise CrashError
+        real_replace(src, dst)
+
+    monkeypatch.setattr(os, "replace", replace)
+    with pytest.raises(CrashError):
+        Project.open(released_repo.root).release(allow_dirty=True)
+    monkeypatch.undo()
+    assert persistence.pending_journal(released_repo.root)
+    Project.open(released_repo.root).scan(dry_run=False)  # rolls the transaction forward
+    assert not persistence.pending_journal(released_repo.root)
+    assert "byteplan_runtime" not in (released_repo.root / "src/pkg/routes.py").read_text()
+    assert tasks(released_repo)["release"]["state"] == "stripped"

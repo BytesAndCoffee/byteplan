@@ -8,14 +8,14 @@
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1525`](docs/IMPLEMENTATION_PLAN.md#L1525) | Phase 6c (optional): acceptance criteria and dependencies |
-| `0413` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1529`](docs/IMPLEMENTATION_PLAN.md#L1529) | Phase 8: release stripping |
-| `f853` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1533`](docs/IMPLEMENTATION_PLAN.md#L1533) | Phase 9: MCP server |
-| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1537`](docs/IMPLEMENTATION_PLAN.md#L1537) | Phase 10: integration |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1541`](docs/IMPLEMENTATION_PLAN.md#L1541) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1544`](docs/IMPLEMENTATION_PLAN.md#L1544) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1547`](docs/IMPLEMENTATION_PLAN.md#L1547) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1551`](docs/IMPLEMENTATION_PLAN.md#L1551) | Phase 13 (optional): relay-for-github |
+| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1532`](docs/IMPLEMENTATION_PLAN.md#L1532) | Phase 6c (optional): acceptance criteria and dependencies |
+| `0413` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1536`](docs/IMPLEMENTATION_PLAN.md#L1536) | Phase 8: release stripping |
+| `f853` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1540`](docs/IMPLEMENTATION_PLAN.md#L1540) | Phase 9: MCP server |
+| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1544`](docs/IMPLEMENTATION_PLAN.md#L1544) | Phase 10: integration |
+| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1548`](docs/IMPLEMENTATION_PLAN.md#L1548) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1551`](docs/IMPLEMENTATION_PLAN.md#L1551) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1554`](docs/IMPLEMENTATION_PLAN.md#L1554) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1558`](docs/IMPLEMENTATION_PLAN.md#L1558) | Phase 13 (optional): relay-for-github |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:266`](src/byteplan/config.py#L266) | Support detect.placeholder_assignments |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
 

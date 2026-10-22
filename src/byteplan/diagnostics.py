@@ -55,6 +55,9 @@ class Code(StrEnum):
     SCAFFOLD_PLACEHOLDER = "scaffold_placeholder"
     # byteplan sync
     CONVERSION_NEEDS_REVIEW = "conversion_needs_review"
+    # byteplan release / restore
+    RELEASE_STRIPPED = "release_stripped"
+    RELEASE_ON_DEFAULT_BRANCH = "release_on_default_branch"
     # byteplan sync --remove-resolved
     RESOLVED_BUT_STUBBED = "resolved_but_stubbed"
     CLEANUP_NEEDS_REVIEW = "cleanup_needs_review"

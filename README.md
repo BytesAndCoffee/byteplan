@@ -278,6 +278,8 @@ metadata, so moving or renaming code keeps the same task.
 | `byteplan tests add ID NODE...` / `tests remove ID NODE...` | link or unlink pytest node IDs by hand |
 | `byteplan sync [--apply] [--only ID]` | decorator mode: rewrite attached comments and unowned stubs to `@todo(...)` (preview by default) |
 | `byteplan sync --remove-resolved [--apply] [--only ID] [--suppress-stubs]` | remove the source annotations of resolved and dismissed tasks |
+| `byteplan release [--version V] [--dry-run] [--allow-dirty]` | strip `@todo`/`@verifies` and runtime imports in place for a release, recording each one (no git or build) |
+| `byteplan restore [--dry-run] [--partial]` | put back what `release` stripped (byte-identical when the files haven't changed) |
 | `byteplan resolve ID --sync-source` | resolve, and remove the task's annotation in the same step |
 | `byteplan scan [PATHS] [--dry-run] [--staged]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing. `--staged --dry-run` previews against the Git index |
 | `byteplan scan --staged --apply` | add IDs to the staged commit (index and working tree) before it's finalized; what the pre-commit hook runs |
@@ -457,6 +459,33 @@ $ byteplan scan --staged --dry-run # preview what the staged snapshot still need
 - **CI recipe:** see [docs/ci.md](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/ci.md).
 
 The hooks are a convenience and can be skipped with `--no-verify`; CI is where to enforce.
+
+## Releasing without the runtime
+
+`@todo` and `@verifies` are inert, but they still import `byteplan_runtime`. `byteplan release`
+removes them, and the runtime imports they leave unused, so the code you release doesn't depend
+on BytePlan at all. Tagged `# TODO[id]` comments stay, since they cost nothing at runtime.
+
+```console
+$ git switch -c release/1.2.0            # from a clean main
+$ byteplan release                       # strip in place; the registry records every line
+byteplan: stripped 14 decorator(s) and 5 import(s) from 9 file(s) for release 1.2.0
+$ git commit -am "Release 1.2.0" && git tag v1.2.0 && hatch build
+$ git switch main                        # main never had the strip
+```
+
+- **What stays the same:** no task changes status, and stripped tasks are on record
+  (`presence: stripped`), never `missing`. Their test links are frozen until restore.
+- **What it never does:** commit, tag, build or reset.
+- **Restore:** `byteplan restore` puts everything back, byte for byte when the files haven't
+  changed since the strip. After a hotfix, each decorator is placed through the AST by its
+  function's name. A function that's gone is a `restore_conflict`, and `--partial` keeps the
+  unplaced entries on record.
+- **Refusals:** it refuses, writing nothing, on a dirty tree (`--allow-dirty`), an untagged
+  `@todo`, a decorator sharing a line, a runtime that's still used outside decorators, or an
+  already-stripped tree.
+- **While stripped:** `sync`, scaffolding and cleanup refuse, and Hatch builds only check. On
+  your default branch, `release` warns: release from a short-lived branch instead.
 
 ## A committed task list: `report_file`
 

@@ -1487,8 +1487,15 @@ Addendum items are planned, not implemented, until their phase is marked ✅. Ph
 commit time) is done. Phases 4d, 4e and 5 (runtime and normalization: annotation modes,
 `byteplan sync`, `init --runtime-shim`) and 6a (test links, `byteplan tests`, `byteplan verify`
 with evidence, freshness and readiness) 6b (test scaffolding) and 7 (cleanup, for Python, Markdown and JSON annotations) are done. **Phase 8
-comes next.** Finished phases' TODOs now stay in this file until their task is resolved; BytePlan's
-own cleanup (`resolve --sync-source`) removes them.
+is in progress:** part 1 (`release` / `restore`, presence `stripped`, frozen
+behaviour while stripped, refusals, anchored restore and `--partial`) is done; part 2 is the opt-in
+`--smoke-test`, the Hatch `require_stripped` guard, `runtime_dependency_in_release` and
+`unfinished_scaffold_in_sdist`. Finished phases' TODOs stay in this file until their task is
+resolved; BytePlan's own cleanup (`resolve --sync-source`) removes them.
+**Schema note:** the plan below says schema v1 hadn't shipped with real data; it has (0.1.0 and
+0.2.0). Adding presence `stripped` without a version bump means byteplan 0.2 refuses a stripped
+registry with a clear error. That only happens on release commits made by this version, so the
+version stays 1.
 6b deviation: whether a linked test is still a placeholder is computed from source when needed
 (readiness, `check`), not stored as `placeholder: true` on the link, so editing the body is
 all it takes and the registry doesn't churn. Acceptance-criteria hints wait for Phase 6c, and

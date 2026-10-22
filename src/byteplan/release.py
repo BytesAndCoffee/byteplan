@@ -1,0 +1,276 @@
+# SPDX-FileCopyrightText: 2026-present Michael Yazdani <yazdmich@gmail.com>
+#
+# SPDX-License-Identifier: MIT
+"""``byteplan release`` / ``byteplan restore``: strip BytePlan's runtime decorators for a
+release, in place, and put them back.
+
+Stripping removes every recognized ``@todo(...)`` / ``@verifies(...)`` decorator and every
+runtime import left unused by that, as whole lines, and records each one's exact original
+text and position. Tagged ``# TODO[id]`` comments stay: they cost nothing at runtime. The
+stripped file must parse to the same AST once BytePlan's decorators and imports are removed
+from both versions, and must contain no remaining reference to a runtime module.
+
+Restoring re-inserts the recorded lines:
+
+* **Fast path.** If the file still hashes to what stripping wrote, every recorded block goes
+  back at its recorded line, giving the pre-release file byte for byte.
+* **Anchored path.** If the file changed since (a hotfix, a version bump), each decorator is
+  placed by its declaration's qualname and its index in the decorator stack, and each import
+  after its recorded anchor statement. A symbol that's gone or ambiguous is a conflict.
+
+This module only plans text; the caller validates and writes through the journal.
+"""
+
+from __future__ import annotations
+
+import ast
+import warnings
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
+
+from byteplan.edits import header_end
+from byteplan.errors import ByteplanError
+from byteplan.scanner.decorators import resolve_runtime_names
+from byteplan.scanner.stubs import dotted_name
+from byteplan.scanner.symbols import declarations
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from byteplan.scanner.symbols import Declaration
+
+UNTAGGED = "untagged_decorator"
+NEEDS_REVIEW = "release_needs_review"
+STRIPPED = "release_stripped"
+CONFLICT = "restore_conflict"
+
+
+class ReleaseError(ByteplanError):
+    """The release or restore can't be done safely; nothing was written."""
+
+    def __init__(self, code: str, problems: Sequence[str], hint: str | None = None) -> None:
+        lines = "\n".join(f"  {problem}" for problem in problems)
+        super().__init__(f"{code}: nothing was written\n{lines}" + (f"\n  hint: {hint}" if hint else ""))
+        self.code = code
+        self.problems = list(problems)
+        self.hint = hint
+
+
+@dataclass
+class FileStrip:
+    path: str
+    text: str  # after stripping
+    decorators: list[dict[str, Any]] = field(default_factory=list)
+    imports: list[dict[str, Any]] = field(default_factory=list)
+
+
+def _parse(path: str, text: str) -> ast.Module:
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", SyntaxWarning)
+        return ast.parse(text, filename=path)
+
+
+def _lines(text: str) -> list[str]:
+    return text.splitlines(keepends=True)
+
+
+def _block(lines: Sequence[str], first: int, last: int) -> str:
+    return "".join(lines[first - 1 : last])
+
+
+# Stripping -------------------------------------------------------------------------------------
+
+
+def strip_file(path: str, text: str, runtime_modules: Sequence[str]) -> FileStrip | None:
+    """Plan stripping one file, or None if it has nothing of BytePlan's. Raises ``ReleaseError``."""
+    tree = _parse(path, text)
+    names = resolve_runtime_names(tree, runtime_modules)
+    if not names.direct and not names.modules and not names.ambiguous:
+        return None
+    lines = _lines(text)
+    problems: list[str] = []
+    decorators: list[dict[str, Any]] = []
+    for decl in declarations(tree):
+        for index, decorator in enumerate(decl.node.decorator_list):
+            name = dotted_name(decorator)
+            marker = names.resolve(name) if name else None
+            if marker is None:
+                continue
+            if marker == "ambiguous":
+                problems.append(f"{path}:{decorator.lineno}: @{name} may not be BytePlan's (the name is rebound)")
+                continue
+            if "<locals>" in decl.qualname:
+                problems.append(f"{path}:{decorator.lineno}: @{name} on a nested {decl.qualname} can't be anchored")
+                continue
+            first, last = decorator.lineno, decorator.end_lineno or decorator.lineno
+            prefix = lines[first - 1][: decorator.col_offset].strip()
+            suffix = lines[last - 1].rstrip("\r\n").encode()[decorator.end_col_offset or 0 :].decode(errors="replace")
+            if prefix != "@" or (suffix.strip() and not suffix.strip().startswith("#")):
+                problems.append(f"{path}:{first}: @{name} shares its line with other code")
+                continue
+            untagged = isinstance(decorator, ast.Call) and not any(k.arg == "id" for k in decorator.keywords)
+            if marker == "todo" and untagged:
+                raise ReleaseError(UNTAGGED, [f"{path}:{first}: @{name}(...) has no id="], "run `byteplan scan` first")
+            decorators.append(
+                {
+                    "kind": marker,
+                    "task_ids": _task_ids(decorator, marker),
+                    "line": first,
+                    "end_line": last,
+                    "decl_line": decl.node.lineno,
+                    "qualname": decl.qualname,
+                    "index": index,
+                    "text": _block(lines, first, last),
+                }
+            )
+    if problems:
+        raise ReleaseError(NEEDS_REVIEW, problems, "put each decorator on its own lines")
+    if not decorators and not names.direct and not names.modules:
+        return None
+
+    removed_lines = {n for d in decorators for n in range(d["line"], d["end_line"] + 1)}
+    intermediate = "".join(line for number, line in enumerate(lines, start=1) if number not in removed_lines)
+    used = _used_names(_parse(path, intermediate))
+    runtime = set(runtime_modules)
+    imports: list[dict[str, Any]] = []
+    previous: ast.stmt | None = None
+    for stmt in tree.body:
+        locals_ = _runtime_locals(stmt, runtime)
+        if locals_ and not (set(locals_) & used):
+            first, last = stmt.lineno, stmt.end_lineno or stmt.lineno
+            if stmt.col_offset != 0 or lines[last - 1].rstrip("\r\n")[stmt.end_col_offset or 0 :].strip():
+                raise ReleaseError(
+                    NEEDS_REVIEW, [f"{path}:{first}: the runtime import shares its line with other code"]
+                )
+            anchor = lines[previous.lineno - 1].rstrip("\r\n") if previous is not None else None
+            # At the top of the file (or after a blank line), the blank lines below the import
+            # go with it, so the stripped file doesn't start with (or gain) a gap. They're in the
+            # recorded text, so restoring stays exact.
+            preceded_by_blank = first == 1 or not lines[first - 2].strip() or previous is None
+            while (
+                preceded_by_blank and last < len(lines) and not lines[last].strip() and (last + 1) not in removed_lines
+            ):
+                last += 1
+            imports.append({"line": first, "end_line": last, "anchor": anchor, "text": _block(lines, first, last)})
+            removed_lines.update(range(first, last + 1))
+        else:
+            previous = stmt
+
+    stripped = "".join(line for number, line in enumerate(lines, start=1) if number not in removed_lines)
+    leftover = resolve_runtime_names(_parse(path, stripped), runtime_modules)
+    if leftover.direct or leftover.modules:
+        where = sorted({*leftover.direct, *leftover.modules})
+        raise ReleaseError(
+            NEEDS_REVIEW,
+            [f"{path}: the runtime is still used outside decorators ({', '.join(where)})"],
+            "production code would fail to import without byteplan-runtime",
+        )
+    return FileStrip(path, stripped, decorators, imports)
+
+
+def _task_ids(decorator: ast.expr, marker: str) -> list[str]:
+    if not isinstance(decorator, ast.Call):
+        return []
+    if marker == "todo":
+        return [
+            k.value.value
+            for k in decorator.keywords
+            if k.arg == "id" and isinstance(k.value, ast.Constant) and isinstance(k.value.value, str)
+        ]
+    return [a.value for a in decorator.args if isinstance(a, ast.Constant) and isinstance(a.value, str)]
+
+
+def _runtime_locals(stmt: ast.stmt, runtime: set[str]) -> list[str]:
+    """Local names bound by a top-level import of a runtime module (empty if it isn't one)."""
+    if isinstance(stmt, ast.ImportFrom) and stmt.level == 0 and stmt.module in runtime:
+        return [alias.asname or alias.name for alias in stmt.names]
+    if isinstance(stmt, ast.Import) and stmt.names and all(alias.name in runtime for alias in stmt.names):
+        return [(alias.asname or alias.name).split(".")[0] for alias in stmt.names]
+    return []
+
+
+def _used_names(tree: ast.Module) -> set[str]:
+    used = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
+    for node in tree.body:  # names exported through __all__ are used by importers
+        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "__all__" for t in node.targets):
+            used |= {c.value for c in ast.walk(node.value) if isinstance(c, ast.Constant) and isinstance(c.value, str)}
+    return used
+
+
+# Restoring -------------------------------------------------------------------------------------
+
+
+def restore_fast(stripped: str, record: dict[str, Any]) -> str:
+    """Re-insert every recorded block at its recorded line: the exact pre-release text."""
+    blocks = sorted(
+        [(d["line"], d["text"]) for d in record.get("decorators", [])]
+        + [(i["line"], i["text"]) for i in record.get("imports", [])]
+    )
+    lines = _lines(stripped)
+    for line, block in blocks:  # ascending: each block's own lines restore the original numbering
+        lines[line - 1 : line - 1] = _lines(block)
+    return "".join(lines)
+
+
+def restore_anchored(path: str, text: str, record: dict[str, Any]) -> tuple[str, list[str], dict[str, Any]]:
+    """Place each recorded block through the AST. Returns the new text, the conflicts, and
+    the record entries that couldn't be placed (empty when everything went back)."""
+    conflicts: list[str] = []
+    left_decorators: list[dict[str, Any]] = []
+    left_imports: list[dict[str, Any]] = []
+
+    by_decl: dict[str, list[dict[str, Any]]] = {}
+    for entry in record.get("decorators", []):
+        by_decl.setdefault(entry["qualname"], []).append(entry)
+    for qualname, entries in by_decl.items():
+        for entry in sorted(entries, key=lambda e: e["index"]):
+            matches = [d for d in declarations(_parse(path, text)) if d.qualname == qualname]
+            if len(matches) != 1:
+                why = "no longer exists" if not matches else "is ambiguous"
+                conflicts.append(
+                    f"{path}: {qualname} {why}; can't place @{entry['kind']} (line {entry['line']} before)"
+                )
+                left_decorators.append(entry)
+                continue
+            text = _insert_decorator(text, matches[0], entry)
+
+    for entry in sorted(record.get("imports", []), key=lambda e: e["line"]):
+        placed = _insert_import(path, text, entry)
+        if placed is None:
+            conflicts.append(f"{path}: the statement before `{entry['text'].strip()}` is gone; can't place it")
+            left_imports.append(entry)
+        else:
+            text = placed
+    remaining = {"decorators": left_decorators, "imports": left_imports} if left_decorators or left_imports else {}
+    return text, conflicts, remaining
+
+
+def _insert_decorator(text: str, decl: Declaration, entry: dict[str, Any]) -> str:
+    lines = _lines(text)
+    stack = decl.node.decorator_list
+    line = stack[entry["index"]].lineno if entry["index"] < len(stack) else decl.node.lineno
+    if entry["index"] >= len(stack) and stack:
+        line = decl.node.lineno  # after every remaining decorator, right above the def
+    block = entry["text"]
+    old_indent = block[: len(block) - len(block.lstrip(" \t"))]
+    new_indent = lines[decl.node.lineno - 1][: decl.col]
+    if old_indent != new_indent:  # the declaration moved in or out: re-indent the block
+        block = "".join(
+            new_indent + part[len(old_indent) :] if part.startswith(old_indent) else part for part in _lines(block)
+        )
+    lines[line - 1 : line - 1] = [block]
+    return "".join(lines)
+
+
+def _insert_import(path: str, text: str, entry: dict[str, Any]) -> str | None:
+    lines = _lines(text)
+    tree = _parse(path, text)
+    if entry["anchor"] is None:
+        at = header_end(lines)
+    else:
+        anchors = [s for s in tree.body if lines[s.lineno - 1].rstrip("\r\n") == entry["anchor"]]
+        if len(anchors) != 1:
+            return None
+        at = anchors[0].end_lineno or anchors[0].lineno
+    lines[at:at] = [entry["text"]]
+    return "".join(lines)

@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any
 
 import pathspec
 
-from byteplan import cleanup, normalize, reporting, scaffold, verification
+from byteplan import cleanup, gitio, normalize, release, reporting, scaffold, verification
 from byteplan import registry as registry_io
 from byteplan.annotate import annotate
 from byteplan.config import (
@@ -124,6 +124,30 @@ class ScaffoldResult:
     existing: tuple[str, ...] = ()  # already-linked tests (then nothing was written)
     dry_run: bool = False
     text: str = ""  # the planned file text
+    written: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class ReleaseReport:
+    version: str
+    files: tuple[str, ...]
+    decorators: int
+    imports: int
+    tasks: tuple[str, ...]  # task IDs now `stripped`
+    dry_run: bool = False
+    warnings: tuple[Diagnostic, ...] = ()
+    written: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class RestoreReport:
+    files: tuple[str, ...]
+    decorators: int
+    imports: int
+    tasks: tuple[str, ...]  # task IDs back to `present`
+    conflicts: tuple[str, ...] = ()
+    partial: bool = False  # some entries stay on record
+    dry_run: bool = False
     written: tuple[str, ...] = ()
 
 
@@ -428,7 +452,19 @@ class Project:
         scope_matcher = matcher or ScopeMatcher(self.config)
         # Links from the final (annotated) scans: inserted lines move the decorators below them.
         links = [link for path in scope.files for link in scans[path].links]
-        _apply_discovered_tests(new_registry, observed, links, scope)
+        stripped = self.stripped_release(registry)
+        if stripped is None:
+            _apply_discovered_tests(new_registry, observed, links, scope)
+        else:  # the @todo(tests=)/@verifies links are on record, not in source: keep them as they were
+            diagnostics.append(
+                Diagnostic(
+                    Code.RELEASE_STRIPPED,
+                    Severity.INFO,
+                    f"the tree is stripped for release {stripped.get('version')}: "
+                    f"{sum(1 for t in new_registry.tasks.values() if t.presence is Presence.STRIPPED)} task(s) on record",
+                    hint="`byteplan restore` puts the decorators back",
+                )
+            )
         diagnostics.extend(self._test_link_diagnostics(new_registry, observed, scope_matcher))
         diagnostics.extend(self._missing_diagnostics(new_registry))
         diagnostics.extend(_link_diagnostics(links, new_registry))
@@ -865,6 +901,8 @@ class Project:
         If the task already has linked tests, nothing is written (unless ``force_new``).
         Raises ``ScaffoldError`` when it can't be done safely.
         """
+        if not dry_run:
+            self._refuse_while_stripped("tests scaffold")
         settings = self.config.tests.scaffold
         policy = policy or settings.policy
         link_style = link_style or settings.link_style
@@ -1000,6 +1038,226 @@ class Project:
                 found.append((task, state))
         return found
 
+    # Release stripping (`byteplan release` / `byteplan restore`) ---------------------------
+
+    def stripped_release(self, registry: Registry | None = None) -> dict[str, Any] | None:
+        """The registry's ``release`` block while the tree is stripped for a release."""
+        block = (registry or self.load_registry()).extra.get("release")
+        return block if isinstance(block, dict) and block.get("state") == "stripped" else None
+
+    def _refuse_while_stripped(self, command: str) -> None:
+        block = self.stripped_release()
+        if block is not None:
+            raise release.ReleaseError(
+                release.STRIPPED,
+                [f"the tree is stripped for release {block.get('version')}; `{command}` would edit stripped source"],
+                "run `byteplan restore` first (or switch back to your development branch)",
+            )
+
+    def release_version(self, override: str | None) -> str:
+        if override:
+            return override
+        pyproject = read_pyproject(self.root)
+        project = pyproject.get("project", {})
+        if isinstance(project.get("version"), str):
+            return str(project["version"])
+        source = pyproject.get("tool", {}).get("hatch", {}).get("version", {}).get("path")
+        if "version" in project.get("dynamic", []) and isinstance(source, str):
+            text = (_read_bytes(self.root / source) or b"").decode("utf-8", "replace")
+            match = re.search(r"""__version__\s*=\s*["']([^"']+)["']""", text)
+            if match:
+                return match.group(1)
+        msg = "can't tell the version; pass --version"
+        raise ConfigError(msg)
+
+    def release(self, version: str | None = None, *, dry_run: bool = False, allow_dirty: bool = False) -> ReleaseReport:
+        """Strip BytePlan's runtime decorators and imports in place, recording each one.
+
+        Never commits, tags, builds or resets, and never changes a task's status. Refuses (with
+        nothing written) on a dirty tree, a pending journal, a blocked scan, an untagged
+        ``@todo``, a decorator sharing a line, leftover runtime references, or an
+        already-stripped tree.
+        """
+        version = self.release_version(version)
+        context = contextlib.nullcontext(()) if dry_run else self._writing()
+        with context:
+            registry_hash, registry = self._read_registry()
+            block = self.stripped_release(registry)
+            if block is not None:
+                raise release.ReleaseError(release.STRIPPED, [f"already stripped for release {block.get('version')}"])
+            if pending_journal(self.root):
+                raise release.ReleaseError(
+                    release.NEEDS_REVIEW, ["an interrupted write is pending"], "run `byteplan scan` to finish it"
+                )
+            head, dirty = verification.git_state(self.root)
+            if dirty and not allow_dirty:
+                raise release.ReleaseError(
+                    release.NEEDS_REVIEW,
+                    ["the Git tree has uncommitted changes"],
+                    "commit or stash them so the strip is the only change, or pass --allow-dirty",
+                )
+            preview = self._scan(None, None, dry_run=True, recovered=())
+            untagged = [p.tag for p in preview.proposals if p.tag.representation is Representation.DECORATOR]
+            if preview.blocked or untagged:
+                problems = [f"{t.location}: @todo(...) has no id=" for t in untagged] or [
+                    "the scan has blocking diagnostics"
+                ]
+                raise release.ReleaseError(
+                    release.UNTAGGED if untagged else release.NEEDS_REVIEW, problems, "run `byteplan scan` first"
+                )
+
+            runtime_modules = self.config.annotations.runtime_modules
+            files: dict[str, Any] = {}
+            writes: list[FileWrite] = []
+            stripped_tasks: dict[str, list[dict[str, Any]]] = defaultdict(list)
+            for path in preview.scope.files:
+                if language_for(path) is not Language.PYTHON:
+                    continue
+                source = read_source(self.root, path)
+                plan = release.strip_file(path, source.text, runtime_modules)
+                if plan is None or (not plan.decorators and not plan.imports):
+                    continue
+                normalize.ensure_equivalent_without_runtime(
+                    path, source.text, plan.text, runtime_modules, everything=True
+                )
+                data = dataclasses.replace(source, text=plan.text).encode()
+                files[path] = {"sha256": sha256(data), "decorators": plan.decorators, "imports": plan.imports}
+                writes.append(FileWrite(path, sha256(source.encode()), data))
+                for entry in plan.decorators:
+                    if entry["kind"] == "todo":
+                        for task_id in entry["task_ids"]:
+                            stripped_tasks[task_id].append(
+                                {k: entry[k] for k in ("line", "decl_line", "qualname", "index")} | {"path": path}
+                            )
+
+            now = self.clock()
+            for task_id, entries in stripped_tasks.items():
+                task = registry.tasks.get(task_id)
+                if task is None:
+                    continue
+                task.extra["stripped"] = entries
+                task.history.append(HistoryEvent("stripped_for_release", now, old=str(task.presence), new=version))
+                task.presence = Presence.STRIPPED
+            registry.extra["release"] = {"state": "stripped", "version": version, "stripped_at": now, "files": files}
+            writes.extend(self._registry_writes(registry_hash, registry))
+            warnings = [self._default_branch_warning()] if head is not None else []
+            written = () if dry_run else tuple(commit(self.root, writes))
+            return ReleaseReport(
+                version,
+                tuple(sorted(files)),
+                sum(len(f["decorators"]) for f in files.values()),
+                sum(len(f["imports"]) for f in files.values()),
+                tuple(sorted(stripped_tasks)),
+                dry_run,
+                tuple(w for w in warnings if w is not None),
+                written,
+            )
+
+    def _default_branch_warning(self) -> Diagnostic | None:
+        try:
+            branch = gitio.git(["symbolic-ref", "--quiet", "--short", "HEAD"], self.root).strip()
+        except ConfigError:
+            return None
+        try:
+            default = gitio.git(["symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD"], self.root).strip()
+            default = default.removeprefix("origin/")
+        except ConfigError:
+            default = ""
+        if branch not in {default, "main", "master"} - {""}:
+            return None
+        return Diagnostic(
+            Code.RELEASE_ON_DEFAULT_BRANCH,
+            Severity.WARNING,
+            f"releasing on {branch}: the strip will sit on your development branch",
+            hint="release from a short-lived branch (`git switch -c release/<version>`) and switch back after",
+        )
+
+    def restore(self, *, dry_run: bool = False, partial: bool = False) -> RestoreReport:
+        """Put every recorded decorator and import back (see ``release``).
+
+        A file that still hashes to its stripped content is restored byte for byte; a changed
+        one by AST anchors. Unplaceable entries are ``restore_conflict``: nothing is written,
+        unless ``partial``, which restores the rest and keeps those on record.
+        """
+        context = contextlib.nullcontext(()) if dry_run else self._writing()
+        with context:
+            registry_hash, registry = self._read_registry()
+            block = self.stripped_release(registry)
+            if block is None:
+                raise release.ReleaseError(release.STRIPPED, ["the tree isn't stripped for a release"])
+            runtime_modules = self.config.annotations.runtime_modules
+            conflicts: list[str] = []
+            writes: list[FileWrite] = []
+            remaining: dict[str, Any] = {}
+            restored_decorators: list[dict[str, Any]] = []
+            restored_imports = 0
+            for path, record in sorted(block.get("files", {}).items()):
+                current = _read_bytes(self.root / path)
+                if current is None:
+                    conflicts.append(f"{path} no longer exists")
+                    remaining[path] = record
+                    continue
+                source = decode_source(path, current)
+                left: dict[str, Any] = {}
+                if sha256(current) == record.get("sha256"):
+                    text = release.restore_fast(source.text, record)
+                else:
+                    text, file_conflicts, left = release.restore_anchored(path, source.text, record)
+                    conflicts += file_conflicts
+                normalize.ensure_equivalent_without_runtime(path, source.text, text, runtime_modules, everything=True)
+                if left:
+                    remaining[path] = {**record, **left}
+                placed = [d for d in record.get("decorators", []) if d not in left.get("decorators", [])]
+                restored_decorators += placed
+                restored_imports += len(record.get("imports", [])) - len(left.get("imports", []))
+                writes.append(FileWrite(path, sha256(current), dataclasses.replace(source, text=text).encode()))
+            if conflicts and not partial:
+                raise release.ReleaseError(release.CONFLICT, conflicts, "fix the code, or `byteplan restore --partial`")
+
+            now = self.clock()
+            back = sorted({task_id for d in restored_decorators if d["kind"] == "todo" for task_id in d["task_ids"]})
+            still = {
+                task_id
+                for r in remaining.values()
+                for d in r.get("decorators", [])
+                if d["kind"] == "todo"
+                for task_id in d["task_ids"]
+            }
+            for task_id in back:
+                task = registry.tasks.get(task_id)
+                if task is None or task_id in still:
+                    continue
+                task.extra.pop("stripped", None)
+                task.presence = Presence.PRESENT
+                task.history.append(HistoryEvent("restored", now, new=block.get("version")))
+            if remaining:
+                registry.extra["release"] = {**block, "files": remaining}
+            else:
+                history = list(registry.extra.get("releases", []))
+                history.append(
+                    {
+                        "version": block.get("version"),
+                        "stripped_at": block.get("stripped_at"),
+                        "restored_at": now,
+                        "decorators": sum(len(f.get("decorators", [])) for f in block.get("files", {}).values()),
+                        "imports": sum(len(f.get("imports", [])) for f in block.get("files", {}).values()),
+                    }
+                )
+                registry.extra["releases"] = history[-20:]
+                registry.extra.pop("release", None)
+            writes.extend(self._registry_writes(registry_hash, registry))
+            written = () if dry_run else tuple(commit(self.root, writes))
+            return RestoreReport(
+                tuple(sorted({w.path for w in writes if w.path not in {self.registry_rel, self.report_rel}})),
+                len(restored_decorators),
+                restored_imports,
+                tuple(back),
+                tuple(conflicts),
+                bool(remaining),
+                dry_run,
+                written,
+            )
+
     # Cleanup (`byteplan sync --remove-resolved`, `resolve --sync-source`) -----------------
 
     def cleanup(
@@ -1012,6 +1270,8 @@ class Project:
         tasks minus the removed ones. The registry keeps the ID, the last source reference and
         the history, and logs ``cleaned`` (or ``suppressed``).
         """
+        if not dry_run:
+            self._refuse_while_stripped("sync --remove-resolved")
         context = contextlib.nullcontext(()) if dry_run else self._writing()
         with context:
             preview = self._scan(None, None, dry_run=True, recovered=())
@@ -1134,6 +1394,8 @@ class Project:
         one of ``convert_attached_comments`` / ``auto_decorate_stubs`` is on. The tree must be
         scanned first (no untagged annotations, no duplicate IDs).
         """
+        if not dry_run:
+            self._refuse_while_stripped("sync")
         settings = self.config.annotations
         if settings.mode != "decorator" or not (settings.convert_attached_comments or settings.auto_decorate_stubs):
             reason = (

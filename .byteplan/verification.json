@@ -55,10 +55,66 @@
       "head": "810be50170de5d49654d6a03a700a9c0f810f24a",
       "python": "3.11.0",
       "timed_out": false
+    },
+    "ec0815cd0105": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T19:29:52Z",
+      "dirty": true,
+      "head": "1a54e2b9b4b20ace99215f39a1563f83025dc494",
+      "python": "3.11.0",
+      "timed_out": false
     }
   },
   "schema_version": 1,
   "tasks": {
+    "0413": {
+      "fingerprint": "7d7d10d0d6cae78c9867a9f75eaacbb0febfe5f19bcb8746b1a482f8d1f50a79",
+      "run": "ec0815cd0105",
+      "tests": {
+        "tests/test_release.py::test_crash_mid_release_rolls_forward": {
+          "duration_ms": 299,
+          "outcome": "passed"
+        },
+        "tests/test_release.py::test_refusals_write_nothing": {
+          "duration_ms": 317,
+          "outcome": "passed"
+        },
+        "tests/test_release.py::test_release_strips_only_decorators_imports_and_the_registry": {
+          "duration_ms": 150,
+          "outcome": "passed"
+        },
+        "tests/test_release.py::test_release_then_restore_is_byte_identical": {
+          "duration_ms": 1568,
+          "outcome": "passed"
+        },
+        "tests/test_release.py::test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record": {
+          "duration_ms": 111,
+          "outcome": "passed"
+        },
+        "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast": {
+          "duration_ms": 110,
+          "outcome": "passed"
+        },
+        "tests/test_release.py::test_stripped_tree_imports_without_the_runtime": {
+          "duration_ms": 223,
+          "outcome": "passed"
+        },
+        "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen": {
+          "duration_ms": 142,
+          "outcome": "passed"
+        },
+        "tests/test_release.py::test_writing_commands_refuse_while_stripped": {
+          "duration_ms": 126,
+          "outcome": "passed"
+        }
+      }
+    },
     "14ff": {
       "fingerprint": "6d8ab6f1e34696f16fd00c55085aff334462cfdd16ffd03b7cbcc4086c35175e",
       "run": "e4e6fd13169c",

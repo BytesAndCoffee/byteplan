@@ -5,6 +5,21 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+### Releases (Phase 8, part 1)
+- **`byteplan release`** strips every recognized `@todo`/`@verifies` decorator, and the runtime
+  imports left unused, in place.
+  - Records: each one's exact text and position go in the registry.
+  - Never: commit, tag, build or reset.
+  - Refusals: a dirty tree, untagged decorators, shared lines, leftover runtime references, or an
+    already-stripped tree.
+  - Warning: releasing on the default branch.
+- **`byteplan restore`** puts everything back: byte-identical when unchanged, AST-anchored after
+  hotfixes. `restore_conflict` and `--partial` handle anything it can't place.
+- **Presence `stripped`:** tasks are on record during a release, never `missing`, and their test
+  links are frozen. `sync`, scaffolding and cleanup refuse while stripped.
+  - Note: byteplan 0.2 can't read a stripped registry (unknown presence). This only arises on
+    release commits made with this version.
+
 ### Cleanup (Phase 7)
 - **`byteplan sync --remove-resolved`** and **`byteplan resolve ID --sync-source`** remove the
   source annotations of resolved and dismissed tasks.
