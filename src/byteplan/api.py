@@ -1137,7 +1137,8 @@ class Project:
             for path in python:
                 source = sources[path]
                 imported_here = {
-                    name: users - {path} for name, users in consumers.get(release.module_name(path), {}).items()
+                    name: users - {path}
+                    for name, users in release.consumers_of(consumers, release.module_name(path)).items()
                 }
                 plan = release.strip_file(
                     path, source.text, runtime_modules, {n: u for n, u in imported_here.items() if u}

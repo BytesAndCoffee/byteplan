@@ -780,3 +780,27 @@ def test_dotted_module_escape_keeps_its_runtime_names(released_repo: ProjectFact
     assert result.code == EXIT_ERROR
     assert "imported from this module by src/pkg/consumer.py" in result.err
     assert released_repo.snapshot() == before
+
+
+# Codex review of #32, round 11 ---------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "consumer",
+    [
+        "import pkg.reexport\n\nalias = pkg\nVALUE = alias.reexport.todo\n",
+        "import pkg\nimport pkg.reexport\n\nVALUE = getattr(pkg, 'reexport').todo\n",
+    ],
+)
+def test_escaping_package_exposes_its_submodules(released_repo: ProjectFactory, run_cli: RunCli, consumer: str) -> None:
+    """Once a package escapes, any submodule imported under it is reachable through it."""
+    released_repo.write("src/pkg/__init__.py", "", dedent=False)
+    released_repo.write("src/pkg/reexport.py", "from byteplan_runtime import todo as todo\n", dedent=False)
+    released_repo.write("src/pkg/consumer.py", consumer, dedent=False)
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "package escape")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert "imported from this module by src/pkg/consumer.py" in result.err
+    assert released_repo.snapshot() == before

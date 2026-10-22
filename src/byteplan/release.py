@@ -268,6 +268,9 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
                         modules.setdefault(alias.asname or alias.name, set()).add(f"{base}.{alias.name}".strip("."))
             elif isinstance(node, ast.Import):
                 for alias in node.names:
+                    # FIXME[4518]: An escaping package exposes every submodule imported under it
+                    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353601498
+                    #   `import pkg.reexport; alias = pkg` reached pkg.reexport.todo unseen.
                     local = alias.asname or alias.name.split(".")[0]
                     modules.setdefault(local, set()).add(alias.name if alias.asname else local)
         # FIXME[8b28]: Treat an imported module that escapes attribute access as consuming all its names
@@ -301,6 +304,19 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
 # FIXME[cc54]: Detect a runtime module imported through its parent package
 #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353302177
 #   `from byteplan import _todo` imports runtime module byteplan._todo but wasn't recognized.
+def consumers_of(index: dict[str, dict[str, set[str]]], module: str) -> dict[str, set[str]]:
+    """Who consumes which names of ``module``: direct imports and accesses, plus every escape
+    (``"*"``) of ``module`` or of a package above it, since an escaped package reaches any
+    submodule imported under it."""
+    found = {name: set(users) for name, users in index.get(module, {}).items()}
+    parts = module.split(".")
+    for depth in range(1, len(parts)):
+        escaped = index.get(".".join(parts[:depth]), {}).get("*", set())
+        if escaped:
+            found.setdefault("*", set()).update(escaped)
+    return found
+
+
 def _runtime_imports(tree: ast.Module, runtime: set[str], package: str) -> list[ast.Import | ast.ImportFrom]:
     """Every import of a runtime module, at any depth, whatever it imports, including a
     runtime module imported through its parent package (``from pkg import _bp``)."""
