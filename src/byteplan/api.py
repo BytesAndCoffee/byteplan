@@ -915,15 +915,27 @@ class Project:
     def _scaffold_path(self, task: Task, override: str | None, scope: Scope) -> str:
         matcher = ScopeMatcher(self.config)
         if override is not None:
-            resolved = (self.root / override).resolve()
-            if not resolved.is_relative_to(self.root.resolve()) or resolved.suffix != ".py":
-                raise scaffold.ScaffoldError(
-                    scaffold.NEEDS_PATH, f"--path {override!r} must be a .py file inside the project"
-                )
-            rel = resolved.relative_to(self.root.resolve()).as_posix()
+            path = Path(os.path.normpath(self.root / override))
         else:
             python = [p for p in scope.files if language_for(p) is Language.PYTHON]
-            rel = scaffold.target_path(task, self.config.tests.scaffold, python)
+            path = self.root / scaffold.target_path(task, self.config.tests.scaffold, python)
+        # The same rules for the default path as for --path: inside the project, a .py file,
+        # and reachable by scans, which never follow symlinks.
+        where = f"--path {override!r}" if override is not None else Path(os.path.relpath(path, self.root)).as_posix()
+        if not path.is_relative_to(self.root) or path.suffix != ".py":
+            raise scaffold.ScaffoldError(scaffold.NEEDS_PATH, f"{where} must be a .py file inside the project")
+        rel = path.relative_to(self.root).as_posix()
+        current = self.root
+        for part in rel.split("/"):
+            current /= part
+            if current.is_symlink():
+                raise scaffold.ScaffoldError(
+                    scaffold.NEEDS_PATH,
+                    f"{rel} goes through the symlink {current.relative_to(self.root).as_posix()}, which scans don't follow",
+                    "pass --path to a real directory in the project",
+                )
+        if not (self.root / rel).resolve().is_relative_to(self.root.resolve()):
+            raise scaffold.ScaffoldError(scaffold.NEEDS_PATH, f"{rel} resolves outside the project")
         if not matcher.contains(rel):
             raise scaffold.ScaffoldError(
                 scaffold.NEEDS_PATH,

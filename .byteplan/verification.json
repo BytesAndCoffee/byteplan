@@ -13,56 +13,70 @@
       "head": "b03126398e9ed163303792d34c25c3af0b69b000",
       "python": "3.11.0",
       "timed_out": false
+    },
+    "c6c988fe2179": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T18:19:36Z",
+      "dirty": true,
+      "head": "d32feb014973cc62f301b21da5f7f7a676fbffa4",
+      "python": "3.11.0",
+      "timed_out": false
     }
   },
   "schema_version": 1,
   "tasks": {
     "2887": {
-      "fingerprint": "a99b426a5eab957cd1b8a80d72c135d2866169c5bc1c1289573d95e5670fd5c1",
-      "run": "64043655efb3",
+      "fingerprint": "90d404f34f6f6cbd44211f28bbe34dd4e2eeac4b76b06fc91fc1b412667e501c",
+      "run": "c6c988fe2179",
       "tests": {
         "tests/test_scaffold.py::test_appends_without_touching_existing_code": {
-          "duration_ms": 13,
+          "duration_ms": 12,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_async_tests_only_with_a_plugin": {
-          "duration_ms": 13,
+          "duration_ms": 11,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_crash_recovers_through_the_journal": {
-          "duration_ms": 27,
+          "duration_ms": 24,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_dry_run_writes_nothing": {
-          "duration_ms": 14,
+          "duration_ms": 12,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_line_shift_keeps_one_link": {
-          "duration_ms": 23,
+          "duration_ms": 19,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_placeholder_is_never_ready_until_implemented": {
-          "duration_ms": 25,
+          "duration_ms": 19,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_policies_never_pass": {
-          "duration_ms": 379,
+          "duration_ms": 310,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_rerun_reports_the_existing_test": {
-          "duration_ms": 22,
+          "duration_ms": 20,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_scaffold_creates_a_failing_bound_test": {
-          "duration_ms": 208,
+          "duration_ms": 173,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_templates_by_target_kind": {
-          "duration_ms": 83,
+          "duration_ms": 68,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_verify_never_counts_a_placeholder": {
-          "duration_ms": 210,
+          "duration_ms": 170,
           "outcome": "passed"
         }
       }

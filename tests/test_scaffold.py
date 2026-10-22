@@ -445,3 +445,47 @@ def test_placeholder_detection() -> None:
     )
     assert placeholder_nodes("t.py", text) == {"t.py::test_a", "t.py::TestC::test_d"}
     assert placeholder_nodes("t.py", "def broken(:\n") == set()
+
+
+# Codex review of #28 -------------------------------------------------------------------------------
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="symlinks need privileges on Windows")
+@pytest.mark.parametrize("outside", [True, False])
+def test_symlinked_default_directory_is_refused(
+    routed: ProjectFactory,
+    run_cli: RunCli,
+    tmp_path: Any,
+    outside: bool,  # noqa: FBT001 - pytest parameter
+) -> None:
+    real = tmp_path / "elsewhere" if outside else routed.root / "real_tests"
+    real.mkdir()
+    (routed.root / "tests").symlink_to(real, target_is_directory=True)
+    before = routed.snapshot()
+    result = run_cli(
+        "tests",
+        "scaffold",
+        task_by_title(routed, "Plain function")["id"],
+        "--link",
+        "managed",
+        "--project",
+        routed.root,
+    )
+    assert result.code == EXIT_ERROR
+    assert "goes through the symlink tests, which scans don't follow" in result.err
+    assert list(real.iterdir()) == []
+    assert routed.snapshot() == before
+
+
+def test_imports_go_below_an_encoding_cookie(routed: ProjectFactory, run_cli: RunCli) -> None:
+    original = "# -*- coding: latin-1 -*-\n\n\ndef test_caf\xe9_name():\n    assert '\xe9'\n".encode("latin-1")
+    routed.write("tests/test_routing.py", original)
+    scaffold(routed, run_cli, task_by_title(routed, "Plain function")["id"])
+    raw = (routed.root / "tests/test_routing.py").read_bytes()
+    assert raw.startswith(b"# -*- coding: latin-1 -*-\nimport pytest\nfrom byteplan_runtime import verifies\n")
+    assert b"'\xe9'" in raw  # still latin-1
+    code, out = pytest_outcome(routed, "tests/test_routing.py")
+    assert "SyntaxError" not in out
+    assert "1 passed" in out
+    assert "1 failed" in out
+    assert code == 1

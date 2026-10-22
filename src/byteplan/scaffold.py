@@ -28,6 +28,7 @@ import warnings
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from byteplan.edits import header_end
 from byteplan.errors import ByteplanError, EditError
 from byteplan.models import AttachmentKind
 
@@ -246,7 +247,8 @@ def _import_offset(tree: ast.Module, lines: Sequence[str]) -> int:
     while index < len(body) and isinstance(body[index], ast.Import | ast.ImportFrom):
         position = body[index].end_lineno or position
         index += 1
-    return min(position, len(lines))
+    # Never above a shebang or encoding cookie: Python only honours a cookie on line 1 or 2.
+    return min(max(position, header_end(lines)), len(lines))
 
 
 def plan(
