@@ -103,7 +103,8 @@ class Store:
 
     def put(self, entries: Iterable[tuple[str, dict[str, Any], str]]) -> None:
         """Insert or replace (task ID, payload, archived_at) rows. ``payload`` is
-        ``{"task": record, "evidence": ...}``; the row's hash is the task record's."""
+        ``{"task": record, "evidence": ..., "run": ...}`` (the evidence's run
+        metadata); the row's hash is the task record's."""
         with self._connect() as connection:
             connection.executemany(
                 "INSERT OR REPLACE INTO tasks (id, sha256, archived_at, record) VALUES (?, ?, ?, ?)",

@@ -14,6 +14,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "2b81a3e16b1d": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T22:58:34Z",
+      "dirty": true,
+      "head": "c3f389b6f2025204737c9ead8a58d11447543859",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "64043655efb3": {
       "argv": [
         "hatch",
@@ -257,6 +271,16 @@
         }
       }
     },
+    "181f": {
+      "fingerprint": "e52525214b1f51a8b7308c7777d000343025fede8f204b8a70a57b2a1172c8e2",
+      "run": "2b81a3e16b1d",
+      "tests": {
+        "tests/test_archive.py::test_reconcile_follows_merged_branches_full_history": {
+          "duration_ms": 157,
+          "outcome": "passed"
+        }
+      }
+    },
     "205d": {
       "fingerprint": "512a31da49996f58909edfb33042007d1b0aed7350b7348827f08990c330fd34",
       "run": "7d4f28e5d140",
@@ -387,6 +411,16 @@
         }
       }
     },
+    "71c4": {
+      "fingerprint": "e52525214b1f51a8b7308c7777d000343025fede8f204b8a70a57b2a1172c8e2",
+      "run": "2b81a3e16b1d",
+      "tests": {
+        "tests/test_archive.py::test_restore_brings_back_the_evidence_run": {
+          "duration_ms": 108,
+          "outcome": "passed"
+        }
+      }
+    },
     "82b3": {
       "fingerprint": "207bc550c5d74697432a873a65c849286642cce7c7b6b5fe9e0f76b69ca2f5f0",
       "run": "bac7c95f5a71",
@@ -417,6 +451,16 @@
         },
         "tests/test_normalize.py::test_rewritten_module_behaves_identically": {
           "duration_ms": 15,
+          "outcome": "passed"
+        }
+      }
+    },
+    "86e1": {
+      "fingerprint": "e52525214b1f51a8b7308c7777d000343025fede8f204b8a70a57b2a1172c8e2",
+      "run": "2b81a3e16b1d",
+      "tests": {
+        "tests/test_archive.py::test_a_stale_local_row_is_reconciled_against_the_index": {
+          "duration_ms": 129,
           "outcome": "passed"
         }
       }

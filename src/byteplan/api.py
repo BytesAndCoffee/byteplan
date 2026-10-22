@@ -843,14 +843,15 @@ class Project:
 
     def archived_task(self, task_id: str) -> Task | None:
         """An archived task, from the local store (reconciled from Git history if needed)."""
-        if task_id not in self.archive_index().tasks:
+        entry = self.archive_index().tasks.get(task_id)
+        if entry is None:
             return None
         store = archive.Store(self.root / STATE_DIR)
         payload = store.get(task_id)
-        if payload is None:
-            self.reconcile_archive()
+        if payload is None or archive.record_hash(payload["task"]) != entry["sha256"]:
+            self.reconcile_archive()  # a row from another archive of this task counts as a miss
             payload = store.get(task_id)
-        if payload is None:
+        if payload is None or archive.record_hash(payload["task"]) != entry["sha256"]:
             msg = f"task {task_id} is archived, but its record isn't in this clone's Git history"
             raise ConfigError(msg)
         wrapper = {"schema_version": 1, "reserved_ids": [task_id], "tasks": {task_id: payload["task"]}}
@@ -886,7 +887,9 @@ class Project:
             for task_id in chosen:
                 task = registry.tasks.pop(task_id)
                 record = registry_io.task_to_dict(task)
-                rows.append((task_id, {"task": record, "evidence": evidence.tasks.pop(task_id, None)}, now))
+                kept = evidence.tasks.pop(task_id, None)
+                run = evidence.runs.get(str(kept.get("run"))) if kept else None
+                rows.append((task_id, {"task": record, "evidence": kept, "run": run}, now))
                 index.tasks[task_id] = archive.entry(task, record, now)
             # The local store first: if the JSON writes are interrupted, it just holds extra rows.
             archive.Store(self.root / STATE_DIR).put(rows)
@@ -946,6 +949,9 @@ class Project:
                 evidence = verification.Evidence.load(self.root)
                 evidence_before = _read_bytes(self.root / verification.STORE)
                 evidence.tasks[task_id] = payload["evidence"]
+                run_id = payload["evidence"].get("run")
+                if payload.get("run") is not None and run_id not in evidence.runs:
+                    evidence.runs[run_id] = payload["run"]
                 before = None if evidence_before is None else sha256(evidence_before)
                 writes.append(FileWrite(verification.STORE, before, evidence.dumps()))
             writes.extend(self._registry_writes(registry_hash, registry))
@@ -961,7 +967,9 @@ class Project:
         if not wanted:
             return ReconcileReport((), (), len(index.tasks))
         try:
-            commits = gitio.git(["log", "--format=%H", "--", self.registry_rel], self.root).split()
+            # --full-history: a merge whose registry matches one parent must not hide the other's.
+            log = ["log", "--full-history", "--format=%H", "--", self.registry_rel]
+            commits = gitio.git(log, self.root).split()
         except ConfigError:
             commits = []
 

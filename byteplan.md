@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**9 open** · 33 closed (resolved 33)
+**9 open** · 36 closed (resolved 36)
 
 ## Open
 
@@ -27,6 +27,7 @@
 | `0b12` | resolved | FIXME | relative find_links paths resolve against the scratch dir, not the project root |
 | `0c28` | resolved | FIXME | Don't count @pytest.mark.byteplan links as decorators that need stripping |
 | `14ff` | resolved | TODO | Phase 7: cleanup |
+| `181f` | resolved | FIXME | history simplification skips merged branches' intermediate registry records |
 | `205d` | resolved | FIXME | Check for a pending journal before the write context recovers it |
 | `2533` | resolved | FIXME | Keep every module an import alias may refer to, across scopes |
 | `2887` | resolved | TODO | Phase 6b: test scaffolding |
@@ -37,7 +38,9 @@
 | `4fb5` | resolved | TODO | Update the status line for the next release |
 | `6639` | resolved | FIXME | Keep runtime imports that __all__ re-exports |
 | `6b83` | resolved | FIXME | Keep sync's top-level JSON fields when only cleanup runs |
+| `71c4` | resolved | FIXME | the evidence's run metadata isn't archived, so a restore loses it |
 | `82b3` | resolved | TODO | Phase 5: runtime and normalization |
+| `86e1` | resolved | FIXME | a cached row isn't checked against the index's sha256, so a stale record is returned |
 | `8b28` | resolved | FIXME | Treat an imported module that escapes attribute access as consuming all its names |
 | `90c6` | resolved | FIXME | Don't propose stub tasks for declarations whose @todo is stripped for a release |
 | `9185` | resolved | FIXME | Keep the space between words around an inline Markdown comment |

@@ -247,3 +247,44 @@ def test_an_archived_id_back_in_source_says_so(repo: ProjectFactory, run_cli: Ru
     assert task_id not in json.loads((repo.root / ".byteplan/archive.json").read_text())["tasks"]
     assert "STALE_ANNOTATION" in run_cli("check", "--project", repo.root).err
     assert run_cli("archive", "--restore", task_id, "--project", repo.root).code != EXIT_OK
+
+
+def test_reconcile_follows_merged_branches_full_history(repo: ProjectFactory, run_cli: RunCli) -> None:
+    top = repo.root.parent
+    task_id = _id_of(repo, "second task")
+    git(top, "checkout", "-q", "-b", "feat")
+    assert run_cli("edit", task_id, "--priority", "high", "--project", repo.root).code == EXIT_OK
+    record = _tasks(repo)[task_id]
+    git(top, "commit", "-qam", "intermediate record")
+    git(top, "checkout", "main", "--", "proj/.byteplan/tasks.json")
+    git(top, "commit", "-qam", "back to main's registry")
+    git(top, "checkout", "-q", "main")
+    git(top, "merge", "-q", "--no-ff", "--no-edit", "feat")
+    entry = {"archived_at": "x", "closed_at": "x", "kind": "FIXME", "sha256": archive.record_hash(record)}
+    (repo.root / ".byteplan/archive.json").write_text(json.dumps({"schema_version": 1, "tasks": {task_id: entry}}))
+    result = run_cli("archive", "--reconcile", "--format", "json", "--project", repo.root)
+    assert json.loads(result.out)["recovered"] == [task_id]
+
+
+def test_a_stale_local_row_is_reconciled_against_the_index(repo: ProjectFactory, run_cli: RunCli) -> None:
+    task_id = _close_and_commit(repo, run_cli)
+    record = _tasks(repo)[task_id]
+    assert run_cli("archive", "--older-than", "0", "--project", repo.root).code == EXIT_OK
+    stale = {**record, "title": "a newer archive of this task"}
+    archive.Store(repo.root / ".byteplan").put([(task_id, {"task": stale, "evidence": None}, "x")])
+    shown = run_cli("show", task_id, "--format", "json", "--project", repo.root)
+    assert json.loads(shown.out)["title"] == "second task"
+
+
+def test_restore_brings_back_the_evidence_run(repo: ProjectFactory, run_cli: RunCli) -> None:
+    task_id = _close_and_commit(repo, run_cli)
+    store = repo.root / ".byteplan/verification.json"
+    run = {"argv": ["pytest"], "at": "t", "dirty": False, "head": "abc", "python": "3", "timed_out": False}
+    evidence = {"fingerprint": "x", "run": "r1", "tests": {}}
+    store.write_text(json.dumps({"schema_version": 1, "runs": {"r1": run}, "tasks": {task_id: evidence}}))
+    assert run_cli("archive", "--older-than", "0", "--project", repo.root).code == EXIT_OK
+    assert json.loads(store.read_text())["runs"] == {}
+    assert run_cli("archive", "--restore", task_id, "--project", repo.root).code == EXIT_OK
+    data = json.loads(store.read_text())
+    assert data["tasks"][task_id] == evidence
+    assert data["runs"] == {"r1": run}
