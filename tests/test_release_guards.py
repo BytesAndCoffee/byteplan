@@ -233,3 +233,34 @@ def test_require_stripped_fails_an_unstripped_build(project: ProjectFactory, run
     assert run_cli("release", "--allow-dirty", "--project", project.root).code == EXIT_OK
     allowed = build(project.root, tmp_path / "dist2", "wheel")
     assert allowed.returncode == 0, allowed.output
+
+
+# Codex review of #34 -----------------------------------------------------------------------------
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="git not installed")
+def test_require_stripped_checks_source_despite_a_release_record(
+    project: ProjectFactory, run_cli: RunCli, tmp_path: Path
+) -> None:
+    """A hotfix restoring decorators after `release` must not ship because the record says stripped."""
+    project.write("pyproject.toml", HOOKED, dedent=False)
+    project.write("src/demo/__init__.py", MODULE, dedent=False)
+    project.init()
+    assert run_cli("repair", "--import", "a83f", "--project", project.root).code == EXIT_OK
+    assert run_cli("release", "--allow-dirty", "--project", project.root).code == EXIT_OK
+    project.write("src/demo/__init__.py", MODULE, dedent=False)  # the decorator is back, the record unchanged
+    refused = build(project.root, tmp_path / "dist", "wheel")
+    assert refused.returncode != 0
+    assert "require_stripped" in refused.output
+
+
+def test_require_stripped_ignores_pytest_markers(project: ProjectFactory, tmp_path: Path) -> None:
+    """@pytest.mark.byteplan stays through a release and needs no runtime: not a reason to fail."""
+    project.write("pyproject.toml", HOOKED + "\n[tool.byteplan.tests]\npytest_marker = true\n", dedent=False)
+    project.write("src/demo/__init__.py", "def run():\n    return 1\n", dedent=False)
+    project.write(
+        "tests/test_demo.py", 'import pytest\n\n\n@pytest.mark.byteplan("a83f")\ndef test_run():\n    assert True\n'
+    )
+    project.init()
+    allowed = build(project.root, tmp_path / "dist", "wheel")
+    assert allowed.returncode == 0, allowed.output

@@ -150,9 +150,10 @@ class BytePlanBuildHook(BuildHookInterface):  # type: ignore[type-arg]
             f"byteplan {mode} ({self.target_name}): {report.files_scanned} files, {report.tracked} tasks{written}"
         )
         self._show(report.diagnostics)
-        if settings.require_stripped and version == "standard" and project.stripped_release() is None:
+        if settings.require_stripped and version == "standard":  # the source decides, not the record
             decorated = sorted({t.path for t in report.tags if t.representation is Representation.DECORATOR})
-            decorated += sorted({link.path for link in report.links} - set(decorated))
+            verifies = {link.path for link in report.links if link.provenance != "marker"}
+            decorated += sorted(verifies - set(decorated))
             if decorated:
                 self.app.abort(
                     f"byteplan: require_stripped: {len(decorated)} file(s) still carry @todo/@verifies "

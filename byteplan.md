@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**9 open** · 29 closed (resolved 29)
+**9 open** · 31 closed (resolved 31)
 
 ## Open
 
@@ -24,6 +24,7 @@
 |---|---|---|---|
 | `0413` | resolved | TODO | Phase 8: release stripping |
 | `0591` | resolved | FIXME | Refuse decorator arguments whose evaluation stripping would skip |
+| `0c28` | resolved | FIXME | Don't count @pytest.mark.byteplan links as decorators that need stripping |
 | `14ff` | resolved | TODO | Phase 7: cleanup |
 | `205d` | resolved | FIXME | Check for a pending journal before the write context recovers it |
 | `2533` | resolved | FIXME | Keep every module an import alias may refer to, across scopes |
@@ -40,6 +41,7 @@
 | `90c6` | resolved | FIXME | Don't propose stub tasks for declarations whose @todo is stripped for a release |
 | `9185` | resolved | FIXME | Keep the space between words around an inline Markdown comment |
 | `9b40` | resolved | TODO | Phase 6a: acceptance tests |
+| `9f8d` | resolved | FIXME | Check the current source even when a stripped release is on record |
 | `a703` | resolved | FIXME | Refuse wildcard runtime imports, whose bindings can't be proven unused |
 | `aedf` | resolved | FIXME | Check every runtime import, not just decorator bindings, before skipping a file |
 | `b68c` | resolved | FIXME | Restore an unanchored import below the current docstring and __future__ imports |

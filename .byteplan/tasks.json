@@ -2,6 +2,7 @@
   "reserved_ids": [
     "0413",
     "0591",
+    "0c28",
     "14ff",
     "15df",
     "205d",
@@ -23,6 +24,7 @@
     "9185",
     "93dd",
     "9b40",
+    "9f8d",
     "a6b2",
     "a703",
     "aedf",
@@ -300,6 +302,77 @@
         ]
       },
       "title": "Refuse decorator arguments whose evaluation stripping would skip",
+      "title_override": null
+    },
+    "0c28": {
+      "assignee": null,
+      "description": "Codex review of #34: https://github.com/BytesAndCoffee/byteplan/pull/34#discussion_r4354123878\nMarkers stay through a release and add no runtime dependency, yet failed the build.",
+      "first_seen": "2026-10-22T22:20:54Z",
+      "history": [
+        {
+          "at": "2026-10-22T22:20:54Z",
+          "event": "created",
+          "new": {
+            "line": 158,
+            "path": "src/byteplan/hatch_hook.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:21:15Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_require_stripped_ignores_pytest_markers",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:21:33Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #34, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:21:34Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:21:34Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/hatch_hook.py"
+          }
+        }
+      ],
+      "id": "0c28",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T22:20:54Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 115,
+        "line": 155,
+        "path": "src/byteplan/hatch_hook.py",
+        "representation": "comment",
+        "symbol": "BytePlanBuildHook.initialize"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release_guards.py::test_require_stripped_ignores_pytest_markers"
+        ]
+      },
+      "title": "Don't count @pytest.mark.byteplan links as decorators that need stripping",
       "title_override": null
     },
     "14ff": {
@@ -1937,6 +2010,77 @@
         ]
       },
       "title": "Phase 6a: acceptance tests",
+      "title_override": null
+    },
+    "9f8d": {
+      "assignee": null,
+      "description": "Codex review of #34: https://github.com/BytesAndCoffee/byteplan/pull/34#discussion_r4354123872\nA hotfix that brings decorators back after `release` slipped past the guard.",
+      "first_seen": "2026-10-22T22:20:54Z",
+      "history": [
+        {
+          "at": "2026-10-22T22:20:54Z",
+          "event": "created",
+          "new": {
+            "line": 153,
+            "path": "src/byteplan/hatch_hook.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:21:15Z",
+          "event": "test_linked",
+          "new": "tests/test_release_guards.py::test_require_stripped_checks_source_despite_a_release_record",
+          "old": null
+        },
+        {
+          "at": "2026-10-22T22:21:32Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex finding on #34, fixed there; regression test fresh-passed",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-22T22:21:33Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-22T22:21:33Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/hatch_hook.py"
+          }
+        }
+      ],
+      "id": "9f8d",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T22:20:54Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 115,
+        "line": 153,
+        "path": "src/byteplan/hatch_hook.py",
+        "representation": "comment",
+        "symbol": "BytePlanBuildHook.initialize"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release_guards.py::test_require_stripped_checks_source_despite_a_release_record"
+        ]
+      },
+      "title": "Check the current source even when a stripped release is on record",
       "title_override": null
     },
     "a6b2": {
