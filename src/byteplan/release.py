@@ -258,6 +258,16 @@ def project_consumers(sources: dict[str, str]) -> dict[str, dict[str, set[str]]]
                 for alias in node.names:
                     local = alias.asname or alias.name.split(".")[0]
                     modules.setdefault(local, set()).add(alias.name if alias.asname else local)
+        # FIXME[8b28]: Treat an imported module that escapes attribute access as consuming all its names
+        #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353374785
+        #   `alias = markers; alias.todo` hid a use of a runtime re-export from the index.
+        # A module used any way but `module.name` (assigned, passed, getattr, vars) may reach
+        # every name it exports: count them all as consumed.
+        attribute_roots = {id(node.value) for node in ast.walk(tree) if isinstance(node, ast.Attribute)}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name) and node.id in modules and id(node) not in attribute_roots:
+                for target in modules[node.id]:
+                    record(target, "*", path)
         for node in ast.walk(tree):
             if isinstance(node, ast.Attribute):
                 dotted = dotted_name(node)

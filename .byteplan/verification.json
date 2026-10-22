@@ -126,6 +126,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "e2350b2862bb": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-22T20:50:37Z",
+      "dirty": true,
+      "head": "f6f661fa5d0373a808436a832ed427425b0c459e",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "e4e6fd13169c": {
       "argv": [
         "hatch",
@@ -158,43 +172,43 @@
   "schema_version": 1,
   "tasks": {
     "0413": {
-      "fingerprint": "ecc6cf04c2996616c59d4818b6c31fa95f98d550a0836302fe80a7f5d137237e",
-      "run": "7df2d08fea6e",
+      "fingerprint": "1825d0277b9b56c3e90f5c403c2be709514b4c4cdeae05a9aa73b843972d09fe",
+      "run": "e2350b2862bb",
       "tests": {
         "tests/test_release.py::test_crash_mid_release_rolls_forward": {
-          "duration_ms": 401,
+          "duration_ms": 361,
           "outcome": "passed"
         },
         "tests/test_release.py::test_refusals_write_nothing": {
-          "duration_ms": 410,
+          "duration_ms": 363,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_strips_only_decorators_imports_and_the_registry": {
-          "duration_ms": 173,
+          "duration_ms": 135,
           "outcome": "passed"
         },
         "tests/test_release.py::test_release_then_restore_is_byte_identical": {
-          "duration_ms": 1851,
+          "duration_ms": 1485,
           "outcome": "passed"
         },
         "tests/test_release.py::test_renamed_symbol_is_a_conflict_and_partial_keeps_it_on_record": {
-          "duration_ms": 156,
+          "duration_ms": 119,
           "outcome": "passed"
         },
         "tests/test_release.py::test_restore_after_a_hotfix_uses_the_ast": {
-          "duration_ms": 149,
+          "duration_ms": 129,
           "outcome": "passed"
         },
         "tests/test_release.py::test_stripped_tree_imports_without_the_runtime": {
-          "duration_ms": 199,
+          "duration_ms": 154,
           "outcome": "passed"
         },
         "tests/test_release.py::test_while_stripped_nothing_goes_missing_and_links_are_frozen": {
-          "duration_ms": 144,
+          "duration_ms": 116,
           "outcome": "passed"
         },
         "tests/test_release.py::test_writing_commands_refuse_while_stripped": {
-          "duration_ms": 142,
+          "duration_ms": 112,
           "outcome": "passed"
         }
       }
@@ -391,6 +405,16 @@
         },
         "tests/test_normalize.py::test_rewritten_module_behaves_identically": {
           "duration_ms": 15,
+          "outcome": "passed"
+        }
+      }
+    },
+    "8b28": {
+      "fingerprint": "39febd314ccad6e3b8bdafbaedc33b812553bf4eaf60f49b3fb97776def093e8",
+      "run": "e2350b2862bb",
+      "tests": {
+        "tests/test_release.py::test_module_escaping_attribute_access_keeps_its_runtime_names": {
+          "duration_ms": 478,
           "outcome": "passed"
         }
       }

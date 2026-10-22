@@ -15,6 +15,7 @@
     "6b83",
     "75b4",
     "82b3",
+    "8b28",
     "9054",
     "90c6",
     "9185",
@@ -1142,6 +1143,55 @@
       "title": "Phase 5: runtime and normalization",
       "title_override": null
     },
+    "8b28": {
+      "assignee": null,
+      "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353374785\n`alias = markers; alias.todo` hid a use of a runtime re-export from the index.",
+      "first_seen": "2026-10-22T20:49:59Z",
+      "history": [
+        {
+          "at": "2026-10-22T20:49:59Z",
+          "event": "created",
+          "new": {
+            "line": 261,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-22T20:50:35Z",
+          "event": "test_linked",
+          "new": "tests/test_release.py::test_module_escaping_attribute_access_keeps_its_runtime_names",
+          "old": null
+        }
+      ],
+      "id": "8b28",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-22T20:49:59Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 225,
+        "line": 261,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "project_consumers"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_release.py::test_module_escaping_attribute_access_keeps_its_runtime_names"
+        ]
+      },
+      "title": "Treat an imported module that escapes attribute access as consuming all its names",
+      "title_override": null
+    },
     "9054": {
       "assignee": null,
       "description": "`byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations.",
@@ -1574,8 +1624,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 315,
-        "line": 312,
+        "decl_line": 325,
+        "line": 322,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_runtime_locals"
@@ -1679,8 +1729,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 443,
-        "line": 446,
+        "decl_line": 453,
+        "line": 456,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"
@@ -1728,8 +1778,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 327,
-        "line": 324,
+        "decl_line": 337,
+        "line": 334,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_used_names"
@@ -1777,8 +1827,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 414,
-        "line": 411,
+        "decl_line": 424,
+        "line": 421,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_decorator"
@@ -1875,8 +1925,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 276,
-        "line": 273,
+        "decl_line": 286,
+        "line": 283,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_runtime_imports"
@@ -2097,8 +2147,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 443,
-        "line": 455,
+        "decl_line": 453,
+        "line": 465,
         "path": "src/byteplan/release.py",
         "representation": "comment",
         "symbol": "_insert_import"

@@ -679,3 +679,31 @@ def test_runtime_module_imported_through_its_parent_refuses_the_release(
     assert "src/pkg/parent.py" in result.err
     assert "still used outside decorators" in result.err
     assert released_repo.snapshot() == before
+
+
+# Codex review of #32, round 8 ----------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "escape",
+    [
+        "alias = markers\nVALUE = alias.todo\n",
+        "VALUE = getattr(markers, 'todo')\n",
+        "def use(module):\n    return module.todo\n\n\nVALUE = use(markers)\n",
+        "VALUE = vars(markers)['todo']\n",
+    ],
+)
+def test_module_escaping_attribute_access_keeps_its_runtime_names(
+    released_repo: ProjectFactory, run_cli: RunCli, escape: str
+) -> None:
+    """Any use of an imported module beyond `module.name` may reach every name it exports."""
+    released_repo.write("src/pkg/__init__.py", "", dedent=False)
+    released_repo.write("src/pkg/reexport.py", "from byteplan_runtime import todo as todo\n", dedent=False)
+    released_repo.write("src/pkg/consumer.py", "import pkg.reexport as markers\n\n" + escape, dedent=False)
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "escape")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert "imported from this module by src/pkg/consumer.py" in result.err
+    assert released_repo.snapshot() == before
