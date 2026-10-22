@@ -1,0 +1,11 @@
+# Optional, for contributors who use the pre-commit framework (https://pre-commit.com).
+# Without it, `hatch run byteplan git install-hooks` installs the same check as a direct hook.
+repos:
+  - repo: local
+    hooks:
+      - id: byteplan-check
+        name: BytePlan staged consistency (this repository)
+        entry: hatch run byteplan check --staged
+        language: system
+        pass_filenames: false
+        always_run: true

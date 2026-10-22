@@ -46,6 +46,12 @@ Documentation = "https://github.com/BytesAndCoffee/byteplan#readme"
 Issues = "https://github.com/BytesAndCoffee/byteplan/issues"
 Source = "https://github.com/BytesAndCoffee/byteplan"
 
+# BytePlan tracks its own development. Tests are out of scope: they deliberately
+# contain @todo / @verifies / stub fixtures that aren't real work.
+[tool.byteplan]
+registry = ".byteplan/tasks.json"
+include = ["src/**/*.py", "byteplan-runtime/src/**/*.py"]
+
 [tool.hatch.version]
 path = "src/byteplan/__about__.py"
 
@@ -90,6 +96,8 @@ python_version = "3.11"
 lint.exclude = ["**/byteplan-runtime/**"]
 format.exclude = ["**/byteplan-runtime/**"]
 lint.extend-per-file-ignores = { "examples/*" = ["INP001"] }  # standalone files to copy, not a package
+# flake8-todos TD004 wants `TODO:`; BytePlan's IDs make it `TODO[a6b2]:` (see README, "Linters").
+lint.extend-ignore = ["TD004"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

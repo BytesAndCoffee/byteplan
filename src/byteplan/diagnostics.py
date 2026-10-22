@@ -40,6 +40,13 @@ class Code(StrEnum):
     STUB_NEEDS_REVIEW = "stub_needs_review"
     IMPLEMENTATION_CHANGED = "implementation_changed"
     UNKNOWN_TASK_REFERENCE = "unknown_task_reference"
+    # Snapshot consistency (check --staged / --commit, or require_reconciled)
+    NEW_UNREGISTERED = "new_unregistered"
+    REGISTRY_NOT_STAGED = "registry_not_staged"
+    REGISTRY_OUT_OF_SYNC = "registry_out_of_sync"
+    POSITION_DRIFT = "position_drift"
+    STAGED_CONFIG_MISMATCH = "staged_config_mismatch"
+    WORKING_TREE_CHANGED_BUT_NOT_STAGED = "working_tree_changed_but_not_staged"
 
 
 @dataclass(frozen=True)
@@ -81,8 +88,19 @@ class Diagnostic:
         return text
 
 
-def is_failure(diagnostic: Diagnostic, policy: CheckConfig) -> bool:
-    """Whether ``diagnostic`` makes ``check``/``scan`` exit with ``EXIT_FINDINGS``."""
+_CONSISTENCY_FAILURES = frozenset({
+    Code.NEW_UNREGISTERED, Code.REGISTRY_NOT_STAGED, Code.REGISTRY_OUT_OF_SYNC, Code.UNREGISTERED_ID,
+})  # fmt: skip
+
+
+def is_failure(diagnostic: Diagnostic, policy: CheckConfig, *, enforce_consistency: bool = False) -> bool:
+    """Whether ``diagnostic`` makes ``check``/``scan`` exit with ``EXIT_FINDINGS``.
+
+    ``enforce_consistency`` is set for snapshot checks (``--staged``, ``--commit``) and
+    for the working-tree check when ``require_reconciled`` is configured.
+    """
+    if diagnostic.code in _CONSISTENCY_FAILURES:
+        return enforce_consistency
     match diagnostic.code:
         case Code.DUPLICATE_ID:
             return policy.fail_on_duplicate_ids
@@ -90,9 +108,12 @@ def is_failure(diagnostic: Diagnostic, policy: CheckConfig) -> bool:
             return policy.fail_on_missing
         case Code.STALE_ANNOTATION:
             return policy.fail_on_stale_annotations
+        case Code.POSITION_DRIFT:
+            return policy.fail_on_position_drift
         case _:
             return False
 
 
-def exit_code(diagnostics: Iterable[Diagnostic], policy: CheckConfig) -> int:
-    return EXIT_FINDINGS if any(is_failure(d, policy) for d in diagnostics) else EXIT_OK
+def exit_code(diagnostics: Iterable[Diagnostic], policy: CheckConfig, *, enforce_consistency: bool = False) -> int:
+    failing = any(is_failure(d, policy, enforce_consistency=enforce_consistency) for d in diagnostics)
+    return EXIT_FINDINGS if failing else EXIT_OK

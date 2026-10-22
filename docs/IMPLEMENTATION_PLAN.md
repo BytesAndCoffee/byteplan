@@ -28,6 +28,34 @@ passing test never resolves a task. Only an explicit `status`/`resolve` does.
 BytePlan's own `[build-system].requires` stays `["hatchling"]` to avoid a recursive
 self-build. To track BytePlan's own TODOs, run `hatch run byteplan scan`; don't use the build hook.
 
+## Dogfooding: BytePlan manages its own development
+
+Self-management starts now, not at Phase 10. Each phase widens what BytePlan manages about
+itself.
+
+| Milestone | What BytePlan manages about itself |
+|---|---|
+| **Now (with Phase 4b)** ✅ | Its own registry. `[tool.byteplan]` scopes `src/` of both packages; tests are excluded because they deliberately contain annotation fixtures. Real follow-ups live as tagged TODOs in the code they concern. The registry merges by task ID (`.byteplan/.gitattributes`). CI runs `byteplan check --commit HEAD` on every push and PR. |
+| Phase 4b ✅ | Staged commits are checked: `hatch run byteplan git install-hooks`, or the local `.pre-commit-config.yaml`. |
+| Phases 6a–6b | Its own tasks link to acceptance tests, and regression tests are scaffolded with `tests scaffold`. |
+| Phase 9 | Coding agents developing BytePlan query it over MCP for outstanding work, record evidence, and hand the next session an authoritative state snapshot. |
+| Phase 10 | A documented, fully integrated self-managed workflow. CI on ubuntu, macOS and Windows. |
+| Phase 12 | Assignments link the commits, PRs and evidence produced by BytePlan's own development. |
+| Phase 13 | Relay for GitHub runs BytePlan's own issue-to-PR lifecycle, as the reference demonstration. |
+
+**Found by dogfooding.** Ruff's flake8-todos rule TD004, which Hatch's defaults enable, flags
+BytePlan's own `TODO[id]:` syntax because it expects the colon right after the tag. The syntax
+stays, since the spec mandates it and `TODO(…)` is reserved for the planned owner syntax. The
+README documents `lint.extend-ignore = ["TD004"]`, and BytePlan uses that itself. A future
+`byteplan init` could detect TD004 in the project's ruff config and suggest the ignore.
+
+**Workflow today:**
+- After editing, run `hatch run byteplan scan`, then commit the source together with
+  `.byteplan/tasks.json`.
+- Run `hatch run byteplan git install-merge-driver` once per clone.
+- Resolve work explicitly with `hatch run byteplan resolve ID`. Removing a TODO only makes it
+  `missing`.
+
 ## Module layout
 
 The repository root is the `byteplan` devtool project. The runtime distribution is a separate
@@ -833,6 +861,26 @@ so it isn't improvised later.
 
 Phase 11b tests are Addendum C §C9 items 15 and 16.
 
+### Phase 4b as built
+
+- **`snapshot.py`:** `GitSnapshot` covers the index and commits, using `ls-files --stage -z` or
+  `ls-tree -r -z` plus a single `cat-file --batch` process, all `--no-optional-locks`.
+- **Shared scope rules:** `files.TextSource` lets scope rules read `.gitignore` files from the
+  snapshot, including repository ancestors above the project root.
+- **`Project.open_snapshot`:** loads config and the registry from the snapshot.
+  `staged_config_mismatch` compares the BytePlan tables of the staged and working-tree
+  `pyproject.toml`.
+- **Consistency rules** apply when `--staged`, `--commit` or `require_reconciled` is in effect.
+  - **Out of sync:** `registry_out_of_sync` is raised for the events `moved`, `text_changed`,
+    `reappeared` and `implementation_changed`, and for `missing` on open tasks only.
+  - **Resolved and removed together:** a closed task whose annotation was removed raises nothing.
+  - **Position-only changes:** these produce `position_drift`.
+- **Hooks:** `git install-hooks` writes a marked `/bin/sh` hook that runs
+  `<absolute python> -m byteplan check --staged`. `core.hooksPath` is honoured.
+- **Test infrastructure:** subprocesses spawned in tests (builds, Git hooks, the merge driver)
+  write coverage data to the repository's `.coverage`, never into the project under test.
+  Without this, `hatch test --cover` failed the Phase 4 build tests.
+
 ## Registry format and merging
 
 **JSON stays the canonical registry, and SQLite is not used for it.** This was decided on
@@ -1173,7 +1221,7 @@ step 2 (choosing the runtime design) is already done, and the runtime package ha
 | 2. Write path ✅ | `edits.py` (span edits + equivalence guard), comment annotation, reconcile, persistence (journal, concurrent-modification check), `status/resolve/edit/missing/duplicates`, `--dry-run` | 6–17 | 13 (resolve without source edits), 15, 17, 18 |
 | 3. Stubs + decorators ✅ | `stubs.py`, `decorators.py` (static `@todo`/`@verifies` discovery, alias resolution), `association.py` (comment / decorator / stub → one obligation), decorator `id=` allocation, schema fields, `implementation_changed`, `check`, `report`, `repair` | 2, 3, 4, 17 | 1, 2, 6 (comment mode), 7, 19 |
 | 4. Hatch ✅ | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
-| 4b. Git lifecycle (read-only) | `snapshot.py` + `gitio.py` (index/commit snapshots via NUL-safe plumbing, no-optional-locks), `check --staged`, `scan --staged --dry-run`, staged diagnostics and policy keys, `.pre-commit-hooks.yaml`, `git install-hooks` / `git hooks-status`, `docs/ci.md` GitHub Actions recipe | – | C: 1–6, 8–14, 17–21 (C: 7, 22 with Phase 8) |
+| 4b. Git lifecycle (read-only) ✅ | `snapshot.py` + `gitio.py` (index/commit snapshots via NUL-safe plumbing, no-optional-locks), `check --staged`, `scan --staged --dry-run`, staged diagnostics and policy keys, `.pre-commit-hooks.yaml`, `git install-hooks` / `git hooks-status`, `docs/ci.md` GitHub Actions recipe | – | C: 1–6, 8–14, 17–21 (C: 7, 22 with Phase 8) |
 | 4c. Registry forward compatibility | unknown **top-level** registry keys round-trip (today they're dropped on save; task-level ones already survive), and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
 | 5. Runtime + normalization | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
 | 6a. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |

@@ -22,7 +22,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 
 import pathspec
 
@@ -53,24 +53,55 @@ class Scope:
         return any(_is_under(rel_path, target) for target in self.targets)
 
 
+class TextSource(Protocol):
+    """Where scope rules read ``.gitignore`` files from: the filesystem or a Git snapshot."""
+
+    def read_text(self, rel: str) -> str | None:
+        """Text of a project-relative POSIX path (``../`` reaches repository ancestors), or None."""
+        ...
+
+    def ancestors(self) -> list[tuple[str, str]]:
+        """Directories from the Git top down to the root's parent, outermost first, as
+        (directory relative to the root, prefix turning a root-relative path into one
+        relative to that directory). Empty outside Git."""
+        ...
+
+
+class FilesystemSource:
+    def __init__(self, root: Path) -> None:
+        self.root = root
+
+    def read_text(self, rel: str) -> str | None:
+        try:
+            return (self.root / rel).read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            return None
+
+    def ancestors(self) -> list[tuple[str, str]]:
+        return [
+            (Path(os.path.relpath(ancestor, self.root)).as_posix(), self.root.relative_to(ancestor).as_posix() + "/")
+            for ancestor in _git_ancestors(self.root)
+            if ancestor != self.root
+        ]
+
+
 class _GitIgnores:
     """``.gitignore`` files from the Git top down to the project root, plus any below it (loaded lazily)."""
 
-    def __init__(self, root: Path) -> None:
-        self._root = root
+    def __init__(self, source: TextSource) -> None:
+        self._source = source
         # Specs at or above the root, with the prefix that turns a root-relative
         # path into one relative to that spec's directory.
         self._ancestors: list[tuple[str, pathspec.GitIgnoreSpec]] = []
-        for ancestor in _git_ancestors(root):
-            spec = _read_gitignore(ancestor / ".gitignore")
+        for rel_dir, prefix in [*source.ancestors(), ("", "")]:
+            spec = _parse_gitignore(source.read_text(f"{rel_dir}/.gitignore" if rel_dir else ".gitignore"))
             if spec is not None:
-                prefix = "" if ancestor == root else root.relative_to(ancestor).as_posix() + "/"
                 self._ancestors.append((prefix, spec))
         self._nested: dict[str, pathspec.GitIgnoreSpec | None] = {}
 
     def _nested_spec(self, rel_dir: str) -> pathspec.GitIgnoreSpec | None:
         if rel_dir not in self._nested:
-            self._nested[rel_dir] = _read_gitignore(self._root / rel_dir / ".gitignore")
+            self._nested[rel_dir] = _parse_gitignore(self._source.read_text(f"{rel_dir}/.gitignore"))
         return self._nested[rel_dir]
 
     def ignored(self, rel_path: str, *, is_dir: bool = False) -> bool:
@@ -89,11 +120,14 @@ class _GitIgnores:
 class ScopeMatcher:
     """The configured scope as a predicate over root-relative POSIX paths."""
 
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, source: TextSource | None = None) -> None:
         self.root = config.root
         self._include = pathspec.PathSpec.from_lines("gitignore", config.include)
         self._exclude = pathspec.PathSpec.from_lines("gitignore", config.exclude)
-        self._gitignores = _GitIgnores(config.root) if config.respect_gitignore else None
+        if config.respect_gitignore:
+            self._gitignores: _GitIgnores | None = _GitIgnores(source or FilesystemSource(config.root))
+        else:
+            self._gitignores = None
 
     def dir_excluded(self, rel_dir: str) -> bool:
         name = rel_dir.rsplit("/", 1)[-1]
@@ -130,12 +164,8 @@ def _git_ancestors(root: Path) -> list[Path]:
     return [root]
 
 
-def _read_gitignore(path: Path) -> pathspec.GitIgnoreSpec | None:
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except (OSError, UnicodeDecodeError):
-        return None
-    return pathspec.GitIgnoreSpec.from_lines(lines)
+def _parse_gitignore(text: str | None) -> pathspec.GitIgnoreSpec | None:
+    return None if text is None else pathspec.GitIgnoreSpec.from_lines(text.splitlines())
 
 
 def _is_under(rel_path: str, target: str) -> bool:
@@ -194,3 +224,16 @@ def collect_files(config: Config, targets: Sequence[str] | None = None) -> Scope
         return Scope(files=tuple(sorted(found)))
     narrowed = [rel for rel in found if any(_is_under(rel, target) for target in targets)]
     return Scope(files=tuple(sorted(narrowed)), narrowed=True, targets=tuple(targets))
+
+
+def scope_from_paths(
+    config: Config, paths: Sequence[str], source: TextSource, targets: Sequence[str] | None = None
+) -> tuple[Scope, ScopeMatcher]:
+    """The scope over an explicit file list (a Git snapshot's regular files), using the same
+    rules as ``collect_files`` with ``.gitignore`` files read from ``source``."""
+    matcher = ScopeMatcher(config, source)
+    found = sorted(path for path in paths if matcher.contains(path))
+    if targets is None:
+        return Scope(files=tuple(found)), matcher
+    narrowed = [rel for rel in found if any(_is_under(rel, target) for target in targets)]
+    return Scope(files=tuple(narrowed), narrowed=True, targets=tuple(targets)), matcher

@@ -1,0 +1,21 @@
+# Hooks for the pre-commit framework (https://pre-commit.com).
+# No `types: [python]` filter on purpose: registry-only, rename and deletion
+# commits must be checked too, so the hooks always run and look at the whole
+# staged snapshot themselves.
+- id: byteplan-check
+  name: BytePlan staged consistency
+  description: Check that the staged code and the staged .byteplan/tasks.json agree. Read-only.
+  entry: byteplan check --staged
+  language: python
+  pass_filenames: false
+  always_run: true
+  stages: [pre-commit]
+
+- id: byteplan-scan-preview
+  name: BytePlan staged reconciliation preview
+  description: Show the IDs and registry updates the staged snapshot needs. Read-only.
+  entry: byteplan scan --staged --dry-run
+  language: python
+  pass_filenames: false
+  always_run: true
+  stages: [manual]
