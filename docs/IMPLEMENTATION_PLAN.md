@@ -1485,7 +1485,9 @@ earlier depends on it.
 
 Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4c (IDs at
 commit time) is done. Phases 4d, 4e and 5 (runtime and normalization: annotation modes,
-`byteplan sync`, `init --runtime-shim`) are done. **Phase 6a comes next.** Addendum A's step 2 (choosing the runtime design) is already done, and the
+`byteplan sync`, `init --runtime-shim`) are done. **Phase 6a is in progress:** test links,
+their provenance and `byteplan tests list/add/remove` are done; `verify` (the pytest plugin,
+outcomes, `verification.json`, freshness and readiness) is next. Addendum A's step 2 (choosing the runtime design) is already done, and the
 runtime package has shipped.
 
 | Phase | Deliverables | Spec §12 tests | Addendum §9 tests |

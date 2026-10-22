@@ -19,6 +19,8 @@ IDs are never reused, so registries from two branches combine by task ID:
   recomputed by the next scan from the merged source. If both sides changed
   one differently, ours is kept and the result is flagged as needing a scan.
   ``first_seen`` takes the earlier value and ``last_seen`` the later.
+* ``tests``: ``managed`` links merge as a set; ``discovered`` links are a
+  discovered field (ours kept, rescan flagged if both sides changed them).
 * Unknown top-level keys (from a newer BytePlan) merge three-way and
   structurally: objects key by key, lists that both sides only appended to as
   the base plus both sides' additions, anything else changed differently on
@@ -103,7 +105,9 @@ def _merge_task(
     for key in sorted({*base, *ours, *theirs}):
         b, o, t = base.get(key, _ABSENT), ours.get(key, _ABSENT), theirs.get(key, _ABSENT)
         value: Any
-        if key == "history":
+        if key == "tests":
+            value = _merge_tests(task_id, b, o, t, result)
+        elif key == "history":
             value = _merge_history(task_id, _list(b), _list(o), _list(t), result.conflicts)
         elif key in _SET_LIKE:
             value = _merge_set(_list(b), _list(o), _list(t))
@@ -154,6 +158,24 @@ def _merge_value(where: str, base: Any, ours: Any, theirs: Any, conflicts: list[
             return [*old_list, *added]
     conflicts.append(f"{where} changed on both sides ({ours!r} vs {theirs!r})")
     return ours
+
+
+def _merge_tests(task_id: str, base: Any, ours: Any, theirs: Any, result: MergeResult) -> Any:
+    """``managed`` links merge as a set; ``discovered`` ones are rescanned from merged source."""
+    parts = [{} if v is _ABSENT or v is None else v for v in (base, ours, theirs)]
+    managed = _merge_set(*(_list(p.get("managed")) for p in parts))
+    b, o, t = (_list(p.get("discovered")) for p in parts)
+    if _same(t, o) or _same(t, b):
+        discovered = o
+    elif _same(o, b):
+        discovered = t
+    else:
+        discovered = o
+        if task_id not in result.rescan_needed:
+            result.rescan_needed.append(task_id)
+    if not managed and not discovered:
+        return _ABSENT
+    return {"managed": managed, "discovered": discovered}
 
 
 def _list(value: Any) -> list[Any]:

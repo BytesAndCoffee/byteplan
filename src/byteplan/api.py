@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import contextlib
 import dataclasses
+import json
 import os
 import re
 import tomllib
@@ -308,7 +309,13 @@ class Project:
         hierarchy = self._hierarchy(loaded, narrowed=scope.narrowed)
         for path, source in loaded.items():
             try:
-                result = scan_file(source, self.config.detect, runtime_modules, hierarchy)
+                result = scan_file(
+                    source,
+                    self.config.detect,
+                    runtime_modules,
+                    hierarchy,
+                    pytest_marker=self.config.tests.pytest_marker,
+                )
             except SourceError as exc:
                 failures.append(exc)
                 continue
@@ -345,7 +352,14 @@ class Project:
             by_file[proposal.tag.path].append(proposal)
         for path, file_proposals in sorted(by_file.items()):
             source, before = sources[path]
-            edited, scans[path] = annotate(source, file_proposals, self.config.detect, runtime_modules, hierarchy)
+            edited, scans[path] = annotate(
+                source,
+                file_proposals,
+                self.config.detect,
+                runtime_modules,
+                hierarchy,
+                pytest_marker=self.config.tests.pytest_marker,
+            )
             writes.append(FileWrite(path, before, edited.encode()))
         # A new task's origin is what it was discovered as (e.g. a stub), not what
         # the edited file shows (the comment BytePlan just wrote for it).
@@ -362,6 +376,11 @@ class Project:
         ]
         absence_check = None if scope.narrowed else (matcher or ScopeMatcher(self.config)).contains
         new_registry, summary = reconcile(registry, observations, self.clock(), absence_check=absence_check)
+        scope_matcher = matcher or ScopeMatcher(self.config)
+        # Links from the final (annotated) scans: inserted lines move the decorators below them.
+        links = [link for path in scope.files for link in scans[path].links]
+        _apply_discovered_tests(new_registry, observed, links, scope)
+        diagnostics.extend(self._test_link_diagnostics(new_registry, observed, scope_matcher))
         diagnostics.extend(self._missing_diagnostics(new_registry))
         diagnostics.extend(_link_diagnostics(links, new_registry))
         diagnostics.extend(_implementation_diagnostics(summary, new_registry))
@@ -488,6 +507,8 @@ class Project:
             events = [e.event for e in task.history[len(before.history) :]]
             closed_and_gone = task.status.is_closed and events == ["missing"]
             relevant = [e for e in events if e in out_of_sync or (e == "missing" and not task.status.is_closed)]
+            if _link_keys(before) != _link_keys(task):  # line-only moves are position drift
+                relevant.append("test links")
             location = (Location(task.source.path, task.source.line),) if task.source else ()
             if relevant:
                 found.append(
@@ -538,6 +559,42 @@ class Project:
                     hint=f"if those changes belong in this commit, `git add {self.registry_rel}`",
                 )
             )
+        return found
+
+    def _test_link_diagnostics(
+        self, registry: Registry, observed: Sequence[Annotation], matcher: ScopeMatcher
+    ) -> list[Diagnostic]:
+        """``malformed_test_id`` for bad node IDs in source; ``test_not_in_scope`` for linked tests
+        whose file isn't scanned (so their @verifies and freshness can't be seen)."""
+        found = [
+            _malformed_test(node, tag.task_id, Location(tag.path, tag.line))
+            for tag in observed
+            for node in tag.tests
+            if not is_node_id(node)
+        ]
+        # Snapshot file lists are project-relative, like node ID paths.
+        files = set(self.snapshot.files()) if self.snapshot is not None else None
+        for task_id, task in sorted(registry.tasks.items()):
+            if task.status.is_closed:
+                continue
+            for node, provenances in task.linked_tests().items():
+                if not is_node_id(node) or not set(provenances) & {"managed", "decorator"}:
+                    continue
+                path = node.split("::", 1)[0]
+                exists = (self.root / path).is_file() if files is None else path in files
+                if exists and matcher.contains(path):
+                    continue
+                found.append(
+                    Diagnostic(
+                        Code.TEST_NOT_IN_SCOPE,
+                        Severity.WARNING,
+                        f"task {task_id} links {node}, but {path} "
+                        + ("doesn't exist" if not exists else "isn't in the scan scope"),
+                        task_id=task_id,
+                        locations=(Location(task.source.path, task.source.line),) if task.source else (),
+                        hint="fix the node ID, or add the test files to [tool.byteplan] include",
+                    )
+                )
         return found
 
     def _missing_diagnostics(self, registry: Registry) -> list[Diagnostic]:
@@ -862,6 +919,41 @@ class Project:
                 commit(self.root, self._registry_writes(registry_hash, registry))
             return task, bool(events)
 
+    def link_tests(self, task_id: str, nodes: Sequence[str]) -> tuple[Task, bool]:
+        """Add managed test links (``byteplan tests add``). Node IDs are validated first."""
+        bad = [node for node in nodes if not is_node_id(node)]
+        if bad:
+            msg = f"not a pytest node ID: {', '.join(bad)} (expected path/to/test_file.py::test_name)"
+            raise ConfigError(msg)
+
+        def change(task: Task, now: str) -> list[HistoryEvent]:
+            added = [node for node in dict.fromkeys(nodes) if node not in task.tests_managed]
+            task.tests_managed = sorted([*task.tests_managed, *added])
+            return [HistoryEvent("test_linked", now, new=node) for node in added]
+
+        return self._mutate(task_id, change)
+
+    def unlink_tests(self, task_id: str, nodes: Sequence[str]) -> tuple[Task, bool]:
+        """Remove managed test links (``byteplan tests remove``). Links declared in source can
+        only be removed there."""
+        task = self.get_task(task_id)
+        from_source = {entry["node"]: entry for entry in task.tests_discovered}
+        stuck = [node for node in nodes if node not in task.tests_managed and node in from_source]
+        if stuck:
+            where = ", ".join(
+                f"{node} ({from_source[node]['provenance']} at {from_source[node]['path']}:{from_source[node]['line']})"
+                for node in stuck
+            )
+            msg = f"declared in source, so remove it there: {where}"
+            raise ConfigError(msg)
+
+        def change(task: Task, now: str) -> list[HistoryEvent]:
+            removed = [node for node in dict.fromkeys(nodes) if node in task.tests_managed]
+            task.tests_managed = [node for node in task.tests_managed if node not in removed]
+            return [HistoryEvent("test_unlinked", now, old=node) for node in removed]
+
+        return self._mutate(task_id, change)
+
     def set_status(self, task_id: str, status: Status, note: str | None = None) -> tuple[Task, bool]:
         """Change lifecycle status. Returns the task and whether anything changed."""
 
@@ -1082,6 +1174,56 @@ def _id_diagnostics(tags: Sequence[Annotation], registry: Registry) -> list[Diag
                 )
             )
     return diagnostics
+
+
+_NODE_ID_RE = re.compile(r"[^:\s][^:]*\.py(?:::[A-Za-z_][A-Za-z0-9_]*)+(?:\[[^\n]*\])?")
+
+
+def is_node_id(node: str) -> bool:
+    """A pytest node ID: ``path/to/test_x.py::name[::name...][param]``."""
+    return _NODE_ID_RE.fullmatch(node) is not None
+
+
+def _malformed_test(node: str, task_id: str | None, location: Location) -> Diagnostic:
+    return Diagnostic(
+        Code.MALFORMED_TEST_ID,
+        Severity.WARNING,
+        f"{node!r} is not a pytest node ID (path/to/test_file.py::test_name)",
+        task_id=task_id,
+        locations=(location,),
+        hint="it isn't linked until it's fixed",
+    )
+
+
+def _link_keys(task: Task) -> list[tuple[str, str, str]]:
+    """A task's discovered test links without their line numbers."""
+    return sorted({(e["node"], e["provenance"], e["path"]) for e in task.tests_discovered})
+
+
+def _apply_discovered_tests(
+    registry: Registry, observed: Sequence[Annotation], links: Sequence[VerifiesLink], scope: Scope
+) -> None:
+    """Recompute ``tests.discovered`` from source. A narrowed scan only replaces the entries
+    from paths it covered."""
+    found: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
+    for tag in observed:
+        if tag.task_id is None:
+            continue
+        for node in tag.tests:
+            if is_node_id(node):
+                found[tag.task_id].append({"node": node, "provenance": "decorator", "path": tag.path, "line": tag.line})
+    for link in links:
+        for task_id in link.task_ids:
+            found[task_id].append(
+                {"node": link.node_id, "provenance": link.provenance, "path": link.path, "line": link.line}
+            )
+    for task_id, task in registry.tasks.items():
+        kept = [entry for entry in task.tests_discovered if not scope.covers(entry["path"])]
+        entries = kept + found.get(task_id, [])
+        unique = {json.dumps(e, sort_keys=True): e for e in entries}
+        task.tests_discovered = sorted(
+            unique.values(), key=lambda e: (e["node"], e["provenance"], e["path"], e["line"])
+        )
 
 
 def normalize_review(task_id: str, message: str) -> Diagnostic:

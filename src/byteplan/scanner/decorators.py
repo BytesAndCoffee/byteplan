@@ -212,6 +212,7 @@ class VerifiesLink:
     node_id: str  # pytest node ID: path::Class::test
     path: str
     line: int
+    provenance: str = "verifies"  # or "marker" for @pytest.mark.byteplan(...)
 
 
 @dataclass
@@ -404,6 +405,15 @@ def _todo(
             line,
             "use tests=(...) for several tests",
         )
+    tests = _test_ids(values)
+    if tests is None:
+        report(
+            Code.DYNAMIC_TODO_ARGUMENT,
+            Severity.WARNING,
+            f"@{name}() tests on {decl.qualname} are not string literals; they aren't linked",
+            line,
+            'use test="path::name" or tests=("path::name", ...)',
+        )
 
     id_slot = None
     if task_id is None:
@@ -433,7 +443,67 @@ def _todo(
         origin=Origin.DECORATOR,
         decl_line=decl.node.lineno,
         attachment_kind=decl.kind,
+        tests=tests or (),
     )
+
+
+def _test_ids(values: dict[str, ast.expr]) -> tuple[str, ...] | None:
+    """Node IDs from ``test=``/``tests=`` literals; None if any isn't a literal."""
+    found: list[str] = []
+    if "test" in values:
+        node = values["test"]
+        if not (isinstance(node, ast.Constant) and node.value is None):
+            value = _literal_str(node)
+            if value is None:
+                return None
+            found.append(value)
+    if "tests" in values:
+        node = values["tests"]
+        if not isinstance(node, ast.Tuple | ast.List):
+            return None
+        for element in node.elts:
+            value = _literal_str(element)
+            if value is None:
+                return None
+            found.append(value)
+    return tuple(dict.fromkeys(found))
+
+
+def _pytest_mark_names(tree: ast.Module) -> set[str]:
+    """Dotted names that mean ``pytest.mark.byteplan`` in this module (module-level imports)."""
+    names: set[str] = set()
+    for stmt in _module_statements(tree.body):
+        if isinstance(stmt, ast.Import):
+            for alias in stmt.names:
+                if alias.name == "pytest":
+                    names.add(f"{alias.asname or 'pytest'}.mark.byteplan")
+        elif isinstance(stmt, ast.ImportFrom) and stmt.level == 0 and stmt.module == "pytest":
+            for alias in stmt.names:
+                if alias.name == "mark":
+                    names.add(f"{alias.asname or 'mark'}.byteplan")
+    return names
+
+
+def scan_markers(source: SourceFile, tree: ast.Module, decls: Sequence[Declaration]) -> list[VerifiesLink]:
+    """``@pytest.mark.byteplan("abcd", ...)`` on tests: links with provenance ``marker``.
+
+    Only literal, well-formed IDs count; other arguments are ignored.
+    """
+    names = _pytest_mark_names(tree)
+    if not names:
+        return []
+    links = []
+    for decl in decls:
+        if "<locals>" in decl.qualname:
+            continue
+        for decorator in decl.node.decorator_list:
+            if not isinstance(decorator, ast.Call) or dotted_name(decorator.func) not in names:
+                continue
+            ids = tuple(v for arg in decorator.args if (v := _literal_str(arg)) is not None and is_valid_id(v))
+            if ids:
+                node_id = "::".join([source.path, *decl.qualname.split(".")])
+                links.append(VerifiesLink(ids, node_id, source.path, decorator.lineno, provenance="marker"))
+    return links
 
 
 def _verifies(

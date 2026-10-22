@@ -3,6 +3,20 @@
 All notable changes to `byteplan`. The runtime decorators ship separately as
 [`byteplan-runtime`](https://pypi.org/project/byteplan-runtime/), with their own versions.
 
+## Unreleased
+
+### Acceptance tests (Phase 6a, part 1)
+- **Test links:** a task links to the pytest tests that verify it.
+  - Where links come from: `@todo(tests=...)` / `@todo(test=...)`, `@verifies("id")` on the test,
+    `@pytest.mark.byteplan("id")` (with `[tool.byteplan.tests] pytest_marker = true`), and
+    `byteplan tests add`.
+  - How they're stored: as `tests.discovered` (refreshed by scans) and `tests.managed` (CLI
+    only), each link keeping its provenance.
+  - Reviewing them: `byteplan tests list [ID]`, `tests add` and `tests remove`, and `show`
+    lists them.
+  - Diagnostics: `malformed_test_id` and `test_not_in_scope`. Unscanned link changes are
+    `registry_out_of_sync`. The merge driver merges managed links as a set.
+
 ## 0.2.0 (2026-10-22)
 
 Markdown and JSON tracking, a committed task list, decorator mode, and registry forward

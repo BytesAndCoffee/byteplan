@@ -14,7 +14,7 @@ from byteplan.languages import Language, language_for
 from byteplan.models import AttachmentKind
 from byteplan.scanner.association import associate
 from byteplan.scanner.comments import IGNORE_RE, file_ignored, iter_comments, scan_comments
-from byteplan.scanner.decorators import VerifiesLink, scan_decorators
+from byteplan.scanner.decorators import VerifiesLink, scan_decorators, scan_markers
 from byteplan.scanner.jsonc import ensure_json_equivalent, scan_json
 from byteplan.scanner.markdown import ensure_markdown_equivalent, scan_markdown
 from byteplan.scanner.stubs import find_stubs
@@ -46,6 +46,8 @@ def scan_file(
     detect: DetectConfig,
     runtime_modules: Sequence[str] = DEFAULT_RUNTIME_MODULES,
     hierarchy: ClassHierarchy | None = None,
+    *,
+    pytest_marker: bool = False,
 ) -> FileScan:
     """Scan one decoded file. Raises ``SourceError`` if it can't be tokenized or parsed.
 
@@ -66,6 +68,8 @@ def scan_file(
     index = SymbolIndex(decls)
     tags, diagnostics = scan_comments(source, detect.todo_tags, index, comments)
     decorated = scan_decorators(source, tree, decls, runtime_modules, detect.todo_tags)
+    if pytest_marker:
+        decorated.links.extend(scan_markers(source, tree, decls))
     ignore_lines = {c.line for c in comments if IGNORE_RE.search(c.text)}
     intentional = hierarchy.intentional if hierarchy is not None and detect.respect_overrides else None
     stubs = find_stubs(decls, detect, ignore_lines, intentional)

@@ -45,7 +45,7 @@ _TOP_LEVEL_KEYS = frozenset({"schema_version", "reserved_ids", "tasks"})
 _TASK_KEYS = frozenset({
     "id", "kind", "title", "description", "status", "priority", "assignee", "labels", "notes",
     "title_override", "presence", "origin", "scope_state", "source", "stub", "first_seen",
-    "last_seen", "history",
+    "last_seen", "history", "tests",
 })  # fmt: skip
 
 
@@ -160,11 +160,36 @@ def _task_from_dict(key: str, raw: Any, fail: _Fail) -> Task:
         scope_state=enum("scope_state", ScopeState, ScopeState.IN_SCOPE),
         source=_source_from_dict(raw.get("source"), where, fail),
         stub=stub,
+        **_tests_from_dict(raw.get("tests"), where, fail),
         first_seen=text("first_seen", default=None, optional=True),
         last_seen=text("last_seen", default=None, optional=True),
         history=_history_from_list(raw.get("history", []), where, fail),
         extra={k: v for k, v in raw.items() if k not in _TASK_KEYS},
     )
+
+
+_DISCOVERED_TEST_KEYS = frozenset({"node", "provenance", "path", "line"})
+
+
+def _tests_from_dict(raw: Any, where: str, fail: _Fail) -> dict[str, Any]:
+    if raw is None:
+        return {}
+    if not isinstance(raw, dict):
+        fail(f"{where}: tests must be an object")
+    managed = raw.get("managed", [])
+    if not isinstance(managed, list) or not all(isinstance(node, str) for node in managed):
+        fail(f"{where}: tests.managed must be a list of node IDs")
+    discovered = raw.get("discovered", [])
+    if not isinstance(discovered, list) or not all(
+        isinstance(entry, dict)
+        and isinstance(entry.get("node"), str)
+        and isinstance(entry.get("provenance"), str)
+        and isinstance(entry.get("path"), str)
+        and isinstance(entry.get("line"), int)
+        for entry in discovered
+    ):
+        fail(f"{where}: tests.discovered entries need node, provenance, path and line")
+    return {"tests_managed": list(managed), "tests_discovered": [dict(entry) for entry in discovered]}
 
 
 def _source_from_dict(raw: Any, where: str, fail: _Fail) -> SourceRef | None:
@@ -240,6 +265,10 @@ def task_to_dict(task: Task) -> dict[str, Any]:
             "history": [_event_to_dict(e) for e in task.history],
         }
     )
+    if task.tests_managed or task.tests_discovered:  # omitted when empty: no churn for test-less tasks
+        data["tests"] = {"managed": list(task.tests_managed), "discovered": list(task.tests_discovered)}
+    else:
+        data.pop("tests", None)
     return data
 
 

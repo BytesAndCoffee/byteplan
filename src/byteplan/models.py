@@ -93,6 +93,10 @@ class Task:
     scope_state: ScopeState = ScopeState.IN_SCOPE
     source: SourceRef | None = None
     stub: dict[str, Any] | None = None
+    # Acceptance tests (pytest node IDs). `managed` is written only by `byteplan tests add/remove`;
+    # `discovered` ({node, provenance, path, line}) is recomputed by scans from source.
+    tests_managed: list[str] = field(default_factory=list)
+    tests_discovered: list[dict[str, Any]] = field(default_factory=list)
     first_seen: str | None = None
     last_seen: str | None = None
     history: list[HistoryEvent] = field(default_factory=list)
@@ -102,6 +106,15 @@ class Task:
     @property
     def display_title(self) -> str:
         return self.title_override or self.title
+
+    def linked_tests(self) -> dict[str, list[str]]:
+        """The effective test set: each node ID with all of its provenances, in sorted order."""
+        links: dict[str, list[str]] = {node: ["managed"] for node in self.tests_managed}
+        for entry in self.tests_discovered:
+            provenances = links.setdefault(entry["node"], [])
+            if entry["provenance"] not in provenances:
+                provenances.append(entry["provenance"])
+        return {node: sorted(links[node]) for node in sorted(links)}
 
 
 @dataclass(frozen=True)
@@ -143,6 +156,8 @@ class Annotation:
     attachment_kind: AttachmentKind | None = None
     # Whether the declaration this annotation owns is currently a stub (None: owns none).
     decl_is_stub: bool | None = None
+    # @todo(tests=...)/@todo(test=...) node IDs (decorators only).
+    tests: tuple[str, ...] = ()
 
     @property
     def location(self) -> str:

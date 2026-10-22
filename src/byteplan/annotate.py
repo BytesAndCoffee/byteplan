@@ -45,6 +45,8 @@ def annotate(
     detect: DetectConfig,
     runtime_modules: Sequence[str] = DEFAULT_RUNTIME_MODULES,
     hierarchy: ClassHierarchy | None = None,
+    *,
+    pytest_marker: bool = False,
 ) -> tuple[SourceFile, FileScan]:
     """Return ``source`` with every proposal's ID written, plus a scan of the result.
 
@@ -66,7 +68,7 @@ def annotate(
     ensure_unchanged(source.path, source.text, edited.text, detect.todo_tags)
 
     before = scan_file(source, detect, runtime_modules, hierarchy).tags
-    after = scan_file(edited, detect, runtime_modules, hierarchy)
+    after = scan_file(edited, detect, runtime_modules, hierarchy, pytest_marker=pytest_marker)
     expected = Counter(_identity(a, proposed.get((a.line, a.col), a.task_id)) for a in before)
     if expected != Counter(_identity(a, a.task_id) for a in after.tags):
         msg = f"{source.path}: annotation did not round-trip through the scanner; nothing was written"

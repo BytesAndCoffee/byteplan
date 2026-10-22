@@ -119,6 +119,10 @@ def task_text(task: Task) -> str:
         symbol = f"  ({task.source.symbol})" if task.source.symbol else ""
         lines.append(f"  source:    {task.source.path}:{task.source.line}{symbol}")
     lines.append(f"  origin:    {task.origin}")
+    tests = task.linked_tests()
+    if tests:
+        lines.append("  tests:")
+        lines.extend(f"    {node}  ({', '.join(provenances)})" for node, provenances in tests.items())
     lines.append(f"  seen:      {task.first_seen or '-'} … {task.last_seen or '-'}")
     if task.notes:
         lines.append("  notes:")
@@ -312,4 +316,25 @@ def sync_text(report: SyncReport) -> str:
         lines += ["", "Dry run: nothing was written. `byteplan sync --apply` writes these."]
     elif report.written:
         lines += ["", f"Wrote {len(report.written)} file(s)."]
+    return "\n".join(lines)
+
+
+# byteplan tests ------------------------------------------------------------------------------------
+
+
+def tests_json(tasks: Sequence[Task]) -> list[dict[str, Any]]:
+    return [
+        {"id": t.id, "title": t.display_title, "status": str(t.status), "node": node, "provenance": provenances}
+        for t in tasks
+        for node, provenances in t.linked_tests().items()
+    ]
+
+
+def tests_text(tasks: Sequence[Task]) -> str:
+    rows = tests_json(tasks)
+    if not rows:
+        return "No linked tests."
+    width = max(len(r["node"]) for r in rows)
+    lines = [f"{'ID':<5} {'TEST':<{width}}  PROVENANCE"]
+    lines += [f"{r['id']:<5} {r['node']:<{width}}  {', '.join(r['provenance'])}" for r in rows]
     return "\n".join(lines)
