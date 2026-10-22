@@ -2,6 +2,18 @@
 # No `types: [python]` filter on purpose: registry-only, rename and deletion
 # commits must be checked too, so the hooks always run and look at the whole
 # staged snapshot themselves.
+- id: byteplan-reconcile
+  name: BytePlan staged reconciliation
+  description: >-
+    Give new TODOs in the commit their IDs and update .byteplan/tasks.json. Under the
+    pre-commit framework this behaves like a formatter: it annotates the files, fails,
+    and the next commit (after `git add`) passes.
+  entry: byteplan scan --staged --apply
+  language: python
+  pass_filenames: false
+  always_run: true
+  stages: [pre-commit]
+
 - id: byteplan-check
   name: BytePlan staged consistency
   description: Check that the staged code and the staged .byteplan/tasks.json agree. Read-only.

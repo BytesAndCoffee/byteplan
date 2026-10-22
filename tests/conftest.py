@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import shutil
 import textwrap
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -12,7 +13,8 @@ from typing import TYPE_CHECKING
 import pytest
 
 from byteplan.api import init_project
-from byteplan.cli import main
+from byteplan.cli import EXIT_OK, main
+from tests.gitutil import git
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -94,3 +96,22 @@ class FakeClock:
 @pytest.fixture
 def clock() -> FakeClock:
     return FakeClock()
+
+
+@pytest.fixture
+def repo(project: ProjectFactory, run_cli: RunCli) -> ProjectFactory:
+    """A committed, fully reconciled project in ``<git repo>/proj`` (so path offsets are exercised)."""
+    if shutil.which("git") is None:
+        pytest.skip("git not installed")
+    top = project.root.parent
+    git(top, "init", "-q", "-b", "main")
+    git(top, "config", "user.email", "test@example.com")
+    git(top, "config", "user.name", "Test")
+    git(top, "config", "commit.gpgsign", "false")
+    project.init()
+    project.write("src/a.py", "def f():\n    # TODO: first task\n    return 1\n")
+    project.write("src/b.py", "# FIXME: second task\nx = 1\n")
+    assert run_cli("scan", "--project", project.root).code == EXIT_OK
+    git(top, "add", "-A")
+    git(top, "commit", "-qm", "base")
+    return project

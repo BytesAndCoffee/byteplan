@@ -41,6 +41,7 @@ from byteplan.persistence import (
     project_lock,
     recover,
     sha256,
+    staged_dir,
 )
 from byteplan.reconcile import Observation, Summary, reconcile
 from byteplan.registry import Registry, load_registry
@@ -92,6 +93,9 @@ class ScanReport:
     written: tuple[str, ...] = ()
     # Paths an interrupted earlier write was completed for before this scan.
     recovered: tuple[str, ...] = ()
+    # Every file this scan would write (source edits, then the registry), with the hash of
+    # the bytes it planned against. Populated for dry runs too.
+    planned: tuple[FileWrite, ...] = ()
 
     @property
     def files_scanned(self) -> int:
@@ -179,6 +183,12 @@ class Project:
     @contextlib.contextmanager
     def _writing(self) -> Iterator[tuple[str, ...]]:
         """Hold the project lock and finish any interrupted write first."""
+        if (staged_dir(self.root) / "journal.json").exists():
+            msg = (
+                "an interrupted staged reconciliation is pending; run `byteplan scan --staged --apply` "
+                "to finish or undo it first"
+            )
+            raise ConfigError(msg)
         with project_lock(self.root):
             yield tuple(recover(self.root))
 
@@ -321,6 +331,7 @@ class Project:
             blocked=blocked,
             written=tuple(written),
             recovered=recovered,
+            planned=tuple(writes),
         )
 
     def _consistency(

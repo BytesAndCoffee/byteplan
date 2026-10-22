@@ -9,11 +9,9 @@ subdirectory of the repository (``proj/``), so path offsets are always exercised
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import shutil
-import subprocess
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -21,53 +19,12 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from byteplan.cli import EXIT_ERROR, EXIT_FINDINGS, EXIT_OK
+from tests.gitutil import frozen, git
 
 if TYPE_CHECKING:
     from tests.conftest import ProjectFactory, RunCli
 
 pytestmark = pytest.mark.skipif(shutil.which("git") is None, reason="git not installed")
-
-
-def git(
-    cwd: Path, *args: str, check: bool = True, env: dict[str, str] | None = None
-) -> subprocess.CompletedProcess[str]:
-    # Git runs BytePlan (hooks) in subprocesses; keep their coverage data with ours, not in the test repo.
-    coverage = {"COVERAGE_FILE": str(Path(__file__).resolve().parents[1] / ".coverage")}
-    return subprocess.run(
-        ["git", *args],
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-        check=check,
-        env={**os.environ, **coverage, **(env or {})},
-    )
-
-
-@pytest.fixture
-def repo(project: ProjectFactory, run_cli: RunCli) -> ProjectFactory:
-    """A committed, fully reconciled project in ``<repo>/proj``."""
-    top = project.root.parent
-    git(top, "init", "-q", "-b", "main")
-    git(top, "config", "user.email", "test@example.com")
-    git(top, "config", "user.name", "Test")
-    git(top, "config", "commit.gpgsign", "false")
-    project.init()
-    project.write("src/a.py", "def f():\n    # TODO: first task\n    return 1\n")
-    project.write("src/b.py", "# FIXME: second task\nx = 1\n")
-    assert run_cli("scan", "--project", project.root).code == EXIT_OK
-    git(top, "add", "-A")
-    git(top, "commit", "-qm", "base")
-    return project
-
-
-def frozen(repo: ProjectFactory) -> dict[str, str]:
-    """Hashes of .git/index and every working-tree file: read-only commands must not change them."""
-    top = repo.root.parent
-    state = {".git/index": hashlib.sha256((top / ".git/index").read_bytes()).hexdigest()}
-    for path in sorted(top.rglob("*")):
-        if path.is_file() and ".git" not in path.relative_to(top).parts:
-            state[path.relative_to(top).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
-    return state
 
 
 def staged(run_cli: RunCli, repo: ProjectFactory, *extra: str) -> Any:
@@ -249,7 +206,7 @@ def test_scan_staged_dry_run_only(repo: ProjectFactory, run_cli: RunCli) -> None
     assert frozen(repo) == before
     refused = run_cli("scan", "--staged", "--project", repo.root)
     assert refused.code == EXIT_ERROR
-    assert "read-only" in refused.err
+    assert "exactly one of --dry-run (preview) or --apply" in refused.err
     assert frozen(repo) == before
 
 
@@ -335,9 +292,9 @@ def test_unmerged_index_is_an_error(repo: ProjectFactory, run_cli: RunCli) -> No
 # Hooks ----------------------------------------------------------------------------------------------------
 
 
-def test_installed_hook_blocks_an_unreconciled_commit(repo: ProjectFactory, run_cli: RunCli) -> None:
+def test_check_mode_hook_blocks_an_unreconciled_commit(repo: ProjectFactory, run_cli: RunCli) -> None:
     top = repo.root.parent
-    result = run_cli("git", "install-hooks", "--project", repo.root)
+    result = run_cli("git", "install-hooks", "--mode", "check", "--project", repo.root)
     assert result.code == EXIT_OK, result.err
     hook = top / ".git/hooks/pre-commit"
     assert os.access(hook, os.X_OK)

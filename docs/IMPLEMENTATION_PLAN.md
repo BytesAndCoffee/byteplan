@@ -37,7 +37,7 @@ itself.
 |---|---|
 | **Now (with Phase 4b)** ✅ | Its own registry. `[tool.byteplan]` scopes `src/` of both packages; tests are excluded because they deliberately contain annotation fixtures. Real follow-ups live as tagged TODOs in the code they concern. The registry merges by task ID (`.byteplan/.gitattributes`). CI runs `byteplan check --commit HEAD` on every push and PR. |
 | Phase 4b ✅ | Staged commits are checked: `hatch run byteplan git install-hooks`, or the local `.pre-commit-config.yaml`. |
-| Phase 4c | BytePlan's own new TODOs get their IDs automatically when committed; no separate scan step. |
+| Phase 4c ✅ | BytePlan's own new TODOs get their IDs automatically when committed (`hatch run byteplan git install-hooks`, once per clone). |
 | Phases 6a–6b | Its own tasks link to acceptance tests, and regression tests are scaffolded with `tests scaffold`. |
 | Phase 9 | Coding agents developing BytePlan query it over MCP for outstanding work, record evidence, and hand the next session an authoritative state snapshot. |
 | Phase 10 | A documented, fully integrated self-managed workflow. CI on ubuntu, macOS and Windows. |
@@ -950,6 +950,27 @@ check still works.
     workflow, documented as such.
 - **Other hooks:** `byteplan-check` stays the read-only hook for teams that want validation only.
 
+**As built (verified against git 2.51).** A probe hook checked which index file each commit
+mode hands a pre-commit hook:
+
+| Mode | `GIT_INDEX_FILE` | Git holds `.git/index.lock` | Result |
+|---|---|---|---|
+| `git commit`, `--amend` | `.git/index` (relative) | no | BytePlan takes `.git/index.lock` itself |
+| `git commit -a`, `--include` | `.git/index.lock` (absolute) | yes | BytePlan locks `.git/index.lock.lock`; Git renames the result into place |
+| `git commit <paths>` | `.git/next-index-<pid>.lock` | yes | **check-only**: Git separately stages the paths into the real index, so annotating the temporary one would leave the real index behind |
+
+In the first two modes, a hook using the lock → scratch index → rename protocol put its change into
+the commit, with index = HEAD and working tree = index afterwards (no phantom diff). Other
+decisions:
+- **pre-commit framework (`PRE_COMMIT=1`):** writes the working tree only, never the index. The
+  framework may roll back a hook's working-tree fixes when they conflict with its stash, and an
+  index change would then be left without its file.
+- **Revalidation:** runs after the journal is deleted, because the transaction itself is complete
+  and consistent. A failing revalidation (e.g. an unregistered ID elsewhere) is reported and exits
+  1, without undoing the reconciliation.
+- **Pending journal:** any other writing command refuses to run while
+  `.byteplan/txn/staged-journal.json` is pending.
+
 **Policy.** `[tool.byteplan.git] on_reconcile = "commit"` (default) lets the commit proceed after a
 successful reconciliation. `"stop"` exits 1 after writing, so the developer reviews first, which
 was the earlier design's behaviour.
@@ -1312,10 +1333,8 @@ Each addendum's suggested order is merged in below: Addendum A §10, Addendum B 
 D builds on nearly everything before it (verification, scaffolding, release, MCP), and nothing
 earlier depends on it.
 
-Addendum items are planned, not implemented, until their phase is marked ✅. **Phase 4c comes
-next**, giving IDs at commit time. It builds directly on Phase 4b's snapshots and on the Phase 2
-journal, and it's a foundational part of the everyday workflow rather than a late optional extra.
-Phase 4d follows it. Addendum A's step 2 (choosing the runtime design) is already done, and the
+Addendum items are planned, not implemented, until their phase is marked ✅. Phase 4c (IDs at
+commit time) is done. **Phase 4d comes next.** Addendum A's step 2 (choosing the runtime design) is already done, and the
 runtime package has shipped.
 
 | Phase | Deliverables | Spec §12 tests | Addendum §9 tests |
@@ -1326,7 +1345,7 @@ runtime package has shipped.
 | 3. Stubs + decorators ✅ | `stubs.py`, `decorators.py` (static `@todo`/`@verifies` discovery, alias resolution), `association.py` (comment / decorator / stub → one obligation), decorator `id=` allocation, schema fields, `implementation_changed`, `check`, `report`, `repair` | 2, 3, 4, 17 | 1, 2, 6 (comment mode), 7, 19 |
 | 4. Hatch ✅ | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
 | 4b. Git lifecycle (read-only) ✅ | `snapshot.py` + `gitio.py` (index/commit snapshots via NUL-safe plumbing, no-optional-locks), `check --staged`, `scan --staged --dry-run`, staged diagnostics and policy keys, `.pre-commit-hooks.yaml`, `git install-hooks` / `git hooks-status`, `docs/ci.md` GitHub Actions recipe | – | C: 1–6, 8–14, 17–21 (C: 7, 22 with Phase 8) |
-| 4c. Git staged reconciliation | `scan --staged --apply`; fully-staged / partial-stage classification against HEAD, index and working tree (`partial_stage_conflict`, `registry_partial_stage_conflict`); blobs → journal → index swap under the index lock (`$GIT_INDEX_FILE`-aware inside `git commit`) → hash-guarded working-tree writes, with index rollback on conflict → revalidation; crash recovery and idempotent retries; `install-hooks --mode reconcile` (new default) and a `byteplan-reconcile` framework hook (fixer behaviour); `[tool.byteplan.git] on_reconcile`; `unsupported_index_format` | – | C: 15, 16 + 4c tests below |
+| 4c. Git staged reconciliation ✅ | `scan --staged --apply`; fully-staged / partial-stage classification against HEAD, index and working tree (`partial_stage_conflict`, `registry_partial_stage_conflict`); blobs → journal → index swap under the index lock (`$GIT_INDEX_FILE`-aware inside `git commit`) → hash-guarded working-tree writes, with index rollback on conflict → revalidation; crash recovery and idempotent retries; `install-hooks --mode reconcile` (new default) and a `byteplan-reconcile` framework hook (fixer behaviour); `[tool.byteplan.git] on_reconcile`; `unsupported_index_format` | – | C: 15, 16 + 4c tests below |
 | 4d. Registry forward compatibility | unknown **top-level** registry keys round-trip (today they're dropped on save; task-level ones already survive), and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
 | 5. Runtime + normalization | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
 | 6a. Acceptance tests | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |

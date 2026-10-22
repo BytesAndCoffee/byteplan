@@ -3,6 +3,12 @@
 repos:
   - repo: local
     hooks:
+      - id: byteplan-reconcile
+        name: BytePlan staged reconciliation (this repository)
+        entry: hatch run byteplan scan --staged --apply
+        language: system
+        pass_filenames: false
+        always_run: true
       - id: byteplan-check
         name: BytePlan staged consistency (this repository)
         entry: hatch run byteplan check --staged
