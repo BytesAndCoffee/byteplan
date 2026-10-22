@@ -193,3 +193,12 @@ def test_commit_carries_ids_in_markdown_and_json(hooked_formats: ProjectFactory,
     assert registry[config_id]["source"]["symbol"] == "/retries"
     assert git(top, "status", "--porcelain").stdout == ""  # the working tree matches the commit
     assert run_cli("check", "--commit", "HEAD", "--project", hooked_formats.root).code == EXIT_OK
+
+
+def test_scan_writes_ids_into_link_reference_comments(formats: ProjectFactory, run_cli: RunCli) -> None:
+    formats.write("README.md", "# Usage\n\n[//]: # (TODO: Hidden from the rendered page)\n")
+    assert run_cli("scan", "--project", formats.root).code == EXIT_OK
+    readme = (formats.root / "README.md").read_text()
+    (task_id,) = ids(readme)
+    assert readme == f"# Usage\n\n[//]: # (TODO[{task_id}]: Hidden from the rendered page)\n"
+    assert tasks(formats)[task_id]["source"]["symbol"] == "Usage"

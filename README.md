@@ -144,6 +144,10 @@ and BytePlan tracks tags there too, with the same IDs, registry and Git integrat
 - **Markdown:** tags in HTML comments, so they don't render. The first line is the title and
   the rest of the comment is the description. Prose and code (fenced blocks, inline code) are
   never scanned. The symbol is the nearest heading.
+- **Fully hidden Markdown comments:** `[//]: # (TODO: title)` is an unused link definition, so
+  it's missing even from the generated HTML. Any label works, the title can use `()`, `""` or
+  `''`, and following `[//]: # (  more)` lines indented two spaces are the description. Like any
+  link definition it can't interrupt a paragraph, so leave a blank line (or a heading) above it.
 - **JSON** (`.json`, `.jsonc`): `//` and `/* */` comments, as in `tsconfig.json`. Strict JSON
   can't hold comments, so a **string value** that starts with `TODO:` (case-sensitive, colon
   required) is tracked too, and its ID goes inside the string. Turn that off with

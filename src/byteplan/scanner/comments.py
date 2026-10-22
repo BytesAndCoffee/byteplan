@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from byteplan.scanner.symbols import SymbolIndex
 
 __all__ = [
+    "CONTINUATION_INDENT",
     "IGNORE_FILE_MAX_LINE",
     "IGNORE_RE",
     "Comment",

@@ -203,3 +203,76 @@ def test_comment_opened_first_hides_backticks() -> None:
 def test_lines_inside_a_multi_line_code_span_are_not_headings() -> None:
     text = "# Real\nText `span\nNot a heading\n---` <!-- TODO: x -->\n"
     assert scan(text).tags[0].symbol == "Real"
+
+
+# Link-reference comments: [//]: # (...) ------------------------------------------------------------
+
+
+def test_link_reference_comments() -> None:
+    text = """\
+        # Guide
+
+        [//]: # (TODO: Rewrite the intro)
+        [comment]: # "FIXME[7fa2]: Fix the example"
+          [_]: # 'HACK: single quotes, indented'
+        """
+    tags = scan(text).tags
+    assert [(t.kind, t.task_id, t.title, t.line, t.col, t.symbol, t.trailing) for t in tags] == [
+        ("TODO", None, "Rewrite the intro", 3, 0, "Guide", False),
+        ("FIXME", "7fa2", "Fix the example", 4, 0, "Guide", False),
+        ("HACK", None, "single quotes, indented", 5, 2, "Guide", False),
+    ]
+    assert tags[0].id_slot == IdSlot(3, 13, "[{id}]")
+    assert tags[0].attachment_kind is AttachmentKind.MODULE
+
+
+def test_link_reference_comment_continuation() -> None:
+    text = """\
+        [//]: # (TODO: Document the merge driver)
+        [//]: # (  Show the .gitattributes line.)
+        [//]: # (    And a conflict example.)
+        [//]: # (Not indented: not a continuation)
+        """
+    (tag,) = scan(text).tags
+    assert (tag.title, tag.description, tag.end_line) == (
+        "Document the merge driver",
+        "Show the .gitattributes line.\n  And a conflict example.",
+        3,
+    )
+
+
+def test_link_reference_comment_title_with_parentheses() -> None:
+    assert titles("[//]: # (TODO: call f(x) twice)\n") == ["call f(x) twice"]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "A paragraph line\n[//]: # (TODO: no, it would continue the paragraph)\n",
+        "- list item\n[//]: # (TODO: no, lazy continuation)\n",
+        "```\n[//]: # (TODO: no, in a fence)\n```\n",
+        "[//]: <https://example.com> (TODO: no, not a # destination)\n",
+        "[//]: # (see TODO: the tag must open the title)\n",
+        "    [//]: # (TODO: no, four spaces is too deep)\n",
+        "Inline `code\n[//]: # (TODO: no, inside a code span)\nend`\n",
+    ],
+)
+def test_link_reference_comments_only_where_definitions_are(text: str) -> None:
+    assert scan(text, dedent=False).tags == []
+
+
+def test_link_reference_comment_after_a_heading_or_html_comment() -> None:
+    text = "# H\n[//]: # (TODO: after a heading)\n<!-- x -->\n[//]: # (TODO: after a comment)\n"
+    assert titles(text) == ["after a heading", "after a comment"]
+
+
+def test_link_reference_comment_ignore_markers() -> None:
+    assert titles("[//]: # (TODO: skip byteplan: ignore)\n\n[//]: # (TODO: keep)\n") == ["keep"]
+    assert titles("[//]: # (byteplan: ignore-file)\n\n[//]: # (TODO: x)\n<!-- TODO: y -->\n") == []
+
+
+def test_edit_guard_covers_link_reference_comments() -> None:
+    before = "[//]: # (TODO: x)\ntext\n"
+    ensure_unchanged("a.md", before, "[//]: # (TODO[7fa2]: x)\ntext\n", ("TODO",))
+    with pytest.raises(EditError, match="outside comments"):
+        ensure_unchanged("a.md", before, "[//]: # (TODO: x)\ntext!\n", ("TODO",))

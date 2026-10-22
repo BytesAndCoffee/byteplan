@@ -6,7 +6,8 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 ## Unreleased
 
 ### Tracking
-- **Markdown and JSON:** tags in Markdown HTML comments (`<!-- TODO: ... -->`) and in JSON
+- **Markdown and JSON:** tags in Markdown HTML comments (`<!-- TODO: ... -->`) and fully hidden
+  link-reference comments (`[//]: # (TODO: ...)`), and in JSON
   `//` / `/* */` comments and string values (`"TODO: ..."`) are tracked like Python comments, with
   IDs, Git integration and repair. Opt in through `include`; the default scope is still `**/*.py`.
   New `[tool.byteplan.detect] json_string_values` option.

@@ -16,6 +16,11 @@ Grammar:
   code blocks are not recognized.
 * A tag's symbol is the nearest preceding heading (ATX or setext). YAML front matter
   is skipped.
+* Link-reference comments work too: ``[//]: # (TODO: title)`` (any label, destination
+  ``#``, a ``()``, ``""`` or ``''`` title), which render as nothing at all. The tag must
+  open the title. Directly following comment lines whose text starts with two spaces
+  are the description, as with Python ``#`` comments. Like any link definition, one
+  can't interrupt a paragraph, so it needs a blank line (or a heading) above it.
 * ``byteplan: ignore`` inside a tag comment suppresses it, and
   ``<!-- byteplan: ignore-file -->`` within the first five lines suppresses the file.
 """
@@ -30,7 +35,13 @@ from typing import TYPE_CHECKING
 from byteplan.diagnostics import Diagnostic
 from byteplan.edits import line_offsets, physical_lines
 from byteplan.errors import EditError
-from byteplan.scanner.comments import IGNORE_FILE_MAX_LINE, IGNORE_RE, tag_annotation, tag_pattern
+from byteplan.scanner.comments import (
+    CONTINUATION_INDENT,
+    IGNORE_FILE_MAX_LINE,
+    IGNORE_RE,
+    tag_annotation,
+    tag_pattern,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -48,6 +59,11 @@ _FRONT_MATTER_END = frozenset({"---", "..."})
 _BACKTICKS_RE = re.compile(r"`+")
 _IGNORE_FILE_RE = re.compile(r"^\s*byteplan:\s*ignore-file\b", re.IGNORECASE)
 _INLINE_COMMENT_RE = re.compile(r"<!--.*?-->")
+# A link reference definition to "#" that nothing uses: `[//]: # (text)`. Markdown renders
+# nothing for it, not even in the HTML, so it works as a comment. Titles may use (), "" or ''.
+_LINK_COMMENT_RE = re.compile(
+    r"^(?P<indent> {0,3})\[[^\]]+\]:[ \t]+#[ \t]+(?:\((?P<paren>.*)\)|\"(?P<double>.*)\"|'(?P<single>.*)')[ \t]*$"
+)
 
 
 @dataclass(frozen=True)
@@ -64,9 +80,25 @@ class HtmlComment:
 
 
 @dataclass(frozen=True)
+class LinkComment:
+    """A ``[//]: # (text)`` line: ``text`` starts at ``text_col`` (``text_start`` in the document)."""
+
+    line: int
+    col: int
+    text_col: int
+    text: str
+    text_start: int
+
+    @property
+    def text_end(self) -> int:
+        return self.text_start + len(self.text)
+
+
+@dataclass(frozen=True)
 class MarkdownStructure:
     comments: list[HtmlComment]
     headings: list[tuple[int, str]]  # (line, text), in order
+    link_comments: list[LinkComment]
 
     def heading_for(self, line: int) -> str | None:
         found = None
@@ -167,6 +199,8 @@ def parse_markdown(text: str) -> MarkdownStructure:
     headings: list[tuple[int, str]] = []
     fence: tuple[str, int] | None = None
     previous_paragraph: str | None = None  # the line above, if it could be a setext heading's text
+    in_paragraph = False  # a link definition can't interrupt a paragraph
+    link_comments: list[LinkComment] = []
 
     for number, raw in enumerate(lines[_front_matter_end(lines) :], start=_front_matter_end(lines) + 1):
         content = raw.rstrip("\r\n")
@@ -176,10 +210,12 @@ def parse_markdown(text: str) -> MarkdownStructure:
                 parser.code_until = None
                 parser.scan_line(content, number, end_col)
             previous_paragraph = None
+            in_paragraph = True
             continue
         if parser.pending is not None:
             parser.scan_line(content, number)
             previous_paragraph = None
+            in_paragraph = False
             continue
         match = _FENCE_RE.match(content)
         if fence is not None:
@@ -189,15 +225,34 @@ def parse_markdown(text: str) -> MarkdownStructure:
         if match and not (match.group("fence")[0] == "`" and "`" in match.group("info")):
             fence = (match.group("fence")[0], len(match.group("fence")))
             previous_paragraph = None
+            in_paragraph = False
+            continue
+
+        link = None if in_paragraph else _LINK_COMMENT_RE.match(content)
+        if link is not None:
+            group = next(g for g in ("paren", "double", "single") if link.group(g) is not None)
+            text_col = link.start(group)
+            link_comments.append(
+                LinkComment(
+                    number,
+                    len(link.group("indent")),
+                    text_col,
+                    link.group(group),
+                    parser.offsets[number - 1] + text_col,
+                )
+            )
+            previous_paragraph = None
             continue
 
         atx = _ATX_RE.match(content)
+        setext = not atx and previous_paragraph is not None and bool(_SETEXT_RE.match(content))
         if atx:
             headings.append((number, _heading_text(atx.group("text") or "")))
-        elif previous_paragraph is not None and _SETEXT_RE.match(content):
+        elif setext and previous_paragraph is not None:
             headings.append((number - 1, _heading_text(previous_paragraph)))
         parser.scan_line(content, number)
         prose = _heading_text(content)
+        in_paragraph = (bool(prose) and not atx and not setext) or parser.code_until is not None
         previous_paragraph = (
             content
             if prose
@@ -210,7 +265,7 @@ def parse_markdown(text: str) -> MarkdownStructure:
     if parser.pending is not None:  # unterminated: runs to the end of the document, as in CommonMark
         start, start_line, col, standalone = parser.pending
         parser.comments.append(HtmlComment(start, len(text), start_line, col, max(len(lines), 1), standalone))
-    return MarkdownStructure(parser.comments, headings)
+    return MarkdownStructure(parser.comments, headings, link_comments)
 
 
 def _heading_text(text: str) -> str:
@@ -220,7 +275,9 @@ def _heading_text(text: str) -> str:
 def scan_markdown(source: SourceFile, tags: Sequence[str]) -> tuple[list[Annotation], list[Diagnostic]]:
     structure = parse_markdown(source.text)
     comments = structure.comments
-    if any(c.line <= IGNORE_FILE_MAX_LINE and _IGNORE_FILE_RE.match(_body(c.text(source.text))) for c in comments):
+    if any(
+        c.line <= IGNORE_FILE_MAX_LINE and _IGNORE_FILE_RE.match(_body(c.text(source.text))) for c in comments
+    ) or any(c.line <= IGNORE_FILE_MAX_LINE and _IGNORE_FILE_RE.match(c.text) for c in structure.link_comments):
         return [], []
     pattern = tag_pattern(tags, opener=re.escape(OPEN))
     canonical = {tag.upper(): tag for tag in tags}
@@ -254,7 +311,59 @@ def scan_markdown(source: SourceFile, tags: Sequence[str]) -> tuple[list[Annotat
             diagnostics.append(result)
         else:
             found.append(result)
+    found.extend(_scan_link_comments(source, structure, tags, diagnostics))
+    found.sort(key=lambda a: (a.line, a.col))
     return found, diagnostics
+
+
+def _scan_link_comments(
+    source: SourceFile, structure: MarkdownStructure, tags: Sequence[str], diagnostics: list[Diagnostic]
+) -> list[Annotation]:
+    """Tags in ``[//]: # (TODO: title)`` lines. Directly following comment lines whose text
+    starts with two spaces are the description, as with Python ``#`` comments."""
+    pattern = tag_pattern(tags, opener="")
+    canonical = {tag.upper(): tag for tag in tags}
+    comments = structure.link_comments
+    found: list[Annotation] = []
+    index = 0
+    while index < len(comments):
+        comment = comments[index]
+        index += 1
+        match = pattern.fullmatch(comment.text)
+        if match is None:
+            continue
+        continuation: list[str] = []
+        while index < len(comments):
+            nxt = comments[index]
+            if (
+                nxt.line != comment.line + len(continuation) + 1
+                or not nxt.text.startswith(CONTINUATION_INDENT)
+                or not nxt.text.strip()
+                or pattern.fullmatch(nxt.text)
+            ):
+                break
+            continuation.append(nxt.text.rstrip())
+            index += 1
+        if IGNORE_RE.search(comment.text):
+            continue
+        result = tag_annotation(
+            source,
+            match,
+            canonical,
+            line=comment.line,
+            end_line=comment.line + len(continuation),
+            col=comment.col,
+            slot_col=comment.text_col + match.end("tag"),
+            title=match.group("rest"),
+            description=textwrap.dedent("\n".join(continuation)),
+            symbol=structure.heading_for(comment.line),
+            trailing=False,
+        )
+        if isinstance(result, Diagnostic):
+            diagnostics.append(result)
+        else:
+            found.append(result)
+    return found
 
 
 def _body(comment: str) -> str:
@@ -263,11 +372,16 @@ def _body(comment: str) -> str:
 
 
 def without_comments(text: str) -> str:
-    """The document with every HTML comment removed: what an annotation edit must not change."""
+    """The document with every HTML comment and link-comment text removed: what an
+    annotation edit must not change."""
+    structure = parse_markdown(text)
+    spans = sorted(
+        [(c.start, c.end) for c in structure.comments] + [(c.text_start, c.text_end) for c in structure.link_comments]
+    )
     kept, pos = [], 0
-    for comment in parse_markdown(text).comments:
-        kept.append(text[pos : comment.start])
-        pos = comment.end
+    for start, end in spans:
+        kept.append(text[pos:start])
+        pos = end
     kept.append(text[pos:])
     return "".join(kept)
 

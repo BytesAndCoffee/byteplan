@@ -1054,6 +1054,13 @@ Git integration and never-auto-resolve rule as Python.
   spans are not comments. Inline code can continue over the lines of a paragraph, and is scanned
   left to right as Markdown parses it.
   - Known gap: indented (four-space) code blocks are not recognized.
+- **Link-reference comments:** `[//]: # (TODO: title)`, an unused link definition to `#`, renders
+  as nothing at all, not even in the HTML.
+  - Any label works. The title can use `()`, `""` or `''`, and the tag must open it.
+  - Directly following comment lines whose text starts with two spaces are the description, as
+    with Python `#` comments.
+  - It's recognized only where CommonMark accepts a link definition: never inside a paragraph
+    (including a list item's lazy continuation), in code, or indented four spaces.
 - **Symbol:** the nearest preceding heading (ATX `##` or setext), so moving a TODO to another
   section records a `moved` event. YAML front matter is skipped.
 - **Ignoring:** `byteplan: ignore` inside a tag comment ignores that tag.
