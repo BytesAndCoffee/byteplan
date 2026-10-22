@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING
 
 import pytest
@@ -122,3 +123,21 @@ def test_init_packaging_warning_follows_hatch_rules(
     result = run_cli("init", "--project", project.root)
     assert result.code == 0
     assert ("would be shipped" in result.err or "so the registry is not shipped" in result.err) is warns
+
+
+# Codex review of #16 -------------------------------------------------------------------------------
+
+
+def test_repair_import_agrees_with_normal_scans(commands: ProjectFactory, run_cli: RunCli) -> None:
+    """A TODO inside a no-op override, imported by repair, must not look 'implementation_changed' next."""
+    pyproject = commands.root / "pyproject.toml"
+    pyproject.write_text(pyproject.read_text() + "\n[tool.byteplan.check]\nrequire_reconciled = true\n")
+    commands.write(
+        "pkg/runner.py",
+        RUNNER.replace("pass  # headless: nothing to refresh", "# TODO[beef]: maybe refresh later\n        pass"),
+    )
+    assert run_cli("repair", "--import", "beef", "--project", commands.root).code == 0
+    result = run_cli("check", "--format", "json", "--project", commands.root)
+    codes = [d["code"] for d in json.loads(result.out)["diagnostics"]]
+    assert "implementation_changed" not in codes
+    assert "registry_out_of_sync" not in codes

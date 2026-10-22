@@ -553,22 +553,34 @@ class Project:
 
     # Repair (explicit, never automatic) ------------------------------------------------
 
-    def _scan_sources(self) -> tuple[list[Annotation], dict[str, tuple[SourceFile, str]]]:
+    def _scan_sources(
+        self,
+    ) -> tuple[list[Annotation], dict[str, tuple[SourceFile, str]], ClassHierarchy | None]:
+        """Scan the whole scope as a normal scan would, including the class index, so repaired
+        registry entries agree with what the next scan or check sees."""
         scope = collect_files(self.config)
-        sources: dict[str, tuple[SourceFile, str]] = {}
-        annotations: list[Annotation] = []
+        loaded: dict[str, SourceFile] = {}
         failures: list[SourceError] = []
         for path in scope.files:
             try:
-                source = read_source(self.root, path)
-                annotations.extend(scan_file(source, self.config.detect, self.config.annotations.runtime_modules).tags)
+                loaded[path] = read_source(self.root, path)
+            except SourceError as exc:
+                failures.append(exc)
+        hierarchy = self._hierarchy(loaded, narrowed=False)
+        sources: dict[str, tuple[SourceFile, str]] = {}
+        annotations: list[Annotation] = []
+        for path, source in loaded.items():
+            try:
+                annotations.extend(
+                    scan_file(source, self.config.detect, self.config.annotations.runtime_modules, hierarchy).tags
+                )
             except SourceError as exc:
                 failures.append(exc)
                 continue
             sources[path] = (source, sha256(source.encode()))
         if failures:
             raise ScanError(failures)
-        return annotations, sources
+        return annotations, sources, hierarchy
 
     def import_task(self, task_id: str) -> RepairResult:
         """Register an ID that is in source but not in the registry (``unregistered_id``)."""
@@ -578,7 +590,7 @@ class Project:
             if task_id in registry.tasks:
                 msg = f"task {task_id} is already registered"
                 raise ConfigError(msg)
-            annotations, _ = self._scan_sources()
+            annotations, _, _ = self._scan_sources()
             found = [a for a in annotations if a.task_id == task_id]
             if len(found) != 1:
                 where = "is not in source" if not found else f"appears {len(found)} times; reassign the copies first"
@@ -599,7 +611,7 @@ class Project:
         """Give the duplicate-ID annotation at ``path:line`` a fresh ID, in source and registry."""
         with self._writing():
             registry_hash, registry = self._read_registry()
-            annotations, sources = self._scan_sources()
+            annotations, sources, hierarchy = self._scan_sources()
             target = next((a for a in annotations if a.path == path and a.line == line and a.task_id), None)
             if target is None or target.task_id is None:
                 msg = f"no tagged annotation at {path}:{line}"
@@ -625,7 +637,7 @@ class Project:
                 old_text, new_text = f"[{old_id}]", f"[{new_id}]"
             edited = dataclasses.replace(source, text=replace_at(source.text, line_no, col, old_text, new_text))
             ensure_equivalent(path, source.text, edited.text)
-            rescanned = scan_file(edited, self.config.detect, self.config.annotations.runtime_modules).tags
+            rescanned = scan_file(edited, self.config.detect, self.config.annotations.runtime_modules, hierarchy).tags
             moved = next((a for a in rescanned if a.line == line and a.task_id == new_id), None)
             if moved is None:
                 msg = f"{path}:{line}: reassignment did not round-trip through the scanner; nothing was written"
