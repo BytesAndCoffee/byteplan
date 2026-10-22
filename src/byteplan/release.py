@@ -185,7 +185,7 @@ def strip_file(
                 [f"{path}:{stmt.lineno}: `{', '.join(locals_)}` is imported from this module by {', '.join(consumed)}"],
                 "import it from the runtime where it's used, or drop the re-export",
             )
-        if locals_ and not (set(locals_) & used):
+        if locals_ and "*" not in used and not (set(locals_) & used):
             first, last = stmt.lineno, stmt.end_lineno or stmt.lineno
             if stmt.col_offset != 0 or lines[last - 1].rstrip("\r\n")[stmt.end_col_offset or 0 :].strip():
                 raise ReleaseError(
@@ -373,6 +373,9 @@ def _runtime_locals(stmt: ast.stmt, runtime: set[str], package: str) -> list[str
 #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353108715
 #   `__all__: list[str] = [...]` and `__all__ += [...]` were ignored, so exported names were stripped.
 def _used_names(tree: ast.Module) -> set[str]:
+    # FIXME[c449]: Treat __all__ mutations the export collector can't resolve as exporting everything
+    #   Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353676759
+    #   `__all__.append("todo")` exported the runtime name without being recognized.
     # Names exported through __all__ (=, +=, annotated) are used by importers.
     return {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)} | _exported(tree)
 

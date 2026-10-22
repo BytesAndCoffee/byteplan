@@ -804,3 +804,26 @@ def test_escaping_package_exposes_its_submodules(released_repo: ProjectFactory, 
     assert result.code == EXIT_ERROR
     assert "imported from this module by src/pkg/consumer.py" in result.err
     assert released_repo.snapshot() == before
+
+
+# Codex review of #32, round 12 ---------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ['__all__ = []\n__all__.append("todo")', '__all__ = []\n__all__.extend(["todo"])', "__all__ = list(EXPORTS)"],
+)
+def test_unresolvable_all_mutation_refuses_the_release(
+    released_repo: ProjectFactory, run_cli: RunCli, mutation: str
+) -> None:
+    """An __all__ the collector can't resolve may export the runtime name."""
+    released_repo.write(
+        "src/pkg/mutated.py", f"from byteplan_runtime import todo\n\nEXPORTS = ['todo']\n{mutation}\n", dedent=False
+    )
+    git(released_repo.root, "add", "-A")
+    git(released_repo.root, "commit", "-qm", "mutated __all__")
+    before = released_repo.snapshot()
+    result = release(released_repo, run_cli)
+    assert result.code == EXIT_ERROR
+    assert "src/pkg/mutated.py" in result.err
+    assert released_repo.snapshot() == before

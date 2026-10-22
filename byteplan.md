@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**29 open** · 8 closed (resolved 8)
+**30 open** · 8 closed (resolved 8)
 
 ## Open
 
@@ -32,10 +32,11 @@
 | `478d` | open | FIXME | normal | - | [`src/byteplan/release.py:332`](src/byteplan/release.py#L332) | Resolve relative imports before deciding whether they import the runtime |
 | `a703` | open | FIXME | normal | - | [`src/byteplan/release.py:360`](src/byteplan/release.py#L360) | Refuse wildcard runtime imports, whose bindings can't be proven unused |
 | `baeb` | open | FIXME | normal | - | [`src/byteplan/release.py:372`](src/byteplan/release.py#L372) | Count every __all__ assignment form as an export |
-| `fb23` | open | FIXME | normal | - | [`src/byteplan/release.py:456`](src/byteplan/release.py#L456) | Keep a restored runtime import above every use of its names |
-| `c242` | open | FIXME | normal | - | [`src/byteplan/release.py:463`](src/byteplan/release.py#L463) | Check the current binding before restoring a decorator |
-| `b68c` | open | FIXME | normal | - | [`src/byteplan/release.py:528`](src/byteplan/release.py#L528) | Restore an unanchored import below the current docstring and __future__ imports |
-| `fd44` | open | FIXME | normal | - | [`src/byteplan/release.py:537`](src/byteplan/release.py#L537) | Keep anchored imports below a __future__ import added since the release |
+| `c449` | open | FIXME | normal | - | [`src/byteplan/release.py:376`](src/byteplan/release.py#L376) | Treat __all__ mutations the export collector can't resolve as exporting everything |
+| `fb23` | open | FIXME | normal | - | [`src/byteplan/release.py:459`](src/byteplan/release.py#L459) | Keep a restored runtime import above every use of its names |
+| `c242` | open | FIXME | normal | - | [`src/byteplan/release.py:466`](src/byteplan/release.py#L466) | Check the current binding before restoring a decorator |
+| `b68c` | open | FIXME | normal | - | [`src/byteplan/release.py:531`](src/byteplan/release.py#L531) | Restore an unanchored import below the current docstring and __future__ imports |
+| `fd44` | open | FIXME | normal | - | [`src/byteplan/release.py:540`](src/byteplan/release.py#L540) | Keep anchored imports below a __future__ import added since the release |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
 
 ## Closed

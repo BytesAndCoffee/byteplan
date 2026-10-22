@@ -242,7 +242,7 @@ def _drop_unused_runtime_imports(path: str, text: str, runtime_modules: Sequence
         drop = [
             alias
             for alias in stmt.names
-            if alias.name == "todo" and (alias.asname or alias.name) not in used | names.ambiguous
+            if alias.name == "todo" and "*" not in used and (alias.asname or alias.name) not in used | names.ambiguous
         ]
         if not drop or stmt.end_lineno != stmt.lineno or stmt.col_offset != 0:
             continue
@@ -266,8 +266,14 @@ def _drop_unused_runtime_imports(path: str, text: str, runtime_modules: Sequence
 
 
 def _exported(tree: ast.Module) -> set[str]:
-    """String literals in module-level ``__all__`` assignments (``=``, ``+=``, annotated)."""
+    """String literals in module-level ``__all__`` assignments (``=``, ``+=``, annotated).
+
+    Contains ``"*"`` (may export anything) when ``__all__`` is used in a way that can't be
+    resolved statically: ``.append``/``.extend``, subscripts, being passed around, or a
+    non-literal value.
+    """
     names: set[str] = set()
+    resolved: set[int] = set()  # ids of the __all__ target names read exactly
     for stmt in tree.body:
         targets: list[ast.expr]
         value: ast.expr | None
@@ -279,8 +285,22 @@ def _exported(tree: ast.Module) -> set[str]:
             continue
         if value is None or not any(isinstance(t, ast.Name) and t.id == "__all__" for t in targets):
             continue
+        if not _literal_names(value):
+            names.add("*")
         names |= {n.value for n in ast.walk(value) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
+        resolved |= {id(t) for t in targets if isinstance(t, ast.Name)}
+    if any(isinstance(n, ast.Name) and n.id == "__all__" and id(n) not in resolved for n in ast.walk(tree)):
+        names.add("*")
     return names
+
+
+def _literal_names(node: ast.expr) -> bool:
+    """A list/tuple of strings, or ``+`` of such: an ``__all__`` value read exactly."""
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        return _literal_names(node.left) and _literal_names(node.right)
+    return isinstance(node, ast.List | ast.Tuple) and all(
+        isinstance(e, ast.Constant) and isinstance(e.value, str) for e in node.elts
+    )
 
 
 def _root(node: ast.Attribute) -> str:
