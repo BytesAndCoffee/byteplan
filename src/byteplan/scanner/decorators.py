@@ -28,10 +28,11 @@ from byteplan.diagnostics import Code, Diagnostic, Location, Severity
 from byteplan.edits import char_col, physical_lines
 from byteplan.ids import is_valid_id
 from byteplan.models import Annotation, IdSlot, Origin, Representation
+from byteplan.scanner.bindings import bound_names, module_statements
 from byteplan.scanner.stubs import dotted_name
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator, Sequence
+    from collections.abc import Callable, Sequence
 
     from byteplan.scanner.source import SourceFile
     from byteplan.scanner.symbols import Declaration
@@ -60,37 +61,6 @@ class RuntimeNames:
         return None
 
 
-def _module_statements(body: Sequence[ast.stmt]) -> Iterator[ast.stmt]:
-    for stmt in body:
-        yield stmt
-        if isinstance(stmt, ast.If):
-            yield from _module_statements(stmt.body)
-            yield from _module_statements(stmt.orelse)
-        elif isinstance(stmt, ast.Try | ast.TryStar):
-            yield from _module_statements(stmt.body)
-            for handler in stmt.handlers:
-                yield from _module_statements(handler.body)
-            yield from _module_statements(stmt.orelse)
-            yield from _module_statements(stmt.finalbody)
-
-
-def _bound_names(stmt: ast.stmt) -> list[str]:
-    if isinstance(stmt, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef):
-        return [stmt.name]
-    # FIXME[8c7f]: [P1] Detect module-level bindings through control flow before editing decorators
-    #   For/with/match targets and assignment expressions can shadow runtime names. Missing
-    #   those bindings lets scan inject id= into a custom decorator and break module imports.
-    targets: list[ast.expr] = []
-    if isinstance(stmt, ast.Assign):
-        targets = stmt.targets
-    elif isinstance(stmt, ast.AnnAssign | ast.AugAssign):
-        targets = [stmt.target]
-    names: list[str] = []
-    for target in targets:
-        names.extend(node.id for node in ast.walk(target) if isinstance(node, ast.Name))
-    return names
-
-
 def resolve_runtime_names(tree: ast.Module, runtime_modules: Sequence[str]) -> RuntimeNames:
     names = RuntimeNames()
     runtime = set(runtime_modules)
@@ -100,7 +70,7 @@ def resolve_runtime_names(tree: ast.Module, runtime_modules: Sequence[str]) -> R
         origins.setdefault(local, set()).add(origin)
 
     star_from_runtime = False
-    for stmt in _module_statements(tree.body):
+    for stmt in module_statements(tree.body):
         if isinstance(stmt, ast.ImportFrom):
             from_runtime = stmt.level == 0 and stmt.module in runtime
             for alias in stmt.names:
@@ -128,7 +98,7 @@ def resolve_runtime_names(tree: ast.Module, runtime_modules: Sequence[str]) -> R
                         f"package:{alias.name.split('.')[0]}" if not alias.asname else f"module:{target}",
                     )
         else:
-            for local in _bound_names(stmt):
+            for local in bound_names(stmt):
                 bind(local, f"other:{stmt.lineno}")
 
     for local, sources in origins.items():
@@ -223,6 +193,7 @@ class DecoratorScan:
     annotations: list[Annotation] = field(default_factory=list)
     links: list[VerifiesLink] = field(default_factory=list)
     diagnostics: list[Diagnostic] = field(default_factory=list)
+    runtime_lines: list[int] = field(default_factory=list)  # independent of argument validity
 
 
 def _literal_str(node: ast.expr) -> str | None:
@@ -302,6 +273,7 @@ def scan_decorators(
                     "import it once, e.g. `from byteplan_runtime import todo`, and don't rebind the name",
                 )
                 continue
+            result.runtime_lines.append(line)
             if not isinstance(decorator, ast.Call):
                 report(Code.INVALID_TODO_DECORATOR, Severity.ERROR, f"@{name} must be called, e.g. @{name}(...)", line)
                 continue
@@ -475,7 +447,7 @@ def _test_ids(values: dict[str, ast.expr]) -> tuple[str, ...] | None:
 def _pytest_mark_names(tree: ast.Module) -> set[str]:
     """Dotted names that mean ``pytest.mark.byteplan`` in this module (module-level imports)."""
     names: set[str] = set()
-    for stmt in _module_statements(tree.body):
+    for stmt in module_statements(tree.body):
         if isinstance(stmt, ast.Import):
             for alias in stmt.names:
                 if alias.name == "pytest":

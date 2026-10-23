@@ -13,6 +13,8 @@ environment even when BytePlan is installed elsewhere.
   (``node[...]``) and, for a class or module, everything below it (``node::...``).
 * ``BYTEPLAN_VERIFY_OUT``: a file that gets one JSON object per line, appended (and
   flushed) as results arrive, so a run killed on timeout still leaves what finished.
+* ``BYTEPLAN_VERIFY_ROOT``: the BytePlan project root; links are relative to it even
+  when pytest discovers an ancestor configuration and chooses a different rootdir.
 
 Records: ``{"matched": {request: [nodeid, ...]}}`` after collection,
 ``{"collect": nodeid, "failed": bool, "message": str}`` per collection report,
@@ -24,12 +26,28 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     import pytest
 
 _MESSAGE_LIMIT = 1024
+_PYTEST_ROOT: Path | None = None
+
+
+def _project_nodeid(nodeid: str) -> str:
+    root = os.environ.get("BYTEPLAN_VERIFY_ROOT")
+    if root is None or _PYTEST_ROOT is None:
+        return nodeid
+    path, separator, selector = nodeid.partition("::")
+    if not path:
+        return nodeid
+    try:
+        relative = (_PYTEST_ROOT / path).resolve().relative_to(Path(root).resolve()).as_posix()
+    except ValueError:
+        return nodeid
+    return relative + separator + selector
 
 
 def _requested() -> list[str]:
@@ -61,6 +79,8 @@ def _matches(request: str, nodeid: str) -> bool:
 
 
 def pytest_configure(config: pytest.Config) -> None:
+    global _PYTEST_ROOT  # noqa: PLW0603 - pytest supplies the collection root once per session
+    _PYTEST_ROOT = config.rootpath
     config.addinivalue_line("markers", "byteplan(*ids): link this test to BytePlan task IDs")
 
 
@@ -72,10 +92,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
     kept: list[pytest.Item] = []
     deselected: list[pytest.Item] = []
     for item in items:
-        # FIXME[ac9d]: [P2] Compare collected node IDs relative to the BytePlan project root
-        #   An ancestor pytest.ini adds the project directory to item.nodeid; project-relative
-        #   links then match nothing, deselecting valid tests and recording not_found.
-        hits = [request for request in requested if _matches(request, item.nodeid)]
+        hits = [request for request in requested if _matches(request, _project_nodeid(item.nodeid))]
         for request in hits:
             matched[request].append(item.nodeid)
         (kept if hits else deselected).append(item)
@@ -86,7 +103,13 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
 
 
 def pytest_collectreport(report: pytest.CollectReport) -> None:
-    _emit({"collect": report.nodeid, "failed": report.failed, "message": _message(report) if report.failed else ""})
+    _emit(
+        {
+            "collect": _project_nodeid(report.nodeid),
+            "failed": report.failed,
+            "message": _message(report) if report.failed else "",
+        }
+    )
 
 
 def pytest_runtest_logreport(report: pytest.TestReport) -> None:

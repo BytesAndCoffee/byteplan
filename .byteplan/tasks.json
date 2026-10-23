@@ -753,15 +753,44 @@
             "path": "src/byteplan/hatch_hook.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T19:50:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "1.0 triage: normal priority. See docs/stable-release-review.md for impact and regression coverage."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-23T19:50:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T19:55:12Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "The build guard uses recognized runtime-decorator metadata independent of literal task arguments; wheel and sdist regressions pass. Fresh linked acceptance tests passed via byteplan verify.",
+          "old": "open"
         }
       ],
       "id": "1e7f",
       "kind": "FIXME",
-      "labels": [],
+      "labels": [
+        "release:1.0"
+      ],
       "last_seen": "2026-10-23T00:41:20Z",
-      "notes": "",
+      "notes": "1.0 triage: normal priority. See docs/stable-release-review.md for impact and regression coverage.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -772,8 +801,19 @@
         "representation": "comment",
         "symbol": "BytePlanBuildHook.initialize"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 241,
+            "node": "tests/test_stable_review.py::test_release_guard_rejects_dynamic_runtime_decorators",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "[P2] Enforce require_stripped for runtime decorators with dynamic arguments",
       "title_override": null
     },
@@ -1090,16 +1130,47 @@
             "path": "src/byteplan/api.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T19:50:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "1.0 triage: low priority. See docs/stable-release-review.md for impact and regression coverage.",
+            "priority": "low"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T19:50:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T19:55:45Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Duplicate repair locates the AST string value span, supporting spacing, multiline and escaped IDs without altering titles. Fresh linked acceptance tests passed via byteplan verify.",
+          "old": "open"
         }
       ],
       "id": "30c3",
       "kind": "FIXME",
-      "labels": [],
+      "labels": [
+        "release:1.0"
+      ],
       "last_seen": "2026-10-23T00:41:20Z",
-      "notes": "",
+      "notes": "1.0 triage: low priority. See docs/stable-release-review.md for impact and regression coverage.",
       "origin": "comment",
-      "presence": "present",
-      "priority": "normal",
+      "presence": "missing",
+      "priority": "low",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
@@ -1109,8 +1180,19 @@
         "representation": "comment",
         "symbol": "_find_decorator_id"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 285,
+            "node": "tests/test_stable_review.py::test_duplicate_repair_uses_the_id_value_span",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "[P3] Locate decorator IDs by their AST value span during duplicate repair",
       "title_override": null
     },
@@ -1656,16 +1738,47 @@
             "path": "src/byteplan/scaffold.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T19:50:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T19:50:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T19:54:53Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Scaffolds collect names from module control-flow suites and retain the original conditional test. Fresh linked acceptance tests passed via byteplan verify.",
+          "old": "open"
         }
       ],
       "id": "5aae",
       "kind": "FIXME",
-      "labels": [],
+      "labels": [
+        "release:1.0"
+      ],
       "last_seen": "2026-10-23T00:41:20Z",
-      "notes": "",
+      "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
       "origin": "comment",
-      "presence": "present",
-      "priority": "normal",
+      "presence": "missing",
+      "priority": "high",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
@@ -1675,8 +1788,19 @@
         "representation": "comment",
         "symbol": "defined_names"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 88,
+            "node": "tests/test_stable_review.py::test_scaffold_preserves_a_conditional_test",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "[P2] Collect occupied test names inside module-level control-flow blocks",
       "title_override": null
     },
@@ -2470,16 +2594,47 @@
             "path": "src/byteplan/scanner/decorators.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T19:50:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T19:50:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T19:54:36Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Shared scope-aware binding analysis prevents edits to shadowed decorators; writing-scan and binding regressions pass. Fresh linked acceptance tests passed via byteplan verify.",
+          "old": "open"
         }
       ],
       "id": "8c7f",
       "kind": "FIXME",
-      "labels": [],
+      "labels": [
+        "release:1.0"
+      ],
       "last_seen": "2026-10-23T00:41:20Z",
-      "notes": "",
+      "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
       "origin": "comment",
-      "presence": "present",
-      "priority": "normal",
+      "presence": "missing",
+      "priority": "high",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
@@ -2489,8 +2644,31 @@
         "representation": "comment",
         "symbol": "_bound_names"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 39,
+            "node": "tests/test_stable_review.py::test_module_bindings_prevent_decorator_edits",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 65,
+            "node": "tests/test_stable_review.py::test_nested_namespaces_do_not_shadow_the_runtime",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 73,
+            "node": "tests/test_stable_review.py::test_writing_scan_preserves_a_custom_decorator",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "[P1] Detect module-level bindings through control flow before editing decorators",
       "title_override": null
     },
@@ -2808,16 +2986,47 @@
             "path": "src/byteplan/verification.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T19:50:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T19:50:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T19:55:03Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Verification includes skipped and xfailed teardown phases instead of recording passing acceptance evidence. Fresh linked acceptance tests passed via byteplan verify.",
+          "old": "open"
         }
       ],
       "id": "98d6",
       "kind": "FIXME",
-      "labels": [],
+      "labels": [
+        "release:1.0"
+      ],
       "last_seen": "2026-10-23T00:41:20Z",
-      "notes": "",
+      "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
       "origin": "comment",
-      "presence": "present",
-      "priority": "normal",
+      "presence": "missing",
+      "priority": "high",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
@@ -2827,8 +3036,19 @@
         "representation": "comment",
         "symbol": "_item_result"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 213,
+            "node": "tests/test_stable_review.py::test_verification_rejects_skipped_teardown",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "[P2] Include teardown skips and xfails in the verification outcome",
       "title_override": null
     },
@@ -3394,15 +3614,44 @@
             "path": "src/byteplan/files.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T19:50:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "1.0 triage: normal priority. See docs/stable-release-review.md for impact and regression coverage."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-23T19:50:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T19:55:39Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Source selection requires regular files and reports stat failures; scans skip named pipes without blocking. Fresh linked acceptance tests passed via byteplan verify.",
+          "old": "open"
         }
       ],
       "id": "a740",
       "kind": "FIXME",
-      "labels": [],
+      "labels": [
+        "release:1.0"
+      ],
       "last_seen": "2026-10-23T00:41:20Z",
-      "notes": "",
+      "notes": "1.0 triage: normal priority. See docs/stable-release-review.md for impact and regression coverage.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -3413,8 +3662,19 @@
         "representation": "comment",
         "symbol": "collect_files"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 275,
+            "node": "tests/test_stable_review.py::test_scan_ignores_named_pipes_without_blocking",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "[P2] Require regular files before selecting sources for scanning",
       "title_override": null
     },
@@ -3431,15 +3691,44 @@
             "path": "src/byteplan/_verify_plugin.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T19:50:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "1.0 triage: normal priority. See docs/stable-release-review.md for impact and regression coverage."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-23T19:50:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T19:55:19Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Verification normalizes collection node IDs to the BytePlan root, including collection errors under an ancestor pytest root. Fresh linked acceptance tests passed via byteplan verify.",
+          "old": "open"
         }
       ],
       "id": "ac9d",
       "kind": "FIXME",
-      "labels": [],
+      "labels": [
+        "release:1.0"
+      ],
       "last_seen": "2026-10-23T00:41:20Z",
-      "notes": "",
+      "notes": "1.0 triage: normal priority. See docs/stable-release-review.md for impact and regression coverage.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -3450,8 +3739,19 @@
         "representation": "comment",
         "symbol": "pytest_collection_modifyitems"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 225,
+            "node": "tests/test_stable_review.py::test_verification_with_an_ancestor_pytest_root",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "[P2] Compare collected node IDs relative to the BytePlan project root",
       "title_override": null
     },
@@ -3468,15 +3768,44 @@
             "path": "src/byteplan/files.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T19:50:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "1.0 triage: normal priority. See docs/stable-release-review.md for impact and regression coverage."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-23T19:50:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T19:55:33Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Git ignore matching applies explicit negations in precedence order while retaining excluded-directory behavior in both snapshots. Fresh linked acceptance tests passed via byteplan verify.",
+          "old": "open"
         }
       ],
       "id": "ae7a",
       "kind": "FIXME",
-      "labels": [],
+      "labels": [
+        "release:1.0"
+      ],
       "last_seen": "2026-10-23T00:41:20Z",
-      "notes": "",
+      "notes": "1.0 triage: normal priority. See docs/stable-release-review.md for impact and regression coverage.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -3487,8 +3816,19 @@
         "representation": "comment",
         "symbol": "_GitIgnores.ignored"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 258,
+            "node": "tests/test_stable_review.py::test_gitignore_negations_agree_in_worktree_and_snapshot",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "[P2] Apply nested gitignore negations with Git's precedence rules",
       "title_override": null
     },
@@ -4766,16 +5106,47 @@
             "path": "src/byteplan/cleanup.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T19:50:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T19:50:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T19:54:47Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Cleanup preserves runtime imports consumed by other project modules, including relative, wildcard and attribute imports. Fresh linked acceptance tests passed via byteplan verify.",
+          "old": "open"
         }
       ],
       "id": "ecf4",
       "kind": "FIXME",
-      "labels": [],
+      "labels": [
+        "release:1.0"
+      ],
       "last_seen": "2026-10-23T00:41:20Z",
-      "notes": "",
+      "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
       "origin": "comment",
-      "presence": "present",
-      "priority": "normal",
+      "presence": "missing",
+      "priority": "high",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
@@ -4785,8 +5156,19 @@
         "representation": "comment",
         "symbol": "_drop_unused_runtime_imports"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 167,
+            "node": "tests/test_stable_review.py::test_cleanup_preserves_consumed_runtime_imports",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "[P2] Preserve runtime imports consumed by other project modules during cleanup",
       "title_override": null
     },
@@ -4803,16 +5185,47 @@
             "path": "src/byteplan/gitwrite.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T19:50:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T19:50:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T19:54:58Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Both staged hook modes refuse pending ordinary journals without changing files or the index; ordinary recovery succeeds. Fresh linked acceptance tests passed via byteplan verify.",
+          "old": "open"
         }
       ],
       "id": "ed2b",
       "kind": "FIXME",
-      "labels": [],
+      "labels": [
+        "release:1.0"
+      ],
       "last_seen": "2026-10-23T00:41:20Z",
-      "notes": "",
+      "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
       "origin": "comment",
-      "presence": "present",
-      "priority": "normal",
+      "presence": "missing",
+      "priority": "high",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
@@ -4822,8 +5235,19 @@
         "representation": "comment",
         "symbol": "reconcile_staged"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 185,
+            "node": "tests/test_stable_review.py::test_staged_apply_refuses_an_ordinary_pending_transaction",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "[P2] Refuse staged writes while an ordinary transaction journal is pending",
       "title_override": null
     },
@@ -5187,16 +5611,47 @@
             "path": "src/byteplan/api.py"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T19:50:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T19:50:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T19:54:42Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Archive payloads are selected by task ID and record hash; transactional migration and branch-round-trip regressions preserve evidence. Fresh linked acceptance tests passed via byteplan verify.",
+          "old": "open"
         }
       ],
       "id": "ff20",
       "kind": "FIXME",
-      "labels": [],
+      "labels": [
+        "release:1.0"
+      ],
       "last_seen": "2026-10-23T00:41:20Z",
-      "notes": "",
+      "notes": "1.0 triage: high priority. See docs/stable-release-review.md for impact and regression coverage.",
       "origin": "comment",
-      "presence": "present",
-      "priority": "normal",
+      "presence": "missing",
+      "priority": "high",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
@@ -5206,8 +5661,25 @@
         "representation": "comment",
         "symbol": "Project.reconcile_archive"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 107,
+            "node": "tests/test_stable_review.py::test_archive_evidence_survives_branch_round_trip",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 142,
+            "node": "tests/test_stable_review.py::test_legacy_archive_migration_preserves_all_versions_and_evidence",
+            "path": "tests/test_stable_review.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "[P2] Retain archived payloads by task ID and record hash",
       "title_override": null
     },

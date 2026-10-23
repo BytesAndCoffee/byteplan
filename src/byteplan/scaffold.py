@@ -32,6 +32,7 @@ from typing import TYPE_CHECKING
 from byteplan.edits import header_end
 from byteplan.errors import ByteplanError, EditError
 from byteplan.models import AttachmentKind
+from byteplan.scanner.bindings import bound_names, module_statements
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -137,19 +138,7 @@ def default_name(task: Task, target: Target, taken: set[str]) -> str:
 
 def defined_names(tree: ast.Module) -> set[str]:
     """Top-level names a new test function must not reuse."""
-    names: set[str] = set()
-    # FIXME[5aae]: [P2] Collect occupied test names inside module-level control-flow blocks
-    #   An existing test_f under if/try/with is missed here, so scaffolding can append
-    #   another test_f that overwrites the original test and silently drops its coverage.
-    for node in tree.body:
-        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef):
-            names.add(node.name)
-        elif isinstance(node, ast.Import | ast.ImportFrom):
-            names.update((alias.asname or alias.name).split(".")[0] for alias in node.names)
-        elif isinstance(node, ast.Assign | ast.AnnAssign):
-            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
-            names.update(n.id for t in targets for n in ast.walk(t) if isinstance(n, ast.Name))
-    return names
+    return {name for statement in module_statements(tree.body) for name in bound_names(statement)}
 
 
 # Rendering -------------------------------------------------------------------------------------

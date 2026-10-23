@@ -39,6 +39,7 @@ class FileScan:
     tags: list[Annotation] = field(default_factory=list)
     links: list[VerifiesLink] = field(default_factory=list)
     diagnostics: list[Diagnostic] = field(default_factory=list)
+    runtime_decorated: bool = False
 
 
 def scan_file(
@@ -81,6 +82,7 @@ def scan_file(
         annotations,
         decorated.links,
         [*diagnostics, *decorated.diagnostics, *stub_diagnostics],
+        runtime_decorated=bool(decorated.runtime_lines),
     )
 
 

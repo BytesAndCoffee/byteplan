@@ -90,6 +90,7 @@ def plan_file(
     *,
     runtime_modules: Sequence[str],
     suppress_stubs: bool,
+    consumers: frozenset[str] = frozenset(),
 ) -> FileCleanup:
     """Plan removing ``remove`` (this file's annotations of closed tasks) from ``source``."""
     plan = FileCleanup(source.text)
@@ -141,7 +142,7 @@ def plan_file(
     for start, end, replacement in sorted(spans, reverse=True):
         text = text[:start] + replacement + text[end:]
     if language is Language.PYTHON and any(t.representation is Representation.DECORATOR for t in remove):
-        text, plan.imports_removed = _drop_unused_runtime_imports(source.path, text, runtime_modules)
+        text, plan.imports_removed = _drop_unused_runtime_imports(source.path, text, runtime_modules, consumers)
     plan.text = text
     return plan
 
@@ -227,7 +228,9 @@ def _span(
     return start, end, ""
 
 
-def _drop_unused_runtime_imports(path: str, text: str, runtime_modules: Sequence[str]) -> tuple[str, list[str]]:
+def _drop_unused_runtime_imports(
+    path: str, text: str, runtime_modules: Sequence[str], consumers: frozenset[str] = frozenset()
+) -> tuple[str, list[str]]:
     """Drop ``todo`` from ``from <runtime> import ...`` statements once nothing uses it.
 
     Only BytePlan's ``todo`` is ours to remove: other imported names stay (the statement is
@@ -240,12 +243,10 @@ def _drop_unused_runtime_imports(path: str, text: str, runtime_modules: Sequence
         return text, []  # the caller's validation reports it
     names = resolve_runtime_names(tree, runtime_modules)
     runtime = set(runtime_modules)
-    # FIXME[ecf4]: [P2] Preserve runtime imports consumed by other project modules during cleanup
-    #   Removing the last local @todo can delete a re-export that another module imports,
-    #   causing ImportError. Reuse release's project-consumer analysis before dropping it.
     used = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
     used |= {_root(node) for node in ast.walk(tree) if isinstance(node, ast.Attribute)}
     used |= _exported(tree)
+    used |= consumers
     lines = text.splitlines(keepends=True)
     removed: list[str] = []
     for stmt in sorted(tree.body, key=lambda s: s.lineno, reverse=True):
