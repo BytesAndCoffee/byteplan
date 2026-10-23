@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**9 open** · 40 closed (resolved 40)
+**20 open** · 40 closed (resolved 40)
 
 ## Open
 
@@ -15,8 +15,19 @@
 | `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1583`](docs/IMPLEMENTATION_PLAN.md#L1583) | Phase 11b (optional): Git reporting |
 | `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1586`](docs/IMPLEMENTATION_PLAN.md#L1586) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
 | `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1590`](docs/IMPLEMENTATION_PLAN.md#L1590) | Phase 13 (optional): relay-for-github |
+| `ac9d` | open | FIXME | normal | - | [`src/byteplan/_verify_plugin.py:75`](src/byteplan/_verify_plugin.py#L75) | [P2] Compare collected node IDs relative to the BytePlan project root |
+| `ff20` | open | FIXME | normal | - | [`src/byteplan/api.py:996`](src/byteplan/api.py#L996) | [P2] Retain archived payloads by task ID and record hash |
+| `30c3` | open | FIXME | normal | - | [`src/byteplan/api.py:2034`](src/byteplan/api.py#L2034) | [P3] Locate decorator IDs by their AST value span during duplicate repair |
+| `ecf4` | open | FIXME | normal | - | [`src/byteplan/cleanup.py:243`](src/byteplan/cleanup.py#L243) | [P2] Preserve runtime imports consumed by other project modules during cleanup |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:302`](src/byteplan/config.py#L302) | Support detect.placeholder_assignments |
+| `ae7a` | open | FIXME | normal | - | [`src/byteplan/files.py:112`](src/byteplan/files.py#L112) | [P2] Apply nested gitignore negations with Git's precedence rules |
+| `a740` | open | FIXME | normal | - | [`src/byteplan/files.py:230`](src/byteplan/files.py#L230) | [P2] Require regular files before selecting sources for scanning |
+| `ed2b` | open | FIXME | normal | - | [`src/byteplan/gitwrite.py:413`](src/byteplan/gitwrite.py#L413) | [P2] Refuse staged writes while an ordinary transaction journal is pending |
+| `1e7f` | open | FIXME | normal | - | [`src/byteplan/hatch_hook.py:154`](src/byteplan/hatch_hook.py#L154) | [P2] Enforce require_stripped for runtime decorators with dynamic arguments |
+| `5aae` | open | FIXME | normal | - | [`src/byteplan/scaffold.py:139`](src/byteplan/scaffold.py#L139) | [P2] Collect occupied test names inside module-level control-flow blocks |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
+| `8c7f` | open | FIXME | normal | - | [`src/byteplan/scanner/decorators.py:80`](src/byteplan/scanner/decorators.py#L80) | [P1] Detect module-level bindings through control flow before editing decorators |
+| `98d6` | open | FIXME | normal | - | [`src/byteplan/verification.py:285`](src/byteplan/verification.py#L285) | [P2] Include teardown skips and xfails in the verification outcome |
 
 ## Closed
 

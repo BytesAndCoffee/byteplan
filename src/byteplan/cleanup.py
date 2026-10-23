@@ -240,6 +240,9 @@ def _drop_unused_runtime_imports(path: str, text: str, runtime_modules: Sequence
         return text, []  # the caller's validation reports it
     names = resolve_runtime_names(tree, runtime_modules)
     runtime = set(runtime_modules)
+    # FIXME[ecf4]: [P2] Preserve runtime imports consumed by other project modules during cleanup
+    #   Removing the last local @todo can delete a re-export that another module imports,
+    #   causing ImportError. Reuse release's project-consumer analysis before dropping it.
     used = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
     used |= {_root(node) for node in ast.walk(tree) if isinstance(node, ast.Attribute)}
     used |= _exported(tree)

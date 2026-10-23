@@ -410,6 +410,9 @@ def reconcile_staged(start: Path | None = None, clock: Callable[[], str] = utc_n
     # One reconciliation at a time: without the lock, a second run would mistake the first
     # one's live journal for a crash and "recover" it.
     with project_lock(root):
+        # FIXME[ed2b]: [P2] Refuse staged writes while an ordinary transaction journal is pending
+        #   Recovering only the staged journal lets this path rewrite the registry after
+        #   an interrupted scan, invalidating ordinary recovery hashes and blocking later writes.
         messages = _recover_locked(root)
         planned = _plan(start, top, index, clock, framework=framework)
         if isinstance(planned, StagedOutcome):

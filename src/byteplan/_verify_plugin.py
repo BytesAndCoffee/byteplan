@@ -72,6 +72,9 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
     kept: list[pytest.Item] = []
     deselected: list[pytest.Item] = []
     for item in items:
+        # FIXME[ac9d]: [P2] Compare collected node IDs relative to the BytePlan project root
+        #   An ancestor pytest.ini adds the project directory to item.nodeid; project-relative
+        #   links then match nothing, deselecting valid tests and recording not_found.
         hits = [request for request in requested if _matches(request, item.nodeid)]
         for request in hits:
             matched[request].append(item.nodeid)

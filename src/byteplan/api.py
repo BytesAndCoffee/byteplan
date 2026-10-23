@@ -993,6 +993,9 @@ class Project:
                     yield gitio.git(["show", f"{rev}:./{self.registry_rel}"], self.root)
 
         found = archive.find_in_history(wanted, versions(), lambda text: json.loads(text)["tasks"])
+        # FIXME[ff20]: [P2] Retain archived payloads by task ID and record hash
+        #   Viewing an older branch replaces a newer local payload with evidence=None;
+        #   returning to the newer branch recovers its record but permanently loses evidence.
         store.put((t, {"task": record, "evidence": None}, index.tasks[t]["archived_at"]) for t, record in found.items())
         missing = sorted(set(wanted) - set(found))
         return ReconcileReport(tuple(sorted(found)), tuple(missing), len(index.tasks) - len(wanted))
@@ -2028,6 +2031,9 @@ def _managed(task: Task) -> dict[str, Any]:
 def _find_decorator_id(text: str, annotation: Annotation, task_id: str) -> tuple[str, int, int]:
     """The exact ``id="..."`` text of a decorator, and where it starts."""
     lines = physical_lines(text)
+    # FIXME[30c3]: [P3] Locate decorator IDs by their AST value span during duplicate repair
+    #   The exact textual needle misses valid id = "beef" and multiline keyword values,
+    #   so repair cannot reassign duplicates that the scanner correctly recognizes.
     for line_no in range(annotation.line, annotation.end_line + 1):
         for quote in ('"', "'"):
             needle = f"id={quote}{task_id}{quote}"

@@ -282,6 +282,9 @@ def _item_result(reports: Sequence[Mapping[str, Any]]) -> TestResult:
         return TestResult(outcome, duration, by_phase[failed[0]].get("message", ""))
     if "teardown" not in by_phase:
         return TestResult("not_run", duration)  # unfinished: killed or crashed before cleanup completed
+    # FIXME[98d6]: [P2] Include teardown skips and xfails in the verification outcome
+    #   A fixture finalizer calling pytest.skip/xfail is currently ignored after a passing
+    #   call, recording passed evidence and potentially marking the task ready_for_review.
     skipped = next((by_phase[p] for p in ("setup", "call") if by_phase.get(p, {}).get("outcome") == "skipped"), None)
     if skipped is not None:
         return TestResult("xfailed" if skipped.get("xfail") else "skipped", duration)
