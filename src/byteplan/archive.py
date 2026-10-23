@@ -43,10 +43,11 @@ INDEX = "archive.json"
 INDEX_VERSION = 1
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS tasks (
-    id TEXT PRIMARY KEY,
+    id TEXT NOT NULL,
     sha256 TEXT NOT NULL,
     archived_at TEXT NOT NULL,
-    record BLOB NOT NULL
+    record BLOB NOT NULL,
+    PRIMARY KEY (id, sha256)
 )
 """
 
@@ -99,36 +100,67 @@ class Store:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with contextlib.closing(sqlite3.connect(self.path)) as connection, connection:
             connection.execute(_SCHEMA)
+            if _legacy_schema(connection):
+                # DDL must share the copy's transaction: interruption keeps the old store intact.
+                connection.execute("BEGIN IMMEDIATE")
+                if _legacy_schema(connection):
+                    connection.execute("ALTER TABLE tasks RENAME TO tasks_legacy")
+                    connection.execute(_SCHEMA)
+                    connection.execute("INSERT INTO tasks SELECT id, sha256, archived_at, record FROM tasks_legacy")
+                    connection.execute("DROP TABLE tasks_legacy")
             yield connection
 
     def put(self, entries: Iterable[tuple[str, dict[str, Any], str]]) -> None:
-        """Insert or replace (task ID, payload, archived_at) rows. ``payload`` is
+        """Keep every (task ID, record hash) version. ``payload`` is
         ``{"task": record, "evidence": ..., "run": ...}`` (the evidence's run
         metadata); the row's hash is the task record's."""
         with self._connect() as connection:
-            connection.executemany(
-                "INSERT OR REPLACE INTO tasks (id, sha256, archived_at, record) VALUES (?, ?, ?, ?)",
-                [
-                    (task_id, record_hash(payload["task"]), archived_at, zlib.compress(canonical(payload), 9))
-                    for task_id, payload, archived_at in entries
-                ],
-            )
+            if not connection.in_transaction:
+                connection.execute("BEGIN IMMEDIATE")
+            for task_id, payload, archived_at in entries:
+                sha = record_hash(payload["task"])
+                old = connection.execute(
+                    "SELECT record FROM tasks WHERE id = ? AND sha256 = ?", (task_id, sha)
+                ).fetchone()
+                if old is not None and payload.get("evidence") is None:
+                    previous = json.loads(zlib.decompress(old[0]))
+                    if previous.get("evidence") is not None:
+                        saved = {**payload, "evidence": previous["evidence"], "run": previous.get("run")}
+                    else:
+                        saved = payload
+                else:
+                    saved = payload
+                connection.execute(
+                    "INSERT OR REPLACE INTO tasks (id, sha256, archived_at, record) VALUES (?, ?, ?, ?)",
+                    (task_id, sha, archived_at, zlib.compress(canonical(saved), 9)),
+                )
 
-    def get(self, task_id: str) -> dict[str, Any] | None:
+    def get(self, task_id: str, sha: str | None = None) -> dict[str, Any] | None:
         if not self.path.exists():
             return None
         with self._connect() as connection:
-            row = connection.execute("SELECT record FROM tasks WHERE id = ?", (task_id,)).fetchone()
+            if sha is None:
+                row = connection.execute(
+                    "SELECT record FROM tasks WHERE id = ? ORDER BY archived_at DESC, rowid DESC LIMIT 1", (task_id,)
+                ).fetchone()
+            else:
+                row = connection.execute(
+                    "SELECT record FROM tasks WHERE id = ? AND sha256 = ?", (task_id, sha)
+                ).fetchone()
         if row is None:
             return None
         payload: dict[str, Any] = json.loads(zlib.decompress(row[0]))
         return payload
 
-    def hashes(self) -> dict[str, str]:
+    def hashes(self) -> set[tuple[str, str]]:
         if not self.path.exists():
-            return {}
+            return set()
         with self._connect() as connection:
-            return dict(connection.execute("SELECT id, sha256 FROM tasks").fetchall())
+            return set(connection.execute("SELECT id, sha256 FROM tasks").fetchall())
+
+
+def _legacy_schema(connection: sqlite3.Connection) -> bool:
+    return {row[1] for row in connection.execute("PRAGMA table_info(tasks)") if row[5]} == {"id"}
 
 
 # The committed index -------------------------------------------------------------------------

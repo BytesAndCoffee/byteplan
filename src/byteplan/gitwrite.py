@@ -51,7 +51,7 @@ from byteplan.api import Project, utc_now
 from byteplan.diagnostics import EXIT_FINDINGS, EXIT_OK, Code
 from byteplan.errors import ByteplanError, ConfigError
 from byteplan.gitio import git, toplevel
-from byteplan.persistence import atomic_write_bytes, project_lock, sha256, staged_dir
+from byteplan.persistence import atomic_write_bytes, pending_journal, project_lock, sha256, staged_dir
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
@@ -411,9 +411,9 @@ def reconcile_staged(start: Path | None = None, clock: Callable[[], str] = utc_n
     # One reconciliation at a time: without the lock, a second run would mistake the first
     # one's live journal for a crash and "recover" it.
     with project_lock(root):
-        # FIXME[ed2b]: [P2] Refuse staged writes while an ordinary transaction journal is pending
-        #   Recovering only the staged journal lets this path rewrite the registry after
-        #   an interrupted scan, invalidating ordinary recovery hashes and blocking later writes.
+        if pending_journal(root):
+            msg = "an interrupted ordinary write is pending; run `byteplan scan` to recover it before staging"
+            raise ConfigError(msg)
         messages = _recover_locked(root)
         planned = _plan(start, top, index, clock, framework=framework)
         if isinstance(planned, StagedOutcome):

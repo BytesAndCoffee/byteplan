@@ -126,6 +126,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "65696368d337": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T20:56:13Z",
+      "dirty": true,
+      "head": "330af5d581174b208fb60a7e5399a65c266f27f6",
+      "python": "3.12.14",
+      "timed_out": false
+    },
     "6c689d061b5d": {
       "argv": [
         "hatch",
@@ -449,6 +463,16 @@
         }
       }
     },
+    "1e7f": {
+      "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test_stable_review.py::test_release_guard_rejects_dynamic_runtime_decorators": {
+          "duration_ms": 8451,
+          "outcome": "passed"
+        }
+      }
+    },
     "205d": {
       "fingerprint": "512a31da49996f58909edfb33042007d1b0aed7350b7348827f08990c330fd34",
       "run": "7d4f28e5d140",
@@ -519,6 +543,16 @@
         }
       }
     },
+    "30c3": {
+      "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test_stable_review.py::test_duplicate_repair_uses_the_id_value_span": {
+          "duration_ms": 91,
+          "outcome": "passed"
+        }
+      }
+    },
     "34da": {
       "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
       "run": "7d4f28e5d140",
@@ -575,6 +609,16 @@
       "tests": {
         "tests/test_release.py::test_partial_restore_keeps_decorators_whose_import_is_unplaced": {
           "duration_ms": 116,
+          "outcome": "passed"
+        }
+      }
+    },
+    "5aae": {
+      "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test_stable_review.py::test_scaffold_preserves_a_conditional_test": {
+          "duration_ms": 24,
           "outcome": "passed"
         }
       }
@@ -697,6 +741,24 @@
         }
       }
     },
+    "8c7f": {
+      "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test_stable_review.py::test_module_bindings_prevent_decorator_edits": {
+          "duration_ms": 25,
+          "outcome": "passed"
+        },
+        "tests/test_stable_review.py::test_nested_namespaces_do_not_shadow_the_runtime": {
+          "duration_ms": 4,
+          "outcome": "passed"
+        },
+        "tests/test_stable_review.py::test_writing_scan_preserves_a_custom_decorator": {
+          "duration_ms": 14,
+          "outcome": "passed"
+        }
+      }
+    },
     "90c6": {
       "fingerprint": "512a31da49996f58909edfb33042007d1b0aed7350b7348827f08990c330fd34",
       "run": "7d4f28e5d140",
@@ -731,6 +793,16 @@
         },
         "tests/test_persistence.py::test_uncreatable_directory_fails_before_the_journal": {
           "duration_ms": 3,
+          "outcome": "passed"
+        }
+      }
+    },
+    "98d6": {
+      "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test_stable_review.py::test_verification_rejects_skipped_teardown": {
+          "duration_ms": 2367,
           "outcome": "passed"
         }
       }
@@ -823,6 +895,36 @@
       "tests": {
         "tests/test_release.py::test_wildcard_runtime_import_refuses_the_release": {
           "duration_ms": 135,
+          "outcome": "passed"
+        }
+      }
+    },
+    "a740": {
+      "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test_stable_review.py::test_scan_ignores_named_pipes_without_blocking": {
+          "duration_ms": 32,
+          "outcome": "passed"
+        }
+      }
+    },
+    "ac9d": {
+      "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test_stable_review.py::test_verification_with_an_ancestor_pytest_root": {
+          "duration_ms": 2767,
+          "outcome": "passed"
+        }
+      }
+    },
+    "ae7a": {
+      "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test_stable_review.py::test_gitignore_negations_agree_in_worktree_and_snapshot": {
+          "duration_ms": 219,
           "outcome": "passed"
         }
       }
@@ -985,6 +1087,26 @@
         }
       }
     },
+    "ecf4": {
+      "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test_stable_review.py::test_cleanup_preserves_consumed_runtime_imports": {
+          "duration_ms": 102,
+          "outcome": "passed"
+        }
+      }
+    },
+    "ed2b": {
+      "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test_stable_review.py::test_staged_apply_refuses_an_ordinary_pending_transaction": {
+          "duration_ms": 361,
+          "outcome": "passed"
+        }
+      }
+    },
     "f853": {
       "fingerprint": "66aa9375057b05583b9d848a3895d0941b146b7536ceb015d32afc6bce58e6e4",
       "run": "99430208fd0d",
@@ -1053,12 +1175,36 @@
         }
       }
     },
+    "ff20": {
+      "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test_stable_review.py::test_archive_evidence_survives_branch_round_trip": {
+          "duration_ms": 261,
+          "outcome": "passed"
+        },
+        "tests/test_stable_review.py::test_legacy_archive_migration_preserves_all_versions_and_evidence": {
+          "duration_ms": 6,
+          "outcome": "passed"
+        }
+      }
+    },
     "ff3a": {
       "fingerprint": "ce0170cbdfc39df7bedc8c0cd4e926d5e1a11f8472aab0d3d8b017219e00b850",
       "run": "6d222f8f19a2",
       "tests": {
         "tests/test_archive.py::test_verifies_links_to_archived_tasks_are_known": {
           "duration_ms": 105,
+          "outcome": "passed"
+        }
+      }
+    },
+    "ff72": {
+      "fingerprint": "9e448d02c7f5b4ede288194e5c3359c09c2f19c03d0f092951a043cf98be077e",
+      "run": "65696368d337",
+      "tests": {
+        "tests/test__verify_plugin.py::test_verification_preserves_symlink_node_ids": {
+          "duration_ms": 8967,
           "outcome": "passed"
         }
       }

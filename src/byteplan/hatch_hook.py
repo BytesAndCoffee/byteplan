@@ -40,7 +40,6 @@ from byteplan.api import Project
 from byteplan.config import load_config
 from byteplan.diagnostics import EXIT_OK, Severity
 from byteplan.errors import ByteplanError
-from byteplan.models import Representation
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -151,12 +150,7 @@ class BytePlanBuildHook(BuildHookInterface):  # type: ignore[type-arg]
         )
         self._show(report.diagnostics)
         if settings.require_stripped and version == "standard":  # the source decides, not the record
-            # FIXME[1e7f]: [P2] Enforce require_stripped for runtime decorators with dynamic arguments
-            #   @todo(..., id=TASK_ID) and @verifies(*IDS) produce no tracked tag/link,
-            #   so this guard currently permits wheels that still depend on the runtime.
-            decorated = sorted({t.path for t in report.tags if t.representation is Representation.DECORATOR})
-            verifies = {link.path for link in report.links if link.provenance != "marker"}
-            decorated += sorted(verifies - set(decorated))
+            decorated = sorted(report.runtime_decorated_files)
             if decorated:
                 self.app.abort(
                     f"byteplan: require_stripped: {len(decorated)} file(s) still carry @todo/@verifies "

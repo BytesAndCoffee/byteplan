@@ -6,6 +6,15 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 ## Unreleased
 
 ### Fixed
+- Review findings for 1.0: scanning respects module-level rebinding, scaffolds preserve
+  conditional tests, and cleanup keeps runtime names consumed by other modules.
+- Archived records are cached by ID and hash, preserving local evidence across branch
+  switches. Existing SQLite archives migrate transactionally without discarding records.
+- Staged reconciliation refuses pending ordinary transactions; source collection skips
+  nonregular files and honors nested Git ignore exceptions.
+- Verification handles ancestor pytest roots, linked symlink paths, and skipped/xfail teardown. The release guard
+  rejects runtime decorators with dynamic arguments, and duplicate repair accepts valid
+  whitespace, multiline IDs, and escaped string literals.
 - **Windows:** the commit hook's staged reconciliation (`scan --staged --apply`) corrupted the Git
   index: the new index was written through a text-mode file descriptor, turning `\n` bytes into
   `\r\n`. Git then failed with `unknown index entry format`. Found by the new Windows CI.

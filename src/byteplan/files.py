@@ -22,6 +22,7 @@ Rules, applied to POSIX paths relative to the project root:
 from __future__ import annotations
 
 import os
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
@@ -109,18 +110,20 @@ class _GitIgnores:
 
     def ignored(self, rel_path: str, *, is_dir: bool = False) -> bool:
         suffix = "/" if is_dir else ""
-        # FIXME[ae7a]: [P2] Apply nested gitignore negations with Git's precedence rules
-        #   Returning on an ancestor *.py match prevents a deeper !keep.py from restoring
-        #   a file, silently omitting source that Git includes from scans and snapshot checks.
-        if any(spec.match_file(prefix + rel_path + suffix) for prefix, spec in self._ancestors):
-            return True
+        ignored = False
+        for prefix, ancestor_spec in self._ancestors:
+            match = ancestor_spec.check_file(prefix + rel_path + suffix).include
+            if match is not None:
+                ignored = match
         parts = rel_path.split("/")
         for depth in range(1, len(parts)):
             base = "/".join(parts[:depth])
             spec = self._nested_spec(base)
-            if spec is not None and spec.match_file("/".join(parts[depth:]) + suffix):
-                return True
-        return False
+            if spec is not None:
+                match = spec.check_file("/".join(parts[depth:]) + suffix).include
+                if match is not None:
+                    ignored = match
+        return ignored
 
 
 class ScopeMatcher:
@@ -227,11 +230,14 @@ def collect_files(config: Config, targets: Sequence[str] | None = None) -> Scope
 
         for name in filenames:
             rel = f"{rel_dir}/{name}" if rel_dir else name
-            # FIXME[a740]: [P2] Require regular files before selecting sources for scanning
-            #   os.walk includes named pipes in filenames; selecting a FIFO such as pipe.py
-            #   blocks indefinitely in read_source().read_bytes() while waiting for a writer.
-            if not os.path.islink(os.path.join(dirpath, name)) and matcher.file_selected(rel):
-                found.append(rel)
+            if matcher.file_selected(rel):
+                try:
+                    mode = os.stat(os.path.join(dirpath, name), follow_symlinks=False).st_mode
+                except OSError as exc:
+                    errors.append(SourceError(rel, f"cannot stat source: {exc.strerror}"))
+                else:
+                    if stat.S_ISREG(mode):
+                        found.append(rel)
 
     if errors:
         raise ScanError(errors)

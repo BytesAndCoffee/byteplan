@@ -39,7 +39,7 @@ from byteplan.config import (
     read_pyproject,
 )
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity, exit_code
-from byteplan.edits import physical_lines, replace_at
+from byteplan.edits import char_col, physical_lines, replace_at
 from byteplan.errors import (
     ByteplanError,
     ConfigError,
@@ -212,6 +212,7 @@ class ScanReport:
     # (task ID, reason) for those it couldn't scaffold.
     scaffolded: tuple[tuple[str, str], ...] = ()
     scaffold_failures: tuple[tuple[str, str], ...] = ()
+    runtime_decorated_files: tuple[str, ...] = ()
 
     @property
     def files_scanned(self) -> int:
@@ -631,6 +632,7 @@ class Project:
             recovered=recovered,
             planned=tuple(writes),
             links=tuple(links),
+            runtime_decorated_files=tuple(path for path, scan in scans.items() if scan.runtime_decorated),
         )
 
     def _read(self, path: str) -> SourceFile:
@@ -932,10 +934,10 @@ class Project:
         if entry is None:
             return None
         store = archive.Store(self.root / STATE_DIR)
-        payload = store.get(task_id)
+        payload = store.get(task_id, entry["sha256"])
         if payload is None or archive.record_hash(payload["task"]) != entry["sha256"]:
             self.reconcile_archive()  # a row from another archive of this task counts as a miss
-            payload = store.get(task_id)
+            payload = store.get(task_id, entry["sha256"])
         if payload is None or archive.record_hash(payload["task"]) != entry["sha256"]:
             msg = f"task {task_id} is archived, but its record isn't in this clone's Git history"
             raise ConfigError(msg)
@@ -989,7 +991,8 @@ class Project:
 
     def _archived_evidence(self, task_id: str) -> verification.Evidence:
         """The evidence (and its run) archived with a task, as an ``Evidence`` of its own."""
-        payload = archive.Store(self.root / STATE_DIR).get(task_id) or {}
+        entry = self.archive_index().tasks.get(task_id)
+        payload = (archive.Store(self.root / STATE_DIR).get(task_id, entry["sha256"]) if entry else None) or {}
         kept, run = payload.get("evidence"), payload.get("run")
         if kept is None:
             return verification.Evidence()
@@ -1027,9 +1030,9 @@ class Project:
             if task is None:
                 msg = f"task {task_id} isn't archived"
                 raise ConfigError(msg)
-            payload = archive.Store(self.root / STATE_DIR).get(task_id) or {}
             registry.tasks[task_id] = task
             index = self.archive_index()
+            payload = archive.Store(self.root / STATE_DIR).get(task_id, index.tasks[task_id]["sha256"]) or {}
             index_before = _read_bytes(self.root / self.archive_index_rel)
             del index.tasks[task_id]
             writes = [
@@ -1057,7 +1060,7 @@ class Project:
         index = self.archive_index()
         store = archive.Store(self.root / STATE_DIR)
         have = store.hashes()
-        wanted = {t: e["sha256"] for t, e in index.tasks.items() if have.get(t) != e["sha256"]}
+        wanted = {t: e["sha256"] for t, e in index.tasks.items() if (t, e["sha256"]) not in have}
         if not wanted:
             return ReconcileReport((), (), len(index.tasks))
         try:
@@ -1073,9 +1076,6 @@ class Project:
                     yield gitio.git(["show", f"{rev}:./{self.registry_rel}"], self.root)
 
         found = archive.find_in_history(wanted, versions(), lambda text: json.loads(text)["tasks"])
-        # FIXME[ff20]: [P2] Retain archived payloads by task ID and record hash
-        #   Viewing an older branch replaces a newer local payload with evidence=None;
-        #   returning to the newer branch recovers its record but permanently loses evidence.
         store.put((t, {"task": record, "evidence": None}, index.tasks[t]["archived_at"]) for t, record in found.items())
         missing = sorted(set(wanted) - set(found))
         return ReconcileReport(tuple(sorted(found)), tuple(missing), len(index.tasks) - len(wanted))
@@ -1715,9 +1715,19 @@ class Project:
             imports: list[str] = []
             writes: list[FileWrite] = []
             rescanned: dict[str, list[Annotation]] = {}
+            consumers = release.project_consumers(
+                {path: source.text for path, (source, _) in sources.items() if language_for(path) is Language.PYTHON}
+            )
             for path, remove in sorted(targets.items()):
                 source, before = sources[path]
-                plan = cleanup.plan_file(source, remove, runtime_modules=runtime_modules, suppress_stubs=suppress_stubs)
+                imported = release.consumers_of(consumers, release.module_name(path))
+                plan = cleanup.plan_file(
+                    source,
+                    remove,
+                    runtime_modules=runtime_modules,
+                    suppress_stubs=suppress_stubs,
+                    consumers=frozenset(name for name, users in imported.items() if users - {path}),
+                )
                 diagnostics.extend(plan.diagnostics)
                 if plan.text == source.text:
                     continue
@@ -1982,7 +1992,7 @@ class Project:
             source, before = sources[path]
             if target.representation is Representation.DECORATOR:
                 text, line_no, col = _find_decorator_id(source.text, target, old_id)
-                old_text, new_text = text, text.replace(old_id, new_id)
+                old_text, new_text = text, normalize.literal(new_id)
             else:
                 line_no = target.line
                 col = physical_lines(source.text)[line_no - 1].find(f"[{old_id}]", target.col)
@@ -2127,17 +2137,17 @@ def _managed(task: Task) -> dict[str, Any]:
 
 
 def _find_decorator_id(text: str, annotation: Annotation, task_id: str) -> tuple[str, int, int]:
-    """The exact ``id="..."`` text of a decorator, and where it starts."""
+    """The ID value's source span, independent of whitespace and literal spelling."""
     lines = physical_lines(text)
-    # FIXME[30c3]: [P3] Locate decorator IDs by their AST value span during duplicate repair
-    #   The exact textual needle misses valid id = "beef" and multiline keyword values,
-    #   so repair cannot reassign duplicates that the scanner correctly recognizes.
-    for line_no in range(annotation.line, annotation.end_line + 1):
-        for quote in ('"', "'"):
-            needle = f"id={quote}{task_id}{quote}"
-            col = lines[line_no - 1].find(needle)
-            if col != -1:
-                return needle, line_no, col
+    for call in ast.walk(ast.parse(text)):
+        if not isinstance(call, ast.Call) or (call.lineno, call.end_lineno) != (annotation.line, annotation.end_line):
+            continue
+        for keyword in call.keywords:
+            value = keyword.value
+            if keyword.arg == "id" and isinstance(value, ast.Constant) and value.value == task_id:
+                segment = ast.get_source_segment(text, value)
+                if segment is not None:
+                    return segment, value.lineno, char_col(lines[value.lineno - 1], value.col_offset)
     msg = f"{annotation.location}: can't find id={task_id!r} in the decorator; edit it by hand"
     raise EditError(msg)
 
