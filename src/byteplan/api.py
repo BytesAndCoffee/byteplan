@@ -12,13 +12,14 @@ import hashlib
 import json
 import os
 import platform
+import posixpath
 import re
 import sys
 import tomllib
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any
 
 import pathspec
@@ -39,7 +40,15 @@ from byteplan.config import (
 )
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity, exit_code
 from byteplan.edits import physical_lines, replace_at
-from byteplan.errors import ConfigError, EditError, RegistryError, ScanError, SourceError, TaskNotFoundError
+from byteplan.errors import (
+    ByteplanError,
+    ConfigError,
+    EditError,
+    RegistryError,
+    ScanError,
+    SourceError,
+    TaskNotFoundError,
+)
 from byteplan.files import Scope, ScopeMatcher, collect_files, resolve_targets, scope_from_paths
 from byteplan.ids import allocate
 from byteplan.languages import Language, language_for
@@ -197,6 +206,10 @@ class ScanReport:
     links: tuple[VerifiesLink, ...] = ()
     # Closed tasks moved to the archive after this (writing) scan.
     archived: tuple[str, ...] = ()
+    # `tests.scaffold.auto`: (task ID, test node) scaffolded for tasks this scan added, and
+    # (task ID, reason) for those it couldn't scaffold.
+    scaffolded: tuple[tuple[str, str], ...] = ()
+    scaffold_failures: tuple[tuple[str, str], ...] = ()
 
     @property
     def files_scanned(self) -> int:
@@ -391,9 +404,43 @@ class Project:
         context = contextlib.nullcontext(()) if dry_run else self._writing()
         with context as recovered:
             report = self._scan(targets, cwd, dry_run=dry_run, recovered=recovered)
-        if dry_run or self.snapshot is not None or not self.config.archive.auto or report.blocked:
+        if dry_run or self.snapshot is not None or report.blocked:
             return report
-        return dataclasses.replace(report, archived=self.archive().tasks)
+        if self.config.tests.scaffold.auto and report.summary.added:
+            report = self._auto_scaffold(report)
+        if self.config.archive.auto:
+            report = dataclasses.replace(report, archived=self.archive().tasks)
+        return report
+
+    def _auto_scaffold(self, report: ScanReport) -> ScanReport:
+        """Scaffold tests for the open tasks ``report`` added in Python files outside the test directory."""
+        if self.stripped_release() is not None:
+            return report
+        tests_dir = PurePosixPath(posixpath.normpath(self.config.tests.scaffold.directory.replace("\\", "/")))
+        registry = self.load_registry()
+        scaffolded, failures = [], []
+        for task_id in report.summary.added:
+            task = registry.get(task_id)
+            if task is None or task.status is not Status.OPEN or task.linked_tests():
+                continue
+            if task.source is None or not task.source.path.endswith(".py"):
+                continue
+            if PurePosixPath(task.source.path).is_relative_to(tests_dir):
+                continue
+            try:
+                result = self.scaffold_test(task_id)
+            # e.g. scaffold_needs_path, an undecodable test file, a title its encoding can't hold,
+            # or a file where the test directory should be.
+            except (ByteplanError, UnicodeError, OSError) as exc:
+                failures.append((task_id, str(exc)))
+            else:
+                scaffolded.append((task_id, result.node))
+        return dataclasses.replace(
+            report,
+            written=tuple(dict.fromkeys([*report.written, *(node.split("::", 1)[0] for _, node in scaffolded)])),
+            scaffolded=tuple(scaffolded),
+            scaffold_failures=tuple(failures),
+        )
 
     def _scan(
         self,

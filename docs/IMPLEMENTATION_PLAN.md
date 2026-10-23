@@ -589,6 +589,13 @@ Design or any other `*DD` practice.
 (`scaffold.py`) decides the file, name and template. Writes go through the same lock, journal,
 hash checks and AST validation as every other source edit.
 
+**Auto-scaffolding** (added after Phase 9): `[tool.byteplan.tests.scaffold] auto = true` makes
+a writing working-tree `scan` call `scaffold_test` for each task in `summary.added` that is open,
+unlinked, and in a `.py` file outside `directory` (after the scan's lock is released, like auto
+archiving). Failures (e.g. `scaffold_needs_path`) are reported per task and never fail the scan.
+Snapshot scans, including the commit hook, never scaffold: a new test file there would be
+left unstaged.
+
 ```python
 import pytest
 from byteplan_runtime import verifies

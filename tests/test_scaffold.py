@@ -8,6 +8,7 @@ from __future__ import annotations
 import ast
 import json
 import os
+import shutil
 import subprocess
 import sys
 from typing import TYPE_CHECKING, Any
@@ -489,3 +490,106 @@ def test_imports_go_below_an_encoding_cookie(routed: ProjectFactory, run_cli: Ru
     assert "1 passed" in out
     assert "1 failed" in out
     assert code == 1
+
+
+# `[tool.byteplan.tests.scaffold] auto`: scans scaffold tests for the tasks they add --------------
+
+AUTO = '\n[tool.byteplan.tests.scaffold]\nauto = true\npolicy = "xfail"\n'
+
+
+def test_auto_scaffold_on_a_writing_scan(project: ProjectFactory, run_cli: RunCli) -> None:
+    markdown = '\n[tool.byteplan]\ninclude = ["**/*.py", "**/*.md"]\n'
+    project.write("pyproject.toml", PYPROJECT_DEV + markdown + AUTO, dedent=False)
+    project.init()
+    project.write("src/pkg/routing.py", ROUTING)
+    project.write("tests/test_existing.py", "# TODO: test-side work\ndef test_x():\n    pass\n")
+    project.write("NOTES.md", "<!-- TODO: docs work -->\n")
+
+    assert run_cli("scan", "--dry-run", "--project", project.root).code == EXIT_OK
+    assert not (project.root / "tests/test_routing.py").exists()  # dry runs write nothing
+
+    result = run_cli("scan", "--format", "json", "--project", project.root)
+    assert result.code == EXIT_OK, result.err
+    data = json.loads(result.out)
+    assert data["scaffold_failures"] == []
+    scaffolded = {entry["id"]: entry["node"] for entry in data["scaffolded"]}
+    for title in ("Implement poisoned reverse", "Plain function", "Whole class", "Module level work"):
+        task = task_by_title(project, title)
+        assert task["id"] in scaffolded
+        assert scaffolded[task["id"]].startswith("tests/test_routing.py::")
+    # Tasks in test files, and outside Python, are left to `byteplan tests scaffold`.
+    assert task_by_title(project, "test-side work")["id"] not in scaffolded
+    assert task_by_title(project, "docs work")["id"] not in scaffolded
+    assert '@pytest.mark.xfail(reason="BytePlan' in (project.root / "tests/test_routing.py").read_text()
+    assert run_cli("check", "--project", project.root).code == EXIT_OK
+
+    # Only tasks a scan adds: rescanning scaffolds nothing more.
+    before = (project.root / "tests/test_routing.py").read_text()
+    again = run_cli("scan", "--format", "json", "--project", project.root)
+    assert json.loads(again.out)["scaffolded"] == []
+    assert (project.root / "tests/test_routing.py").read_text() == before
+
+    project.write("src/pkg/extra.py", "def later():\n    # TODO: Later work\n    return 1\n")
+    text = run_cli("scan", "--project", project.root).out
+    later = task_by_title(project, "Later work")["id"]
+    assert f"scaffolded [{later}] tests/test_extra.py::" in text
+
+
+def test_auto_scaffold_is_off_by_default(routed: ProjectFactory) -> None:
+    assert not (routed.root / "tests").exists()
+
+
+def test_auto_scaffold_reports_what_it_couldnt_do(project: ProjectFactory, run_cli: RunCli) -> None:
+    project.write("pyproject.toml", PYPROJECT_DEV + AUTO, dedent=False)
+    project.init()
+    project.write("src/a/util.py", "def f():\n    # TODO: First util\n    return 1\n")
+    project.write("src/b/util.py", "def g():\n    # TODO: Second util\n    return 1\n")
+    result = run_cli("scan", "--project", project.root)
+    assert result.code == EXIT_OK
+    assert result.out.count("couldn't scaffold") == 2
+    assert "scaffold_needs_path" in result.out
+    assert not (project.root / "tests").exists()
+
+
+def test_auto_scaffold_normalizes_the_test_directory(project: ProjectFactory, run_cli: RunCli) -> None:
+    auto = AUTO.replace("auto = true", 'auto = true\ndirectory = "./tests"')
+    project.write("pyproject.toml", PYPROJECT_DEV + auto, dedent=False)
+    project.init()
+    project.write("tests/test_existing.py", "# TODO: test-side work\ndef test_x():\n    pass\n")
+    result = run_cli("scan", "--format", "json", "--project", project.root)
+    assert result.code == EXIT_OK, result.err
+    assert json.loads(result.out)["scaffolded"] == []
+    assert not (project.root / "tests/test_test_existing.py").exists()
+
+
+def test_auto_scaffold_reports_an_undecodable_target(project: ProjectFactory, run_cli: RunCli) -> None:
+    project.write("pyproject.toml", PYPROJECT_DEV + AUTO, dedent=False)
+    project.init()
+    project.write("tests/test_a.py", "# -*- coding: no-such-codec -*-\n")
+    project.write("a.py", "def f():\n    # TODO: New work\n    return 1\n")
+    result = run_cli("scan", str(project.root / "a.py"), "--project", project.root)  # narrowed: tests/ isn't scanned
+    assert result.code == EXIT_OK, result.err
+    assert "couldn't scaffold" in result.out
+    assert "TODO[" in (project.root / "a.py").read_text()
+
+
+def test_auto_scaffold_reports_encoding_and_filesystem_failures(project: ProjectFactory, run_cli: RunCli) -> None:
+    project.write("pyproject.toml", PYPROJECT_DEV + AUTO, dedent=False)
+    project.init()
+    (project.root / "tests").mkdir()
+    (project.root / "tests/test_a.py").write_bytes(b"# -*- coding: latin-1 -*-\n")
+    project.write("a.py", "def f():\n    # TODO: Handle ☃\n    return 1\n")  # not encodable as Latin-1
+    project.write("b.py", "def g():\n    # TODO: Second task\n    return 1\n")
+    result = run_cli("scan", "--format", "json", "--project", project.root)
+    assert result.code == EXIT_OK, result.err
+    data = json.loads(result.out)
+    assert [entry["id"] for entry in data["scaffold_failures"]] == [task_by_title(project, "Handle ☃")["id"]]
+    assert [entry["id"] for entry in data["scaffolded"]] == [task_by_title(project, "Second task")["id"]]
+
+    shutil.rmtree(project.root / "tests")
+    (project.root / "tests").write_text("not a directory\n")
+    project.write("c.py", "def h():\n    # TODO: Third task\n    return 1\n")
+    result = run_cli("scan", "--format", "json", "--project", project.root)
+    assert result.code == EXIT_OK, result.err
+    (failure,) = json.loads(result.out)["scaffold_failures"]
+    assert failure["id"] == task_by_title(project, "Third task")["id"]
