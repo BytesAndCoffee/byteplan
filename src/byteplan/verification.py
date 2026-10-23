@@ -37,6 +37,7 @@ from importlib import resources
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from byteplan import jsonio
 from byteplan.errors import ByteplanError, ConfigError
 from byteplan.gitio import git
 from byteplan.models import Presence
@@ -305,15 +306,49 @@ class Evidence:
     @classmethod
     def load(cls, root: Path) -> Evidence:
         try:
-            data = json.loads((root / STORE).read_text(encoding="utf-8"))
+            text = (root / STORE).read_bytes()
         except FileNotFoundError:
             return cls()
-        except (OSError, ValueError) as exc:
-            msg = f"{STORE} is unreadable ({exc}); delete it and run `byteplan verify` again"
+        except OSError as exc:
+            msg = f"{STORE} is unreadable ({exc}); restore it from Git or resolve the conflict before retrying"
             raise ConfigError(msg) from exc
-        if not isinstance(data, dict) or data.get("schema_version") != STORE_VERSION:
-            msg = f"{STORE} has an unsupported format; delete it and run `byteplan verify` again"
+        return cls.loads(text)
+
+    @classmethod
+    def loads(cls, text: str | bytes) -> Evidence:
+        try:
+            data = jsonio.loads(text.decode("utf-8") if isinstance(text, bytes) else text)
+        except ValueError as exc:
+            msg = f"{STORE} is unreadable ({exc}); restore it from Git or resolve the conflict before retrying"
+            raise ConfigError(msg) from exc
+        if (
+            not isinstance(data, dict)
+            or type(data.get("schema_version")) is not int
+            or data.get("schema_version") != STORE_VERSION
+            or any(
+                not isinstance(data.get(key, {}), dict)
+                or any(not isinstance(value, dict) for value in data.get(key, {}).values())
+                for key in ("tasks", "runs")
+            )
+        ):
+            msg = f"{STORE} has an unsupported format; restore valid evidence from Git before retrying"
             raise ConfigError(msg)
+        for task_id, entry in data.get("tasks", {}).items():
+            tests = entry.get("tests", {})
+            if not isinstance(tests, dict) or any(
+                not isinstance(record, dict)
+                or record.get("outcome") not in OUTCOMES
+                or ("duration_ms" in record and (type(record["duration_ms"]) is not int or record["duration_ms"] < 0))
+                or ("message" in record and not isinstance(record["message"], str))
+                for record in tests.values()
+            ):
+                msg = (
+                    f"{STORE}: task {task_id} has malformed test evidence; resolve the records or restore them from Git"
+                )
+                raise ConfigError(msg)
+            if any(key in entry and not isinstance(entry[key], str) for key in ("fingerprint", "run")):
+                msg = f"{STORE}: task {task_id} has malformed evidence metadata; restore valid records from Git"
+                raise ConfigError(msg)
         return cls(dict(data.get("tasks", {})), dict(data.get("runs", {})))
 
     def dumps(self) -> bytes:

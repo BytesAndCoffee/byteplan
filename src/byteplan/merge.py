@@ -186,7 +186,7 @@ def merge_registries(base: dict[str, Any], ours: dict[str, Any], theirs: dict[st
     """Merge three registry dicts (as produced by ``registry.to_dict``)."""
     result = MergeResult(data=None)
     versions = {base.get("schema_version"), ours.get("schema_version"), theirs.get("schema_version")}
-    if versions != {SCHEMA_VERSION}:
+    if len(versions) != 1 or any(type(v) is not int or not 1 <= v <= SCHEMA_VERSION for v in versions):
         result.conflicts.append(f"schema_version differs between versions ({sorted(map(str, versions))})")
         return result
 
@@ -222,5 +222,5 @@ def merge_registries(base: dict[str, Any], ours: dict[str, Any], theirs: dict[st
             extra[key] = value
 
     if not result.conflicts:
-        result.data = {**extra, "schema_version": SCHEMA_VERSION, "reserved_ids": reserved, "tasks": tasks}
+        result.data = {**extra, "schema_version": base["schema_version"], "reserved_ids": reserved, "tasks": tasks}
     return result

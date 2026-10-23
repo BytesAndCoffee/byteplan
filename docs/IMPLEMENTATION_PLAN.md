@@ -119,7 +119,7 @@ src/byteplan/
   models.py         frozen dataclasses + enums (Task, SourceRef, HistoryEvent, Edit, Diagnostic, ...)
   config.py         [tool.byteplan] via tomllib, defaults, validation, project-root resolution
   files.py          scope collection: pathspec include/exclude, .gitignore, symlink policy, sorted
-  ids.py            current: shake_128 16-bit candidates; Addendum E A1 plans expanded identities
+  ids.py            shake_128 24-bit candidates, legacy/long ID validation, exact-first UI prefixes
   scanner/
     source.py       bytes -> detect_encoding (BOM / PEP 263) -> text + newline style
     symbols.py      ast declarations, qualnames, line -> symbol

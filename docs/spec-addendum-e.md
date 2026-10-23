@@ -50,6 +50,10 @@ verification finding is tracked there as `ff72`. See that PR's
 Reassess the integrated state before A or B. The records on the base branch intentionally
 remain open until the corresponding implementation and evidence are integrated.
 
+For the first implementation increment after PRs #43/#44 integration, see the
+[RC1 compatibility triage and migration report](rc1-compatibility.md). The measurements above
+remain the historical documentation-assessment baseline, not the current completion state.
+
 ## Track A — Pre-1.0 compatibility and reliability
 
 ### A1. Persistent task identifier compatibility
@@ -81,10 +85,6 @@ unsupported or malformed annotations produce diagnostics rather than silently dr
 all source-editing guarantees continue to hold.
 
 ### A2. Registry schema compatibility and migration
-
-<!-- TODO[8756]: RC1 schema boundary and transactional migration for expanded persistent IDs
-     Test actual previously released packages, metadata preservation, interrupted upgrades,
-     repeated migration and source writes against the complete A2 compatibility matrix. -->
 
 Introduce schema version 2 where necessary to enforce the expanded persistent-ID contract.
 Use the existing rejection of future schemas to protect repositories from incompatible
@@ -140,7 +140,7 @@ become a second task authority.
 
 ### A4. Plain-Git merge compatibility
 
-<!-- TODO[edc2]: RC1 plain-Git merge and conflicting-evidence validation
+<!-- FIXME[edc2]: RC1 plain-Git merge and conflicting-evidence validation
      Exercise divergent tasks, collisions, histories, lifecycle states and malformed merges
      both with and without the custom driver; require actionable check diagnostics. -->
 

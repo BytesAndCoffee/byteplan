@@ -210,6 +210,22 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "95d753930dc8": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T22:04:33Z",
+      "dirty": true,
+      "head": "471ccca109670339a443a6488e90377a00178dab",
+      "python": "3.12.14",
+      "timed_out": false
+    },
     "99430208fd0d": {
       "argv": [
         "hatch",
@@ -473,6 +489,16 @@
       "tests": {
         "tests/test_archive.py::test_reconcile_follows_merged_branches_full_history": {
           "duration_ms": 157,
+          "outcome": "passed"
+        }
+      }
+    },
+    "1b81": {
+      "fingerprint": "ea0774bc0178ba766f9072d277c260255ba4641b6febbd1141416b467ff424af",
+      "run": "95d753930dc8",
+      "tests": {
+        "tests/test_compatibility.py::test_init_rejects_future_schema_before_writing_any_source": {
+          "duration_ms": 9,
           "outcome": "passed"
         }
       }
@@ -759,6 +785,44 @@
       "tests": {
         "tests/test_archive.py::test_a_stale_local_row_is_reconciled_against_the_index": {
           "duration_ms": 129,
+          "outcome": "passed"
+        }
+      }
+    },
+    "8756": {
+      "fingerprint": "fda68830e40a977d26501649cb90b02c1fcf7ad4c6fc8d988e71733522003928",
+      "run": "95d753930dc8",
+      "tests": {
+        "tests/test_compatibility.py::test_extension_metadata_survives_post_migration_writes": {
+          "duration_ms": 16,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_init_rejects_future_schema_before_writing_any_source": {
+          "duration_ms": 9,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_interrupted_migration_recovers_before_source_allocation": {
+          "duration_ms": 38,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_legacy_allocation_requires_migration_without_source_changes": {
+          "duration_ms": 21,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_migration_is_explicit_lossless_and_idempotent": {
+          "duration_ms": 35,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_schema_one_metadata_writes_preserve_the_version": {
+          "duration_ms": 8,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_staged_legacy_allocation_refuses_without_index_or_source_changes": {
+          "duration_ms": 166,
+          "outcome": "passed"
+        },
+        "tests/test_released_clients.py::test_released_clients_reject_schema_two_without_touching_tasks": {
+          "duration_ms": 4976,
           "outcome": "passed"
         }
       }
@@ -1059,6 +1123,52 @@
         }
       }
     },
+    "c978": {
+      "fingerprint": "ea0774bc0178ba766f9072d277c260255ba4641b6febbd1141416b467ff424af",
+      "run": "95d753930dc8",
+      "tests": {
+        "tests/test_compatibility.py::test_archived_exact_identity_precedes_active_prefix": {
+          "duration_ms": 136,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_divergent_branch_identity_collisions_fail_explicitly": {
+          "duration_ms": 1035,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_exact_identity_precedes_prefix_and_ambiguity_is_actionable": {
+          "duration_ms": 15,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_expanded_registry_round_trip": {
+          "duration_ms": 1,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_malformed_pytest_marker_is_diagnosed": {
+          "duration_ms": 10,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_new_ids_use_six_characters_and_preserve_source_encoding": {
+          "duration_ms": 37,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_persisted_verification_references_do_not_resolve_prefixes": {
+          "duration_ms": 12,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_staged_legacy_allocation_refuses_without_index_or_source_changes": {
+          "duration_ms": 166,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_supported_id_lengths_round_trip_across_scanners": {
+          "duration_ms": 247,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_sync_rechecks_prefix_after_acquiring_write_context": {
+          "duration_ms": 20,
+          "outcome": "passed"
+        }
+      }
+    },
     "c993": {
       "fingerprint": "4078b477a408bbfe445d3180cf5199b2187db9a22db6333b14c58dbaac22e2df",
       "run": "c4b99806d441",
@@ -1135,6 +1245,28 @@
       "tests": {
         "tests/test_stable_review.py::test_staged_apply_refuses_an_ordinary_pending_transaction": {
           "duration_ms": 361,
+          "outcome": "passed"
+        }
+      }
+    },
+    "edc2": {
+      "fingerprint": "ea0774bc0178ba766f9072d277c260255ba4641b6febbd1141416b467ff424af",
+      "run": "95d753930dc8",
+      "tests": {
+        "tests/test_compatibility.py::test_check_rejects_inconsistent_merge_records_without_writes": {
+          "duration_ms": 129,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_check_rejects_malformed_nested_evidence": {
+          "duration_ms": 61,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_divergent_branch_identity_collisions_fail_explicitly": {
+          "duration_ms": 1035,
+          "outcome": "passed"
+        },
+        "tests/test_compatibility.py::test_staged_check_validates_staged_evidence_not_worktree": {
+          "duration_ms": 123,
           "outcome": "passed"
         }
       }

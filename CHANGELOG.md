@@ -5,7 +5,18 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+### Added
+- Explicit `byteplan migrate [--dry-run]` upgrades registry metadata to schema v2 through the
+  existing recovery journal before expanded task identities can be written. New repositories
+  use v2; released incompatible clients reject that version boundary.
+- New tasks receive six-character IDs. Legacy four-character and longer hexadecimal IDs are
+  supported, with exact-ID lookup before unambiguous user-interface prefixes.
+
 ### Fixed
+- Registry, archive-index and verification parsing reject duplicate JSON keys and unresolved
+  Git markers. Checks validate evidence from the same working-tree or Git snapshot as source.
+- JSON annotation edit guards recognize expanded IDs; malformed pytest marker IDs are reported.
+- Initialization validates an existing registry before writing a runtime shim or configuration.
 - Review findings for 1.0: scanning respects module-level rebinding, scaffolds preserve
   conditional tests, and cleanup keeps runtime names consumed by other modules.
 - Archived records are cached by ID and hash, preserving local evidence across branch

@@ -76,7 +76,8 @@ def test_repair_reassign_comment_duplicate(scanned: ProjectFactory, run_cli: Run
     assert run_cli("repair", "--reassign", "src/b.py:1", "--project", scanned.root).code == EXIT_ERROR
     result = run_cli("repair", "--reassign", "src/b.py:2", "--project", scanned.root)
     assert result.code == EXIT_OK, result.err
-    new_id = copy.read_text().split("[")[1][:4]
+    new_id = copy.read_text().split("[")[1].split("]")[0]
+    assert len(new_id) == 6
     assert new_id != original["id"]
     assert copy.read_text() == f"x = 1\n# TODO[{new_id}]: pasted copy\n"
     registered = tasks(scanned)

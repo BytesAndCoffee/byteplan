@@ -70,7 +70,7 @@ def scan_file(
     tags, diagnostics = scan_comments(source, detect.todo_tags, index, comments)
     decorated = scan_decorators(source, tree, decls, runtime_modules, detect.todo_tags)
     if pytest_marker:
-        decorated.links.extend(scan_markers(source, tree, decls))
+        decorated.links.extend(scan_markers(source, tree, decls, decorated.diagnostics))
     ignore_lines = {c.line for c in comments if IGNORE_RE.search(c.text)}
     intentional = hierarchy.intentional if hierarchy is not None and detect.respect_overrides else None
     stubs = find_stubs(decls, detect, ignore_lines, intentional)

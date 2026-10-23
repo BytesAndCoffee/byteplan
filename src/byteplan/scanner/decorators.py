@@ -342,7 +342,7 @@ def _todo(
             report(
                 Code.MALFORMED_ID,
                 Severity.WARNING,
-                f'id="{raw_id}" is not four lowercase hex digits; the task is not tracked',
+                f'id="{raw_id}" is not a lowercase hexadecimal ID (at least four characters); the task is not tracked',
                 line,
                 "remove id= to get a new ID on the next scan, or fix it to a registered ID",
             )
@@ -459,10 +459,12 @@ def _pytest_mark_names(tree: ast.Module) -> set[str]:
     return names
 
 
-def scan_markers(source: SourceFile, tree: ast.Module, decls: Sequence[Declaration]) -> list[VerifiesLink]:
+def scan_markers(
+    source: SourceFile, tree: ast.Module, decls: Sequence[Declaration], diagnostics: list[Diagnostic] | None = None
+) -> list[VerifiesLink]:
     """``@pytest.mark.byteplan("abcd", ...)`` on tests: links with provenance ``marker``.
 
-    Only literal, well-formed IDs count; other arguments are ignored.
+    Only literal, well-formed IDs count; malformed arguments are diagnosed.
     """
     names = _pytest_mark_names(tree)
     if not names:
@@ -474,6 +476,19 @@ def scan_markers(source: SourceFile, tree: ast.Module, decls: Sequence[Declarati
         for decorator in decl.node.decorator_list:
             if not isinstance(decorator, ast.Call) or dotted_name(decorator.func) not in names:
                 continue
+            if diagnostics is not None:
+                for arg in decorator.args:
+                    value = _literal_str(arg)
+                    if value is None or not is_valid_id(value):
+                        diagnostics.append(
+                            Diagnostic(
+                                Code.MALFORMED_ID,
+                                Severity.WARNING,
+                                "pytest byteplan marker requires literal lowercase hexadecimal IDs (at least four characters)",
+                                locations=(Location(source.path, arg.lineno),),
+                                hint="use the full task ID from `byteplan list`",
+                            )
+                        )
             ids = tuple(v for arg in decorator.args if (v := _literal_str(arg)) is not None and is_valid_id(v))
             if ids:
                 node_id = "::".join([source.path, *decl.qualname.split(".")])
@@ -501,7 +516,10 @@ def _verifies(
             )
         elif not is_valid_id(value):
             report(
-                Code.MALFORMED_ID, Severity.WARNING, f'@{name}("{value}"): not a four-hex-digit task ID', call.lineno
+                Code.MALFORMED_ID,
+                Severity.WARNING,
+                f'@{name}("{value}"): not a lowercase hexadecimal task ID (at least four characters)',
+                call.lineno,
             )
         else:
             ids.append(value)

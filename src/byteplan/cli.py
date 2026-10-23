@@ -58,6 +58,16 @@ def cmd_init(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def cmd_migrate(args: argparse.Namespace) -> int:
+    paths = _project(args).migrate(dry_run=args.dry_run)
+    if args.format == "json":
+        _out(reporting.to_json({"paths": list(paths), "dry_run": args.dry_run}))
+    else:
+        action = "would migrate" if args.dry_run else "migrated"
+        _out(f"byteplan: {action}: {', '.join(paths)}" if paths else "byteplan: registry is already current")
+    return EXIT_OK
+
+
 def cmd_sync(args: argparse.Namespace) -> int:
     project = _project(args)
     settings = project.config.annotations
@@ -550,6 +560,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     init.set_defaults(handler=cmd_init)
 
+    migrate = sub.add_parser(
+        "migrate", parents=[common, formatted], help="upgrade registry metadata without editing source"
+    )
+    migrate.add_argument("--dry-run", action="store_true", help="preview the metadata upgrade; write nothing")
+    migrate.set_defaults(handler=cmd_migrate)
+
     sync = sub.add_parser(
         "sync",
         parents=[common, formatted],
@@ -603,7 +619,7 @@ def build_parser() -> argparse.ArgumentParser:
     archive_cmd.set_defaults(handler=cmd_archive)
 
     show = sub.add_parser("show", parents=[common, formatted], help="show one task with its history")
-    show.add_argument("id", help="four-hex-digit task ID")
+    show.add_argument("id", help="exact hexadecimal task ID or unique prefix")
     show.set_defaults(handler=cmd_show)
 
     status = sub.add_parser("status", parents=[common, formatted], help="change a task's lifecycle status")

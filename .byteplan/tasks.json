@@ -92,7 +92,7 @@
     "ff3a",
     "ff72"
   ],
-  "schema_version": 1,
+  "schema_version": 2,
   "tasks": {
     "0413": {
       "assignee": null,
@@ -815,6 +815,35 @@
             "labels": [],
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: audit source mutation guarantees and report-only paths after compatibility changes; existing previews/BOM/AST tests are protections to preserve, not missing features.",
+            "priority": "high"
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T21:50:37Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Compatibility implementation started: strict merged-record parsing and init-before-write validation; broader audit remains open.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T21:59:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: audit source mutation guarantees and report-only paths after compatibility changes; existing previews/BOM/AST tests are protections to preserve, not missing features.\n\nTriage clarification: confirmed init-before-validation behavior is P2 because it adds a new inert shim, without overwriting existing task/source/evidence records. Broader source-safety audit remains a high-priority release gate. The new init validation regression is linked; do not treat it as completion of the entire audit."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: audit source mutation guarantees and report-only paths after compatibility changes; existing previews/BOM/AST tests are protections to preserve, not missing features."
+          }
         }
       ],
       "id": "1b81",
@@ -824,10 +853,10 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: audit source mutation guarantees and report-only paths after compatibility changes; existing previews/BOM/AST tests are protections to preserve, not missing features.\n\nTriage clarification: confirmed init-before-validation behavior is P2 because it adds a new inert shim, without overwriting existing task/source/evidence records. Broader source-safety audit remains a high-priority release gate. The new init validation regression is linked; do not treat it as completion of the entire audit.",
       "origin": "comment",
       "presence": "present",
-      "priority": "normal",
+      "priority": "high",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
@@ -837,8 +866,19 @@
         "representation": "comment",
         "symbol": "A5. Source-editing safety and first-run ergonomics"
       },
-      "status": "open",
+      "status": "in_progress",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 247,
+            "node": "tests/test_compatibility.py::test_init_rejects_future_schema_before_writing_any_source",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "RC1 source-safety and first-run preview audit",
       "title_override": null
     },
@@ -1513,6 +1553,26 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only."
+          }
         }
       ],
       "id": "3844",
@@ -1522,7 +1582,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -2010,6 +2070,33 @@
             "labels": [],
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 design decision: evaluate merge integrity and evidence preservation. Keep JSON registry authoritative until measured risk justifies layout migration; size alone is insufficient."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:09Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Measured merged registry at91tasks/450events/218671bytes; documented intended JSON authority contract and alternatives. Larger-repository performance/evidence reconciliation review remains pending.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T21:59:09Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 design decision: evaluate merge integrity and evidence preservation. Keep JSON registry authoritative until measured risk justifies layout migration; size alone is insufficient.\n\nSee docs/rc1-compatibility.md: retain embedded authoritative task/history JSON, separate committed verification evidence and managed external mappings conceptually, rebuildable indexes/graph and local SQLite cache. No layout migration justified by current measurements; explicit Git conflicts acceptable. Keep task open for scale/evidence review and final decision disposition."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 design decision: evaluate merge integrity and evidence preservation. Keep JSON registry authoritative until measured risk justifies layout migration; size alone is insufficient."
+          }
         }
       ],
       "id": "4842",
@@ -2019,7 +2106,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 design decision: evaluate merge integrity and evidence preservation. Keep JSON registry authoritative until measured risk justifies layout migration; size alone is insufficient.\n\nSee docs/rc1-compatibility.md: retain embedded authoritative task/history JSON, separate committed verification evidence and managed external mappings conceptually, rebuildable indexes/graph and local SQLite cache. No layout migration justified by current measurements; explicit Git conflicts acceptable. Keep task open for scale/evidence review and final decision disposition.",
       "origin": "comment",
       "presence": "present",
       "priority": "normal",
@@ -2032,7 +2119,7 @@
         "representation": "comment",
         "symbol": "A3. Registry layout and history storage"
       },
-      "status": "open",
+      "status": "in_progress",
       "stub": null,
       "title": "RC1 authoritative storage decision based on measured collaboration and integrity risk",
       "title_override": null
@@ -3144,6 +3231,65 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Started compatibility track A after PRs43 and44 merged. Schema boundary precedes incompatible source writes.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T21:50:37Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments.\n\nActual released PyPI0.1.0/0.2.0 packages tested: schema2 rejects check, writing scan, status mutation and ordinary init without changing repository files. Schema1 with six-ID annotations warns MALFORMED_ID but exits0 with zero tracked tasks; migration-first boundary is required. Published0.2.0 init --runtime-shim adds a new inert shim before rejecting schema2; it leaves existing tasks/evidence intact. New init now validates before any shim/config write. Record this old-client limitation in compatibility matrix."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments.\n\nActual released PyPI0.1.0/0.2.0 packages tested: schema2 rejects check, writing scan, status mutation and ordinary init without changing repository files. Schema1 with six-ID annotations warns MALFORMED_ID but exits0 with zero tracked tasks; migration-first boundary is required. Published0.2.0 init --runtime-shim adds a new inert shim before rejecting schema2; it leaves existing tasks/evidence intact. New init now validates before any shim/config write. Record this old-client limitation in compatibility matrix.\n\nIndependent implementation review P2: ordinary post-migration writes previously dropped unknown event/source/link metadata. Preserved nested extension fields in domain serialization/reconciliation and added post-migration edit/scan regression. Migration changes only raw schema metadata via journal and preserves evidence/source. Review findings are tracked under this existing migration-preservation obligation."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments.\n\nActual released PyPI0.1.0/0.2.0 packages tested: schema2 rejects check, writing scan, status mutation and ordinary init without changing repository files. Schema1 with six-ID annotations warns MALFORMED_ID but exits0 with zero tracked tasks; migration-first boundary is required. Published0.2.0 init --runtime-shim adds a new inert shim before rejecting schema2; it leaves existing tasks/evidence intact. New init now validates before any shim/config write. Record this old-client limitation in compatibility matrix."
+          }
+        },
+        {
+          "at": "2026-10-23T22:02:34Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicit schema2 migration completed: raw metadata-only journaled upgrade, idempotence and interrupted recovery, schema1 allocation/staged guards, post-upgrade nested metadata preservation, init prevalidation, and actual PyPI0.1.0/0.2.0 rejection tests. Independent review P2s corrected;918 non-network tests,2 actual released-client cases,typing and formatting passed. Older0.2.0 init --runtime-shim additive-file limitation documented; existing records remain intact.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-23T22:02:42Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T22:02:42Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/spec-addendum-e.md"
+          }
         }
       ],
       "id": "8756",
@@ -3153,9 +3299,9 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments.\n\nActual released PyPI0.1.0/0.2.0 packages tested: schema2 rejects check, writing scan, status mutation and ordinary init without changing repository files. Schema1 with six-ID annotations warns MALFORMED_ID but exits0 with zero tracked tasks; migration-first boundary is required. Published0.2.0 init --runtime-shim adds a new inert shim before rejecting schema2; it leaves existing tasks/evidence intact. New init now validates before any shim/config write. Record this old-client limitation in compatibility matrix.\n\nIndependent implementation review P2: ordinary post-migration writes previously dropped unknown event/source/link metadata. Preserved nested extension fields in domain serialization/reconciliation and added post-migration edit/scan regression. Migration changes only raw schema metadata via journal and preserves evidence/source. Review findings are tracked under this existing migration-preservation obligation.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "high",
       "scope_state": "in_scope",
       "source": {
@@ -3166,8 +3312,61 @@
         "representation": "comment",
         "symbol": "A2. Registry schema compatibility and migration"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 68,
+            "node": "tests/test_compatibility.py::test_extension_metadata_survives_post_migration_writes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 247,
+            "node": "tests/test_compatibility.py::test_init_rejects_future_schema_before_writing_any_source",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 84,
+            "node": "tests/test_compatibility.py::test_interrupted_migration_recovers_before_source_allocation",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 113,
+            "node": "tests/test_compatibility.py::test_legacy_allocation_requires_migration_without_source_changes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 50,
+            "node": "tests/test_compatibility.py::test_migration_is_explicit_lossless_and_idempotent",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 125,
+            "node": "tests/test_compatibility.py::test_schema_one_metadata_writes_preserve_the_version",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 218,
+            "node": "tests/test_compatibility.py::test_staged_legacy_allocation_refuses_without_index_or_source_changes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 24,
+            "node": "tests/test_released_clients.py::test_released_clients_reject_schema_two_without_touching_tasks",
+            "path": "tests/test_released_clients.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "RC1 schema boundary and transactional migration for expanded persistent IDs",
       "title_override": null
     },
@@ -3199,6 +3398,16 @@
             "labels": [],
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 compatibility inventory: document stable/experimental interfaces, TD004 and first-run guidance after compatibility implementation; no speculative new functionality."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
         }
       ],
       "id": "8aeb",
@@ -3208,7 +3417,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 compatibility inventory: document stable/experimental interfaces, TD004 and first-run guidance after compatibility implementation; no speculative new functionality.",
       "origin": "comment",
       "presence": "present",
       "priority": "normal",
@@ -4347,6 +4556,26 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication."
+          }
         }
       ],
       "id": "a70d",
@@ -4356,7 +4585,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -5143,6 +5372,26 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews."
+          }
         }
       ],
       "id": "c053",
@@ -5152,7 +5401,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -5432,6 +5681,43 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Started compatibility track A after PRs43 and44 merged. Schema boundary precedes incompatible source writes.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T21:50:37Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:09Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open.\n\nIndependent implementation review P2: sync prefix selection formerly ran before write locking/recovery. It now resolves against the transaction registry; regression injects concurrent creation and requires actionable ambiguity without source mutation."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open."
+          }
         }
       ],
       "id": "c978",
@@ -5441,7 +5727,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open.\n\nIndependent implementation review P2: sync prefix selection formerly ran before write locking/recovery. It now resolves against the transaction registry; regression injects concurrent creation and requires actionable ambiguity without source mutation.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -5449,13 +5735,78 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 57,
+        "line": 61,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "A1. Persistent task identifier compatibility"
       },
-      "status": "open",
+      "status": "in_progress",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 257,
+            "node": "tests/test_compatibility.py::test_archived_exact_identity_precedes_active_prefix",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 323,
+            "node": "tests/test_compatibility.py::test_divergent_branch_identity_collisions_fail_explicitly",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 184,
+            "node": "tests/test_compatibility.py::test_exact_identity_precedes_prefix_and_ambiguity_is_actionable",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 241,
+            "node": "tests/test_compatibility.py::test_expanded_registry_round_trip",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 277,
+            "node": "tests/test_compatibility.py::test_malformed_pytest_marker_is_diagnosed",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 162,
+            "node": "tests/test_compatibility.py::test_new_ids_use_six_characters_and_preserve_source_encoding",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 204,
+            "node": "tests/test_compatibility.py::test_persisted_verification_references_do_not_resolve_prefixes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 218,
+            "node": "tests/test_compatibility.py::test_staged_legacy_allocation_refuses_without_index_or_source_changes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 135,
+            "node": "tests/test_compatibility.py::test_supported_id_lengths_round_trip_across_scanners",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 380,
+            "node": "tests/test_compatibility.py::test_sync_rechecks_prefix_after_acquiring_write_context",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "RC1 persistent identity compatibility: remove four-character-only assumptions",
       "title_override": null
     },
@@ -6337,19 +6688,68 @@
             "labels": [],
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.",
+            "priority": "high"
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T21:50:37Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Compatibility implementation started: strict merged-record parsing and init-before-write validation; broader audit remains open.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T21:50:37Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:07Z",
+          "event": "text_changed",
+          "new": {
+            "kind": "FIXME"
+          },
+          "old": {
+            "kind": "TODO"
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:09Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending."
+          }
         }
       ],
       "id": "edc2",
-      "kind": "TODO",
+      "kind": "FIXME",
       "labels": [
         "release:1.0",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "last_seen": "2026-10-23T21:59:07Z",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.",
       "origin": "comment",
       "presence": "present",
-      "priority": "normal",
+      "priority": "high",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
@@ -6359,8 +6759,37 @@
         "representation": "comment",
         "symbol": "A4. Plain-Git merge compatibility"
       },
-      "status": "open",
+      "status": "in_progress",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 290,
+            "node": "tests/test_compatibility.py::test_check_rejects_inconsistent_merge_records_without_writes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 357,
+            "node": "tests/test_compatibility.py::test_check_rejects_malformed_nested_evidence",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 323,
+            "node": "tests/test_compatibility.py::test_divergent_branch_identity_collisions_fail_explicitly",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 310,
+            "node": "tests/test_compatibility.py::test_staged_check_validates_staged_evidence_not_worktree",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "RC1 plain-Git merge and conflicting-evidence validation",
       "title_override": null
     },

@@ -63,6 +63,7 @@ class SourceRef:
     decl_line: int | None = None  # the attached declaration's def/class line
     attachment_kind: AttachmentKind | None = None
     representation: Representation | None = None
+    extra: dict[str, Any] = field(default_factory=dict, hash=False)
 
 
 @dataclass(frozen=True)
@@ -72,6 +73,7 @@ class HistoryEvent:
     old: Any = None
     new: Any = None
     note: str | None = None
+    extra: dict[str, Any] = field(default_factory=dict, hash=False)
 
 
 @dataclass
@@ -99,6 +101,7 @@ class Task:
     # `discovered` ({node, provenance, path, line}) is recomputed by scans from source.
     tests_managed: list[str] = field(default_factory=list)
     tests_discovered: list[dict[str, Any]] = field(default_factory=list)
+    tests_extra: dict[str, Any] = field(default_factory=dict)
     first_seen: str | None = None
     last_seen: str | None = None
     history: list[HistoryEvent] = field(default_factory=list)

@@ -50,7 +50,7 @@ from byteplan.errors import (
     TaskNotFoundError,
 )
 from byteplan.files import Scope, ScopeMatcher, collect_files, resolve_targets, scope_from_paths
-from byteplan.ids import allocate
+from byteplan.ids import LEGACY_ID_LENGTH, allocate, resolve_id
 from byteplan.languages import Language, language_for
 from byteplan.models import AttachmentKind, HistoryEvent, Origin, Presence, Representation, ScopeState, Status
 from byteplan.persistence import (
@@ -374,6 +374,24 @@ class Project:
             raise RegistryError(msg) from exc
         return sha256(data), registry_io.loads(text, str(path))
 
+    def migrate(self, *, dry_run: bool = False) -> tuple[str, ...]:
+        """Explicitly upgrade registry metadata through the journal; never edit source."""
+        if self.snapshot is not None:
+            msg = "registry migration requires the working tree"
+            raise ConfigError(msg)
+        context = contextlib.nullcontext(()) if dry_run else self._writing()
+        with context:
+            before, registry = self._read_registry()
+            if registry.schema_version == registry_io.SCHEMA_VERSION:
+                return ()
+            # Change only the schema boundary: preserve even nested extension metadata
+            # that the current domain model does not interpret.
+            data = json.loads(self.config.registry_path.read_bytes())
+            data["schema_version"] = registry_io.SCHEMA_VERSION
+            encoded = (json.dumps(data, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode()
+            writes = [FileWrite(self.registry_rel, before, encoded)]
+            return tuple(w.path for w in writes) if dry_run else tuple(commit(self.root, writes))
+
     @contextlib.contextmanager
     def _writing(self) -> Iterator[tuple[str, ...]]:
         """Hold the project lock and finish any interrupted write first."""
@@ -505,6 +523,15 @@ class Project:
             diagnostics.extend(result.diagnostics)
         if failures:
             raise ScanError(failures)
+
+        # Validate the same evidence snapshot as the source/registry, even when no
+        # implementation candidate needs readiness. Merged evidence is never optional.
+        if snapshot is None:
+            verification.Evidence.load(self.root)
+        else:
+            evidence_data = snapshot.read(verification.STORE)
+            if evidence_data is not None:
+                verification.Evidence.loads(evidence_data)
 
         if dry_run and snapshot is None and pending_journal(self.root):
             diagnostics.append(
@@ -904,10 +931,22 @@ class Project:
             and (not kind_set or task.kind.upper() in kind_set)
         ]
 
+    def _resolve_task_id(self, query: str, registry: Registry | None = None, *, missing_ok: bool = False) -> str:
+        registry = self.load_registry() if registry is None else registry
+        identities = registry.tasks.keys() | self.archive_index().tasks.keys()
+        task_id = resolve_id(query, identities)
+        if task_id is None:
+            if missing_ok:
+                return query.lower()
+            raise _not_found(query)
+        return task_id
+
     def get_task(self, task_id: str) -> Task:
-        task = self.load_registry().get(task_id.lower())
+        registry = self.load_registry()
+        task_id = self._resolve_task_id(task_id, registry)
+        task = registry.get(task_id)
         if task is None:
-            archived = self.archived_task(task_id.lower())
+            archived = self.archived_task(task_id)
             if archived is not None:
                 return archived
             raise _not_found(task_id)
@@ -941,7 +980,11 @@ class Project:
         if payload is None or archive.record_hash(payload["task"]) != entry["sha256"]:
             msg = f"task {task_id} is archived, but its record isn't in this clone's Git history"
             raise ConfigError(msg)
-        wrapper = {"schema_version": 1, "reserved_ids": [task_id], "tasks": {task_id: payload["task"]}}
+        wrapper = {
+            "schema_version": registry_io.SCHEMA_VERSION,
+            "reserved_ids": [task_id],
+            "tasks": {task_id: payload["task"]},
+        }
         return registry_io.from_dict(wrapper, f"archive:{task_id}").tasks[task_id]
 
     def archive(self, *, dry_run: bool = False, older_than: int | None = None) -> ArchiveReport:
@@ -1020,9 +1063,9 @@ class Project:
 
     def restore_archived(self, task_id: str) -> tuple[str, ...]:
         """Put an archived task back into ``tasks.json`` (with its evidence, if this clone has it)."""
-        task_id = task_id.lower()
         with self._writing():
             registry_hash, registry = self._read_registry()
+            task_id = self._resolve_task_id(task_id, registry)
             if task_id in registry.tasks:
                 msg = f"task {task_id} is already in the registry"
                 raise ConfigError(msg)
@@ -1142,7 +1185,7 @@ class Project:
         the evidence in ``.byteplan/verification.json``. Never changes a task's status."""
         registry = self.load_registry()
         if task_ids:
-            tasks = [self.get_task(task_id) for task_id in task_ids]
+            tasks = list({task.id: task for task in (self.get_task(task_id) for task_id in task_ids)}.values())
         else:
             tasks = [t for _, t in sorted(registry.tasks.items()) if not t.status.is_closed and t.linked_tests()]
         tasks = [t for t in tasks if t.linked_tests()]
@@ -1205,7 +1248,7 @@ class Project:
         context = contextlib.nullcontext(()) if dry_run else self._writing()
         with context:
             registry_hash, registry = self._read_registry()
-            task = registry.get(task_id.lower())
+            task = registry.get(self._resolve_task_id(task_id, registry))
             if task is None:
                 raise _not_found(task_id)
             existing_links = tuple(task.linked_tests())
@@ -1686,7 +1729,7 @@ class Project:
             if preview.blocked:
                 return CleanupReport((), (), preview.diagnostics, dry_run, blocked="duplicate IDs; fix them first")
             registry_hash, registry = self._read_registry()
-            wanted = None if only is None else {task_id.lower() for task_id in only}
+            wanted = None if only is None else {self._resolve_task_id(task_id, registry) for task_id in only}
             diagnostics: list[Diagnostic] = []
             for task_id in sorted(wanted or ()):
                 task = registry.get(task_id)
@@ -1822,7 +1865,6 @@ class Project:
                 else "neither convert_attached_comments nor auto_decorate_stubs is enabled"
             )
             return SyncReport((), (), dry_run=dry_run, blocked=f"nothing to do: {reason}")
-        only_ids = None if only is None else frozenset(task_id.lower() for task_id in only)
         context = contextlib.nullcontext(()) if dry_run else self._writing()
         with context:
             preview = self._scan(None, None, dry_run=True, recovered=())
@@ -1834,6 +1876,11 @@ class Project:
                     blocked="the tree isn't fully scanned (untagged annotations or duplicate IDs); run `byteplan scan` first",
                 )
             registry_hash, registry = self._read_registry()
+            only_ids = (
+                None
+                if only is None
+                else frozenset(self._resolve_task_id(task_id, registry, missing_ok=True) for task_id in only)
+            )
             # Classes are unchanged by rewrites (only decorators move), so the index stays valid.
             annotations, sources, hierarchy = self._scan_sources()
             available = self.runtime_module()
@@ -1986,7 +2033,8 @@ class Project:
                     "Only duplicate copies can be reassigned"
                 )
                 raise ConfigError(msg)
-            used = set(registry.reserved_ids) | {a.task_id for a in annotations if a.task_id}
+            registry.require_expanded_ids()
+            used = set(registry.reserved_ids) | registry.tasks.keys() | {a.task_id for a in annotations if a.task_id}
             new_id = allocate(f"{path}\0{line}\0reassign\0{old_id}", used)
 
             source, before = sources[path]
@@ -2023,7 +2071,7 @@ class Project:
     def _mutate(self, task_id: str, change: Callable[[Task, str], list[HistoryEvent]]) -> tuple[Task, bool]:
         with self._writing():
             registry_hash, registry = self._read_registry()
-            task = registry.get(task_id.lower())
+            task = registry.get(self._resolve_task_id(task_id, registry))
             if task is None:
                 raise _not_found(task_id)
             events = change(task, self.clock())
@@ -2254,6 +2302,8 @@ def _id_diagnostics(
     by_id: defaultdict[str, list[Annotation]] = defaultdict(list)
     for tag in tags:
         if tag.task_id is not None:
+            if len(tag.task_id) != LEGACY_ID_LENGTH:
+                registry.require_expanded_ids()
             by_id[tag.task_id].append(tag)
 
     diagnostics: list[Diagnostic] = []
@@ -2431,12 +2481,18 @@ def _plan_allocations(tags: Sequence[Annotation], registry: Registry, also_used:
 
     Reserved IDs, IDs on ``tags`` and ``also_used`` (e.g. IDs elsewhere in source) are never reused.
     """
-    used = set(registry.reserved_ids) | {tag.task_id for tag in tags if tag.task_id is not None} | set(also_used)
+    used = (
+        set(registry.reserved_ids)
+        | registry.tasks.keys()
+        | {tag.task_id for tag in tags if tag.task_id is not None}
+        | set(also_used)
+    )
     occurrences: Counter[tuple[str, str, str, str]] = Counter()
     proposals: list[Proposal] = []
     for tag in tags:
         if tag.task_id is not None:
             continue
+        registry.require_expanded_ids()
         key = (tag.path, tag.symbol or "", tag.kind.upper(), tag.title)
         seed = "\0".join([*key, str(occurrences[key])])
         occurrences[key] += 1
@@ -2541,6 +2597,9 @@ def init_project(start: Path | None = None, *, runtime_shim: str | None = None) 
     root = find_project_root(start or Path.cwd())
     result = InitResult(root)
     pyproject = read_pyproject(root)
+    existing_registry = load_config(root).registry_path
+    if existing_registry.exists():
+        load_registry(existing_registry)  # reject incompatible data before writing a shim or config
     shim = _write_shim(root, runtime_shim, result) if runtime_shim else None
 
     additions: list[str] = []

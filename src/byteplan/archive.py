@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
+from byteplan import jsonio
 from byteplan.models import Presence
 
 if TYPE_CHECKING:
@@ -176,7 +177,7 @@ class Index:
     def loads(cls, text: str | None) -> Index:
         if not text:
             return cls()
-        data = json.loads(text)
+        data = jsonio.loads(text)
         return cls(dict(data.get("tasks", {})))
 
     def dumps(self) -> str:
