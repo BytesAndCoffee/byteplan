@@ -66,10 +66,10 @@ runner = ["hatch", "test", "--"]
 
 [tool.byteplan.tests.scaffold]
 # Every new task in src/ starts with an acceptance test: an xfail(strict=True) placeholder, so
-# CI stays green until the work is done and then flags the placeholder as passing.
+# CI stays green until the work is done and then flags the placeholder as passing. It's linked
+# with @verifies (from the byteplan._todo shim), so the link lives in the test itself.
 auto = true
 policy = "xfail"
-link_style = "managed"
 
 [tool.byteplan.annotations]
 # Decorator mode: `byteplan sync` turns attached TODO comments into @todo(...) and decorates
