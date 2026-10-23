@@ -97,3 +97,46 @@ jobs:
 CI never writes source. It fails with findings, and `--format json` gives one machine-readable
 object on stdout (diagnostics also go to stderr in text form). For a monorepo, add
 `--project path/to/project`.
+
+## Keeping the report current on main
+
+With a `report_file`, pull requests that both change tasks conflict on it under GitHub's text
+merge (GitHub doesn't run BytePlan's merge drivers). Set `report_branch = "main"` so that only
+`main` maintains it, then regenerate it after each merge:
+
+```yaml
+# .github/workflows/report.yml
+name: Regenerate byteplan.md
+on:
+  push:
+    branches: [main]
+    paths: [".byteplan/tasks.json", "pyproject.toml"]
+permissions:
+  contents: write
+concurrency:
+  group: byteplan-report
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install "byteplan==0.1.0"
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Another merge can land while this runs, rejecting the push: start over from it.
+          for attempt in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard FETCH_HEAD
+            byteplan report --write
+            git diff --quiet -- byteplan.md && exit 0
+            git commit -qm "Regenerate byteplan.md" -- byteplan.md
+            git push -q origin HEAD:main && exit 0
+          done
+          exit 1
+```
+
+Pushes made with the workflow's `GITHUB_TOKEN` don't trigger further workflow runs. If `main`
+is protected against direct pushes, use a token or app that's allowed to bypass it.

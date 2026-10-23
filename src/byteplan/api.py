@@ -300,17 +300,48 @@ class Project:
             return self.snapshot.read(self.report_rel)
         return _read_bytes(self.root / self.report_rel)
 
+    @property
+    def maintains_report(self) -> bool:
+        """Whether this checkout writes and checks ``report_file``: always, unless
+        ``report_branch`` names another branch than the one checked out. A detached HEAD
+        (e.g. CI checking out a pull request) isn't on the report branch."""
+        if self.report_rel is None:
+            return False
+        if not self.config.report_branch:
+            return True
+        try:
+            branch = gitio.git(["symbolic-ref", "--quiet", "--short", "HEAD"], self.root).strip()
+        except ConfigError:
+            return False
+        return branch == self.config.report_branch
+
+    def _report_write(self, report_rel: str, registry: Registry) -> FileWrite:
+        current = self._current_report()
+        data = self.render_report(registry)
+        if current is not None and current.replace(b"\r\n", b"\n") == data:
+            data = current  # only the line endings differ (e.g. core.autocrlf): leave it
+        return FileWrite(report_rel, None if current is None else sha256(current), data)
+
     def _registry_writes(self, registry_hash: str | None, registry: Registry) -> list[FileWrite]:
-        """The registry write, preceded by the report file's when one is configured."""
+        """The registry write, preceded by the report file's when this checkout maintains one."""
         writes = []
-        if self.report_rel is not None:
-            current = self._current_report()
-            data = self.render_report(registry)
-            if current is not None and current.replace(b"\r\n", b"\n") == data:
-                data = current  # only the line endings differ (e.g. core.autocrlf): leave it
-            writes.append(FileWrite(self.report_rel, None if current is None else sha256(current), data))
+        if self.report_rel is not None and self.maintains_report:
+            writes.append(self._report_write(self.report_rel, registry))
         writes.append(FileWrite(self.registry_rel, registry_hash, registry_io.dumps(registry).encode()))
         return writes
+
+    def write_report(self) -> bool:
+        """Regenerate ``report_file`` from the registry on any branch (``report --write``):
+        how ``report_branch`` gets its copy updated after a merge. True if it changed."""
+        if self.report_rel is None:
+            msg = "no report_file is configured in [tool.byteplan]"
+            raise ConfigError(msg)
+        with self._writing():
+            write = self._report_write(self.report_rel, self.load_registry())
+            if self._current_report() == write.data:
+                return False
+            commit(self.root, [write])
+        return True
 
     def _read_registry(self) -> tuple[str, Registry]:
         """The registry plus the hash of the exact bytes it was parsed from."""
@@ -677,7 +708,7 @@ class Project:
                     )
                 )
 
-        if self.report_rel is not None:
+        if self.report_rel is not None and self.maintains_report:
             current = self._current_report()
             if current is None or current.replace(b"\r\n", b"\n") != self.render_report(old):
                 state = "missing" if current is None else "out of date"

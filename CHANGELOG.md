@@ -5,6 +5,12 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+### Report file on one branch
+- **`[tool.byteplan] report_branch`** (e.g. `"main"`): only that branch writes and checks
+  `report_file`, so pull requests no longer conflict on it on GitHub, which doesn't run merge
+  drivers. `byteplan report --write` regenerates it on any branch, for a post-merge CI job
+  (see docs/ci.md). BytePlan's own repo now does this.
+
 ### MCP server (Phase 9)
 - **`byteplan mcp`** (and the `byteplan-mcp` script) serves the registry over MCP's stdio
   transport, with the optional extra `pip install 'byteplan[mcp]'` (MCP SDK 2.x).

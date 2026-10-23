@@ -382,6 +382,11 @@ def cmd_check(args: argparse.Namespace) -> int:
 
 
 def cmd_report(args: argparse.Namespace) -> int:
+    if args.write:
+        project = _project(args)
+        changed = project.write_report()
+        _out(f"byteplan: {'updated' if changed else 'unchanged'} {project.report_rel}")
+        return EXIT_OK
     data = _project(args).report()
     if args.format == "json":
         _out(reporting.to_json(data))
@@ -674,6 +679,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     report = sub.add_parser("report", parents=[common], help="summarize tasks and findings")
     report.add_argument("--format", choices=("text", "json", "markdown"), default="text")
+    report.add_argument("--write", action="store_true", help="regenerate report_file from the registry (on any branch)")
     report.set_defaults(handler=cmd_report)
 
     repair = sub.add_parser("repair", parents=[common], help="explicitly fix states scans won't guess about")

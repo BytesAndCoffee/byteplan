@@ -49,6 +49,7 @@
     "c242",
     "c449",
     "c8db",
+    "c993",
     "cc54",
     "de66",
     "def0",
@@ -649,7 +650,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1608,
+        "line": 1614,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1093,8 +1094,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 2031,
-        "line": 2034,
+        "decl_line": 2062,
+        "line": 2065,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "_find_decorator_id"
@@ -1845,7 +1846,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1602,
+        "line": 1608,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2281,7 +2282,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1605,
+        "line": 1611,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2473,7 +2474,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1598,
+        "line": 1604,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2820,8 +2821,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 298,
-        "line": 302,
+        "decl_line": 302,
+        "line": 306,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"
@@ -3536,6 +3537,77 @@
       "title": "Keep runtime imports that other modules consume through re-exports",
       "title_override": null
     },
+    "c993": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/39#discussion_r4355748861",
+      "first_seen": "2026-10-23T03:18:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T03:18:42Z",
+          "event": "created",
+          "new": {
+            "line": 35,
+            "path": "scripts/publish_report.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T03:19:04Z",
+          "event": "test_linked",
+          "new": "tests/test_publish_report.py::test_retries_when_main_advances_before_the_push",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T03:24:11Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "publish_report.py retries from the new main when the push is rejected; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T03:24:12Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T03:24:12Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "scripts/publish_report.py"
+          }
+        }
+      ],
+      "id": "c993",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T03:18:42Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 28,
+        "line": 41,
+        "path": "scripts/publish_report.py",
+        "representation": "comment",
+        "symbol": "publish"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_publish_report.py::test_retries_when_main_advances_before_the_push"
+        ]
+      },
+      "title": "Retry report generation when main advances before the push",
+      "title_override": null
+    },
     "cc54": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353302177\n`from byteplan import _todo` imports runtime module byteplan._todo but wasn't recognized.",
@@ -3670,7 +3742,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1595,
+        "line": 1601,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3873,7 +3945,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1612,
+        "line": 1618,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -4330,8 +4402,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 974,
-        "line": 996,
+        "decl_line": 1005,
+        "line": 1027,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "Project.reconcile_archive"

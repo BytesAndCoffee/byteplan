@@ -1,0 +1,29 @@
+name: Regenerate byteplan.md
+
+# `report_branch = "main"`: pull requests leave byteplan.md alone, so they never conflict on it.
+# After each merge, this regenerates it from the merged registry and pushes the result.
+on:
+  push:
+    branches: [main]
+    paths: [".byteplan/tasks.json", "pyproject.toml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: byteplan-report
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install .
+      - name: Commit and push (retrying if main moves first)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python scripts/publish_report.py

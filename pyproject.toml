@@ -55,8 +55,10 @@ Source = "https://github.com/BytesAndCoffee/byteplan"
 # contain @todo / @verifies / stub fixtures that aren't real work.
 [tool.byteplan]
 registry = ".byteplan/tasks.json"
-include = ["src/**/*.py", "byteplan-runtime/src/**/*.py", "tests/**/*.py", "**/*.md"]
+include = ["src/**/*.py", "byteplan-runtime/src/**/*.py", "scripts/**/*.py", "tests/**/*.py", "**/*.md"]
 report_file = "byteplan.md"
+# Pull requests leave byteplan.md alone; .github/workflows/report.yml regenerates it on main.
+report_branch = "main"
 
 [tool.byteplan.tests]
 # `byteplan verify` runs pytest in the hatch-test environment (the default one has no pytest).
@@ -108,7 +110,7 @@ extra-dependencies = [
   "hatchling",
 ]
 [tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/byteplan tests}"
+check = "mypy --install-types --non-interactive {args:src/byteplan scripts tests}"
 
 [tool.mypy]
 strict = true
