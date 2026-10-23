@@ -2,23 +2,23 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**19 open** · 43 closed (resolved 43)
+**19 open** · 44 closed (resolved 44)
 
 ## Open
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1595`](docs/IMPLEMENTATION_PLAN.md#L1595) | Phase 6c (optional): acceptance criteria and dependencies |
-| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1598`](docs/IMPLEMENTATION_PLAN.md#L1598) | Phase 10: integration |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1602`](docs/IMPLEMENTATION_PLAN.md#L1602) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1605`](docs/IMPLEMENTATION_PLAN.md#L1605) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1608`](docs/IMPLEMENTATION_PLAN.md#L1608) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1612`](docs/IMPLEMENTATION_PLAN.md#L1612) | Phase 13 (optional): relay-for-github |
+| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1601`](docs/IMPLEMENTATION_PLAN.md#L1601) | Phase 6c (optional): acceptance criteria and dependencies |
+| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1604`](docs/IMPLEMENTATION_PLAN.md#L1604) | Phase 10: integration |
+| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1608`](docs/IMPLEMENTATION_PLAN.md#L1608) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1611`](docs/IMPLEMENTATION_PLAN.md#L1611) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1614`](docs/IMPLEMENTATION_PLAN.md#L1614) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1618`](docs/IMPLEMENTATION_PLAN.md#L1618) | Phase 13 (optional): relay-for-github |
 | `ac9d` | open | FIXME | normal | - | [`src/byteplan/_verify_plugin.py:75`](src/byteplan/_verify_plugin.py#L75) | [P2] Compare collected node IDs relative to the BytePlan project root |
-| `ff20` | open | FIXME | normal | - | [`src/byteplan/api.py:996`](src/byteplan/api.py#L996) | [P2] Retain archived payloads by task ID and record hash |
-| `30c3` | open | FIXME | normal | - | [`src/byteplan/api.py:2034`](src/byteplan/api.py#L2034) | [P3] Locate decorator IDs by their AST value span during duplicate repair |
+| `ff20` | open | FIXME | normal | - | [`src/byteplan/api.py:1027`](src/byteplan/api.py#L1027) | [P2] Retain archived payloads by task ID and record hash |
+| `30c3` | open | FIXME | normal | - | [`src/byteplan/api.py:2065`](src/byteplan/api.py#L2065) | [P3] Locate decorator IDs by their AST value span during duplicate repair |
 | `ecf4` | open | FIXME | normal | - | [`src/byteplan/cleanup.py:243`](src/byteplan/cleanup.py#L243) | [P2] Preserve runtime imports consumed by other project modules during cleanup |
-| `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:302`](src/byteplan/config.py#L302) | Support detect.placeholder_assignments |
+| `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:306`](src/byteplan/config.py#L306) | Support detect.placeholder_assignments |
 | `ae7a` | open | FIXME | normal | - | [`src/byteplan/files.py:112`](src/byteplan/files.py#L112) | [P2] Apply nested gitignore negations with Git's precedence rules |
 | `a740` | open | FIXME | normal | - | [`src/byteplan/files.py:230`](src/byteplan/files.py#L230) | [P2] Require regular files before selecting sources for scanning |
 | `ed2b` | open | FIXME | normal | - | [`src/byteplan/gitwrite.py:413`](src/byteplan/gitwrite.py#L413) | [P2] Refuse staged writes while an ordinary transaction journal is pending |
@@ -67,6 +67,7 @@
 | `c242` | resolved | FIXME | Check the current binding before restoring a decorator |
 | `c449` | resolved | FIXME | Treat __all__ mutations the export collector can't resolve as exporting everything |
 | `c8db` | resolved | FIXME | Keep runtime imports that other modules consume through re-exports |
+| `c993` | resolved | FIXME | Retry report generation when main advances before the push |
 | `cc54` | resolved | FIXME | Detect a runtime module imported through its parent package |
 | `def0` | resolved | FIXME | scan paths resolve against the server's cwd, not the served project's root |
 | `e7d9` | resolved | FIXME | ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side |
