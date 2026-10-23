@@ -98,6 +98,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "99430208fd0d": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T00:11:39Z",
+      "dirty": true,
+      "head": "ca1d7f8bd093c7f2887e472d4569543d37875aa7",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "bac7c95f5a71": {
       "argv": [
         "hatch",
@@ -151,20 +165,6 @@
       "at": "2026-10-22T22:28:38Z",
       "dirty": true,
       "head": "2348aa62df36bc8d8085a0763263db79ae00af2b",
-      "python": "3.11.0",
-      "timed_out": false
-    },
-    "fb05540f1fa2": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-23T00:04:06Z",
-      "dirty": true,
-      "head": "7e89473eb22d2fd72f38908b47a41d525eb4b6de",
       "python": "3.11.0",
       "timed_out": false
     }
@@ -473,6 +473,20 @@
         }
       }
     },
+    "7ff8": {
+      "fingerprint": "b48a1c78fda360968eff0cd9e74bab58e5da37f1a1f781552751c348e3e5481c",
+      "run": "99430208fd0d",
+      "tests": {
+        "tests/test_mcp.py::test_resolve_with_sync_source_needs_source_write": {
+          "duration_ms": 38,
+          "outcome": "passed"
+        },
+        "tests/test_mcp.py::test_resolve_with_sync_source_previews_unless_applied": {
+          "duration_ms": 26,
+          "outcome": "passed"
+        }
+      }
+    },
     "82b3": {
       "fingerprint": "207bc550c5d74697432a873a65c849286642cce7c7b6b5fe9e0f76b69ca2f5f0",
       "run": "bac7c95f5a71",
@@ -707,6 +721,16 @@
         }
       }
     },
+    "def0": {
+      "fingerprint": "b48a1c78fda360968eff0cd9e74bab58e5da37f1a1f781552751c348e3e5481c",
+      "run": "99430208fd0d",
+      "tests": {
+        "tests/test_mcp.py::test_scan_paths_are_relative_to_the_served_project": {
+          "duration_ms": 21,
+          "outcome": "passed"
+        }
+      }
+    },
     "e7d9": {
       "fingerprint": "8cf338546d8194556a5e4c5eeb12638f997da27cf19cefb699453578d1f035a2",
       "run": "31b3280441ca",
@@ -718,35 +742,35 @@
       }
     },
     "f853": {
-      "fingerprint": "cbdc54a199703bdcb86d475df40ce48250f4d2eb1a841dde619328b2a6114002",
-      "run": "fb05540f1fa2",
+      "fingerprint": "66aa9375057b05583b9d848a3895d0941b146b7536ceb015d32afc6bce58e6e4",
+      "run": "99430208fd0d",
       "tests": {
         "tests/test_mcp.py::test_a_concurrent_writer_makes_writes_fail_cleanly": {
           "duration_ms": 24,
           "outcome": "passed"
         },
         "tests/test_mcp.py::test_a_tool_without_its_permission_is_not_registered": {
-          "duration_ms": 96,
+          "duration_ms": 111,
           "outcome": "passed"
         },
         "tests/test_mcp.py::test_read_only_tools_change_nothing": {
-          "duration_ms": 53,
+          "duration_ms": 62,
           "outcome": "passed"
         },
         "tests/test_mcp.py::test_registry_writes_and_managed_fields_survive_a_rescan": {
-          "duration_ms": 34,
+          "duration_ms": 53,
           "outcome": "passed"
         },
         "tests/test_mcp.py::test_scaffold_release_and_restore_preview_unless_applied": {
-          "duration_ms": 46,
-          "outcome": "passed"
-        },
-        "tests/test_mcp.py::test_source_writes_need_permission_and_apply": {
           "duration_ms": 34,
           "outcome": "passed"
         },
+        "tests/test_mcp.py::test_source_writes_need_permission_and_apply": {
+          "duration_ms": 38,
+          "outcome": "passed"
+        },
         "tests/test_mcp.py::test_stdio_stdout_carries_json_rpc_only": {
-          "duration_ms": 389,
+          "duration_ms": 422,
           "outcome": "passed"
         },
         "tests/test_mcp.py::test_verify_task_needs_test_execution": {

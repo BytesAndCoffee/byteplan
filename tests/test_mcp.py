@@ -204,14 +204,15 @@ def test_resolve_with_sync_source_needs_source_write(tracked: ProjectFactory) ->
     task_id = _id_of(tracked, "second task")
 
     async def denied(client: Client) -> None:
-        message = error(await client.call_tool("resolve", {"id": task_id, "sync_source": True}))
+        message = error(await client.call_tool("resolve", {"id": task_id, "sync_source": True, "apply": True}))
         assert "needs source-write permission" in message
 
     session(tracked, Permissions(registry_write=True), denied)
     assert _registry(tracked)["tasks"][task_id]["status"] == "open"
 
     async def allowed(client: Client) -> None:
-        resolved = data(await client.call_tool("resolve", {"id": task_id, "note": "done", "sync_source": True}))
+        args = {"id": task_id, "note": "done", "sync_source": True, "apply": True}
+        resolved = data(await client.call_tool("resolve", args))
         assert resolved["task"]["status"] == "resolved"
         assert resolved["cleanup"]["removed"]
 
@@ -369,3 +370,28 @@ def test_outside_a_project_exits_2(tmp_path: Any, run_cli: RunCli) -> None:
     result = run_cli("mcp", "--project", tmp_path)
     assert result.code == EXIT_ERROR
     assert result.out == ""
+
+
+def test_scan_paths_are_relative_to_the_served_project(
+    tracked: ProjectFactory, tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tracked.write("src/c.py", "# TODO: not yet tracked\n")
+    monkeypatch.chdir(tmp_path)  # the server's cwd is elsewhere
+
+    async def body(client: Client) -> None:
+        preview = data(await client.call_tool("scan", {"paths": ["src/c.py"]}))
+        assert [p["title"] for p in preview["annotated"]] == ["not yet tracked"]
+
+    session(tracked, Permissions(), body)
+
+
+def test_resolve_with_sync_source_previews_unless_applied(tracked: ProjectFactory) -> None:
+    task_id = _id_of(tracked, "second task")
+
+    async def body(client: Client) -> None:
+        resolved = data(await client.call_tool("resolve", {"id": task_id, "sync_source": True}))
+        assert resolved["task"]["status"] == "resolved"
+        assert resolved["cleanup"]["dry_run"] is True
+
+    session(tracked, Permissions(registry_write=True, source_write=True), body)
+    assert "FIXME" in (tracked.root / "src/b.py").read_text()

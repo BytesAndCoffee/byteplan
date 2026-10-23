@@ -130,7 +130,7 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
         adds IDs to source and needs source-write permission)."""
         if apply:
             _needs(permissions.source_write, "scan(apply=true)")
-        return run(lambda p: reporting.scan_json(p.scan(paths or None, dry_run=not apply)))
+        return run(lambda p: reporting.scan_json(p.scan(paths or None, p.root, dry_run=not apply)))
 
     @server.tool()
     def check() -> dict[str, Any]:
@@ -230,17 +230,23 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
             return _task_change(task, changed=changed)
 
         @server.tool()
-        def resolve(id: str, note: str | None = None, sync_source: bool = False) -> dict[str, Any]:  # noqa: A002, FBT001, FBT002
-            """Mark a task resolved, only when the user asked. With sync_source, also remove its
-            annotation from source (needs source-write permission)."""
-            if sync_source:
-                _needs(permissions.source_write, "resolve(sync_source=true)")
+        def resolve(
+            id: str,  # noqa: A002
+            note: str | None = None,
+            sync_source: bool = False,  # noqa: FBT001, FBT002
+            apply: bool = False,  # noqa: FBT001, FBT002
+        ) -> dict[str, Any]:
+            """Mark a task resolved, only when the user asked. With sync_source, also preview
+            removing its annotation from source; apply=true removes it (needs source-write
+            permission)."""
+            if sync_source and apply:
+                _needs(permissions.source_write, "resolve(sync_source=true, apply=true)")
 
             def resolved(p: Project) -> dict[str, Any]:
                 task, changed = p.set_status(id, Status.RESOLVED, note=note)
                 result = _task_change(task, changed=changed)
                 if sync_source:
-                    result["cleanup"] = reporting.cleanup_json(p.cleanup([task.id], dry_run=False))
+                    result["cleanup"] = reporting.cleanup_json(p.cleanup([task.id], dry_run=not apply))
                 return result
 
             return run(resolved)

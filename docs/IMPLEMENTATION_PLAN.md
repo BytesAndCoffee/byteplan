@@ -1519,7 +1519,8 @@ contract as the CLI.
   - `scaffold_test`, `release` and `restore` exist only with source-write (Addendum B).
   - `release(smoke_test=true)` also needs test-execution, because it builds and imports the
     project.
-  - `resolve(sync_source=true)` needs source-write.
+  - `resolve(sync_source=true)` resolves (a registry write) and previews the cleanup;
+    `apply=true` removes the annotation and needs source-write.
 - **Shapes:** a list comes back wrapped in an object (`{"tasks": [...]}`), since structured
   results must be objects. `get_task_tests` returns `{id, title, tests}`. `edit_task` takes the
   CLI's `add_labels` / `remove_labels`, `unassign` and `clear_title` rather than a whole label

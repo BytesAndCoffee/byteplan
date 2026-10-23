@@ -644,7 +644,7 @@ isn't offered at all:
 |---|---|
 | (none) | `list_tasks`, `show_task`, `scan` (preview), `check`, `missing`, `duplicates`, `report`, `get_task_tests`, `get_verification` (recorded; runs nothing), `list_ready_tasks`, `sync_source` (preview), `preview_test_scaffold`; resources `byteplan://tasks` and `byteplan://tasks/{id}`; a `triage` prompt |
 | `--allow-registry-write` | `set_status`, `resolve`, `edit_task`, `add_task_test`, `remove_task_test` |
-| `--allow-source-write` | `scaffold_test`, `release`, `restore`, and `apply=true` on `scan`, `sync_source` and `resolve(sync_source=true)` |
+| `--allow-source-write` | `scaffold_test`, `release`, `restore`, and `apply=true` on `scan`, `sync_source` and `resolve(sync_source=true)` (which otherwise previews) |
 | `--allow-test-execution` | `verify_task`, and `release(smoke_test=true)` (both run project code) |
 
 - **Source writes are always explicit:** even with permission, a tool that edits source only
