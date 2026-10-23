@@ -2,19 +2,18 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**20 open** · 40 closed (resolved 40)
+**19 open** · 43 closed (resolved 43)
 
 ## Open
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1569`](docs/IMPLEMENTATION_PLAN.md#L1569) | Phase 6c (optional): acceptance criteria and dependencies |
-| `f853` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1572`](docs/IMPLEMENTATION_PLAN.md#L1572) | Phase 9: MCP server |
-| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1576`](docs/IMPLEMENTATION_PLAN.md#L1576) | Phase 10: integration |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1580`](docs/IMPLEMENTATION_PLAN.md#L1580) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1583`](docs/IMPLEMENTATION_PLAN.md#L1583) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1586`](docs/IMPLEMENTATION_PLAN.md#L1586) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1590`](docs/IMPLEMENTATION_PLAN.md#L1590) | Phase 13 (optional): relay-for-github |
+| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1595`](docs/IMPLEMENTATION_PLAN.md#L1595) | Phase 6c (optional): acceptance criteria and dependencies |
+| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1598`](docs/IMPLEMENTATION_PLAN.md#L1598) | Phase 10: integration |
+| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1602`](docs/IMPLEMENTATION_PLAN.md#L1602) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1605`](docs/IMPLEMENTATION_PLAN.md#L1605) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1608`](docs/IMPLEMENTATION_PLAN.md#L1608) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1612`](docs/IMPLEMENTATION_PLAN.md#L1612) | Phase 13 (optional): relay-for-github |
 | `ac9d` | open | FIXME | normal | - | [`src/byteplan/_verify_plugin.py:75`](src/byteplan/_verify_plugin.py#L75) | [P2] Compare collected node IDs relative to the BytePlan project root |
 | `ff20` | open | FIXME | normal | - | [`src/byteplan/api.py:996`](src/byteplan/api.py#L996) | [P2] Retain archived payloads by task ID and record hash |
 | `30c3` | open | FIXME | normal | - | [`src/byteplan/api.py:2034`](src/byteplan/api.py#L2034) | [P3] Locate decorator IDs by their AST value span during duplicate repair |
@@ -51,6 +50,7 @@
 | `6639` | resolved | FIXME | Keep runtime imports that __all__ re-exports |
 | `6b83` | resolved | FIXME | Keep sync's top-level JSON fields when only cleanup runs |
 | `71c4` | resolved | FIXME | the evidence's run metadata isn't archived, so a restore loses it |
+| `7ff8` | resolved | FIXME | resolve(sync_source=true) removes the annotation without apply=true |
 | `82b3` | resolved | TODO | Phase 5: runtime and normalization |
 | `86e1` | resolved | FIXME | a cached row isn't checked against the index's sha256, so a stale record is returned |
 | `8b28` | resolved | FIXME | Treat an imported module that escapes attribute access as consuming all its names |
@@ -68,7 +68,9 @@
 | `c449` | resolved | FIXME | Treat __all__ mutations the export collector can't resolve as exporting everything |
 | `c8db` | resolved | FIXME | Keep runtime imports that other modules consume through re-exports |
 | `cc54` | resolved | FIXME | Detect a runtime module imported through its parent package |
+| `def0` | resolved | FIXME | scan paths resolve against the server's cwd, not the served project's root |
 | `e7d9` | resolved | FIXME | ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side |
+| `f853` | resolved | TODO | Phase 9: MCP server |
 | `fb23` | resolved | FIXME | Keep a restored runtime import above every use of its names |
 | `fb9c` | resolved | FIXME | Track escapes of dotted module expressions like `alias = pkg.reexport` |
 | `fd44` | resolved | FIXME | Keep anchored imports below a __future__ import added since the release |
