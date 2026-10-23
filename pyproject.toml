@@ -32,8 +32,13 @@ dependencies = [
   "pathspec>=1.0",
 ]
 
+[project.optional-dependencies]
+# `byteplan mcp`: the official MCP SDK (2.x renamed FastMCP to MCPServer).
+mcp = ["mcp>=2.3,<3"]
+
 [project.scripts]
 byteplan = "byteplan.cli:main"
+byteplan-mcp = "byteplan.mcp_server:main"
 
 # Hatchling discovers the build hook through this entry point; projects enable
 # it with [tool.hatch.build.hooks.byteplan]. BytePlan doesn't enable it for its
@@ -80,7 +85,12 @@ exclude = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/byteplan"]
 
+# `hatch run byteplan mcp`: the MCP server for agents working on BytePlan itself.
+[tool.hatch.envs.default]
+features = ["mcp"]
+
 [tool.hatch.envs.hatch-test]
+features = ["mcp"]
 extra-dependencies = [
   "build",
   "hatchling",
@@ -91,6 +101,7 @@ extra-dependencies = [
 python = ["3.11", "3.12", "3.13", "3.14"]
 
 [tool.hatch.envs.types]
+features = ["mcp"]
 extra-dependencies = [
   "mypy>=1.0.0",
   "pytest",

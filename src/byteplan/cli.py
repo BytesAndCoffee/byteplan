@@ -10,6 +10,7 @@ diagnostics go to stderr. Exit codes: 0 success, 1 policy findings, 2 errors.
 from __future__ import annotations
 
 import argparse
+import importlib
 import sys
 from collections import Counter
 from pathlib import Path
@@ -193,19 +194,7 @@ def cmd_tests_scaffold(args: argparse.Namespace) -> int:
         dry_run=args.dry_run,
     )
     if args.format == "json":
-        _out(
-            reporting.to_json(
-                {
-                    "id": result.task.id,
-                    "node": result.node,
-                    "path": result.path,
-                    "created_file": result.created_file,
-                    "existing": list(result.existing),
-                    "dry_run": result.dry_run,
-                    "written": list(result.written),
-                }
-            )
-        )
+        _out(reporting.to_json(reporting.scaffold_json(result)))
     elif result.existing:
         _out(f"byteplan: [{result.task.id}] already has linked tests; nothing written:")
         for node in result.existing:
@@ -275,22 +264,7 @@ def cmd_release(args: argparse.Namespace) -> int:
         offline=args.offline,
     )
     if args.format == "json":
-        _out(
-            reporting.to_json(
-                {
-                    "version": report.version,
-                    "files": list(report.files),
-                    "decorators": report.decorators,
-                    "imports": report.imports,
-                    "tasks": list(report.tasks),
-                    "dry_run": report.dry_run,
-                    "written": list(report.written),
-                    "smoke_test": report.smoke_test,
-                    "smoke_imports": list(report.smoke_imports),
-                    "warnings": [w.to_dict() for w in report.warnings],
-                }
-            )
-        )
+        _out(reporting.to_json(reporting.release_json(report)))
     else:
         verb = "would strip" if report.dry_run else "stripped"
         _out(
@@ -313,20 +287,7 @@ def cmd_release(args: argparse.Namespace) -> int:
 def cmd_restore(args: argparse.Namespace) -> int:
     report = _project(args).restore(dry_run=args.dry_run, partial=args.partial)
     if args.format == "json":
-        _out(
-            reporting.to_json(
-                {
-                    "files": list(report.files),
-                    "decorators": report.decorators,
-                    "imports": report.imports,
-                    "tasks": list(report.tasks),
-                    "conflicts": list(report.conflicts),
-                    "partial": report.partial,
-                    "dry_run": report.dry_run,
-                    "written": list(report.written),
-                }
-            )
-        )
+        _out(reporting.to_json(reporting.restore_json(report)))
     else:
         verb = "would restore" if report.dry_run else "restored"
         _out(
@@ -409,8 +370,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     counts = Counter(str(d.severity) for d in report.diagnostics)
     if args.format == "json":
         snapshot = None if project.snapshot is None else project.snapshot.label
-        payload = {"exit_code": code, "snapshot": snapshot, "diagnostics": [d.to_dict() for d in report.diagnostics]}
-        _out(reporting.to_json(payload))
+        _out(reporting.to_json(reporting.check_json(code, snapshot, report.diagnostics)))
     else:
         _out(
             f"BytePlan check{where}: {report.files_scanned} files · {counts['error']} error(s) · "
@@ -499,6 +459,32 @@ def cmd_archive(args: argparse.Namespace) -> int:
                 f"byteplan: waiting for a commit (their current records aren't committed): {', '.join(report.uncommitted)}"
             )
     return EXIT_OK
+
+
+def add_mcp_arguments(parser: argparse.ArgumentParser) -> None:
+    """`byteplan mcp` / `byteplan-mcp` options (here, so the CLI needn't import the MCP SDK)."""
+    parser.add_argument("--project", type=Path, default=None, help="project root (default: search from cwd)")
+    parser.add_argument(
+        "--allow-registry-write", action="store_true", help="set_status, resolve, edit_task, add/remove_task_test"
+    )
+    parser.add_argument(
+        "--allow-source-write",
+        action="store_true",
+        help="scaffold_test, release, restore, and apply=true on scan / sync_source (always explicit)",
+    )
+    parser.add_argument(
+        "--allow-test-execution", action="store_true", help="verify_task and release smoke tests (run project code)"
+    )
+
+
+def cmd_mcp(args: argparse.Namespace) -> int:
+    try:
+        mcp_server = importlib.import_module("byteplan.mcp_server")  # needs the optional `mcp` extra
+    except ImportError as exc:
+        _err(f"byteplan mcp needs the MCP SDK ({exc}); install it with: pip install 'byteplan[mcp]'")
+        return EXIT_ERROR
+    code: int = mcp_server.serve(args)
+    return code
 
 
 def cmd_merge_archive(args: argparse.Namespace) -> int:
@@ -705,6 +691,10 @@ def build_parser() -> argparse.ArgumentParser:
     merge.add_argument("theirs", help="%%B: their version")
     merge.add_argument("label", nargs="?", help="%%P: the registry's path, for messages")
     merge.set_defaults(handler=cmd_merge_registry)
+
+    mcp = sub.add_parser("mcp", help="serve the registry to AI agents over MCP (stdio; needs byteplan[mcp])")
+    add_mcp_arguments(mcp)
+    mcp.set_defaults(handler=cmd_mcp)
 
     merge_archive = sub.add_parser(
         "merge-archive",

@@ -5,6 +5,17 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+### MCP server (Phase 9)
+- **`byteplan mcp`** (and the `byteplan-mcp` script) serves the registry over MCP's stdio
+  transport, with the optional extra `pip install 'byteplan[mcp]'` (MCP SDK 2.x).
+- **Tools** mirror the CLI and use the same JSON schemas: listing, showing (archived tasks too),
+  scanning, checking, reports, test links, recorded verification, ready tasks, sync and scaffold
+  previews. There are also two resources (`byteplan://tasks`, `byteplan://tasks/{id}`) and a
+  `triage` prompt.
+- **Read-only by default:** `--allow-registry-write`, `--allow-source-write` and
+  `--allow-test-execution` each add their tools. Source writes also need `apply=true` on every
+  call. Errors where the CLI exits 2 (e.g. `locked`) come back as tool errors with the message.
+
 ### Archive
 - **Closed tasks leave `tasks.json`:** once a task has been resolved or dismissed for
   `[tool.byteplan.archive] after_days` (7) and its annotation is gone, a writing `scan` archives
