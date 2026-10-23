@@ -4282,8 +4282,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 388,
-        "line": 413,
+        "decl_line": 389,
+        "line": 414,
         "path": "src/byteplan/gitwrite.py",
         "representation": "comment",
         "symbol": "reconcile_staged"

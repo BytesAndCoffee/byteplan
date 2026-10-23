@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+import sys
 from typing import TYPE_CHECKING
 
 import pytest
@@ -36,7 +37,7 @@ def reported(project: ProjectFactory) -> ProjectFactory:
 
 
 def report(project: ProjectFactory, name: str = "byteplan.md") -> str:
-    return (project.root / name).read_text()
+    return (project.root / name).read_text(encoding="utf-8")
 
 
 def ids(text: str) -> list[str]:
@@ -226,11 +227,15 @@ def test_merging_branches_never_conflicts_on_the_report(hooked: ProjectFactory, 
 def test_link_targets_are_percent_encoded(reported: ProjectFactory, run_cli: RunCli) -> None:
     """Codex review of #21: '#', spaces and '|' in a path must not break the link or the table."""
     reported.write("src/issue#1.py", "# TODO: hash\n")
-    reported.write("src/my file|x.py", "# TODO: space and pipe\n")
+    reported.write("src/my file.py", "# TODO: space\n")
+    if sys.platform != "win32":  # '|' can't be in a Windows filename
+        reported.write("src/my file|x.py", "# TODO: space and pipe\n")
     assert run_cli("scan", "--project", reported.root).code == EXIT_OK
     text = report(reported)
     assert "[`src/issue#1.py:1`](src/issue%231.py#L1)" in text
-    assert "[`src/my file\\|x.py:1`](src/my%20file%7Cx.py#L1)" in text
+    assert "[`src/my file.py:1`](src/my%20file.py#L1)" in text
+    if sys.platform != "win32":
+        assert "[`src/my file\\|x.py:1`](src/my%20file%7Cx.py#L1)" in text
 
 
 def test_open_tasks_are_in_source_order(reported: ProjectFactory, run_cli: RunCli) -> None:

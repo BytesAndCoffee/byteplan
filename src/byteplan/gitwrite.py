@@ -197,7 +197,8 @@ def _swap_index(
     """Replace index entries under ``<index>.lock``, verifying ``expected`` while holding it."""
     lock = index.with_name(index.name + ".lock")
     try:
-        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+        # O_BINARY: on Windows a raw fd is text mode, which would turn the index's \n bytes into \r\n.
+        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0), 0o644)
     except FileExistsError:
         msg = f"{lock} exists: another Git process is using the index; try again when it finishes"
         raise IndexLockedError(msg) from None

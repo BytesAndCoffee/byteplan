@@ -35,12 +35,12 @@ itself.
 
 | Milestone | What BytePlan manages about itself |
 |---|---|
-| **Now (with Phase 4b)** ✅ | Its own registry. `[tool.byteplan]` scopes `src/` of both packages; tests are excluded because they deliberately contain annotation fixtures. Real follow-ups live as tagged TODOs in the code they concern. The registry merges by task ID (`.byteplan/.gitattributes`). CI runs `byteplan check --commit HEAD` on every push and PR. |
+| **Now (with Phase 4b)** ✅ | Its own registry. `[tool.byteplan]` scopes `src/` of both packages (later also `scripts/`, `tests/` and Markdown). Real follow-ups live as tagged TODOs in the code they concern. The registry merges by task ID (`.byteplan/.gitattributes`). CI runs `byteplan check --commit HEAD` on every push and PR. |
 | Phase 4b ✅ | Staged commits are checked: `hatch run byteplan git install-hooks`, or the local `.pre-commit-config.yaml`. |
 | Phase 4c ✅ | BytePlan's own new TODOs get their IDs automatically when committed (`hatch run byteplan git install-hooks`, once per clone). |
 | Phases 6a–6b | Its own tasks link to acceptance tests, and regression tests are scaffolded with `tests scaffold`. |
 | Phase 9 | Coding agents developing BytePlan query it over MCP for outstanding work, record evidence, and hand the next session an authoritative state snapshot. |
-| Phase 10 | A documented, fully integrated self-managed workflow. CI on ubuntu, macOS and Windows. |
+| Phase 10 ✅ | A documented, fully integrated self-managed workflow ([CONTRIBUTING.md](../CONTRIBUTING.md)): commit hooks and merge drivers, auto-scaffolded `@verifies` placeholders, evidence before `resolve --sync-source`, `byteplan.md` regenerated on `main`, MCP for agents. CI on ubuntu, macOS and Windows. |
 | Phase 12 | Assignments link the commits, PRs and evidence produced by BytePlan's own development. |
 | Phase 13 | Relay for GitHub runs BytePlan's own issue-to-PR lifecycle, as the reference demonstration. |
 
