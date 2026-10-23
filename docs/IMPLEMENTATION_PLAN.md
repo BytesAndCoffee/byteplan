@@ -2,19 +2,65 @@
 
 The behavioural contract is [`spec.md`](spec.md), extended by
 [`spec-addendum-a.md`](spec-addendum-a.md), [`spec-addendum-b.md`](spec-addendum-b.md),
-[`spec-addendum-c.md`](spec-addendum-c.md) and [`spec-addendum-d.md`](spec-addendum-d.md).
+[`spec-addendum-c.md`](spec-addendum-c.md), [`spec-addendum-d.md`](spec-addendum-d.md) and
+[`spec-addendum-e.md`](spec-addendum-e.md).
 Addendum A covers `@todo` decorators, stub decoration, acceptance-test links, verification, and
 registry-to-source cleanup. Addendum B covers test scaffolding, optional acceptance criteria,
 release-stripping semantics, and the end-to-end development workflow. Addendum C covers Git
 integration: staged-snapshot checks for pre-commit, a published pre-commit hook, and CI recipes.
 Addendum D reframes a task as an **assignment**, a durable unit of development intent. It adds
 typed links to commits, PRs, issues and tests, orthogonal state axes, external-issue intake, and
-an optional "Relay" workflow for GitHub. This document records how it is
-built, the decisions both documents leave open, and the phase order. Toolchain: Hatch / Hatchling
+an optional "Relay" workflow for GitHub. Addendum E defines remaining RC1 hardening gates and
+the proposed post-1.0 semantic graph roadmap. Proposed interfaces are not current functionality.
+This document records implementation decisions and phase order. Toolchain: Hatch / Hatchling
 (verified against Hatch 1.18.1, Hatchling 1.32.4).
 
 One rule underlies everything: the disappearance of a comment, the disappearance of a stub, or a
 passing test never resolves a task. Only an explicit `status`/`resolve` does.
+
+## Active release plan — Addendum E
+
+**Target: `v1.0.0rc1`. Core feature freeze remains in effect.**
+The [verified starting-point assessment](spec-addendum-e.md#operating-instructions-and-verified-starting-point)
+records main revision `e0b66318574ef72e23c80b529fb28a825b6d12ec`, current limitations,
+existing protections and unmerged review work. Reinspect the base before implementation.
+The phase table later in this document is historical progress; completion there does not imply
+that the new release gates have passed.
+
+| Order / release | Deliverables | Required evidence / dependency |
+|---|---|---|
+| RC1-A: compatibility and reliability | Expanded IDs, schema boundary and explicit migration, collision recovery, plain-Git validation, source-safety audit, public compatibility inventory and authoritative storage decision. | E A1–A6: actual released-client interoperability, failure/recovery tests, merge matrix, risk assessment, migration procedure and compatibility matrix. Reassess PR #43 after integration. |
+| RC1-B: API decomposition | Concise public facade, cohesive operations, stable imports/signatures/errors/patch targets and final module documentation. | After A integration, separate PR: full before/after suite, CLI/MCP/Hatch/Git regressions, strict types/formatting, wheel/sdist builds and platform CI. |
+| RC1-C: architecture documentation | Complete Addendum E, roadmap, allocated tasks/release labels and Assignment cross-references. | Independently reviewed documentation PR; no graph implementation. May precede A/B completion. |
+| RC1-F: final independent reviews | Freeze one integrated SHA for two whole-repository reviews, with independent initial conclusions. | After A/B/C integration; register findings, fix blockers with evidence, repeat affected reviews or both whole-repository reviews when conclusions are invalidated. |
+| RC1-G: readiness report | Reviewed SHA, merged PRs, contracts/decisions, module boundaries, tests/platform/build/install results, review dispositions and deferred work. | All E exit criteria; explicit approval before tagging or publishing RC1. |
+| 1.5: graph foundations | Semantic schema/identity, symbol/scope/import/reference/inheritance indexing, task associations, incremental rebuildable cache, uncertainty and bounded queries. | E E2/E3/E5/E6: optional indexing, no source mutation, deterministic results, dependency invalidation, checkout/move/merge and partial-failure tests. After 1.0 stable. |
+| 2.0: graph intelligence | Cross-module dependencies, impact, verification recommendations, specification/Assignment traceability, bounded MCP and portable optional visualization. | E E4–E7: traceable provenance/uncertainty, no competing task authority or inferred verification claims. Depends on graph foundations and relevant Assignment capabilities. |
+
+PR A contains compatibility changes; PR B contains structural refactoring; PR C contains future
+architecture documentation and registrations. Each receives applicable checks and independent
+review. Keep confirmed flaws as `FIXME`, planned/design obligations as `TODO`, allocated by
+BytePlan with `release:1.0`, `release:1.5` or `release:2.0` labels. Annotations in
+[Addendum E](spec-addendum-e.md) are the source locations for its new obligations; do not
+duplicate them here. Future tasks stay open. Annotation disappearance never resolves work.
+
+**Storage and identity:** the current JSON registry stays authoritative pending A3's documented
+decision. Size alone does not authorize redesign. A1 preserves four-character IDs, allocates
+six-character IDs, supports longer identities, prefers exact lookup before unambiguous prefixes,
+and persists full identities. A2 establishes schema v2 where required before incompatible
+annotation writes, superseding the older reservation for Assignments below. No ID, schema,
+storage or API implementation changes are made by this documentation update.
+
+**Compatibility decisions pending:** A6 inventories CLI, Python API, configuration, decorators,
+MCP, Hatch and extension points before classifying stable versus experimental interfaces. Core
+identity, source safety and authoritative state need coherent 1.0 guarantees. Explain existing
+previews and read-only defaults before adding commands.
+
+**Post-1.0:** optional historical phases 6c/11/11b, Assignments (12) and Relay (13) are outside
+RC1. Existing Assignment task `15df` remains authoritative; its specification traceability
+participates in the 2.0 roadmap without replacing the 1.5 symbol graph. This does not commit
+every optional or Relay feature to a release. Simple TODO workflows remain independent of both
+Assignments and graph indexing. Graph edges and MCP names are proposed, not stable API.
 
 ## Toolchain
 
@@ -73,7 +119,7 @@ src/byteplan/
   models.py         frozen dataclasses + enums (Task, SourceRef, HistoryEvent, Edit, Diagnostic, ...)
   config.py         [tool.byteplan] via tomllib, defaults, validation, project-root resolution
   files.py          scope collection: pathspec include/exclude, .gitignore, symlink policy, sorted
-  ids.py            shake_128 16-bit candidates, collision retry, exhaustion error
+  ids.py            current: shake_128 16-bit candidates; Addendum E A1 plans expanded identities
   scanner/
     source.py       bytes -> detect_encoding (BOM / PEP 263) -> text + newline style
     symbols.py      ast declarations, qualnames, line -> symbol
@@ -569,8 +615,10 @@ equivalence.
 
 ### Schema
 
-The new fields stay in `schema_version` 1. Version 1 hasn't been released with real data yet
-(0.0.1 was a placeholder), so no migration is needed. All of them are optional on read and always
+These fields originally shipped in `schema_version` 1, since released with real data in 0.1.0
+and 0.2.0. The original pre-release rationale is not a current compatibility policy. Addendum E
+A2 now requires a tested compatibility boundary and explicit migration for expanded identities.
+These existing fields are optional on read and always
 written. They are `source.decl_line`, `source.attachment_kind`, `source.representation`,
 `tests.managed`, `tests.discovered`, `origin` (adds `decorator`), presence `stripped`, task
 `stripped`, and the top-level `release` and `releases` blocks. Verification data lives in
@@ -1401,21 +1449,21 @@ usable offline with no GitHub account.
   (Phase 6a), scaffolding (6b) and MCP (Phase 9) exist.
 - **GitHub App or Checks API:** deferred until real use justifies it (§D.10 D5).
 
-### Schema v2 and migration (§D.9)
+### Future Assignment schema and migration (§D.9)
 
-Phase 12 bumps the registry to **`schema_version: 2`**. The new presence value `unbound` would be
-misread by older readers, so silently reusing v1 is not acceptable.
-- `byteplan migrate` upgrades v1 to v2 in place through the journal, idempotently.
-- Every write command refuses a v1 registry with a "run `byteplan migrate`" message. Reads still
-  work.
-- **Migration is purely additive:** empty `links`, `approval: {required: false, state:
+The original Phase 12 proposal reserved schema v2 for Assignments. **Addendum E A2 supersedes
+that numbering:** RC1 may need v2 for persistent-ID compatibility. Assignments will use an
+appropriate subsequent boundary after inspecting the integrated RC1 contract; its exact version
+and compatibility matrix remain undecided. Older clients must not silently misread `unbound`.
+- Reuse E A2's explicit migration infrastructure through the journal, idempotently, preserving
+  unrelated data and evidence.
+- Establish read/write compatibility against actual released clients; reject incompatible writes
+  with actionable migration guidance.
+- **Proposed Assignment additions:** empty `links`, `approval: {required: false, state:
   not_required}`, `coverage_review: unassessed`, and an empty `binding_proposals`. Phase 6c's
   `depends_on` becomes `blocked_by` links. No other existing value changes.
-- **Prerequisite, scheduled early:** unknown **top-level** registry keys are currently dropped on
-  load and save. I found this while planning Addendum D and confirmed it with a round-trip test.
-  It's a general forward-compatibility bug rather than an Addendum D feature, and Phase 8's
-  top-level `release` records depend on it. So it's fixed in Phase 4d, not deferred with
-  Addendum D. **Done:** unknown top-level keys round-trip as task-level ones do. The merge driver
+- **Prerequisite already completed in Phase 4d:** unknown top-level keys round-trip as task-level
+  ones do. Preserve this protection through both migrations. The merge driver
   merges them three-way and structurally: objects key by key, and lists that both sides only
   appended to as the base plus both sides' additions. Anything else changed on both sides is a
   conflict.
@@ -1548,8 +1596,8 @@ contract as the CLI.
 
 Each phase ends green on `hatch fmt --check`, `hatch run types:check` and `hatch test --all`.
 
-Each addendum's suggested order is merged in below: Addendum A §10, Addendum B §B9 and Addendum C
-§C10. **Addendum D comes last:**
+The historical phases merge Addendum A §10, Addendum B §B9 and Addendum C §C10.
+**The active Addendum E release gates above take priority.** Addendum D remains post-1.0:
 - **Phase 12:** §D.10 stages D0–D2, plus the D4 agent tools.
 - **Phase 13:** D3, the optional `relay-for-github` package.
 - **D5:** deferred.
@@ -1563,16 +1611,18 @@ commit time) is done. Phases 4d, 4e and 5 (runtime and normalization: annotation
 with evidence, freshness and readiness) 6b (test scaffolding) and 7 (cleanup, for Python, Markdown and JSON annotations) are done. **Phase 8 is done** (`release`/`restore`, the opt-in `--smoke-test`, Hatch
 `require_stripped`, and the two release warnings). **Phase 9 is done** (`byteplan mcp`; see
 "Phase 9 as built" under [MCP server](#mcp-server)). **Phase 10 is done** (see "Phase 10 as built" below). The
-remaining phases are 12 and the optional 6c, 11 and 11b. Phase 8 deviations: the smoke
+remaining historical feature phases are 12 and optional 6c, 11 and 11b, all outside RC1.
+Addendum E adds required compatibility, decomposition and release-review gates before them.
+Phase 8 deviations: the smoke
 test installs into an isolated target directory run with `python -I -S` rather than a venv (the
 same isolation, without creating one); `unfinished_scaffold_in_sdist` is reported at release time and
 by `check` while stripped, not on every development `check`, where placeholders are expected.
 Finished phases' TODOs stay in this file until their task is resolved; BytePlan's own cleanup
 (`resolve --sync-source`) removes them.
-**Schema note:** the plan below says schema v1 hadn't shipped with real data; it has (0.1.0 and
-0.2.0). Adding presence `stripped` without a version bump means byteplan 0.2 refuses a stripped
-registry with a clear error. That only happens on release commits made by this version, so the
-version stays 1.
+**Historical schema note:** schema v1 shipped in 0.1.0 and 0.2.0. The existing `stripped`
+presence was added without a version bump; 0.2 rejects such records. This does not establish
+expanded-ID compatibility. E A2 requires actual released-package tests and an appropriate
+version boundary before incompatible writes.
 6b deviation: whether a linked test is still a placeholder is computed from source when needed
 (readiness, `check`), not stored as `placeholder: true` on the link, so editing the body is
 all it takes and the registry doesn't churn. Acceptance-criteria hints wait for Phase 6c, and
@@ -1588,7 +1638,7 @@ runtime package has shipped.
 | 4. Hatch ✅ | hatch_hook + entry point, `examples/hatch_build.py`, decorator discovery in builds (read-only), README onboarding | 18 | 16 (Hatch part) |
 | 4b. Git lifecycle (read-only) ✅ | `snapshot.py` + `gitio.py` (index/commit snapshots via NUL-safe plumbing, no-optional-locks), `check --staged`, `scan --staged --dry-run`, staged diagnostics and policy keys, `.pre-commit-hooks.yaml`, `git install-hooks` / `git hooks-status`, `docs/ci.md` GitHub Actions recipe | – | C: 1–6, 8–14, 17–21 (C: 7, 22 with Phase 8) |
 | 4c. Git staged reconciliation ✅ | `scan --staged --apply`; fully-staged / partial-stage classification against HEAD, index and working tree (`partial_stage_conflict`, `registry_partial_stage_conflict`); blobs → journal → index swap under the index lock (`$GIT_INDEX_FILE`-aware inside `git commit`) → hash-guarded working-tree writes, with index rollback on conflict → revalidation; crash recovery and idempotent retries; `install-hooks --mode reconcile` (new default) and a `byteplan-reconcile` framework hook (fixer behaviour); `[tool.byteplan.git] on_reconcile`; `unsupported_index_format` | – | C: 15, 16 + 4c tests below |
-| 4d. Registry forward compatibility ✅ | unknown **top-level** registry keys round-trip (today they're dropped on save; task-level ones already survive), and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
+| 4d. Registry forward compatibility ✅ | unknown **top-level** and task-level registry keys round-trip, and the merge driver merges them three-way. A general fix, needed before Phase 8 adds top-level `release` records, so it isn't deferred with Addendum D | – | – |
 | 4e. Markdown and JSON sources ✅ | suffix-based file types (`.md`/`.markdown`, `.json`/`.jsonc`); Markdown HTML-comment tags with heading symbols, skipping code; JSON comment tags and tagged string values with JSON Pointer symbols; per-format edit guards; `detect.json_string_values`; registry never scanned. See [Markdown and JSON sources](#markdown-and-json-sources-phase-4e) | – | Phase 4e tests |
 | 5. Runtime + normalization ✅ | `byteplan-runtime/` project (✅ 0.1.0 on PyPI: inert `todo`/`verifies`), `init --runtime-shim`, `[tool.byteplan.annotations]`, `normalize.py`, `byteplan sync --dry-run/--apply` | – | 3, 4, 5, 6 (decorator mode), 8 |
 | 6a. Acceptance tests ✅ | test links + provenance, `byteplan tests list/add/remove`, `_verify_plugin.py`, `verification.py`, `byteplan verify [ID] [--json] [--ready]`, readiness, freshness | – | A: 9, 10, 11, 12 · B: 10 |
@@ -1600,7 +1650,7 @@ runtime package has shipped.
 | 10. Integration ✅ | README end-to-end developer journey (`# TODO` → `scan` → `tests scaffold` → implement → `verify` → `resolve` → `sync`, including where BytePlan notices but never closes work), docs for every config key, dogfood `hatch run byteplan scan` on BytePlan itself, CI on ubuntu/macos/windows | DoD | full suite · B: 19 |
 | 11 (optional) | spec §14 phase 5 items, `TODO(owner):` syntax | – | – |
 | 11b (optional) | Git reporting: `byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations | – | – |
-| 12. Assignment model (Addendum D: D0–D2, D4) | schema v2 + `byteplan migrate` (also converts `depends_on` to `blocked_by` links); `presence: unbound`; `binding_proposals`; `approval` + `approve` / `request-changes`, approval-gated `resolve`; `coverage_review`; typed `links` with ref grammar and patch IDs; `create`, `intake` (offline, idempotent), `bind`, `propose-binding`, `link` / `unlink`, `links`, `refs`, `history`, `impact REV`, `links discover` (trailers), `links reconcile` (patch IDs); event actor/revision/idempotency fields; merge driver handles the new fields; MCP gains the §D.7.1 contract (`intake_issue`, `propose_binding`, `bind_source`, `link_artifact`, `scaffold_regression`, `record_verification`, `get_assignment`, `get_handoff`, policy-checked `request_resolution`; no `approve`) | – | D.11: 1–8 (9 for local retries) |
+| 12. Assignment model (post-1.0; Addendum D: D0–D2, D4) | compatible migration after RC1 (also converts `depends_on` to `blocked_by` links); `presence: unbound`; `binding_proposals`; `approval` + `approve` / `request-changes`, approval-gated `resolve`; `coverage_review`; typed `links` with ref grammar and patch IDs; `create`, `intake` (offline, idempotent), `bind`, `propose-binding`, `link` / `unlink`, `links`, `refs`, `history`, `impact REV`, `links discover` (trailers), `links reconcile` (patch IDs); event actor/revision/idempotency fields; merge driver handles the new fields; MCP gains the §D.7.1 contract (`intake_issue`, `propose_binding`, `bind_source`, `link_artifact`, `scaffold_regression`, `record_verification`, `get_assignment`, `get_handoff`, policy-checked `request_resolution`; no `approve`) | – | D.11: 1–8 (9 for local retries) |
 | 13 (optional, separate package) | `relay-for-github/`: reusable workflows (idempotent intake, PR reconciliation, single status comment), triage-agent guide, branch-protection docs, end-to-end demo (issue → intake → binding PR → failing scaffold → fix → verification → human approval → reconciliation, with a retry/failure path) | – | D.11: 9–12 |
 
 <!-- The phases still to build, tracked by BytePlan itself (see byteplan.md). Remove a TODO when
@@ -1616,7 +1666,7 @@ runtime package has shipped.
      `byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations. -->
 
 <!-- TODO[15df]: Phase 12: assignment model (Addendum D stages D0-D2, D4)
-     Schema v2 and `byteplan migrate`, unbound assignments, binding proposals, approvals, typed
+     Future compatible migration after RC1, unbound assignments, binding proposals, approvals, typed
      links, intake, event provenance, merge-driver support, and the MCP assignment contract. -->
 
 <!-- TODO[ec99]: Phase 13 (optional): relay-for-github

@@ -7,29 +7,40 @@
     "14ff",
     "15df",
     "181f",
+    "1b81",
     "1e7f",
+    "1fe7",
     "205d",
     "2533",
     "2887",
     "30c3",
     "34da",
+    "3644",
+    "3844",
+    "3b20",
     "3d3a",
     "3f50",
     "4518",
     "46b6",
     "478d",
+    "4842",
     "4d48",
+    "4d69",
     "4fb5",
+    "595f",
     "5aae",
     "5ff6",
     "6639",
     "67df",
+    "680a",
     "6b83",
     "71c4",
     "75b4",
     "7ff8",
     "82b3",
     "86e1",
+    "8756",
+    "8aeb",
     "8b28",
     "8c7f",
     "9054",
@@ -44,7 +55,9 @@
     "a4bf",
     "a6b2",
     "a703",
+    "a70d",
     "a740",
+    "a933",
     "ac9d",
     "ae7a",
     "aedf",
@@ -53,19 +66,24 @@
     "b865",
     "baeb",
     "be8e",
+    "c053",
     "c242",
     "c449",
     "c8db",
+    "c978",
     "c993",
     "cc54",
+    "cdcb",
     "ce72",
     "d45d",
     "de66",
     "def0",
+    "e4af",
     "e7d9",
     "ec99",
     "ecf4",
     "ed2b",
+    "edc2",
     "f853",
     "fb23",
     "fb9c",
@@ -620,7 +638,7 @@
     },
     "15df": {
       "assignee": null,
-      "description": "Schema v2 and `byteplan migrate`, unbound assignments, binding proposals, approvals, typed\nlinks, intake, event provenance, merge-driver support, and the MCP assignment contract.",
+      "description": "Future compatible migration after RC1, unbound assignments, binding proposals, approvals, typed\nlinks, intake, event provenance, merge-driver support, and the MCP assignment contract.",
       "first_seen": "2026-10-22T03:53:56Z",
       "history": [
         {
@@ -643,15 +661,43 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "text_changed",
+          "new": {
+            "description": "Future compatible migration after RC1, unbound assignments, binding proposals, approvals, typed\nlinks, intake, event provenance, merge-driver support, and the MCP assignment contract."
+          },
+          "old": {
+            "description": "Schema v2 and `byteplan migrate`, unbound assignments, binding proposals, approvals, typed\nlinks, intake, event provenance, merge-driver support, and the MCP assignment contract."
+          }
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "phase",
+              "release:2.0"
+            ],
+            "notes": "Addendum E: outside RC1; graph-assisted Assignment/specification traceability is on the 2.0 roadmap. Preserve this identity. The original schema-v2 reservation is superseded by the RC1 identity compatibility boundary; choose the future Assignment migration version after integration."
+          },
+          "old": {
+            "labels": [
+              "phase"
+            ],
+            "notes": ""
+          }
         }
       ],
       "id": "15df",
       "kind": "TODO",
       "labels": [
-        "phase"
+        "phase",
+        "release:2.0"
       ],
-      "last_seen": "2026-10-22T03:53:56Z",
-      "notes": "",
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E: outside RC1; graph-assisted Assignment/specification traceability is on the 2.0 roadmap. Preserve this identity. The original schema-v2 reservation is superseded by the RC1 identity compatibility boundary; choose the future Assignment migration version after integration.",
       "origin": "comment",
       "presence": "present",
       "priority": "normal",
@@ -659,7 +705,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1618,
+        "line": 1668,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -740,6 +786,61 @@
       "title": "history simplification skips merged branches' intermediate registry records",
       "title_override": null
     },
+    "1b81": {
+      "assignee": null,
+      "description": "Validate large initial scans, hooks, synchronization, BOM/newlines, AST preservation,\nidempotence and recovery; document existing report-only and preview workflows first.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 160,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:38Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        }
+      ],
+      "id": "1b81",
+      "kind": "TODO",
+      "labels": [
+        "release:1.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 160,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "A5. Source-editing safety and first-run ergonomics"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "RC1 source-safety and first-run preview audit",
+      "title_override": null
+    },
     "1e7f": {
       "assignee": null,
       "description": "@todo(..., id=TASK_ID) and @verifies(*IDS) produce no tracked tag/link,\nso this guard currently permits wheels that still depend on the runtime.",
@@ -775,6 +876,63 @@
       "status": "open",
       "stub": null,
       "title": "[P2] Enforce require_stripped for runtime decorators with dynamic arguments",
+      "title_override": null
+    },
+    "1fe7": {
+      "assignee": null,
+      "description": "Handle syntax errors, unresolved references and partial failures; test deterministic\nresults, optional indexing, source immutability and preservation of authoritative tasks.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 267,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:38Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.5",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "low"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "1fe7",
+      "kind": "TODO",
+      "labels": [
+        "release:1.5",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 267,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "E3. BytePlan 1.5 — Graph foundations"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "1.5 partial-index reliability, uncertainty and bounded queries",
       "title_override": null
     },
     "205d": {
@@ -1185,6 +1343,225 @@
       "title": "Respect enclosing scopes before stripping a decorator",
       "title_override": null
     },
+    "3644": {
+      "assignee": null,
+      "description": "Fingerprint files, invalidate affected dependencies, and rebuild after checkout, moves\nand merges; do not require committing generated graph data.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 263,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.5",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "low"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "3644",
+      "kind": "TODO",
+      "labels": [
+        "release:1.5",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 263,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "E3. BytePlan 1.5 — Graph foundations"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "1.5 deterministic incremental graph cache and invalidation",
+      "title_override": null
+    },
+    "3844": {
+      "assignee": null,
+      "description": "Begin after compatibility integration. Preserve imports, signatures, errors, patch\ntargets, source safety, transaction semantics and integrations; document final boundaries.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 191,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "3844",
+      "kind": "TODO",
+      "labels": [
+        "release:1.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 191,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "Track B — Required pre-RC1 API decomposition"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "RC1 behavior-preserving decomposition of the public Project facade",
+      "title_override": null
+    },
+    "3b20": {
+      "assignee": null,
+      "description": "Independent PR C review confirmed the completed row contradicts registry preservation\nand the corrected migration discussion. Verify the corrected row against registry.py.",
+      "first_seen": "2026-10-23T21:04:12Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:04:12Z",
+          "event": "created",
+          "new": {
+            "line": 1632,
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "addendum:e"
+            ],
+            "notes": "Independent PR C review P3: the completed Phase 4d row incorrectly said unknown top-level fields are dropped. Corrected the row after inspecting registry.py. Existing preservation and writing-scan regressions provide executable evidence; documentation text also independently reviewed.",
+            "priority": "low"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "test_linked",
+          "new": "tests/test_registry.py::test_unknown_top_level_keys_are_preserved",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "test_linked",
+          "new": "tests/test_registry.py::test_unknown_top_level_keys_survive_a_writing_scan",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "test_linked",
+          "new": "tests/test_merge.py::test_top_level_keys_added_on_one_side_are_kept",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:05:00Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Corrected the obsolete Phase 4d claim after independent P3 documentation review. Existing registry round-trip, writing-scan and merge preservation regressions passed via byteplan verify; migration discussion and completed phase row now agree with actual code.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T21:05:05Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T21:05:05Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          }
+        }
+      ],
+      "id": "3b20",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:04:12Z",
+      "notes": "Independent PR C review P3: the completed Phase 4d row incorrectly said unknown top-level fields are dropped. Corrected the row after inspecting registry.py. Existing preservation and writing-scan regressions provide executable evidence; documentation text also independently reviewed.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 1632,
+        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "representation": "comment",
+        "symbol": "Phases"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_merge.py::test_top_level_keys_added_on_one_side_are_kept",
+          "tests/test_registry.py::test_unknown_top_level_keys_are_preserved",
+          "tests/test_registry.py::test_unknown_top_level_keys_survive_a_writing_scan"
+        ]
+      },
+      "title": "RC1 remove stale unknown-field-loss claim from completed Phase 4d",
+      "title_override": null
+    },
     "3d3a": {
       "assignee": null,
       "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354459815",
@@ -1522,6 +1899,61 @@
       "title": "Resolve relative imports before deciding whether they import the runtime",
       "title_override": null
     },
+    "4842": {
+      "assignee": null,
+      "description": "Compare embedded history, separate append-only history and individual task records.\nDocument the long-term contract before deciding whether any RC1 migration is justified.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 119,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        }
+      ],
+      "id": "4842",
+      "kind": "TODO",
+      "labels": [
+        "release:1.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 119,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "A3. Registry layout and history storage"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "RC1 authoritative storage decision based on measured collaboration and integrity risk",
+      "title_override": null
+    },
     "4d48": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659130\nOtherwise the equivalence check aborts the whole restore, even with --partial.",
@@ -1593,6 +2025,63 @@
       "title": "Keep decorators pending when their runtime import can't be restored",
       "title_override": null
     },
+    "4d69": {
+      "assignee": null,
+      "description": "Connect authored specifications, plans, annotations, symbols, tests and evidence through\nthe future Assignment model without making any harness the lifecycle authority.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 296,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:2.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "low"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "4d69",
+      "kind": "TODO",
+      "labels": [
+        "release:2.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 296,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "2.0 Assignment and specification traceability",
+      "title_override": null
+    },
     "4fb5": {
       "assignee": null,
       "description": "It lists only the CLI, scanner, registry and Hatch hook. Also mention the Git integration (IDs\nadded at commit time by `scan --staged --apply` / `git install-hooks`, `check --staged` and\n`check --commit` for pre-commit and CI, the registry merge driver) and Markdown/JSON tracking.",
@@ -1641,6 +2130,63 @@
       "status": "resolved",
       "stub": null,
       "title": "Update the status line for the next release",
+      "title_override": null
+    },
+    "595f": {
+      "assignee": null,
+      "description": "Design structured queries and CLI/IDE/optional visual representations; candidate names\nare not public commitments and no graphical interface is required.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 300,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:2.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "low"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "595f",
+      "kind": "TODO",
+      "labels": [
+        "release:2.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 300,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "2.0 bounded MCP graph operations and portable visualization design",
       "title_override": null
     },
     "5aae": {
@@ -1917,6 +2463,63 @@
       "title": "[P2] Keep inserted imports after all future imports",
       "title_override": null
     },
+    "680a": {
+      "assignee": null,
+      "description": "Trace known and potential dependencies from diffs, modules, symbols and tasks to\naffected implementation, requirements, Assignments and tests with explicit uncertainty.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 288,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:2.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "low"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "680a",
+      "kind": "TODO",
+      "labels": [
+        "release:2.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 288,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "2.0 cross-module dependency and change-impact analysis",
+      "title_override": null
+    },
     "6b83": {
       "assignee": null,
       "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185466\nWith remove_resolved in comment mode the output lost dry_run, rewrites, written, ...",
@@ -2109,7 +2712,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1612,
+        "line": 1662,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2386,6 +2989,118 @@
       "title": "a cached row isn't checked against the index's sha256, so a stale record is returned",
       "title_override": null
     },
+    "8756": {
+      "assignee": null,
+      "description": "Test actual previously released packages, metadata preservation, interrupted upgrades,\nrepeated migration and source writes against the complete A2 compatibility matrix.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 85,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "8756",
+      "kind": "TODO",
+      "labels": [
+        "release:1.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 85,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "A2. Registry schema compatibility and migration"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "RC1 schema boundary and transactional migration for expanded persistent IDs",
+      "title_override": null
+    },
+    "8aeb": {
+      "assignee": null,
+      "description": "Classify CLI, Python API, configuration, decorators, MCP and Hatch guarantees; reassess\nTD004 guidance, documentation drift, first-run complexity and experimental designations.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 173,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        }
+      ],
+      "id": "8aeb",
+      "kind": "TODO",
+      "labels": [
+        "release:1.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 173,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "A6. Compatibility boundary and remaining review inputs"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "RC1 public compatibility contract and documentation audit",
+      "title_override": null
+    },
     "8b28": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353374785\n`alias = markers; alias.todo` hid a use of a runtime re-export from the index.",
@@ -2545,7 +3260,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1615,
+        "line": 1665,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3381,6 +4096,63 @@
       "title": "Refuse wildcard runtime imports, whose bindings can't be proven unused",
       "title_override": null
     },
+    "a70d": {
+      "assignee": null,
+      "description": "Assemble the reviewed SHA, integrated PRs, contracts, migration and storage decisions,\nvalidation and independent dispositions; do not tag or publish without explicit approval.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 419,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "a70d",
+      "kind": "TODO",
+      "labels": [
+        "release:1.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 419,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "Track G — Release candidate readiness and approval"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "RC1 approval-ready release report and artifact/platform validation",
+      "title_override": null
+    },
     "a740": {
       "assignee": null,
       "description": "os.walk includes named pipes in filenames; selecting a FIFO such as pipe.py\nblocks indefinitely in read_source().read_bytes() while waiting for a writer.",
@@ -3416,6 +4188,63 @@
       "status": "open",
       "stub": null,
       "title": "[P2] Require regular files before selecting sources for scanning",
+      "title_override": null
+    },
+    "a933": {
+      "assignee": null,
+      "description": "Specify meaningful entities, relationship classifications, reproducible identity and\nrename/move behavior; keep the graph rebuildable and independent of task authority.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 242,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.5",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "low"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "a933",
+      "kind": "TODO",
+      "labels": [
+        "release:1.5",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 242,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "E2. Semantic entities and relationships"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "1.5 semantic graph schema, identity and provenance design",
       "title_override": null
     },
     "ac9d": {
@@ -3943,6 +4772,63 @@
       "title": "Annotate scaffolded tests with -> None",
       "title_override": null
     },
+    "c053": {
+      "assignee": null,
+      "description": "After A, B and C integration, record a common SHA, keep initial conclusions independent,\nregister confirmed findings and repeat reviews when corrections invalidate conclusions.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 387,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "c053",
+      "kind": "TODO",
+      "labels": [
+        "release:1.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 387,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "Track F — Final independent whole-repository reviews"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "RC1 freeze one integrated revision for two independent whole-repository reviews",
+      "title_override": null
+    },
     "c242": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352850126\nA class-local `todo` added while stripped would take over the restored decorator.",
@@ -4175,6 +5061,63 @@
       "title": "Keep runtime imports that other modules consume through re-exports",
       "title_override": null
     },
+    "c978": {
+      "assignee": null,
+      "description": "Verified in ids.py, registry validation and scanner/jsonc.py at the assessment revision.\nImplement the complete A1 contract and its source-safety and divergent-branch tests.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 57,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "c978",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 57,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "A1. Persistent task identifier compatibility"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "RC1 persistent identity compatibility: remove four-character-only assumptions",
+      "title_override": null
+    },
     "c993": {
       "assignee": null,
       "description": "https://github.com/BytesAndCoffee/byteplan/pull/39#discussion_r4355748861",
@@ -4327,6 +5270,63 @@
         ]
       },
       "title": "Detect a runtime module imported through its parent package",
+      "title_override": null
+    },
+    "cdcb": {
+      "assignee": null,
+      "description": "Associate changes with obligations, explicit staleness/unverified-change rules and\ntargeted regression recommendations; graph uncertainty cannot establish verification.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 292,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:2.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "low"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "cdcb",
+      "kind": "TODO",
+      "labels": [
+        "release:2.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 292,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "2.0 verification intelligence with traceable recommendations",
       "title_override": null
     },
     "ce72": {
@@ -4540,7 +5540,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1609,
+        "line": 1659,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -4619,6 +5619,63 @@
         ]
       },
       "title": "scan paths resolve against the server's cwd, not the served project's root",
+      "title_override": null
+    },
+    "e4af": {
+      "assignee": null,
+      "description": "Build scope/qualified-name, import, definition, reference and inheritance relationships;\nevaluate ast and justified LibCST metadata without modifying source.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 259,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.5",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "low"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "e4af",
+      "kind": "TODO",
+      "labels": [
+        "release:1.5",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 259,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "E3. BytePlan 1.5 — Graph foundations"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "1.5 repository symbol indexing and task-to-symbol associations",
       "title_override": null
     },
     "e7d9": {
@@ -4743,7 +5800,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1622,
+        "line": 1672,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -4825,6 +5882,61 @@
       "status": "open",
       "stub": null,
       "title": "[P2] Refuse staged writes while an ordinary transaction journal is pending",
+      "title_override": null
+    },
+    "edc2": {
+      "assignee": null,
+      "description": "Exercise divergent tasks, collisions, histories, lifecycle states and malformed merges\nboth with and without the custom driver; require actionable check diagnostics.",
+      "first_seen": "2026-10-23T21:03:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T21:03:42Z",
+          "event": "created",
+          "new": {
+            "line": 143,
+            "path": "docs/spec-addendum-e.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T21:04:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "addendum:e"
+            ],
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        }
+      ],
+      "id": "edc2",
+      "kind": "TODO",
+      "labels": [
+        "release:1.0",
+        "addendum:e"
+      ],
+      "last_seen": "2026-10-23T21:03:42Z",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 143,
+        "path": "docs/spec-addendum-e.md",
+        "representation": "comment",
+        "symbol": "A4. Plain-Git merge compatibility"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "RC1 plain-Git merge and conflicting-evidence validation",
       "title_override": null
     },
     "f853": {

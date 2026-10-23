@@ -45,7 +45,7 @@ Creation does **not** require a source binding, assignee, branch, commit, PR, or
 
 Assignment invariants:
 
-- Each assignment has a **permanent, non-reused project-local ID**. Preserve the existing four-lowercase-hexadecimal scheme and its collision handling unless a separate migration explicitly changes it.
+- Each assignment has a **permanent, non-reused project-local ID**. [Addendum E A1–A2](spec-addendum-e.md#track-a--pre-10-compatibility-and-reliability) defines the separate pre-RC1 persistent-ID compatibility migration: preserve existing four-character identities, allocate six-character IDs, and resolve exact identities before unambiguous abbreviations.
 - An assignment is **not** equivalent to an external issue, a Git branch, a commit, a PR, or a source annotation. These have their own identities and lifecycles.
 - Moving or removing source code does not silently close an assignment.
 - A merged PR or matching commit message does not silently close an assignment.
@@ -297,6 +297,11 @@ Evidence SHOULD capture full commit ID, repository identity, test identifier(s),
 
 ## D.9 Compatibility and migration
 
+Addendum E A2 takes precedence over the implementation plan's original reservation of schema
+v2 for Assignments. RC1 may require that boundary for expanded persistent IDs. The later
+Assignment migration must choose an appropriate subsequent compatibility boundary; it does not
+bring Assignment functionality into 1.0. See [the active release plan](IMPLEMENTATION_PLAN.md#active-release-plan--addendum-e).
+
 1. Existing BytePlan four-hex task IDs remain stable and never reused.
 2. Current `# TODO`, `# FIXME`, decorators, AST stub discovery, `.byteplan/tasks.json`, and CLI operations continue to work.
 3. `assignment` becomes a **conceptual** primitive first; a command/filename/schema rename is explicitly **not required** for the initial implementation.
@@ -305,6 +310,10 @@ Evidence SHOULD capture full commit ID, repository identity, test identifier(s),
 6. Existing Addenda A–C decisions about test scaffolds, explicit resolution, release/restore, Hatch, pre-commit, and AI-agent continuity remain in force except where an explicit conflict resolution is documented.
 
 ## D.10 Suggested phased delivery
+
+All Assignment implementation remains outside RC1. [Addendum E E7–E8](spec-addendum-e.md#e7-relationship-to-the-assignment-model)
+distinguishes Assignment obligations from graph relationships and places graph-assisted
+Assignment/specification traceability on the 2.0 roadmap.
 
 **D0 — Semantics and schema:** Define assignment object, artifact-reference namespace, typed relations, and orthogonal states. Establish migration tests and round-trip guarantees.
 
