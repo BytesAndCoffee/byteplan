@@ -28,6 +28,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "2c7434271265": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T03:38:32Z",
+      "dirty": true,
+      "head": "935d3bad56f1250258bc2451ff9b116f101dea59",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "31b3280441ca": {
       "argv": [
         "hatch",
@@ -427,6 +441,16 @@
         }
       }
     },
+    "3f50": {
+      "fingerprint": "369a6ee28da8a79e6bac7cef66409dd603b2f94472d92930e37ed47b61266737",
+      "run": "2c7434271265",
+      "tests": {
+        "tests/test_scaffold.py::test_auto_scaffold_normalizes_the_test_directory": {
+          "duration_ms": 11,
+          "outcome": "passed"
+        }
+      }
+    },
     "4518": {
       "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
       "run": "7d4f28e5d140",
@@ -633,6 +657,16 @@
       "tests": {
         "tests/test_release_guards.py::test_top_level_modules_include_native_extensions": {
           "duration_ms": 3,
+          "outcome": "passed"
+        }
+      }
+    },
+    "a4bf": {
+      "fingerprint": "369a6ee28da8a79e6bac7cef66409dd603b2f94472d92930e37ed47b61266737",
+      "run": "2c7434271265",
+      "tests": {
+        "tests/test_scaffold.py::test_auto_scaffold_reports_an_undecodable_target": {
+          "duration_ms": 8,
           "outcome": "passed"
         }
       }

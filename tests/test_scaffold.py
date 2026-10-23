@@ -548,3 +548,25 @@ def test_auto_scaffold_reports_what_it_couldnt_do(project: ProjectFactory, run_c
     assert result.out.count("couldn't scaffold") == 2
     assert "scaffold_needs_path" in result.out
     assert not (project.root / "tests").exists()
+
+
+def test_auto_scaffold_normalizes_the_test_directory(project: ProjectFactory, run_cli: RunCli) -> None:
+    auto = AUTO.replace("auto = true", 'auto = true\ndirectory = "./tests"')
+    project.write("pyproject.toml", PYPROJECT_DEV + auto, dedent=False)
+    project.init()
+    project.write("tests/test_existing.py", "# TODO: test-side work\ndef test_x():\n    pass\n")
+    result = run_cli("scan", "--format", "json", "--project", project.root)
+    assert result.code == EXIT_OK, result.err
+    assert json.loads(result.out)["scaffolded"] == []
+    assert not (project.root / "tests/test_test_existing.py").exists()
+
+
+def test_auto_scaffold_reports_an_undecodable_target(project: ProjectFactory, run_cli: RunCli) -> None:
+    project.write("pyproject.toml", PYPROJECT_DEV + AUTO, dedent=False)
+    project.init()
+    project.write("tests/test_a.py", "# -*- coding: no-such-codec -*-\n")
+    project.write("a.py", "def f():\n    # TODO: New work\n    return 1\n")
+    result = run_cli("scan", str(project.root / "a.py"), "--project", project.root)  # narrowed: tests/ isn't scanned
+    assert result.code == EXIT_OK, result.err
+    assert "couldn't scaffold" in result.out
+    assert "TODO[" in (project.root / "a.py").read_text()

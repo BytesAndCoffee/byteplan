@@ -12,13 +12,14 @@ import hashlib
 import json
 import os
 import platform
+import posixpath
 import re
 import sys
 import tomllib
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any
 
 import pathspec
@@ -39,7 +40,15 @@ from byteplan.config import (
 )
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity, exit_code
 from byteplan.edits import physical_lines, replace_at
-from byteplan.errors import ConfigError, EditError, RegistryError, ScanError, SourceError, TaskNotFoundError
+from byteplan.errors import (
+    ByteplanError,
+    ConfigError,
+    EditError,
+    RegistryError,
+    ScanError,
+    SourceError,
+    TaskNotFoundError,
+)
 from byteplan.files import Scope, ScopeMatcher, collect_files, resolve_targets, scope_from_paths
 from byteplan.ids import allocate
 from byteplan.languages import Language, language_for
@@ -407,18 +416,20 @@ class Project:
         """Scaffold tests for the open tasks ``report`` added in Python files outside the test directory."""
         if self.stripped_release() is not None:
             return report
-        tests_dir = self.config.tests.scaffold.directory.strip("/") + "/"
+        tests_dir = PurePosixPath(posixpath.normpath(self.config.tests.scaffold.directory.replace("\\", "/")))
         registry = self.load_registry()
         scaffolded, failures = [], []
         for task_id in report.summary.added:
             task = registry.get(task_id)
             if task is None or task.status is not Status.OPEN or task.linked_tests():
                 continue
-            if task.source is None or not task.source.path.endswith(".py") or task.source.path.startswith(tests_dir):
+            if task.source is None or not task.source.path.endswith(".py"):
+                continue
+            if PurePosixPath(task.source.path).is_relative_to(tests_dir):
                 continue
             try:
                 result = self.scaffold_test(task_id)
-            except (scaffold.ScaffoldError, EditError) as exc:
+            except ByteplanError as exc:  # e.g. scaffold_needs_path, or an undecodable test file
                 failures.append((task_id, str(exc)))
             else:
                 scaffolded.append((task_id, result.node))
