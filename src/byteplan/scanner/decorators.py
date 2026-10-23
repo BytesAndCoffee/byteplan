@@ -77,6 +77,9 @@ def _module_statements(body: Sequence[ast.stmt]) -> Iterator[ast.stmt]:
 def _bound_names(stmt: ast.stmt) -> list[str]:
     if isinstance(stmt, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef):
         return [stmt.name]
+    # FIXME[8c7f]: [P1] Detect module-level bindings through control flow before editing decorators
+    #   For/with/match targets and assignment expressions can shadow runtime names. Missing
+    #   those bindings lets scan inject id= into a custom decorator and break module imports.
     targets: list[ast.expr] = []
     if isinstance(stmt, ast.Assign):
         targets = stmt.targets

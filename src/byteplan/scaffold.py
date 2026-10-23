@@ -136,6 +136,9 @@ def default_name(task: Task, target: Target, taken: set[str]) -> str:
 def defined_names(tree: ast.Module) -> set[str]:
     """Top-level names a new test function must not reuse."""
     names: set[str] = set()
+    # FIXME[5aae]: [P2] Collect occupied test names inside module-level control-flow blocks
+    #   An existing test_f under if/try/with is missed here, so scaffolding can append
+    #   another test_f that overwrites the original test and silently drops its coverage.
     for node in tree.body:
         if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef):
             names.add(node.name)

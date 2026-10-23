@@ -7,9 +7,11 @@
     "14ff",
     "15df",
     "181f",
+    "1e7f",
     "205d",
     "2533",
     "2887",
+    "30c3",
     "34da",
     "3d3a",
     "4518",
@@ -17,6 +19,7 @@
     "478d",
     "4d48",
     "4fb5",
+    "5aae",
     "6639",
     "6b83",
     "71c4",
@@ -25,15 +28,20 @@
     "82b3",
     "86e1",
     "8b28",
+    "8c7f",
     "9054",
     "90c6",
     "9185",
     "93dd",
+    "98d6",
     "9b40",
     "9f8d",
     "a067",
     "a6b2",
     "a703",
+    "a740",
+    "ac9d",
+    "ae7a",
     "aedf",
     "b68c",
     "b865",
@@ -46,10 +54,13 @@
     "def0",
     "e7d9",
     "ec99",
+    "ecf4",
+    "ed2b",
     "f853",
     "fb23",
     "fb9c",
     "fd44",
+    "ff20",
     "ff3a"
   ],
   "schema_version": 1,
@@ -719,6 +730,43 @@
       "title": "history simplification skips merged branches' intermediate registry records",
       "title_override": null
     },
+    "1e7f": {
+      "assignee": null,
+      "description": "@todo(..., id=TASK_ID) and @verifies(*IDS) produce no tracked tag/link,\nso this guard currently permits wheels that still depend on the runtime.",
+      "first_seen": "2026-10-23T00:41:20Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:41:20Z",
+          "event": "created",
+          "new": {
+            "line": 154,
+            "path": "src/byteplan/hatch_hook.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "1e7f",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:41:20Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 115,
+        "line": 154,
+        "path": "src/byteplan/hatch_hook.py",
+        "representation": "comment",
+        "symbol": "BytePlanBuildHook.initialize"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "[P2] Enforce require_stripped for runtime decorators with dynamic arguments",
+      "title_override": null
+    },
     "205d": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353030073\n_writing() rolls an interrupted write forward first, so release changed files instead of refusing.",
@@ -1017,6 +1065,43 @@
         ]
       },
       "title": "Phase 6b: test scaffolding",
+      "title_override": null
+    },
+    "30c3": {
+      "assignee": null,
+      "description": "The exact textual needle misses valid id = \"beef\" and multiline keyword values,\nso repair cannot reassign duplicates that the scanner correctly recognizes.",
+      "first_seen": "2026-10-23T00:41:20Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:41:20Z",
+          "event": "created",
+          "new": {
+            "line": 2034,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "30c3",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:41:20Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 2031,
+        "line": 2034,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "_find_decorator_id"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "[P3] Locate decorator IDs by their AST value span during duplicate repair",
       "title_override": null
     },
     "34da": {
@@ -1459,6 +1544,43 @@
       "status": "resolved",
       "stub": null,
       "title": "Update the status line for the next release",
+      "title_override": null
+    },
+    "5aae": {
+      "assignee": null,
+      "description": "An existing test_f under if/try/with is missed here, so scaffolding can append\nanother test_f that overwrites the original test and silently drops its coverage.",
+      "first_seen": "2026-10-23T00:41:20Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:41:20Z",
+          "event": "created",
+          "new": {
+            "line": 139,
+            "path": "src/byteplan/scaffold.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "5aae",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:41:20Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 136,
+        "line": 139,
+        "path": "src/byteplan/scaffold.py",
+        "representation": "comment",
+        "symbol": "defined_names"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "[P2] Collect occupied test names inside module-level control-flow blocks",
       "title_override": null
     },
     "6639": {
@@ -2071,6 +2193,43 @@
       "title": "Treat an imported module that escapes attribute access as consuming all its names",
       "title_override": null
     },
+    "8c7f": {
+      "assignee": null,
+      "description": "For/with/match targets and assignment expressions can shadow runtime names. Missing\nthose bindings lets scan inject id= into a custom decorator and break module imports.",
+      "first_seen": "2026-10-23T00:41:20Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:41:20Z",
+          "event": "created",
+          "new": {
+            "line": 80,
+            "path": "src/byteplan/scanner/decorators.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "8c7f",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:41:20Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 77,
+        "line": 80,
+        "path": "src/byteplan/scanner/decorators.py",
+        "representation": "comment",
+        "symbol": "_bound_names"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "[P1] Detect module-level bindings through control flow before editing decorators",
+      "title_override": null
+    },
     "9054": {
       "assignee": null,
       "description": "`byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations.",
@@ -2322,6 +2481,43 @@
       "status": "open",
       "stub": null,
       "title": "Phase 10: integration",
+      "title_override": null
+    },
+    "98d6": {
+      "assignee": null,
+      "description": "A fixture finalizer calling pytest.skip/xfail is currently ignored after a passing\ncall, recording passed evidence and potentially marking the task ready_for_review.",
+      "first_seen": "2026-10-23T00:41:20Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:41:20Z",
+          "event": "created",
+          "new": {
+            "line": 285,
+            "path": "src/byteplan/verification.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "98d6",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:41:20Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 274,
+        "line": 285,
+        "path": "src/byteplan/verification.py",
+        "representation": "comment",
+        "symbol": "_item_result"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "[P2] Include teardown skips and xfails in the verification outcome",
       "title_override": null
     },
     "9b40": {
@@ -2704,6 +2900,117 @@
         ]
       },
       "title": "Refuse wildcard runtime imports, whose bindings can't be proven unused",
+      "title_override": null
+    },
+    "a740": {
+      "assignee": null,
+      "description": "os.walk includes named pipes in filenames; selecting a FIFO such as pipe.py\nblocks indefinitely in read_source().read_bytes() while waiting for a writer.",
+      "first_seen": "2026-10-23T00:41:20Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:41:20Z",
+          "event": "created",
+          "new": {
+            "line": 230,
+            "path": "src/byteplan/files.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "a740",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:41:20Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 203,
+        "line": 230,
+        "path": "src/byteplan/files.py",
+        "representation": "comment",
+        "symbol": "collect_files"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "[P2] Require regular files before selecting sources for scanning",
+      "title_override": null
+    },
+    "ac9d": {
+      "assignee": null,
+      "description": "An ancestor pytest.ini adds the project directory to item.nodeid; project-relative\nlinks then match nothing, deselecting valid tests and recording not_found.",
+      "first_seen": "2026-10-23T00:41:20Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:41:20Z",
+          "event": "created",
+          "new": {
+            "line": 75,
+            "path": "src/byteplan/_verify_plugin.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "ac9d",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:41:20Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 67,
+        "line": 75,
+        "path": "src/byteplan/_verify_plugin.py",
+        "representation": "comment",
+        "symbol": "pytest_collection_modifyitems"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "[P2] Compare collected node IDs relative to the BytePlan project root",
+      "title_override": null
+    },
+    "ae7a": {
+      "assignee": null,
+      "description": "Returning on an ancestor *.py match prevents a deeper !keep.py from restoring\na file, silently omitting source that Git includes from scans and snapshot checks.",
+      "first_seen": "2026-10-23T00:41:20Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:41:20Z",
+          "event": "created",
+          "new": {
+            "line": 112,
+            "path": "src/byteplan/files.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "ae7a",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:41:20Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 110,
+        "line": 112,
+        "path": "src/byteplan/files.py",
+        "representation": "comment",
+        "symbol": "_GitIgnores.ignored"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "[P2] Apply nested gitignore negations with Git's precedence rules",
       "title_override": null
     },
     "aedf": {
@@ -3576,6 +3883,80 @@
       "title": "Phase 13 (optional): relay-for-github",
       "title_override": null
     },
+    "ecf4": {
+      "assignee": null,
+      "description": "Removing the last local @todo can delete a re-export that another module imports,\ncausing ImportError. Reuse release's project-consumer analysis before dropping it.",
+      "first_seen": "2026-10-23T00:41:20Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:41:20Z",
+          "event": "created",
+          "new": {
+            "line": 243,
+            "path": "src/byteplan/cleanup.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "ecf4",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:41:20Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 230,
+        "line": 243,
+        "path": "src/byteplan/cleanup.py",
+        "representation": "comment",
+        "symbol": "_drop_unused_runtime_imports"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "[P2] Preserve runtime imports consumed by other project modules during cleanup",
+      "title_override": null
+    },
+    "ed2b": {
+      "assignee": null,
+      "description": "Recovering only the staged journal lets this path rewrite the registry after\nan interrupted scan, invalidating ordinary recovery hashes and blocking later writes.",
+      "first_seen": "2026-10-23T00:41:20Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:41:20Z",
+          "event": "created",
+          "new": {
+            "line": 413,
+            "path": "src/byteplan/gitwrite.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "ed2b",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:41:20Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 388,
+        "line": 413,
+        "path": "src/byteplan/gitwrite.py",
+        "representation": "comment",
+        "symbol": "reconcile_staged"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "[P2] Refuse staged writes while an ordinary transaction journal is pending",
+      "title_override": null
+    },
     "f853": {
       "assignee": null,
       "description": "`[mcp]` extra, `mcp_server.py` with every tool, the three permissions, `byteplan mcp`,\nREADME client snippets.",
@@ -3659,18 +4040,18 @@
         },
         {
           "at": "2026-10-23T00:04:17Z",
-          "event": "missing",
-          "new": "missing",
-          "old": "present"
-        },
-        {
-          "at": "2026-10-23T00:04:17Z",
           "event": "cleaned",
           "new": null,
           "note": "annotation removed by byteplan cleanup",
           "old": {
             "path": "docs/IMPLEMENTATION_PLAN.md"
           }
+        },
+        {
+          "at": "2026-10-23T00:04:17Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
         }
       ],
       "id": "f853",
@@ -3921,6 +4302,43 @@
         ]
       },
       "title": "Keep anchored imports below a __future__ import added since the release",
+      "title_override": null
+    },
+    "ff20": {
+      "assignee": null,
+      "description": "Viewing an older branch replaces a newer local payload with evidence=None;\nreturning to the newer branch recovers its record but permanently loses evidence.",
+      "first_seen": "2026-10-23T00:41:20Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:41:20Z",
+          "event": "created",
+          "new": {
+            "line": 996,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        }
+      ],
+      "id": "ff20",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:41:20Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 974,
+        "line": 996,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.reconcile_archive"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "[P2] Retain archived payloads by task ID and record hash",
       "title_override": null
     },
     "ff3a": {
