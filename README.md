@@ -23,8 +23,11 @@ resolved. Only you resolve tasks.
 > - decorator mode (`byteplan sync`), release stripping, and the Hatch hook
 > - an MCP server for AI agents
 >
-> Assignments (linking tasks to issues, commits and PRs) are planned. See the [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md)
-> and the [changelog](https://github.com/BytesAndCoffee/byteplan/blob/main/CHANGELOG.md).
+> Assignments (linking tasks to issues, commits and PRs) are planned. See the
+> [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md)
+> and [Addendum E](docs/spec-addendum-e.md) for RC1 hardening and the proposed 1.5/2.0 semantic
+> graph roadmap. Graph implementation is deferred until after 1.0 stable. Shipped changes are
+> recorded in the [changelog](https://github.com/BytesAndCoffee/byteplan/blob/main/CHANGELOG.md).
 
 ## Contents
 

@@ -168,6 +168,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "72e7cc50d015": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T21:05:06Z",
+      "dirty": true,
+      "head": "e0b66318574ef72e23c80b529fb28a825b6d12ec",
+      "python": "3.12.14",
+      "timed_out": false
+    },
     "7d4f28e5d140": {
       "argv": [
         "hatch",
@@ -559,6 +573,24 @@
       "tests": {
         "tests/test_release.py::test_shadowed_todo_is_not_stripped": {
           "duration_ms": 125,
+          "outcome": "passed"
+        }
+      }
+    },
+    "3b20": {
+      "fingerprint": "6884a3a8a216255145ca3c5d467b309c2a96477e84a0b2791529347994a95c90",
+      "run": "72e7cc50d015",
+      "tests": {
+        "tests/test_merge.py::test_top_level_keys_added_on_one_side_are_kept": {
+          "duration_ms": 2,
+          "outcome": "passed"
+        },
+        "tests/test_registry.py::test_unknown_top_level_keys_are_preserved": {
+          "duration_ms": 1,
+          "outcome": "passed"
+        },
+        "tests/test_registry.py::test_unknown_top_level_keys_survive_a_writing_scan": {
+          "duration_ms": 34,
           "outcome": "passed"
         }
       }
