@@ -21,6 +21,7 @@
     "6b83",
     "71c4",
     "75b4",
+    "7ff8",
     "82b3",
     "86e1",
     "8b28",
@@ -42,6 +43,7 @@
     "c8db",
     "cc54",
     "de66",
+    "def0",
     "e7d9",
     "ec99",
     "f853",
@@ -636,7 +638,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1586,
+        "line": 1608,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1721,7 +1723,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1580,
+        "line": 1602,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1729,6 +1731,84 @@
       "status": "open",
       "stub": null,
       "title": "Phase 11 (optional): spec section 14 phase 5 items",
+      "title_override": null
+    },
+    "7ff8": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/37#discussion_r4354839056",
+      "first_seen": "2026-10-23T00:11:25Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:11:25Z",
+          "event": "created",
+          "new": {
+            "line": 245,
+            "path": "src/byteplan/mcp_server.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:11:39Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_resolve_with_sync_source_previews_unless_applied",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:11:39Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_resolve_with_sync_source_needs_source_write",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:11:48Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "resolve(sync_source) previews cleanup unless apply=true, which needs source-write; regression tests pass",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T00:11:48Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T00:11:48Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/mcp_server.py"
+          }
+        }
+      ],
+      "id": "7ff8",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:11:25Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 245,
+        "line": 249,
+        "path": "src/byteplan/mcp_server.py",
+        "representation": "comment",
+        "symbol": "build_server.<locals>.resolve.<locals>.resolved"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_mcp.py::test_resolve_with_sync_source_needs_source_write",
+          "tests/test_mcp.py::test_resolve_with_sync_source_previews_unless_applied"
+        ]
+      },
+      "title": "resolve(sync_source=true) removes the annotation without apply=true",
       "title_override": null
     },
     "82b3": {
@@ -2042,7 +2122,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1583,
+        "line": 1605,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2234,7 +2314,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1576,
+        "line": 1598,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3283,7 +3363,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1569,
+        "line": 1595,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3291,6 +3371,77 @@
       "status": "open",
       "stub": null,
       "title": "Phase 6c (optional): acceptance criteria and dependencies",
+      "title_override": null
+    },
+    "def0": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/37#discussion_r4354839060",
+      "first_seen": "2026-10-23T00:11:25Z",
+      "history": [
+        {
+          "at": "2026-10-23T00:11:25Z",
+          "event": "created",
+          "new": {
+            "line": 133,
+            "path": "src/byteplan/mcp_server.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:11:38Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_scan_paths_are_relative_to_the_served_project",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:11:46Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "MCP scan resolves paths against the served project root; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T00:11:47Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T00:11:47Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/mcp_server.py"
+          }
+        }
+      ],
+      "id": "def0",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T00:11:25Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 128,
+        "line": 133,
+        "path": "src/byteplan/mcp_server.py",
+        "representation": "comment",
+        "symbol": "build_server.<locals>.scan"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_mcp.py::test_scan_paths_are_relative_to_the_served_project"
+        ]
+      },
+      "title": "scan paths resolve against the server's cwd, not the served project's root",
       "title_override": null
     },
     "e7d9": {
@@ -3415,7 +3566,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1590,
+        "line": 1612,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3450,6 +3601,76 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_a_tool_without_its_permission_is_not_registered",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_read_only_tools_change_nothing",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_source_writes_need_permission_and_apply",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_registry_writes_and_managed_fields_survive_a_rescan",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_a_concurrent_writer_makes_writes_fail_cleanly",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_stdio_stdout_carries_json_rpc_only",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_verify_task_needs_test_execution",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_scaffold_release_and_restore_preview_unless_applied",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:16Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "byteplan mcp with every planned tool, the three permissions, resources, triage prompt, README client snippets; 8 linked tests pass (verify)",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T00:04:17Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T00:04:17Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          }
         }
       ],
       "id": "f853",
@@ -3460,19 +3681,32 @@
       "last_seen": "2026-10-22T03:53:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1572,
+        "line": 1597,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_mcp.py::test_a_concurrent_writer_makes_writes_fail_cleanly",
+          "tests/test_mcp.py::test_a_tool_without_its_permission_is_not_registered",
+          "tests/test_mcp.py::test_read_only_tools_change_nothing",
+          "tests/test_mcp.py::test_registry_writes_and_managed_fields_survive_a_rescan",
+          "tests/test_mcp.py::test_scaffold_release_and_restore_preview_unless_applied",
+          "tests/test_mcp.py::test_source_writes_need_permission_and_apply",
+          "tests/test_mcp.py::test_stdio_stdout_carries_json_rpc_only",
+          "tests/test_mcp.py::test_verify_task_needs_test_execution"
+        ]
+      },
       "title": "Phase 9: MCP server",
       "title_override": null
     },
