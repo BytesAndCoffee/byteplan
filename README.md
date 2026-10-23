@@ -413,7 +413,8 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 | `byteplan duplicates` | the same ID on more than one annotation |
 | `byteplan report [--format text\|json\|markdown]` | summary by status, presence, kind and priority, plus findings |
 | `byteplan repair --import ID` | register an ID found in source but not in the registry |
-| `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID |
+| `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID; use `--dry-run` to preview |
+| `byteplan repair --reassign PATH:LINE --against REV` | preserve/reassign an independently created branch collision before merging; [procedure and limits](docs/rc1-compatibility.md#merge-and-collision-recovery) |
 | `byteplan git install-merge-driver` | merge the registry by task ID in Git merges (per clone) |
 | `byteplan git install-hooks [--mode reconcile\|check\|scan]` | direct pre-commit hook (default `reconcile`: IDs at commit time); never replaces a hook it didn't write |
 | `byteplan git hooks-status` | show the pre-commit framework hook, direct hook and merge driver |

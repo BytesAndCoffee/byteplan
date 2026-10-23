@@ -12,7 +12,7 @@ defect. High scheduling priority also applies to work explicitly required before
 
 | Task | Impact / release consequence | Current action |
 |---|---|---|
-| `c978` | Highest compatibility priority: the former four-character-only contract cannot recognize expanded identities. Old clients warn but can still exit successfully with zero tracked tasks. | Implemented six-character allocation, legacy/long IDs, exact-first prefixes, scanner consistency and tests. Keep in progress pending the full collision-recovery acceptance. |
+| `c978` | Highest compatibility priority: the former four-character-only contract cannot recognize expanded identities. Old clients warn but can still exit successfully with zero tracked tasks. | Implemented six-character allocation, legacy/long IDs, exact-first prefixes, scanner consistency and tests. Completed and explicitly resolved after linked verification and independent collision-recovery review. Original-branch repair preserves the complete task record, supported exact references and historical evidence. |
 | `8756` | Highest prerequisite: incompatible source must never be introduced under metadata accepted by older clients. | Completed and explicitly resolved with journaled migration, allocation guards, released-package interoperability and preservation/recovery evidence. |
 | `edc2` | P1 integrity risk: duplicate JSON keys can silently discard competing records; malformed merged evidence could escape `check`. | Strict parsing, evidence validation and real Git collision tests implemented. Broader lifecycle/history/evidence reconciliation and recovery matrix remains open. |
 | `1b81` | P2 confirmed first-run problem: initialization could write a new shim before rejecting an incompatible registry. The broader safety audit is a required gate. | Validate before writes; retain the task for the full large-scan/hook/preview/source-recovery audit. |
@@ -135,19 +135,60 @@ No physical layout migration is included. Benchmarking larger repositories and r
 availability/reconciliation remain part of task `4842` before final disposition; do not interpret
 this decision as a claim that those validations have already passed.
 
-## Merge and collision boundaries still open
+## Merge and collision recovery
 
 Real divergent branches now demonstrate explicit identity-collision failure both with and without
 the custom driver; both original task records remain available in Git. Strict checks reject
 unresolved conflict markers, partially merged JSON, duplicate keys and malformed evidence in
 the working tree or selected Git snapshot.
 
-`repair --reassign PATH:LINE` still supports duplicate source annotations and uses the expanded
-allocator after migration. It does not by itself recover two colliding tasks' independent managed
-metadata and verification evidence from an unresolved registry conflict. Do not pick one record
-and silently discard the other. Keep both Git versions and resolve/reassign explicitly; the
-complete safe recovery procedure/tooling is still required by `c978`/`edc2`. This increment does
-not claim that collision recovery acceptance is complete.
+`repair --reassign PATH:LINE` still repairs a duplicate source copy. It creates a distinct task;
+it does not salvage competing managed records from an already merged registry. For an independent
+cross-branch collision, use the explicit original-branch workflow instead:
+
+1. Preserve any merge-resolution work you need. If a merge is in progress, abort it using Git's
+   normal procedure and return to one original branch. The repair command never aborts a merge
+   or changes branches for you. Do not finish a merge by choosing one colliding registry record.
+2. Commit the original branch's reconciled task and supported verification references. Both
+   branches must contain the collision, and the ID must be absent from every merge base's active,
+   archived, reserved, source-reference and evidence identities. A cherry-picked task with shared
+   creation provenance is the same task: merge its managed state rather than reassigning it.
+3. On the branch whose task should receive a new identity, run
+   `byteplan repair --reassign PATH:LINE --against OTHER_REV --dry-run`. Review the exact pinned
+   HEAD and peer commits and proposed file list. The preview does not change source, registry,
+   evidence or the index.
+4. Repeat without `--dry-run`, inspect the diff, commit it, and retry the merge. The repair does
+   not stage files. It reserves both identities and appends an `identity_reassigned` history event
+   containing the old/new IDs, both pinned commits and all merge bases.
+5. Run `byteplan check` on the result. An ordinary Git conflict in registry or evidence is acceptable:
+   reconcile both versions explicitly, keeping both task records and their evidence. A successful
+   registry-driver merge does not promise that the separate evidence JSON can merge automatically.
+   Run `byteplan scan` to reconcile discovered locations/links, then reverify before resolving work.
+
+The branch workflow preserves local lifecycle, managed fields, history and supported extension
+metadata. It edits only the selected annotation and scanner-confirmed exact `@verifies` / enabled
+pytest-marker references, checking the expected Python AST or non-Python source invariant before
+writing. Escaped and concatenated Python literals, supported Markdown/JSONC annotations, Unicode,
+BOMs and newline conventions are covered. Locations and discovered links are recomputed after
+multiline edits. Other task records and historical old-ID strings remain intact.
+
+Evidence is moved to the new canonical key with its results, run provenance, extension data and
+**old fingerprint** retained. The ID/source changes make it stale; historical passing evidence
+is not a fresh verification claim. Other tasks' evidence and unreferenced run records are retained.
+Source, evidence and registry use one existing journal transaction. An interrupted repair rolls
+forward through `byteplan scan`; conflicting foreign edits must be reconciled rather than overwritten.
+
+The command rejects ongoing Git operations (including a resolved but uncommitted merge), unmerged
+indexes, alternate index environments, active index locks and pending BytePlan journals. An index
+lock excludes ordinary checkout/add/merge during the write, pinned HEAD is rechecked, and transaction
+hashes reject conflicting file edits. It rejects inherited/reserved IDs, missing/shared creation
+provenance, rewritten working history, differing project roots/registry paths, uncertain managed
+annotations, ignored contexts containing the identity, known test links outside editable scope,
+and unknown current metadata containing an exact old-ID reference. These cases need review with
+a client that understands the reference semantics; they are not invitations to perform a global
+string replacement. The supported scanner/configuration scope defines editable references.
+External systems and references outside that scope require explicit coordination; this command
+cannot atomically rewrite external mappings.
 
 The remaining Track A matrix includes independently updated histories, competing lifecycle
 states, conflicting verification evidence, partially resolved semantic inconsistencies and
@@ -157,15 +198,26 @@ Final whole-repository reviews and the readiness report require a later integrat
 ## Validation of this increment
 
 - Clean merged baseline: 864 non-network tests passed.
-- Updated full suite: 918 passed, three network cases deselected by the normal policy.
+- Initial full suite: 918 passed, three network cases deselected by the normal policy.
+- Collision follow-up adds 47 passing acceptance cases, independently rerun by the reviewer.
+  Final full suite: **965 passed**, three network cases deselected; both actual released-client
+  interoperability cases passed explicitly afterward. Formatting, strict typing (89 source files),
+  wheel/sdist builds and isolated install/CLI smoke checks passed.
 - Both actual released-client cases passed explicitly. A dedicated CI job runs them; BytePlan's
   verification runner also includes linked network acceptance tests instead of silently excluding them.
 - Independent review's three P2 findings were corrected with preservation, concurrency and
   malformed-evidence regressions. The reviewer independently ran all 50 compatibility cases and
   reported no unresolved blocker in this draft increment.
 - Strict typing and formatting passed. Wheel/sdist build and installation checks are recorded
-  with the PR; platform CI is required before this draft is ready for integration.
-- BytePlan verification records evidence for `8756`, `c978`, `edc2` and `1b81`. Passing linked
-  tests do not complete the broader open obligations. Only migration task `8756` is resolved.
+  with the PR. All 15 CI jobs passed at `c51b871`, including Linux/macOS/Windows with Python
+  3.11–3.14, lint/types, registry consistency and actual released clients. The recovery follow-up
+  requires its own CI run before integration.
+- BytePlan verification records evidence for `8756`, `c978`, `edc2` and `1b81`. Migration `8756`
+  and persistent-ID/collision recovery `c978` are explicitly resolved; `c978`'s source annotation
+  was removed by `resolve --sync-source`, followed by scan and fresh verification. Passing linked
+  tests do not resolve the broader `edc2`, source-safety, storage or interface-policy obligations.
+- The independent recovery review corrected Git-operation-state, encoded ignored-reference and
+  shared-creation-provenance gaps with regressions, and reported no unresolved blocker in its
+  final 47-case rerun. This does not replace updated platform CI or the remaining Track A matrix.
 
 This focused review is not either of the two final whole-repository reviews required by Track F.

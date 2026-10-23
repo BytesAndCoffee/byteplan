@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Any
 
 import pathspec
 
-from byteplan import archive, cleanup, gitio, normalize, release, reporting, scaffold, smoke, verification
+from byteplan import archive, cleanup, collisions, gitio, normalize, release, reporting, scaffold, smoke, verification
 from byteplan import registry as registry_io
 from byteplan.annotate import annotate
 from byteplan.config import (
@@ -393,7 +393,7 @@ class Project:
             return tuple(w.path for w in writes) if dry_run else tuple(commit(self.root, writes))
 
     @contextlib.contextmanager
-    def _writing(self) -> Iterator[tuple[str, ...]]:
+    def _writing(self, *, recover_pending: bool = True) -> Iterator[tuple[str, ...]]:
         """Hold the project lock and finish any interrupted write first."""
         if (staged_dir(self.root) / "journal.json").exists():
             msg = (
@@ -402,7 +402,10 @@ class Project:
             )
             raise ConfigError(msg)
         with project_lock(self.root):
-            yield tuple(recover(self.root))
+            if not recover_pending and pending_journal(self.root):
+                msg = "an ordinary transaction is pending; run `byteplan scan` to recover it before collision repair"
+                raise ConfigError(msg)
+            yield tuple(recover(self.root)) if recover_pending else ()
 
     def exit_code(self, diagnostics: Iterable[Diagnostic]) -> int:
         return exit_code(diagnostics, self.config.check, enforce_consistency=self.enforce_consistency)
@@ -2016,9 +2019,12 @@ class Project:
             written = commit(self.root, self._registry_writes(registry_hash, new_registry))
             return RepairResult(task, tuple(written))
 
-    def reassign(self, path: str, line: int) -> RepairResult:
-        """Give the duplicate-ID annotation at ``path:line`` a fresh ID, in source and registry."""
-        with self._writing():
+    def reassign(self, path: str, line: int, *, against: str | None = None, dry_run: bool = False) -> RepairResult:
+        """Reassign a duplicate copy, or preserve/rekey an independent branch collision via ``against``."""
+        if against is not None:
+            return self._reassign_branch(path, line, against, dry_run=dry_run)
+        context = contextlib.nullcontext(()) if dry_run else self._writing()
+        with context:
             registry_hash, registry = self._read_registry()
             annotations, sources, hierarchy = self._scan_sources()
             target = next((a for a in annotations if a.path == path and a.line == line and a.task_id), None)
@@ -2060,11 +2066,192 @@ class Project:
             task.history[-1] = dataclasses.replace(
                 task.history[-1], note=f"reassigned from duplicate {old_id} by `byteplan repair --reassign`"
             )
-            written = commit(
-                self.root,
-                [FileWrite(path, before, edited.encode()), *self._registry_writes(registry_hash, new_registry)],
+            writes = [FileWrite(path, before, edited.encode()), *self._registry_writes(registry_hash, new_registry)]
+            written = () if dry_run else tuple(commit(self.root, writes))
+            return RepairResult(task, written, old_id=old_id, planned=tuple(w.path for w in writes), dry_run=dry_run)
+
+    def _reassign_branch(self, path: str, line: int, against: str, *, dry_run: bool) -> RepairResult:
+        """Rekey an independently created task before merging, preserving its full record."""
+        if self.snapshot is not None:
+            msg = "branch collision repair requires the working tree"
+            raise ConfigError(msg)
+        guard = contextlib.nullcontext() if dry_run else collisions.index_guard(self.root)
+        writing = contextlib.nullcontext(()) if dry_run else self._writing(recover_pending=False)
+        with guard, writing, contextlib.ExitStack() as readers:
+            collisions.ensure_no_operation(self.root)
+            if pending_journal(self.root) or (staged_dir(self.root) / "journal.json").exists():
+                msg = "finish the pending BytePlan transaction before branch collision repair"
+                raise ConfigError(msg)
+            index = readers.enter_context(GitSnapshot(self.root))  # also rejects an unresolved Git merge
+            if index.root != self.root:
+                msg = "collision repair cannot change project roots"
+                raise ConfigError(msg)
+            registry_hash, registry = self._read_registry()
+            registry.require_expanded_ids()
+            self._refuse_while_stripped("repair --against")
+            preview = self._scan(None, None, dry_run=True, recovered=())
+            collisions.ensure_static(preview.diagnostics)
+            planned_registry = next(w.data for w in preview.planned if w.path == self.registry_rel)
+            if preview.blocked or preview.proposals or planned_registry != registry_io.dumps(registry).encode():
+                msg = "source and registry must be fully reconciled; run `byteplan scan` before collision repair"
+                raise ConfigError(msg)
+            annotations, sources, hierarchy = self._scan_sources()
+            target = next((a for a in annotations if a.path == path and a.line == line and a.task_id), None)
+            if target is None or target.task_id is None:
+                msg = f"no registered task annotation at {path}:{line}"
+                raise ConfigError(msg)
+            old_id = target.task_id
+            if sum(a.task_id == old_id for a in annotations) != 1 or old_id not in registry.tasks:
+                msg = "--against requires one unique registered annotation on the original branch"
+                raise ConfigError(msg)
+            if old_id in self.archive_index().tasks:
+                msg = "restore/reconcile the archived identity before branch collision repair"
+                raise ConfigError(msg)
+            collisions.ensure_supported_metadata(registry, old_id)
+            for node in registry.tasks[old_id].linked_tests():
+                if node.split("::", 1)[0] not in sources:
+                    msg = f"linked test {node} is outside the editable source scope; review its references first"
+                    raise ConfigError(msg)
+
+            def state(rev: str, *, required: bool = True) -> tuple[Project, Registry, set[str]]:
+                project = Project.open_snapshot(self.root, rev)
+                readers.callback(project.close)
+                if project.root != self.root or project.registry_rel != self.registry_rel:
+                    msg = f"{rev}: project root/registry path differs; cannot prove a task collision"
+                    raise ConfigError(msg)
+                snapshot = project.snapshot
+                assert snapshot is not None  # noqa: S101 - open_snapshot always provides one
+                data = snapshot.read(self.registry_rel)
+                if data is None and required:
+                    msg = f"{rev}: no registry for this project"
+                    raise ConfigError(msg)
+                stored = Registry() if data is None else registry_io.loads(data.decode("utf-8"), snapshot.label)
+                project.config = dataclasses.replace(project.config, auto_annotate=False)
+                report = project.scan(dry_run=True)
+                collisions.ensure_static(report.diagnostics)
+                evidence_bytes = snapshot.read(verification.STORE)
+                evidence_ids = (
+                    set() if evidence_bytes is None else verification.Evidence.loads(evidence_bytes).tasks.keys()
+                )
+                identities = (
+                    evidence_ids
+                    | stored.reserved_ids
+                    | stored.tasks.keys()
+                    | project.archive_index().tasks.keys()
+                    | {tag.task_id for tag in report.tags if tag.task_id is not None}
+                    | {value for link in report.links for value in link.task_ids}
+                )
+                return project, stored, identities
+
+            head_project, head_registry, head_ids = state("HEAD")
+            other_project, other_registry, other_ids = state(against)
+            assert head_project.snapshot is not None  # noqa: S101
+            assert other_project.snapshot is not None  # noqa: S101
+            head = head_project.snapshot.commit
+            other = other_project.snapshot.commit
+            if old_id not in head_registry.tasks or old_id not in other_registry.tasks:
+                msg = "both pinned branches must contain the colliding active task; it may already be reassigned"
+                raise ConfigError(msg)
+            head_task = head_registry.tasks[old_id]
+            if registry.tasks[old_id].history[: len(head_task.history)] != head_task.history:
+                msg = "working task history differs from its pinned branch; restore/reconcile the original lineage before repair"
+                raise ConfigError(msg)
+            if collisions.creation_binding(head_task) == collisions.creation_binding(other_registry.tasks[old_id]):
+                msg = "branches share creation provenance; preserve the canonical task identity instead of reassigning"
+                raise ConfigError(msg)
+            if old_id in other_project.archive_index().tasks:
+                msg = "the other branch also archives this identity; reconcile its state before repair"
+                raise ConfigError(msg)
+            if registry_io.task_to_dict(head_registry.tasks[old_id]) == registry_io.task_to_dict(
+                other_registry.tasks[old_id]
+            ):
+                msg = "the pinned branches contain an identical record; no independent collision was demonstrated"
+                raise ConfigError(msg)
+            try:
+                bases = gitio.git(["merge-base", "--all", head, other], self.root).split()
+            except ConfigError as exc:
+                msg = "branches have no common history; cannot prove independent task creation"
+                raise ConfigError(msg) from exc
+            if not bases:
+                msg = "branches have no merge base; cannot prove independent task creation"
+                raise ConfigError(msg)
+            used = (
+                registry.reserved_ids | registry.tasks.keys() | head_ids | other_ids | self.archive_index().tasks.keys()
             )
-            return RepairResult(task, tuple(written), old_id=old_id)
+            for base in bases:
+                _, _, base_ids = state(base, required=False)
+                if old_id in base_ids:
+                    msg = f"task {old_id} already existed in merge base {base}; preserve its identity"
+                    raise ConfigError(msg)
+                used |= base_ids
+            used |= {tag.task_id for tag in annotations if tag.task_id is not None}
+            used |= {value for link in preview.links for value in link.task_ids}
+            evidence_before = _read_bytes(self.root / verification.STORE)
+            if evidence_before is not None:
+                used |= verification.Evidence.loads(evidence_before).tasks.keys()
+            new_id = allocate(f"{path}\0{line}\0branch-collision\0{old_id}\0{head}\0{other}", used)
+            writes: list[FileWrite] = []
+            final_scans: dict[str, FileScan] = {}
+            for rel, (source, before) in sources.items():
+                scan = scan_file(
+                    source,
+                    self.config.detect,
+                    self.config.annotations.runtime_modules,
+                    hierarchy,
+                    pytest_marker=self.config.tests.pytest_marker,
+                )
+                edited, final_scans[rel] = collisions.rewrite_source(
+                    source,
+                    scan,
+                    target if rel == path else None,
+                    old_id,
+                    new_id,
+                    self.config.detect,
+                    self.config.annotations.runtime_modules,
+                    hierarchy,
+                    pytest_marker=self.config.tests.pytest_marker,
+                )
+                if edited.text != source.text:
+                    writes.append(FileWrite(rel, before, edited.encode()))
+            task = registry.tasks.pop(old_id)
+            task.id = new_id
+            registry.tasks[new_id] = task
+            registry.reserved_ids.add(new_id)  # old identity remains permanently reserved
+            task.history.append(
+                HistoryEvent(
+                    "identity_reassigned",
+                    self.clock(),
+                    old=old_id,
+                    new={"id": new_id, "head": head, "against": other, "merge_bases": bases},
+                    note="explicit pre-merge collision repair; preserved evidence requires fresh verification",
+                )
+            )
+            observed = [tag for scan in final_scans.values() for tag in scan.tags]
+            updated, _ = reconcile(
+                registry,
+                [Observation(tag.task_id, tag, new=False) for tag in observed if tag.task_id],
+                self.clock(),
+                absence_check=None,
+            )
+            links = [link for scan in final_scans.values() for link in scan.links]
+            _apply_discovered_tests(updated, observed, links, preview.scope)
+            if evidence_before is not None:
+                evidence_data = json.loads(evidence_before)
+                if old_id in evidence_data.get("tasks", {}):
+                    evidence_data["tasks"][new_id] = evidence_data["tasks"].pop(old_id)
+                    # Retain provenance/results and the OLD fingerprint; source edits make it stale.
+                    encoded = (json.dumps(evidence_data, indent=2, sort_keys=True, ensure_ascii=False) + "\n").encode()
+                    writes.append(FileWrite(verification.STORE, sha256(evidence_before), encoded))
+            writes.extend(self._registry_writes(registry_hash, updated))
+            collisions.ensure_no_operation(self.root)
+            current_head = gitio.git(["rev-parse", "--verify", "HEAD"], self.root).strip()
+            if current_head != head:
+                msg = "HEAD changed during collision planning; nothing was written, retry on the original branch"
+                raise ConfigError(msg)
+            written = () if dry_run else tuple(commit(self.root, writes))
+            return RepairResult(
+                updated.tasks[new_id], written, old_id=old_id, planned=tuple(w.path for w in writes), dry_run=dry_run
+            )
 
     # Registry mutations (never touch source) -------------------------------------
 
@@ -2172,6 +2359,8 @@ class RepairResult:
     task: Task
     written: tuple[str, ...]
     old_id: str | None = None
+    planned: tuple[str, ...] = ()
+    dry_run: bool = False
 
 
 def _managed(task: Task) -> dict[str, Any]:

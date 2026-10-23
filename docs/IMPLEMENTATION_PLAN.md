@@ -48,8 +48,10 @@ duplicate them here. Future tasks stay open. Annotation disappearance never reso
 decision. Size alone does not authorize redesign. A1 preserves four-character IDs, allocates
 six-character IDs, supports longer identities, prefers exact lookup before unambiguous prefixes,
 and persists full identities. A2 establishes schema v2 where required before incompatible
-annotation writes, superseding the older reservation for Assignments below. No ID, schema,
-storage or API implementation changes are made by this documentation update.
+annotation writes, superseding the older reservation for Assignments below. The active
+compatibility increment and original-branch collision recovery procedure are recorded in the
+[RC1 compatibility report](rc1-compatibility.md). The historical completion table does not
+complete these new release gates.
 
 **Compatibility decisions pending:** A6 inventories CLI, Python API, configuration, decorators,
 MCP, Hatch and extension points before classifying stable versus experimental interfaces. Core
@@ -266,8 +268,10 @@ to the replace step (addendum test 18).
   conversion keys arrive with Phase 5.
 - **`@verifies` links:** discovered and validated now (`unknown_task_reference`, `malformed_id`),
   but stored in the registry only from Phase 6a.
-- **`repair --reassign`:** only works on an ID that really is duplicated; reassigning a unique ID
-  would orphan its task. `PATH:LINE` is taken root-relative first, as diagnostics print it.
+- **`repair --reassign`:** ordinary duplicate-copy repair requires a duplicated annotation.
+  Addendum E adds explicit `--against REV` recovery for independently created branch collisions,
+  preserving the original branch's record and stale evidence before merging; shared/inherited
+  identity is rejected. Both support `--dry-run`. `PATH:LINE` is root-relative first, as diagnostics print it.
 
 **Exit codes.** 0 means OK, 1 means findings under the check policy, 2 means a
 config, runtime or registry error.
@@ -1273,7 +1277,8 @@ local SQLite use foreseen above, and the registry stays authoritative for every 
 
 **Conflicts fall back to `git merge-file` markers, with an explanation.** These include the same
 field changed differently on both sides, an ID allocated on both branches for different work
-(follow up with `repair --reassign`), removed versus changed, and a schema mismatch. Nothing is
+(return to an original branch and use the [explicit pre-merge repair procedure](rc1-compatibility.md#merge-and-collision-recovery)),
+removed versus changed, and a schema mismatch. Nothing is
 chosen silently.
 
 **Discovered fields** changed on both sides keep ours and ask for a `scan`, which recomputes them

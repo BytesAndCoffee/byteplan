@@ -477,6 +477,16 @@ def scan_markers(
             if not isinstance(decorator, ast.Call) or dotted_name(decorator.func) not in names:
                 continue
             if diagnostics is not None:
+                if decorator.keywords:
+                    diagnostics.append(
+                        Diagnostic(
+                            Code.MALFORMED_ID,
+                            Severity.WARNING,
+                            "pytest byteplan marker requires positional literal task IDs; keyword arguments are unsupported",
+                            locations=(Location(source.path, decorator.lineno),),
+                            hint="use the full task ID from `byteplan list` as a positional argument",
+                        )
+                    )
                 for arg in decorator.args:
                     value = _literal_str(arg)
                     if value is None or not is_valid_id(value):
@@ -505,6 +515,13 @@ def _verifies(
     report: Callable[..., None],
 ) -> None:
     ids = []
+    if call.keywords:
+        report(
+            Code.DYNAMIC_TODO_ARGUMENT,
+            Severity.WARNING,
+            f"@{name}() requires positional literal task IDs; keyword arguments are unsupported",
+            call.lineno,
+        )
     for arg in call.args:
         value = _literal_str(arg)
         if value is None:

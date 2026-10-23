@@ -107,8 +107,9 @@ def merge_driver(base: Path, ours: Path, theirs: Path, label: str = ".byteplan/t
     messages += [f"  - {problem}" for problem in problems]
     if any("ID collision" in problem for problem in problems):
         messages.append(
-            "  For an ID collision: keep one task in the registry, finish the merge, run `byteplan scan`, "
-            "then `byteplan repair --reassign PATH:LINE` on the other annotation (the scan reports where)."
+            "  For an ID collision: keep both original branch records. Abort this merge, then on one original "
+            "branch run `byteplan repair --reassign PATH:LINE --against OTHER_REV --dry-run`. "
+            "Apply without --dry-run, commit the preserved/reassigned task, and retry the merge."
         )
     messages.append(f"  Resolve the conflict markers in {label}, then `git add` it.")
     return DriverOutcome(1, messages)

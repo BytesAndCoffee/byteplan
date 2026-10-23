@@ -58,10 +58,6 @@ remain the historical documentation-assessment baseline, not the current complet
 
 ### A1. Persistent task identifier compatibility
 
-<!-- FIXME[c978]: RC1 persistent identity compatibility: remove four-character-only assumptions
-     Verified in ids.py, registry validation and scanner/jsonc.py at the assessment revision.
-     Implement the complete A1 contract and its source-safety and divergent-branch tests. -->
-
 Accept existing four-character lowercase hexadecimal IDs and longer supported IDs; generate
 six-character hexadecimal IDs for newly allocated tasks. Define the supported length contract
 centrally, remove hard-coded length assumptions throughout code and diagnostics, and retain
