@@ -12,6 +12,7 @@
     "1fe7",
     "205d",
     "2533",
+    "2650ec",
     "2887",
     "30c3",
     "34da",
@@ -1168,6 +1169,100 @@
         ]
       },
       "title": "Keep every module an import alias may refer to, across scopes",
+      "title_override": null
+    },
+    "2650ec": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-23T23:23:40Z",
+      "history": [
+        {
+          "at": "2026-10-23T23:23:40Z",
+          "event": "created",
+          "new": {
+            "line": 141,
+            "path": "tests/test_collision_recovery.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T23:23:41Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "P2 acceptance-test portability defect. GitHub Actions run40035199597 on4471395 failed all Windows3.11–3.14 runners at first post-merge scan .written==(). Reproduced with real Git core.autocrlf=true on Linux. Registry semantic contents and history preserved; first scan only canonically normalizes Git CRLF to LF. Test must explicitly cover both Git settings, preservation and second-scan idempotence. No production behavior changes needed.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T23:24:26Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T23:24:50Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Corrected P2 platform-test assumption after real Git core.autocrlf=true reproduction. Eight matrix combinations passed through BytePlan verification and independent review. Exact JSON/normalization/file/index preservation and second-scan idempotence assertions retained. Updated Windows CI remains the separate release validation gate.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-23T23:24:55Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T23:24:55Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "tests/test_collision_recovery.py"
+          }
+        }
+      ],
+      "id": "2650ec",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0"
+      ],
+      "last_seen": "2026-10-23T23:23:40Z",
+      "notes": "P2 acceptance-test portability defect. GitHub Actions run40035199597 on4471395 failed all Windows3.11–3.14 runners at first post-merge scan .written==(). Reproduced with real Git core.autocrlf=true on Linux. Registry semantic contents and history preserved; first scan only canonically normalizes Git CRLF to LF. Test must explicitly cover both Git settings, preservation and second-scan idempotence. No production behavior changes needed.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 93,
+        "line": 141,
+        "path": "tests/test_collision_recovery.py",
+        "representation": "comment",
+        "symbol": "test_premerge_rekey_preserves_both_original_records"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 89,
+            "node": "tests/test_collision_recovery.py::test_premerge_rekey_preserves_both_original_records",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Verify merge preservation across Git checkout newline conversion.",
       "title_override": null
     },
     "2887": {
@@ -5787,25 +5882,25 @@
       "tests": {
         "discovered": [
           {
-            "line": 285,
+            "line": 306,
             "node": "tests/test_collision_recovery.py::test_collision_cli_preview_and_apply",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 584,
+            "line": 605,
             "node": "tests/test_collision_recovery.py::test_creation_extension_cannot_disguise_shared_binding",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 193,
+            "line": 214,
             "node": "tests/test_collision_recovery.py::test_interrupted_rekey_recovers_all_source_evidence_and_registry",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 567,
+            "line": 588,
             "node": "tests/test_collision_recovery.py::test_keyword_identity_references_are_diagnosed",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
@@ -5817,103 +5912,103 @@
             "provenance": "verifies"
           },
           {
-            "line": 389,
+            "line": 410,
             "node": "tests/test_collision_recovery.py::test_rekey_accepts_empty_valid_evidence_store",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 546,
+            "line": 567,
             "node": "tests/test_collision_recovery.py::test_rekey_allocator_avoids_peer_evidence_only_identities",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 630,
+            "line": 651,
             "node": "tests/test_collision_recovery.py::test_rekey_checks_every_crisscross_merge_base",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 328,
+            "line": 349,
             "node": "tests/test_collision_recovery.py::test_rekey_preserves_supported_primary_annotation_formats",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 303,
+            "line": 324,
             "node": "tests/test_collision_recovery.py::test_rekey_preserves_unknown_fields_and_historical_old_identity",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 454,
+            "line": 475,
             "node": "tests/test_collision_recovery.py::test_rekey_refuses_cherry_picked_shared_task_identity",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 363,
+            "line": 384,
             "node": "tests/test_collision_recovery.py::test_rekey_refuses_identity_reserved_in_merge_base",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 433,
+            "line": 454,
             "node": "tests/test_collision_recovery.py::test_rekey_refuses_ignored_encoded_identity_references",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 216,
+            "line": 237,
             "node": "tests/test_collision_recovery.py::test_rekey_refuses_inherited_identity",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 414,
+            "line": 435,
             "node": "tests/test_collision_recovery.py::test_rekey_refuses_other_pending_git_operations",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 398,
+            "line": 419,
             "node": "tests/test_collision_recovery.py::test_rekey_refuses_resolved_but_uncommitted_merge",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 472,
+            "line": 493,
             "node": "tests/test_collision_recovery.py::test_rekey_refuses_rewritten_local_lineage",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 379,
+            "line": 400,
             "node": "tests/test_collision_recovery.py::test_rekey_refuses_unresolved_merge",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 231,
+            "line": 252,
             "node": "tests/test_collision_recovery.py::test_rekey_refuses_unsafe_context_without_changes",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 144,
+            "line": 165,
             "node": "tests/test_collision_recovery.py::test_rekey_rewrites_exact_references_and_retains_stale_evidence",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 485,
+            "line": 506,
             "node": "tests/test_collision_recovery.py::test_rekey_then_merge_preserves_both_branches_evidence",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
           },
           {
-            "line": 609,
+            "line": 630,
             "node": "tests/test_collision_recovery.py::test_rekey_uses_linked_worktree_index_lock",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"
@@ -6921,6 +7016,16 @@
           "old": {
             "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress."
           }
+        },
+        {
+          "at": "2026-10-23T23:24:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone.\n\nWindows CI run40035199597 exposed an overstrict first-scan assertion, tracked as2650ec. Reproduced using real Git core.autocrlf=true; registry content/history unchanged, only canonical LF rewrite. New regression covers both newline settings, full record/source/index preservation and exact first-/second-scan write guarantees."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone."
+          }
         }
       ],
       "id": "edc2",
@@ -6930,7 +7035,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:59:07Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone.\n\nWindows CI run40035199597 exposed an overstrict first-scan assertion, tracked as2650ec. Reproduced using real Git core.autocrlf=true; registry content/history unchanged, only canonical LF rewrite. New regression covers both newline settings, full record/source/index preservation and exact first-/second-scan write guarantees.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -6954,7 +7059,7 @@
             "provenance": "verifies"
           },
           {
-            "line": 485,
+            "line": 506,
             "node": "tests/test_collision_recovery.py::test_rekey_then_merge_preserves_both_branches_evidence",
             "path": "tests/test_collision_recovery.py",
             "provenance": "verifies"

@@ -86,12 +86,20 @@ def references(repo: ProjectFactory, old: str) -> None:
     git(repo.root, "commit", "-qm", "references and evidence")
 
 
-@verifies("c978", "edc2")
+@verifies("c978", "edc2", "2650ec")
 @pytest.mark.parametrize("driver", [False, True])
 @pytest.mark.parametrize("legacy", [False, True])
+@pytest.mark.parametrize("autocrlf", [False, True])
 def test_premerge_rekey_preserves_both_original_records(
-    repo: ProjectFactory, run_cli: RunCli, monkeypatch: pytest.MonkeyPatch, *, driver: bool, legacy: bool
+    repo: ProjectFactory,
+    run_cli: RunCli,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    driver: bool,
+    legacy: bool,
+    autocrlf: bool,
 ) -> None:
+    git(repo.root, "config", "core.autocrlf", str(autocrlf).lower())
     if driver:
         assert run_cli("git", "install-merge-driver", "--project", repo.root).code == 0
         git(repo.root, "add", "-A")
@@ -130,6 +138,19 @@ def test_premerge_rekey_preserves_both_original_records(
         registry = Project.open(repo.root).load_registry()
         assert registry.tasks[old].notes == "preserve left"
         assert registry.tasks[new].notes == "preserve right"
+        registry_path = repo.root / ".byteplan/tasks.json"
+        merged_bytes = registry_path.read_bytes()
+        merged_files = frozen(repo)
+        first_scan = Project.open(repo.root).scan(dry_run=False)
+        normalized_bytes = registry_path.read_bytes()
+        assert json.loads(normalized_bytes) == json.loads(merged_bytes)
+        assert normalized_bytes == merged_bytes.replace(b"\r\n", b"\n")
+        expected_written = () if normalized_bytes == merged_bytes else (".byteplan/tasks.json",)
+        assert first_scan.written == expected_written
+        after_files = frozen(repo)
+        assert {key: value for key, value in after_files.items() if key != "proj/.byteplan/tasks.json"} == {
+            key: value for key, value in merged_files.items() if key != "proj/.byteplan/tasks.json"
+        }
         assert Project.open(repo.root).scan(dry_run=False).written == ()
     else:
         # Ordinary Git is allowed to conflict; both independent records must remain available.

@@ -106,6 +106,22 @@ Run the automated interoperability cases with
 `hatch test -- -m network tests/test_released_clients.py`. Ordinary non-network runs intentionally
 exclude them; the release evidence must include an explicit network run.
 
+## Windows merge-test correction
+
+CI at `4471395` passed Linux/macOS but failed the new post-merge zero-write assertion on
+Windows Python 3.11–3.14. Real Git with `core.autocrlf=true` reproduces the failure on Linux:
+Git checks out the merged registry using CRLF, and the first scan restores its canonical LF
+serialization without changing any JSON records. Task `2650ec` records this P2 test defect,
+explicitly resolved after linked verification and independent review.
+
+The regression now explicitly runs both Git settings with both merge-driver configurations and
+legacy/expanded colliding IDs. It compares complete JSON records before/after reconciliation,
+allows only exact CRLF-to-LF byte normalization, checks the exact expected written-file tuple,
+preserves all other working files and the index, and requires a strictly write-free second scan.
+Product serialization and source-editing behavior are unchanged. All 51 collision cases passed
+locally; the reviewer independently passed the eight Git-setting combinations. Updated Windows
+CI is required before considering this platform validation complete; the PR records its result.
+
 ## Intended authoritative storage contract
 
 The measured merged-main registry contains 91 tasks and 450 history events in 218,671 bytes.
@@ -200,7 +216,7 @@ Final whole-repository reviews and the readiness report require a later integrat
 - Clean merged baseline: 864 non-network tests passed.
 - Initial full suite: 918 passed, three network cases deselected by the normal policy.
 - Collision follow-up adds 47 passing acceptance cases, independently rerun by the reviewer.
-  Final full suite: **965 passed**, three network cases deselected; both actual released-client
+  Full suite at `4471395`: **965 passed**, three network cases deselected; both actual released-client
   interoperability cases passed explicitly afterward. Formatting, strict typing (89 source files),
   wheel/sdist builds and isolated install/CLI smoke checks passed.
 - Both actual released-client cases passed explicitly. A dedicated CI job runs them; BytePlan's
