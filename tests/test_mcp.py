@@ -20,8 +20,11 @@ pytest.importorskip("mcp")
 from mcp import Client, StdioServerParameters
 from mcp_types.version import LATEST_HANDSHAKE_VERSION
 
+from byteplan._todo import verifies
+from byteplan.api import Project
 from byteplan.cli import EXIT_ERROR, EXIT_OK
 from byteplan.mcp_server import Permissions, build_server
+from byteplan.models import Status
 from byteplan.persistence import project_lock
 from tests.gitutil import COVERAGE_FILE
 
@@ -143,7 +146,7 @@ def test_read_only_tools_change_nothing(tracked: ProjectFactory) -> None:
         assert data(await client.call_tool("sync_source", {}))["dry_run"] is True
         scaffold = data(await client.call_tool("preview_test_scaffold", {"id": task_id}))
         assert scaffold["dry_run"] is True
-        assert "def test_" in scaffold["text"]
+        assert "def test_" in scaffold["test"]
 
     session(tracked, Permissions(), body)
     assert tracked.snapshot() == before
@@ -395,3 +398,64 @@ def test_resolve_with_sync_source_previews_unless_applied(tracked: ProjectFactor
 
     session(tracked, Permissions(registry_write=True, source_write=True), body)
     assert "FIXME" in (tracked.root / "src/b.py").read_text()
+
+
+# Compact results (an agent's context is the budget) ----------------------------------------------
+
+
+@verifies("ce72")
+def test_scan_returns_counts_and_changes_unless_asked_for_detail(tracked: ProjectFactory) -> None:
+    async def body(client: Client) -> None:
+        summary = data(await client.call_tool("scan", {}))
+        assert "annotations" not in summary
+        assert summary["annotation_count"] == 2
+        assert summary["tracked"] == 2
+        assert summary["annotated"] == []
+        assert summary["diagnostics"] == []
+        detail = data(await client.call_tool("scan", {"detail": True}))
+        assert sorted(a["title"] for a in detail["annotations"]) == ["first task", "second task"]
+        assert set(detail) - {"annotations"} == set(summary) - {"annotation_count"}
+
+    session(tracked, Permissions(), body)
+
+
+@verifies("9c60")
+def test_missing_lists_active_tasks_unless_closed_ones_are_asked_for(tracked: ProjectFactory, run_cli: RunCli) -> None:
+    first, second = _id_of(tracked, "first task"), _id_of(tracked, "second task")
+    Project.open(tracked.root).set_status(second, Status.RESOLVED)
+    tracked.write("src/a.py", "def f():\n    return 1\n")
+    tracked.write("src/b.py", "x = 1\n")
+    Project.open(tracked.root).scan(dry_run=False)
+
+    async def body(client: Client) -> None:
+        assert [t["id"] for t in data(await client.call_tool("missing", {}))["tasks"]] == [first]
+        everything = data(await client.call_tool("missing", {"include_closed": True}))["tasks"]
+        assert sorted(t["id"] for t in everything) == sorted([first, second])
+
+    session(tracked, Permissions(), body)
+    cli = run_cli("missing", "--format", "json", "--project", tracked.root)
+    assert [t["id"] for t in json.loads(cli.out)] == [first]
+    cli = run_cli("missing", "--include-closed", "--format", "json", "--project", tracked.root)
+    assert sorted(t["id"] for t in json.loads(cli.out)) == sorted([first, second])
+
+
+@verifies("d45d")
+def test_preview_test_scaffold_returns_the_new_test_not_the_whole_file(tracked: ProjectFactory) -> None:
+    existing = "import pytest\n" + "".join(f"\n\ndef test_{i}() -> None:\n    assert True\n" for i in range(50))
+    tracked.write("tests/test_a.py", existing, dedent=False)
+    task_id = _id_of(tracked, "first task")
+    before = tracked.snapshot()
+
+    async def body(client: Client) -> None:
+        preview = data(await client.call_tool("preview_test_scaffold", {"id": task_id, "path": "tests/test_a.py"}))
+        assert "text" not in preview
+        assert preview["imports"] == []  # pytest is already imported; managed links need no runtime
+        assert preview["test"].count("def ") == 1
+        assert f"def {preview['node'].split('::')[1]}() -> None:" in preview["test"]
+        full = data(
+            await client.call_tool("preview_test_scaffold", {"id": task_id, "path": "tests/test_a.py", "full": True})
+        )
+        assert full["text"] == existing + "\n\n" + preview["test"]
+
+    session(tracked, Permissions(), body)
+    assert tracked.snapshot() == before

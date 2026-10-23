@@ -25,6 +25,15 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
   test for each open task it adds in a Python file outside the test directory. `scan` lists
   what it scaffolded (`scaffolded` / `scaffold_failures` in JSON). BytePlan's own repo enables it,
   with `policy = "xfail"`.
+- **Scaffolds pass strict linters:** tests are annotated `-> None` (mypy `--strict`), and
+  imports added to an existing file go into its import sections in isort order (ruff `I001`).
+
+### Compact MCP results
+- **`scan`** returns counts and what changed; `detail=true` lists every annotation.
+- **`missing`** (and `byteplan missing`) lists only open, in-progress and blocked tasks;
+  `include_closed=true` / `--include-closed` adds resolved and dismissed ones.
+- **`preview_test_scaffold` and `scaffold_test`** return the new test and the imports it adds;
+  `full=true` adds the whole file.
 
 ### Report file on one branch
 - **`[tool.byteplan] report_branch`** (e.g. `"main"`): only that branch writes and checks

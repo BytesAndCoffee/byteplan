@@ -339,7 +339,8 @@ def cmd_edit(args: argparse.Namespace) -> int:
 
 
 def cmd_missing(args: argparse.Namespace) -> int:
-    tasks = _project(args).list_tasks(presences=[Presence.MISSING])
+    statuses = None if args.include_closed else [s for s in Status if not s.is_closed]
+    tasks = _project(args).list_tasks(statuses, presences=[Presence.MISSING])
     if args.format == "json":
         _out(reporting.to_json([reporting.task_json(task) for task in tasks]))
     else:
@@ -666,6 +667,11 @@ def build_parser() -> argparse.ArgumentParser:
     edit.set_defaults(handler=cmd_edit)
 
     missing = sub.add_parser("missing", parents=[common, formatted], help="show tasks no longer found in source")
+    missing.add_argument(
+        "--include-closed",
+        action="store_true",
+        help="also list resolved and dismissed tasks (their annotations are usually removed on purpose)",
+    )
     missing.set_defaults(handler=cmd_missing)
 
     duplicates = sub.add_parser("duplicates", parents=[common, formatted], help="report duplicate embedded IDs")

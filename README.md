@@ -396,7 +396,7 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 | `byteplan status ID STATUS [--note]` | change lifecycle status |
 | `byteplan resolve ID [--note]` | mark resolved (never edits source) |
 | `byteplan edit ID [--priority] [--assignee/--unassign] [--label] [--remove-label] [--notes/--add-note] [--title/--clear-title]` | managed fields; scans never overwrite them |
-| `byteplan missing` | tasks no longer found in source |
+| `byteplan missing` | active tasks no longer found in source (`--include-closed` adds resolved and dismissed ones) |
 | `byteplan duplicates` | the same ID on more than one annotation |
 | `byteplan report [--format text\|json\|markdown]` | summary by status, presence, kind and priority, plus findings |
 | `byteplan repair --import ID` | register an ID found in source but not in the registry |
@@ -756,6 +756,10 @@ isn't offered at all:
 - **Source writes are always explicit:** even with permission, a tool that edits source only
   previews unless it's called with `apply=true`.
 - **Nothing runs tests on the side:** listing, searching and scanning never execute project code.
+- **Compact by default:** `scan` returns counts and what changed (`detail=true` lists every
+  annotation), `missing` lists only active tasks (`include_closed=true` adds closed ones), and
+  `preview_test_scaffold` and `scaffold_test` return the new test and its imports (`full=true` adds
+  the whole file).
 - **Errors:** findings come back as `diagnostics`. A call fails only where the CLI would exit 2,
   for example `locked:` while another BytePlan process is writing.
 - **stdout** carries JSON-RPC only; anything else goes to stderr.

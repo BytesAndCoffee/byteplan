@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from byteplan import persistence
+from byteplan._todo import verifies
 from byteplan.api import Project
 from byteplan.cli import EXIT_ERROR, EXIT_OK
 from byteplan.config import ScaffoldConfig
@@ -228,7 +229,7 @@ def test_templates_by_target_kind(routed: ProjectFactory, run_cli: RunCli, title
     text = (routed.root / "tests/test_routing.py").read_text()
     assert data["node"].endswith("::" + name.format(id=task["id"]))
     assert comment.format(id=task["id"]) in text
-    assert f"def {name.format(id=task['id'])}():" in text  # synchronous, no invented fixtures or arguments
+    assert f"def {name.format(id=task['id'])}() -> None:" in text  # synchronous, no invented fixtures or arguments
     assert "async def" not in text  # B6: no async plugin configured, so no async test that could skip
     tree = ast.parse(text)
     (function,) = [n for n in tree.body if isinstance(n, ast.FunctionDef)]
@@ -244,7 +245,7 @@ def test_async_tests_only_with_a_plugin(project: ProjectFactory, run_cli: RunCli
     assert run_cli("scan", "--project", project.root).code == EXIT_OK
     scaffold(project, run_cli, task_by_title(project, "Async fetch")["id"])
     text = (project.root / "tests/test_routing.py").read_text()
-    assert "@pytest.mark.anyio\nasync def test_fetch():" in text
+    assert "@pytest.mark.anyio\nasync def test_fetch() -> None:" in text
     assert "# WHEN: TODO - await fetch" in text
 
 
@@ -433,7 +434,7 @@ def test_crash_recovers_through_the_journal(routed: ProjectFactory, monkeypatch:
     # The next write command rolls the transaction forward: file and registry agree.
     Project.open(routed.root).scan(dry_run=False)
     assert not persistence.pending_journal(routed.root)
-    assert "def test_compute():" in (routed.root / "tests/test_routing.py").read_text()
+    assert "def test_compute() -> None:" in (routed.root / "tests/test_routing.py").read_text()
     task = task_by_title(routed, "Plain function")
     assert [e["node"] for e in task["tests"]["discovered"]] == ["tests/test_routing.py::test_compute"]
     assert task["history"][-1]["event"] == "test_scaffolded"
@@ -593,3 +594,68 @@ def test_auto_scaffold_reports_encoding_and_filesystem_failures(project: Project
     assert result.code == EXIT_OK, result.err
     (failure,) = json.loads(result.out)["scaffold_failures"]
     assert failure["id"] == task_by_title(project, "Third task")["id"]
+
+
+@verifies("b55f")
+@pytest.mark.parametrize(
+    ("existing", "expected"),
+    [
+        pytest.param(
+            "import os\n\nimport pytest\n\nfrom pkg import routing\n",
+            "import os\n\nimport pytest\nfrom byteplan_runtime import verifies\n\nfrom pkg import routing\n",
+            id="into the third-party section, not after first-party",
+        ),
+        pytest.param(
+            "import os\n\nimport pytest\nfrom attrs import define\nfrom zipp import Path\n",
+            "import os\n\nimport pytest\nfrom attrs import define\nfrom byteplan_runtime import verifies\n"
+            "from zipp import Path\n",
+            id="sorted within the section",
+        ),
+        pytest.param(
+            "import os\n\nfrom attrs import define\n",
+            "import os\n\nimport pytest\nfrom attrs import define\nfrom byteplan_runtime import verifies\n",
+            id="plain imports before from-imports",
+        ),
+        pytest.param(
+            '"""Doc."""\n\nimport os\nimport sys\n',
+            '"""Doc."""\n\nimport os\nimport sys\n\nimport pytest\nfrom byteplan_runtime import verifies\n',
+            id="a new section after the standard library",
+        ),
+    ],
+)
+def test_scaffold_imports_land_in_isort_order(
+    routed: ProjectFactory, run_cli: RunCli, existing: str, expected: str
+) -> None:
+    routed.write("tests/test_routing.py", existing + "\n\ndef test_a() -> None:\n    assert os\n", dedent=False)
+    scaffold(routed, run_cli, task_by_title(routed, "Plain function")["id"])
+    text = (routed.root / "tests/test_routing.py").read_text()
+    assert text.startswith(expected + "\n\ndef test_a() -> None:\n")
+
+
+@verifies("be8e")
+@pytest.mark.parametrize("title", ["Plain function", "Async fetch", "Module level work"])
+def test_scaffolded_tests_are_annotated_for_strict_type_checkers(
+    routed: ProjectFactory, run_cli: RunCli, title: str
+) -> None:
+    data = scaffold(routed, run_cli, task_by_title(routed, title)["id"])
+    tree = ast.parse((routed.root / data["path"]).read_text())
+    (test,) = (n for n in tree.body if isinstance(n, ast.FunctionDef | ast.AsyncFunctionDef))
+    assert test.name == data["node"].split("::")[1]
+    assert isinstance(test.returns, ast.Constant)  # `-> None`, which mypy --strict's no-untyped-def wants
+    assert test.returns.value is None
+    assert not test.args.args
+
+
+@verifies("67df")
+def test_scaffold_imports_stay_below_future_imports(routed: ProjectFactory, run_cli: RunCli) -> None:
+    existing = (
+        "from __future__ import annotations\nfrom attrs import define\n\n\ndef test_a() -> None:\n    assert define\n"
+    )
+    routed.write("tests/test_routing.py", existing, dedent=False)
+    scaffold(routed, run_cli, task_by_title(routed, "Plain function")["id"])
+    text = (routed.root / "tests/test_routing.py").read_text()
+    compile(text, "tests/test_routing.py", "exec")  # a future import below another statement is a SyntaxError
+    assert text.startswith(
+        "from __future__ import annotations\nimport pytest\nfrom attrs import define\n"
+        "from byteplan_runtime import verifies\n\n\ndef test_a() -> None:\n"
+    )

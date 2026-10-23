@@ -134,6 +134,8 @@ class ScaffoldResult:
     dry_run: bool = False
     text: str = ""  # the planned file text
     written: tuple[str, ...] = ()
+    imports: tuple[str, ...] = ()  # import lines the scaffold adds
+    function: str = ""  # the test function the scaffold adds
 
 
 @dataclass(frozen=True)
@@ -1250,7 +1252,16 @@ class Project:
                     raise EditError(msg)
                 entry = {"node": plan.node, "provenance": link.provenance, "path": link.path, "line": link.line}
             if dry_run:
-                return ScaffoldResult(task, plan.node, target_rel, plan.created, dry_run=True, text=plan.text)
+                return ScaffoldResult(
+                    task,
+                    plan.node,
+                    target_rel,
+                    plan.created,
+                    dry_run=True,
+                    text=plan.text,
+                    imports=plan.imports,
+                    function=plan.function,
+                )
 
             now = self.clock()
             if entry is not None:
@@ -1267,7 +1278,16 @@ class Project:
                 *self._registry_writes(registry_hash, registry),
             ]
             written = tuple(commit(self.root, writes))
-            return ScaffoldResult(task, plan.node, target_rel, plan.created, text=plan.text, written=written)
+            return ScaffoldResult(
+                task,
+                plan.node,
+                target_rel,
+                plan.created,
+                text=plan.text,
+                written=written,
+                imports=plan.imports,
+                function=plan.function,
+            )
 
     def _scaffold_path(self, task: Task, override: str | None, scope: Scope) -> str:
         matcher = ScopeMatcher(self.config)

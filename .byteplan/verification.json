@@ -1,5 +1,33 @@
 {
   "runs": {
+    "0145175f0192": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T04:52:34Z",
+      "dirty": true,
+      "head": "ce2ad8bbebf37ba682c5c7a50beffe01c11971a4",
+      "python": "3.11.0",
+      "timed_out": false
+    },
+    "165678588f64": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T04:52:35Z",
+      "dirty": true,
+      "head": "ce2ad8bbebf37ba682c5c7a50beffe01c11971a4",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "1d738a9dea73": {
       "argv": [
         "hatch",
@@ -67,6 +95,20 @@
       "at": "2026-10-23T03:46:25Z",
       "dirty": true,
       "head": "76909dfa18e4b23c892bf709a6c7f860fddc8036",
+      "python": "3.11.0",
+      "timed_out": false
+    },
+    "56eb3c2d7c07": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T04:58:46Z",
+      "dirty": true,
+      "head": "186b92af8ffba167a2a1a694ce996d4e9637e67a",
       "python": "3.11.0",
       "timed_out": false
     },
@@ -210,6 +252,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "cd923920d804": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T04:52:30Z",
+      "dirty": true,
+      "head": "ce2ad8bbebf37ba682c5c7a50beffe01c11971a4",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "f9371bbb192a": {
       "argv": [
         "hatch",
@@ -221,6 +277,20 @@
       "at": "2026-10-22T22:28:38Z",
       "dirty": true,
       "head": "2348aa62df36bc8d8085a0763263db79ae00af2b",
+      "python": "3.11.0",
+      "timed_out": false
+    },
+    "fe2e057a7e69": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T04:52:33Z",
+      "dirty": true,
+      "head": "ce2ad8bbebf37ba682c5c7a50beffe01c11971a4",
       "python": "3.11.0",
       "timed_out": false
     }
@@ -529,6 +599,16 @@
         }
       }
     },
+    "67df": {
+      "fingerprint": "1065d4f50269b8b0df1ac5d7af188bd3ff67557132feb8e387943a7de2b14568",
+      "run": "56eb3c2d7c07",
+      "tests": {
+        "tests/test_scaffold.py::test_scaffold_imports_stay_below_future_imports": {
+          "duration_ms": 17,
+          "outcome": "passed"
+        }
+      }
+    },
     "6b83": {
       "fingerprint": "0247fb4d874f8548449d1b1eeac335b54f1048b63fc4e3ef33ffe005470e9154",
       "run": "1d738a9dea73",
@@ -697,6 +777,16 @@
         }
       }
     },
+    "9c60": {
+      "fingerprint": "48fa4b2eec6228ecfe752b8e9059adc8e0326918d5531d6d79b83477d2738750",
+      "run": "fe2e057a7e69",
+      "tests": {
+        "tests/test_mcp.py::test_missing_lists_active_tasks_unless_closed_ones_are_asked_for": {
+          "duration_ms": 58,
+          "outcome": "passed"
+        }
+      }
+    },
     "9f8d": {
       "fingerprint": "f2c96b53c7651ab10c3cfa3aa8dfc26896143f9c7383d14762a4dd7dcb9274e3",
       "run": "cc84d130d040",
@@ -751,6 +841,16 @@
         }
       }
     },
+    "b55f": {
+      "fingerprint": "6afdf48257fd83cb11cf3a6676de96a930a70218df4a6606f92fbfaa88c9d034",
+      "run": "165678588f64",
+      "tests": {
+        "tests/test_scaffold.py::test_scaffold_imports_land_in_isort_order": {
+          "duration_ms": 57,
+          "outcome": "passed"
+        }
+      }
+    },
     "b68c": {
       "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
       "run": "7d4f28e5d140",
@@ -777,6 +877,16 @@
       "tests": {
         "tests/test_release.py::test_runtime_names_exported_by_any_all_form_refuse_the_release": {
           "duration_ms": 272,
+          "outcome": "passed"
+        }
+      }
+    },
+    "be8e": {
+      "fingerprint": "6afdf48257fd83cb11cf3a6676de96a930a70218df4a6606f92fbfaa88c9d034",
+      "run": "165678588f64",
+      "tests": {
+        "tests/test_scaffold.py::test_scaffolded_tests_are_annotated_for_strict_type_checkers": {
+          "duration_ms": 43,
           "outcome": "passed"
         }
       }
@@ -831,6 +941,26 @@
       "tests": {
         "tests/test_release.py::test_runtime_module_imported_through_its_parent_refuses_the_release": {
           "duration_ms": 631,
+          "outcome": "passed"
+        }
+      }
+    },
+    "ce72": {
+      "fingerprint": "48fa4b2eec6228ecfe752b8e9059adc8e0326918d5531d6d79b83477d2738750",
+      "run": "cd923920d804",
+      "tests": {
+        "tests/test_mcp.py::test_scan_returns_counts_and_changes_unless_asked_for_detail": {
+          "duration_ms": 40,
+          "outcome": "passed"
+        }
+      }
+    },
+    "d45d": {
+      "fingerprint": "48fa4b2eec6228ecfe752b8e9059adc8e0326918d5531d6d79b83477d2738750",
+      "run": "0145175f0192",
+      "tests": {
+        "tests/test_mcp.py::test_preview_test_scaffold_returns_the_new_test_not_the_whole_file": {
+          "duration_ms": 45,
           "outcome": "passed"
         }
       }

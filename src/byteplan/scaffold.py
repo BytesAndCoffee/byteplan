@@ -15,8 +15,8 @@ the usual lock, journal and hash checks.
   a ``pytest.fail(...)`` call is a placeholder; editing the body is all it takes to stop
   being one.
 * **Existing files are only appended to.** The function goes at the end after two blank
-  lines, missing imports go after the file's leading imports, and the new module must equal
-  the old one plus exactly those additions.
+  lines, missing imports go into the file's leading imports in isort order (so ruff's I001
+  stays quiet), and the new module must equal the old one plus exactly those additions.
 """
 
 from __future__ import annotations
@@ -24,6 +24,7 @@ from __future__ import annotations
 import ast
 import posixpath
 import re
+import sys
 import warnings
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
@@ -73,6 +74,7 @@ class ScaffoldPlan:
     text: str  # the whole file after the edit
     created: bool
     imports: tuple[str, ...] = field(default_factory=tuple)  # import lines added
+    function: str = ""  # the test function added
 
 
 # Where and what --------------------------------------------------------------------------------
@@ -204,7 +206,7 @@ def render(
         "# THEN: TODO - assert the required result",
         f'pytest.fail("{message}")',
     ]
-    header = f"{'async def' if use_async else 'def'} {name}():"
+    header = f"{'async def' if use_async else 'def'} {name}() -> None:"
     lines = [*decorators, header, *(f"    {line}" if line else "" for line in body)]
     return nl.join(lines) + nl
 
@@ -254,6 +256,73 @@ def _import_offset(tree: ast.Module, lines: Sequence[str]) -> int:
     return min(max(position, header_end(lines)), len(lines))
 
 
+def _top_module(node: ast.Import | ast.ImportFrom) -> str:
+    if isinstance(node, ast.ImportFrom):
+        return "." if node.level else (node.module or "").split(".")[0]
+    return node.names[0].name.split(".")[0]
+
+
+def _is_stdlib(node: ast.Import | ast.ImportFrom) -> bool:
+    top = _top_module(node)
+    return top == "__future__" or top in sys.stdlib_module_names
+
+
+def _sort_key(node: ast.Import | ast.ImportFrom) -> tuple[bool, str]:
+    """isort's default order within a section: ``import x`` lines, then ``from x import y``."""
+    if isinstance(node, ast.ImportFrom):
+        return True, ("." * node.level + (node.module or "")).lower()
+    return False, node.names[0].name.lower()
+
+
+def _import_blocks(tree: ast.Module, lines: Sequence[str]) -> list[list[ast.Import | ast.ImportFrom]]:
+    """The file's leading imports, split into sections wherever a blank line separates two, and
+    after the future imports."""
+    body = tree.body[1:] if tree.body and _is_docstring(tree.body[0]) else tree.body
+    blocks: list[list[ast.Import | ast.ImportFrom]] = []
+    previous: ast.stmt | None = None
+    for node in body:
+        if not isinstance(node, ast.Import | ast.ImportFrom):
+            break
+        between = lines[previous.end_lineno or 0 : node.lineno - 1] if previous is not None else []
+        future_ends = isinstance(previous, ast.ImportFrom) and previous.module == "__future__" != _top_module(node)
+        if previous is None or future_ends or any(not line.strip() for line in between):
+            blocks.append([])  # future imports are a section of their own: nothing may go above them
+        blocks[-1].append(node)
+        previous = node
+    return blocks
+
+
+def _insert_imports(tree: ast.Module, lines: list[str], missing: Sequence[str], nl: str) -> None:
+    """Add ``missing`` where isort would put them: into the section that already imports the
+    same package, else the first third-party section, else a new section after the stdlib ones.
+    Sections are guessed from the file, and an existing ``from m import x`` isn't merged with a
+    new ``from m import y``, so those (rare) files may still need ``ruff check --fix``."""
+    blocks = _import_blocks(tree, lines)
+    inserts: list[tuple[int, tuple[bool, str], str]] = []
+    new_section: list[tuple[tuple[bool, str], str]] = []
+    for statement in missing:
+        node = ast.parse(statement).body[0]
+        assert isinstance(node, ast.Import | ast.ImportFrom)  # noqa: S101 - required_imports() only builds imports
+        top = _top_module(node)
+        block = next((b for b in blocks if any(_top_module(n) == top for n in b)), None)
+        if block is None and not _is_stdlib(node):
+            block = next((b for b in blocks if not all(_is_stdlib(n) for n in b)), None)
+        if block is None:
+            new_section.append((_sort_key(node), statement + nl))
+            continue
+        later = next((n for n in block if _sort_key(n) > _sort_key(node)), None)
+        at = later.lineno - 1 if later is not None else block[-1].end_lineno or 0
+        inserts.append((at, _sort_key(node), statement + nl))
+    if new_section:
+        if blocks:
+            at, gap = blocks[-1][-1].end_lineno or 0, nl
+        else:
+            at, gap = _import_offset(tree, lines), ""
+        inserts.append((at, (False, ""), gap + "".join(text for _, text in sorted(new_section))))
+    for at, _, text in sorted(inserts, reverse=True):
+        lines.insert(at, text)
+
+
 def plan(
     task: Task,
     target: Target,
@@ -273,7 +342,9 @@ def plan(
         test = name or default_name(task, target, set())
         function = render(task, target, test, policy=policy, link_style=link_style, async_tests=async_tests)
         text = "\n".join(imports) + "\n\n\n" + function
-        return ScaffoldPlan(path, test, f"{path}::{test}", text, created=True, imports=tuple(imports))
+        return ScaffoldPlan(
+            path, test, f"{path}::{test}", text, created=True, imports=tuple(imports), function=function
+        )
 
     tree = _parse(path, existing)
     taken = defined_names(tree)
@@ -285,18 +356,14 @@ def plan(
     missing = [line for line in imports if not _present(tree, line)]
     lines = existing.splitlines(keepends=True)
     if missing:
-        at = _import_offset(tree, lines)
-        lines[at:at] = [line + nl for line in missing]
+        _insert_imports(tree, lines, missing, nl)
     text = "".join(lines)
     if text and not text.endswith(("\n", "\r")):
         text += nl
-    text = (
-        text.rstrip("\r\n")
-        + nl * 3
-        + render(task, target, test, policy=policy, link_style=link_style, async_tests=async_tests, nl=nl)
-    )
+    function = render(task, target, test, policy=policy, link_style=link_style, async_tests=async_tests, nl=nl)
+    text = text.rstrip("\r\n") + nl * 3 + function
     ensure_only_added(path, existing, text, test, missing)
-    return ScaffoldPlan(path, test, f"{path}::{test}", text, created=False, imports=tuple(missing))
+    return ScaffoldPlan(path, test, f"{path}::{test}", text, created=False, imports=tuple(missing), function=function)
 
 
 def _check_name(name: str, taken: set[str]) -> None:

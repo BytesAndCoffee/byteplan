@@ -47,6 +47,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterator, Sequence
     from pathlib import Path
 
+    from byteplan.api import ScaffoldResult
     from byteplan.models import Task
 
 __all__ = ["Permissions", "build_server", "main"]
@@ -89,6 +90,11 @@ def _task_change(task: Task, *, changed: bool) -> dict[str, Any]:
     return {"changed": changed, "task": reporting.task_json(task)}
 
 
+def _scaffold_payload(result: ScaffoldResult, *, full: bool) -> dict[str, Any]:
+    payload = {**reporting.scaffold_json(result), "imports": list(result.imports), "test": result.function}
+    return {**payload, "text": result.text} if full else payload
+
+
 def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPServer:  # noqa: B008
     """The MCP server for the project at ``root`` (a fresh ``Project`` per call, so config and
     registry changes made outside the server are always seen)."""
@@ -125,12 +131,24 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
         return run(show)
 
     @server.tool()
-    def scan(paths: list[str] | None = None, apply: bool = False) -> dict[str, Any]:  # noqa: FBT001, FBT002
+    def scan(
+        paths: list[str] | None = None,
+        apply: bool = False,  # noqa: FBT001, FBT002
+        detail: bool = False,  # noqa: FBT001, FBT002
+    ) -> dict[str, Any]:
         """Discover annotations and reconcile the registry. Previews unless apply=true (which
-        adds IDs to source and needs source-write permission)."""
+        adds IDs to source and needs source-write permission). Returns counts and what changed;
+        detail=true also lists every annotation found."""
         if apply:
             _needs(permissions.source_write, "scan(apply=true)")
-        return run(lambda p: reporting.scan_json(p.scan(paths or None, p.root, dry_run=not apply)))
+
+        def scanned(p: Project) -> dict[str, Any]:
+            payload = reporting.scan_json(p.scan(paths or None, p.root, dry_run=not apply))
+            if not detail:
+                payload["annotation_count"] = len(payload.pop("annotations"))
+            return payload
+
+        return run(scanned)
 
     @server.tool()
     def check() -> dict[str, Any]:
@@ -143,9 +161,11 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
         return run(checked)
 
     @server.tool()
-    def missing() -> dict[str, Any]:
-        """Tasks whose annotation is no longer found in source."""
-        tasks = run(lambda p: p.list_tasks(presences=[Presence.MISSING]))
+    def missing(include_closed: bool = False) -> dict[str, Any]:  # noqa: FBT001, FBT002
+        """Open, in-progress and blocked tasks whose annotation is no longer found in source;
+        include_closed adds resolved and dismissed ones (usually removed on purpose)."""
+        statuses = None if include_closed else [s for s in Status if not s.is_closed]
+        tasks = run(lambda p: p.list_tasks(statuses, presences=[Presence.MISSING]))
         return {"tasks": [reporting.task_json(t) for t in tasks]}
 
     @server.tool()
@@ -210,12 +230,18 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
         return run(synced)
 
     @server.tool()
-    def preview_test_scaffold(id: str, path: str | None = None, name: str | None = None) -> dict[str, Any]:  # noqa: A002
-        """The deliberately failing acceptance test `scaffold_test` would write; writes nothing."""
+    def preview_test_scaffold(
+        id: str,  # noqa: A002
+        path: str | None = None,
+        name: str | None = None,
+        full: bool = False,  # noqa: FBT001, FBT002
+    ) -> dict[str, Any]:
+        """The deliberately failing acceptance test `scaffold_test` would write, and the imports
+        it would add; writes nothing. full=true also returns the whole file after the edit."""
 
         def preview(p: Project) -> dict[str, Any]:
             result = p.scaffold_test(id, path=path, name=name, dry_run=True)
-            return {**reporting.scaffold_json(result), "text": result.text}
+            return _scaffold_payload(result, full=full)
 
         return run(preview)
 
@@ -302,15 +328,16 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
             link: Literal["verifies", "marker", "managed"] | None = None,
             force_new: bool = False,  # noqa: FBT001, FBT002
             apply: bool = False,  # noqa: FBT001, FBT002
+            full: bool = False,  # noqa: FBT001, FBT002
         ) -> dict[str, Any]:
             """Write a deliberately failing acceptance test for a task and link it. Previews unless
-            apply=true."""
+            apply=true. Returns the test and the imports added; full=true adds the whole file."""
 
             def scaffolded(p: Project) -> dict[str, Any]:
                 result = p.scaffold_test(
                     id, path=path, name=name, policy=policy, link_style=link, force_new=force_new, dry_run=not apply
                 )
-                return {**reporting.scaffold_json(result), "text": result.text}
+                return _scaffold_payload(result, full=full)
 
             return run(scaffolded)
 
