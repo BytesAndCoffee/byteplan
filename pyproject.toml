@@ -64,6 +64,13 @@ report_branch = "main"
 # `byteplan verify` runs pytest in the hatch-test environment (the default one has no pytest).
 runner = ["hatch", "test", "--"]
 
+[tool.byteplan.tests.scaffold]
+# Every new task in src/ starts with an acceptance test: an xfail(strict=True) placeholder, so
+# CI stays green until the work is done and then flags the placeholder as passing.
+auto = true
+policy = "xfail"
+link_style = "managed"
+
 [tool.byteplan.annotations]
 # Decorator mode: `byteplan sync` turns attached TODO comments into @todo(...) and decorates
 # unowned stubs. The decorators import from an inert in-package shim, so BytePlan gains no

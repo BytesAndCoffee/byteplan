@@ -143,6 +143,11 @@ def advertise_routes(self):
   - Re-running: it reports the existing test instead of adding another.
   - Until you replace the `pytest.fail(...)` body, it's a placeholder: `check` notes it, and
     it can never make the task `ready_for_review`.
+  - Automatically: with `[tool.byteplan.tests.scaffold] auto = true`, a writing `scan` scaffolds
+    a test for each open task it adds in a Python file outside the test directory. Tasks in
+    test files or other formats, and tasks added by the commit hook, are left to
+    `tests scaffold`. Pair it with `policy = "xfail"` to keep CI green: the strict xfail fails
+    as soon as the code works, prompting you to write the real test.
 - **Verifying:** `byteplan verify` runs the linked tests with pytest in a subprocess and records
   each result in `.byteplan/verification.json`.
   - Outcomes: `passed`, `failed`, `skipped`, `xfailed`, `xpassed`, `error`, `not_found`,
@@ -372,6 +377,7 @@ mirror = false
 link_style = "verifies"            # or "marker" (needs pytest_marker) / "managed"
 policy = "fail"                    # or "xfail" / "skip"; neither counts as evidence
 async_tests = ""                   # "pytest-asyncio" or "anyio" to scaffold async tests
+auto = false                       # a writing scan scaffolds tests for the Python tasks it adds
 
 [tool.byteplan.annotations]
 mode = "comment"                   # or "preserve" / "decorator" (see `byteplan sync`)

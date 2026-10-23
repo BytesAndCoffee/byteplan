@@ -75,6 +75,9 @@ class ScaffoldConfig:
     policy: str = "fail"  # fail | xfail | skip (only fail can never look finished)
     # Async targets get `async def` tests only with a plugin named here: "pytest-asyncio" or "anyio".
     async_tests: str = ""
+    # A writing `scan` scaffolds a test for each task it adds in a Python file outside `directory`
+    # (as `byteplan tests scaffold` would), so new work starts with an acceptance test.
+    auto: bool = False
 
 
 @dataclass(frozen=True)

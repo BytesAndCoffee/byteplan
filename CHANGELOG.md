@@ -5,6 +5,12 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+### Auto-scaffolding
+- **`[tool.byteplan.tests.scaffold] auto = true`:** a writing `scan` scaffolds an acceptance
+  test for each open task it adds in a Python file outside the test directory. `scan` lists
+  what it scaffolded (`scaffolded` / `scaffold_failures` in JSON). BytePlan's own repo enables it,
+  with `policy = "xfail"`.
+
 ### Report file on one branch
 - **`[tool.byteplan] report_branch`** (e.g. `"main"`): only that branch writes and checks
   `report_file`, so pull requests no longer conflict on it on GitHub, which doesn't run merge

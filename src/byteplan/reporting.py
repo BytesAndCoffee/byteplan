@@ -67,6 +67,8 @@ def scan_json(report: ScanReport) -> dict[str, Any]:
         "written": list(report.written),
         "recovered": list(report.recovered),
         "archived": list(report.archived),
+        "scaffolded": [{"id": task_id, "node": node} for task_id, node in report.scaffolded],
+        "scaffold_failures": [{"id": task_id, "error": error} for task_id, error in report.scaffold_failures],
         "diagnostics": [d.to_dict() for d in report.diagnostics],
     }
 
@@ -86,6 +88,10 @@ def scan_text(report: ScanReport) -> str:
         lines.append(f"  completed an interrupted write to {len(report.recovered)} file(s)")
     if report.archived:
         lines.append(f"  archived {len(report.archived)} long-closed task(s): {', '.join(report.archived)}")
+    for task_id, node in report.scaffolded:
+        lines.append(f"  scaffolded [{task_id}] {node}")
+    for task_id, error in report.scaffold_failures:
+        lines.append(f"  couldn't scaffold [{task_id}]: {error}")
     if report.proposals:
         verb = "Would annotate" if report.dry_run or report.blocked else "Annotated"
         lines.append("")
