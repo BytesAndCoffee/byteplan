@@ -56,6 +56,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "38cb38564a5f": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T03:46:25Z",
+      "dirty": true,
+      "head": "76909dfa18e4b23c892bf709a6c7f860fddc8036",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "64043655efb3": {
       "argv": [
         "hatch",
@@ -477,6 +491,16 @@
       "tests": {
         "tests/test_release.py::test_partial_restore_keeps_decorators_whose_import_is_unplaced": {
           "duration_ms": 116,
+          "outcome": "passed"
+        }
+      }
+    },
+    "5ff6": {
+      "fingerprint": "941e152b0fe9cef548e47868f3c6c9f173099a38ae518b3599741f55dac54306",
+      "run": "38cb38564a5f",
+      "tests": {
+        "tests/test_scaffold.py::test_auto_scaffold_reports_encoding_and_filesystem_failures": {
+          "duration_ms": 23,
           "outcome": "passed"
         }
       }

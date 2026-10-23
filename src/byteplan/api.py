@@ -429,7 +429,9 @@ class Project:
                 continue
             try:
                 result = self.scaffold_test(task_id)
-            except ByteplanError as exc:  # e.g. scaffold_needs_path, or an undecodable test file
+            # e.g. scaffold_needs_path, an undecodable test file, a title its encoding can't hold,
+            # or a file where the test directory should be.
+            except (ByteplanError, UnicodeError, OSError) as exc:
                 failures.append((task_id, str(exc)))
             else:
                 scaffolded.append((task_id, result.node))

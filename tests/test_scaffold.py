@@ -8,6 +8,7 @@ from __future__ import annotations
 import ast
 import json
 import os
+import shutil
 import subprocess
 import sys
 from typing import TYPE_CHECKING, Any
@@ -570,3 +571,25 @@ def test_auto_scaffold_reports_an_undecodable_target(project: ProjectFactory, ru
     assert result.code == EXIT_OK, result.err
     assert "couldn't scaffold" in result.out
     assert "TODO[" in (project.root / "a.py").read_text()
+
+
+def test_auto_scaffold_reports_encoding_and_filesystem_failures(project: ProjectFactory, run_cli: RunCli) -> None:
+    project.write("pyproject.toml", PYPROJECT_DEV + AUTO, dedent=False)
+    project.init()
+    (project.root / "tests").mkdir()
+    (project.root / "tests/test_a.py").write_bytes(b"# -*- coding: latin-1 -*-\n")
+    project.write("a.py", "def f():\n    # TODO: Handle ☃\n    return 1\n")  # not encodable as Latin-1
+    project.write("b.py", "def g():\n    # TODO: Second task\n    return 1\n")
+    result = run_cli("scan", "--format", "json", "--project", project.root)
+    assert result.code == EXIT_OK, result.err
+    data = json.loads(result.out)
+    assert [entry["id"] for entry in data["scaffold_failures"]] == [task_by_title(project, "Handle ☃")["id"]]
+    assert [entry["id"] for entry in data["scaffolded"]] == [task_by_title(project, "Second task")["id"]]
+
+    shutil.rmtree(project.root / "tests")
+    (project.root / "tests").write_text("not a directory\n")
+    project.write("c.py", "def h():\n    # TODO: Third task\n    return 1\n")
+    result = run_cli("scan", "--format", "json", "--project", project.root)
+    assert result.code == EXIT_OK, result.err
+    (failure,) = json.loads(result.out)["scaffold_failures"]
+    assert failure["id"] == task_by_title(project, "Third task")["id"]
