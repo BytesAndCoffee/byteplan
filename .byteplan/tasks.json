@@ -3556,6 +3556,28 @@
           "event": "test_linked",
           "new": "tests/test_publish_report.py::test_retries_when_main_advances_before_the_push",
           "old": null
+        },
+        {
+          "at": "2026-10-23T03:24:11Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "publish_report.py retries from the new main when the push is rejected; regression test passes",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T03:24:12Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T03:24:12Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "scripts/publish_report.py"
+          }
         }
       ],
       "id": "c993",
@@ -3564,7 +3586,7 @@
       "last_seen": "2026-10-23T03:18:42Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -3575,7 +3597,7 @@
         "representation": "comment",
         "symbol": "publish"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [],

@@ -38,8 +38,6 @@ def publish(root: Path, remote: str = "origin", branch: str = "main", attempts: 
         project = Project.open(root)
         if not project.write_report():
             return "unchanged"
-        # FIXME[c993]: Retry report generation when main advances before the push
-        #   https://github.com/BytesAndCoffee/byteplan/pull/39#discussion_r4355748861
         _git(root, "commit", "-qm", MESSAGE, "--", str(project.report_rel))
         if _git(root, "push", "-q", remote, f"HEAD:{branch}", check=False).returncode == 0:
             return "pushed"
