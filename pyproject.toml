@@ -85,6 +85,10 @@ exclude = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/byteplan"]
 
+# `hatch run byteplan mcp`: the MCP server for agents working on BytePlan itself.
+[tool.hatch.envs.default]
+features = ["mcp"]
+
 [tool.hatch.envs.hatch-test]
 features = ["mcp"]
 extra-dependencies = [
