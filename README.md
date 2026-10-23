@@ -17,19 +17,20 @@ resolved. Only you resolve tasks.
 
 > **Status: alpha, in active development.** Everything described here works today:
 > - the CLI, scanner and registry, for Python, Markdown and JSON
-> - Git integration: IDs added at commit time, staged and CI checks, and the registry merge driver
-> - the committed `byteplan.md` task list
-> - decorator mode (`byteplan sync`)
-> - the Hatch hook
+> - Git integration: IDs added at commit time, staged and CI checks, and the merge drivers
+> - acceptance tests: linking, scaffolding and `byteplan verify` with recorded evidence
+> - the committed `byteplan.md` task list, and archiving long-closed tasks
+> - decorator mode (`byteplan sync`), release stripping, and the Hatch hook
+> - an MCP server for AI agents
 >
-> Test linking and verification, test scaffolding, release stripping and an MCP server are
-> planned. See the [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md)
+> Assignments (linking tasks to issues, commits and PRs) are planned. See the [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md)
 > and the [changelog](https://github.com/BytesAndCoffee/byteplan/blob/main/CHANGELOG.md).
 
 ## Contents
 
 - [Installation](#installation)
 - [Quick start](#quick-start)
+- [A task's life, end to end](#a-tasks-life-end-to-end)
 - [What BytePlan tracks](#what-byteplan-tracks)
 - [Status, presence and resolution](#status-presence-and-resolution)
 - [Commands](#commands)
@@ -71,6 +72,86 @@ $ byteplan resolve 33b4 --note "shipped in 1.2"
 
 Commit `.byteplan/tasks.json` along with your code. `init` keeps `.byteplan/` out of Hatch sdists
 and ignores BytePlan's working files (`.byteplan/txn/`, `.byteplan/scan.lock`).
+
+## A task's life, end to end
+
+One obligation, from a comment to a resolved task with evidence. (`pyproject.toml` lists
+`byteplan-runtime` as a dev dependency, for `@verifies`.)
+
+**1. Write the TODO where the work is, and scan.** The task gets an ID, in the source and in the
+registry. With the commit hook (`byteplan git install-hooks`), committing does this for you.
+
+```console
+$ byteplan scan
+Annotated:
+  + [9333] TODO  src/rip/routes.py:2  Advertise routes through a dead neighbour as unreachable
+```
+
+**2. Scaffold its acceptance test.** It fails on purpose, so it can't be mistaken for evidence.
+With `[tool.byteplan.tests.scaffold] auto = true`, step 1's scan does this too.
+
+```console
+$ byteplan tests scaffold 9333
+byteplan: [9333] scaffolded tests/test_routes.py::test_poison (new file)
+```
+
+```python
+@verifies("9333")
+def test_poison():
+    """Acceptance test scaffold for BytePlan task 9333. ..."""
+    # GIVEN: TODO - arrange the state this requirement depends on
+    # WHEN: TODO - call poison
+    # THEN: TODO - assert the required result
+    pytest.fail("BytePlan 9333: acceptance test not implemented")
+```
+
+**3. Implement it, and replace the placeholder with the real test.** Keep the `TODO[9333]`
+comment until the task is resolved.
+
+```python
+@verifies("9333")
+def test_poison():
+    routes = {"10.0.0.0/8": (2, "r1"), "10.1.0.0/16": (1, "r2")}
+    assert poison(routes, dead="r1") == {"10.0.0.0/8": (INFINITY, "r1"), "10.1.0.0/16": (1, "r2")}
+```
+
+**4. Verify.** BytePlan runs the linked tests and records the results in
+`.byteplan/verification.json`.
+
+```console
+$ byteplan verify 9333
+BytePlan verify: 1 test result(s) for 1 task(s) · 1 passed
+  [9333] ready_for_review Advertise routes through a dead neighbour as unreachable
+      passed    tests/test_routes.py::test_poison
+Readiness never changes a task's status; resolve tasks yourself.
+```
+
+**5. Resolve it.** That's your call, not BytePlan's. `--sync-source` also removes the annotation.
+In decorator mode, `byteplan sync --remove-resolved` does the same for every closed task.
+
+```console
+$ byteplan resolve 9333 --sync-source --note "poisoned reverse, verified"
+byteplan: [9333] resolved
+BytePlan cleanup: 1 annotation(s) removed · 0 suppressed
+  - [9333] src/rip/routes.py
+```
+
+The task stays in the registry with its history and evidence. A week after it's closed, a scan
+moves it to the archive (see [Status, presence and resolution](#status-presence-and-resolution)).
+
+**Where BytePlan notices, but never closes work:**
+- **A deleted TODO** makes its task `missing`, still `open`:
+  ```console
+  ! [76ea] MISSING           src/rip/routes.py
+      task 76ea is no longer in source (previously line 9); its status is still open
+      hint: if the work is done, run `byteplan resolve 76ea`; if the annotation was removed by mistake, restore it
+  ```
+- **Passing tests** make a task `ready_for_review`, as in step 4. Its status doesn't change.
+- **An implemented stub** is reported once as `implementation_changed`, or as
+  `implementation_complete_candidate` when its linked tests are fresh and passing. Either way it
+  stays open until you resolve it.
+- **A closed task whose annotation is still in source** is a `stale_annotation` warning.
+  `resolve --sync-source` or `sync --remove-resolved` removes the annotation.
 
 ## What BytePlan tracks
 
@@ -355,6 +436,7 @@ pass_stubs = true
 ellipsis_stubs = true
 not_implemented_stubs = true
 empty_classes = true
+placeholder_assignments = false  # module-level `X = ...` stubs: not supported yet (true is an error)
 respect_overrides = true       # interface methods and no-op overrides aren't stubs (see below)
 json_string_values = true      # JSON strings starting with "TODO:" are tasks
 
@@ -362,7 +444,12 @@ json_string_values = true      # JSON strings starting with "TODO:" are tasks
 fail_on_duplicate_ids = true
 fail_on_missing = false
 fail_on_stale_annotations = false
+require_reconciled = false    # plain `check` applies the snapshot rules too (as --staged/--commit do)
+fail_on_position_drift = false  # registry lines lagging behind source fail instead of an info note
 fail_on_stale_report = false  # report_file not matching the registry is a warning by default
+
+[tool.byteplan.git]
+on_reconcile = "commit"            # or "stop": the commit hook reconciles, then exits 1 for review
 
 [tool.byteplan.tests]
 pytest_marker = false              # also link tests marked @pytest.mark.byteplan("id")
@@ -389,6 +476,12 @@ runtime_modules = ["byteplan_runtime"]   # add a project shim module here
 [tool.byteplan.archive]
 after_days = 7                     # archive tasks closed at least this many days ago
 auto = true                        # every writing `scan` archives what's eligible
+
+[tool.byteplan.release]            # `release --smoke-test` (see "Releasing without the runtime")
+smoke_build = []                   # wheel build command; "{out}" is the output dir; [] = python -m build
+smoke_imports = []                 # modules to import from the installed wheel; [] = all top-level ones
+smoke_timeout = 300                # seconds for each smoke-test step
+find_links = []                    # extra package sources for --offline installs (pip --find-links)
 ```
 
 - **Paths and patterns:** paths are relative to the project root (the directory with
@@ -409,6 +502,7 @@ scan = true            # set false to disable without removing the table
 write_source = false   # false | true | "editable"
 fail_build = false     # fail the build on findings that fail [tool.byteplan.check]
 allow_in_ci = false    # write_source still won't write when $CI is set, unless this is true
+require_stripped = false  # fail wheel/sdist builds while @todo/@verifies are still present
 ```
 
 - **Read-only by default.** A build runs `byteplan check` and prints its findings. Your checkout is

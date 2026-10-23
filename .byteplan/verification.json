@@ -126,6 +126,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "925deaf35320": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T04:40:24Z",
+      "dirty": false,
+      "head": "9b653b14db363529ac788de99ae96414fa51eed7",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "99430208fd0d": {
       "argv": [
         "hatch",
@@ -619,6 +633,24 @@
       "tests": {
         "tests/test_cleanup.py::test_inline_markdown_comment_keeps_word_spacing": {
           "duration_ms": 86,
+          "outcome": "passed"
+        }
+      }
+    },
+    "93dd": {
+      "fingerprint": "e081b7cdc9e5c3658879275bbe26b86cba27dff078aa726c8a4df0af7012e0a5",
+      "run": "925deaf35320",
+      "tests": {
+        "tests/test_docs.py::test_every_config_key_is_documented_with_its_default": {
+          "duration_ms": 1,
+          "outcome": "passed"
+        },
+        "tests/test_docs.py::test_every_hatch_hook_key_is_documented_with_its_default": {
+          "duration_ms": 0,
+          "outcome": "passed"
+        },
+        "tests/test_persistence.py::test_uncreatable_directory_fails_before_the_journal": {
+          "duration_ms": 3,
           "outcome": "passed"
         }
       }

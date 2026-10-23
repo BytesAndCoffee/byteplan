@@ -223,3 +223,16 @@ def test_target_directories_are_fsynced_before_the_journal_is_removed(
     synced = {path for kind, path in events[:finish] if kind == "fsync"}
     root = project.root.resolve()
     assert {root / "src", root / "lib", root / ".byteplan"} <= synced
+
+
+def test_uncreatable_directory_fails_before_the_journal(tmp_path: Path) -> None:
+    """A target whose directory can't be created (a file is in the way) fails the commit cleanly:
+    no journal is left behind for every later write to trip over."""
+    (tmp_path / "tests").write_bytes(b"not a directory\n")
+    writes = [FileWrite("a.txt", None, b"a\n"), FileWrite("tests/test_a.py", None, b"x = 1\n")]
+    with pytest.raises(OSError):  # noqa: PT011 - FileExistsError or NotADirectoryError, by OS
+        commit(tmp_path, writes)
+    assert not persistence.journal_path(tmp_path).exists()
+    assert not (tmp_path / "a.txt").exists()
+    assert recover(tmp_path) == []
+    assert commit(tmp_path, writes[:1]) == ["a.txt"]

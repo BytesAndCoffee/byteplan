@@ -10,11 +10,12 @@ permissions:
 
 jobs:
   test:
-    name: tests (Python ${{ matrix.python }})
-    runs-on: ubuntu-latest
+    name: tests (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4

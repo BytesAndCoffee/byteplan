@@ -237,13 +237,14 @@ def test_evidence_store_and_staleness(project: ProjectFactory, run_cli: RunCli) 
     assert project_obj.readiness(task).state == "ready_for_review"
     # Editing the task's source or a linked test file makes the evidence stale.
     path = project.root / "tests/test_feature.py"
-    path.write_text(path.read_text() + "\n# touched\n")
+    original = path.read_bytes()  # bytes: text mode would write CRLF on Windows
+    path.write_bytes(original + b"\n# touched\n")
     state = project_obj.readiness(task)
     assert state.state == "needs_review"
     assert state.tests == {f"{F}::test_pass": "stale"}
     assert any("stale" in reason for reason in state.reasons)
     # An unrelated file doesn't.
-    path.write_text(path.read_text().replace("\n# touched\n", ""))
+    path.write_bytes(original)
     project.write("src/other.py", "x = 1\n")
     assert project_obj.readiness(task).state == "ready_for_review"
 

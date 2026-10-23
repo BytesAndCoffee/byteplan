@@ -5,6 +5,21 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+### Fixed
+- **Windows:** the commit hook's staged reconciliation (`scan --staged --apply`) corrupted the Git
+  index: the new index was written through a text-mode file descriptor, turning `\n` bytes into
+  `\r\n`. Git then failed with `unknown index entry format`. Found by the new Windows CI.
+- **A write whose directory can't be created** (a file in the way) now fails before its recovery
+  journal is written. It used to leave a journal that every later write tried, and failed, to
+  complete.
+- Git's output is decoded as UTF-8 rather than with the locale's encoding (cp1252 on Windows).
+
+### Integration (Phase 10)
+- CI runs the test suite on ubuntu, macOS and Windows (Python 3.11–3.14).
+- The README walks one task from TODO to resolved, and lists where BytePlan notices but never
+  closes work. Every configuration key is documented with its default, which a test enforces.
+- `CONTRIBUTING.md` describes how BytePlan manages its own development.
+
 ### Auto-scaffolding
 - **`[tool.byteplan.tests.scaffold] auto = true`:** a writing `scan` scaffolds an acceptance
   test for each open task it adds in a Python file outside the test directory. `scan` lists

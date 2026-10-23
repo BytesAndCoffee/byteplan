@@ -42,7 +42,10 @@ def git(args: list[str], cwd: Path, *, read_only: bool = True) -> str:
     command = ["git", "--no-optional-locks", *args] if read_only else ["git", *args]
     env = {**os.environ, "GIT_OPTIONAL_LOCKS": "0"} if read_only else None
     try:
-        completed = subprocess.run(command, cwd=cwd, capture_output=True, text=True, env=env, check=True)
+        # Git writes UTF-8 (paths included); the locale's encoding (cp1252 on Windows) would garble it.
+        completed = subprocess.run(
+            command, cwd=cwd, capture_output=True, encoding="utf-8", errors="surrogateescape", env=env, check=True
+        )
     except FileNotFoundError as exc:
         msg = "git is not installed or not on PATH"
         raise ConfigError(msg) from exc

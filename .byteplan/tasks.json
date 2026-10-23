@@ -653,7 +653,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1621,
+        "line": 1618,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2023,7 +2023,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1615,
+        "line": 1612,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2459,7 +2459,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1618,
+        "line": 1615,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2635,6 +2635,46 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-23T04:37:43Z",
+          "event": "test_linked",
+          "new": "tests/test_docs.py::test_every_config_key_is_documented_with_its_default",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T04:37:43Z",
+          "event": "test_linked",
+          "new": "tests/test_docs.py::test_every_hatch_hook_key_is_documented_with_its_default",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T04:37:43Z",
+          "event": "test_linked",
+          "new": "tests/test_persistence.py::test_uncreatable_directory_fails_before_the_journal",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T04:37:49Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Phase 10 done: CI green on ubuntu/macOS/Windows x 3.11-3.14 (run 39900794534), README journey, every config key documented (tests/test_docs.py), CONTRIBUTING.md",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T04:37:50Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T04:37:50Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          }
         }
       ],
       "id": "93dd",
@@ -2645,7 +2685,7 @@
       "last_seen": "2026-10-22T03:53:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -2656,8 +2696,16 @@
         "representation": "comment",
         "symbol": "Phases"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_docs.py::test_every_config_key_is_documented_with_its_default",
+          "tests/test_docs.py::test_every_hatch_hook_key_is_documented_with_its_default",
+          "tests/test_persistence.py::test_uncreatable_directory_fails_before_the_journal"
+        ]
+      },
       "title": "Phase 10: integration",
       "title_override": null
     },
@@ -4006,7 +4054,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1608,
+        "line": 1609,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -4209,7 +4257,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1625,
+        "line": 1622,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -4282,8 +4330,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 388,
-        "line": 413,
+        "decl_line": 389,
+        "line": 414,
         "path": "src/byteplan/gitwrite.py",
         "representation": "comment",
         "symbol": "reconcile_staged"

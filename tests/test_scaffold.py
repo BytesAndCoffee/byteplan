@@ -84,7 +84,7 @@ def routed(project: ProjectFactory, run_cli: RunCli) -> ProjectFactory:
 
 
 def task_by_title(project: ProjectFactory, title: str) -> dict[str, Any]:
-    tasks = json.loads((project.root / ".byteplan/tasks.json").read_text())["tasks"]
+    tasks = json.loads((project.root / ".byteplan/tasks.json").read_text(encoding="utf-8"))["tasks"]
     return next(t for t in tasks.values() if t["title"] == title)
 
 

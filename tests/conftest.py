@@ -62,6 +62,17 @@ class ProjectFactory:
         }
 
 
+@pytest.fixture(autouse=True)
+def quiet_git(monkeypatch: pytest.MonkeyPatch) -> None:
+    """No background gc/maintenance in test repositories: tests compare `.git/` before and after,
+    and an automatic repack in between would look like a write. Applies to every Git process,
+    including those BytePlan and the hooks start."""
+    for n, (key, value) in enumerate((("gc.auto", "0"), ("maintenance.auto", "false"))):
+        monkeypatch.setenv(f"GIT_CONFIG_KEY_{n}", key)
+        monkeypatch.setenv(f"GIT_CONFIG_VALUE_{n}", value)
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "2")
+
+
 @pytest.fixture
 def project(tmp_path: Path) -> ProjectFactory:
     factory = ProjectFactory(tmp_path / "proj")

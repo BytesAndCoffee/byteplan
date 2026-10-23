@@ -26,7 +26,10 @@ def git(
         ["git", *args],
         cwd=cwd,
         capture_output=True,
-        text=True,
+        # Git writes UTF-8, but hook output (BytePlan's own stdout) is in the locale's encoding,
+        # cp1252 on Windows: decode as UTF-8, replacing what isn't.
+        encoding="utf-8",
+        errors="replace",
         check=check,
         env={**os.environ, "COVERAGE_FILE": COVERAGE_FILE, **(env or {})},
     )

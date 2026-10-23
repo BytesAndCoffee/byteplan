@@ -47,7 +47,9 @@ class SmokeResult:
 
 def _run(argv: Sequence[str], cwd: Path, timeout: int) -> tuple[bool, str]:
     try:
-        done = subprocess.run(list(argv), cwd=cwd, capture_output=True, text=True, timeout=timeout, check=False)
+        done = subprocess.run(
+            list(argv), cwd=cwd, capture_output=True, encoding="utf-8", errors="replace", timeout=timeout, check=False
+        )
     except subprocess.TimeoutExpired:
         return False, f"timed out after {timeout} s: {' '.join(argv)}"
     except OSError as exc:
