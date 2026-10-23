@@ -1562,7 +1562,8 @@ commit time) is done. Phases 4d, 4e and 5 (runtime and normalization: annotation
 `byteplan sync`, `init --runtime-shim`) and 6a (test links, `byteplan tests`, `byteplan verify`
 with evidence, freshness and readiness) 6b (test scaffolding) and 7 (cleanup, for Python, Markdown and JSON annotations) are done. **Phase 8 is done** (`release`/`restore`, the opt-in `--smoke-test`, Hatch
 `require_stripped`, and the two release warnings). **Phase 9 is done** (`byteplan mcp`; see
-"Phase 9 as built" under [MCP server](#mcp-server)). **Phase 10 comes next.** Phase 8 deviations: the smoke
+"Phase 9 as built" under [MCP server](#mcp-server)). **Phase 10 is done** (see "Phase 10 as built" below). The
+remaining phases are 12 and the optional 6c, 11 and 11b. Phase 8 deviations: the smoke
 test installs into an isolated target directory run with `python -I -S` rather than a venv (the
 same isolation, without creating one); `unfinished_scaffold_in_sdist` is reported at release time and
 by `check` while stripped, not on every development `check`, where placeholders are expected.
@@ -1596,7 +1597,7 @@ runtime package has shipped.
 | 7. Cleanup ✅ | `cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`, `--suppress-stubs` | – | 13 (cleanup), 14 |
 | 8. Release ✅ | `release.py`, `byteplan release [--version] [--dry-run] [--allow-dirty] [--smoke-test]`, `byteplan restore [--dry-run] [--partial]`, presence `stripped`, registry `release`/`releases`, `release_on_default_branch` and `unfinished_scaffold_in_sdist` warnings, Hatch `require_stripped`, documented release-branch workflow | – | release tests below · B: 13–18 |
 | 9. MCP ✅ | `[mcp]` extra, `mcp_server.py` with all tools above (including scaffold preview / `scaffold_test`), the three permissions, `byteplan mcp`, README client snippets | – | A: 16 (MCP part), 20 · B: 11 (MCP) |
-| 10. Integration | README end-to-end developer journey (`# TODO` → `scan` → `tests scaffold` → implement → `verify` → `resolve` → `sync`, including where BytePlan notices but never closes work), docs for every config key, dogfood `hatch run byteplan scan` on BytePlan itself, CI on ubuntu/macos/windows | DoD | full suite · B: 19 |
+| 10. Integration ✅ | README end-to-end developer journey (`# TODO` → `scan` → `tests scaffold` → implement → `verify` → `resolve` → `sync`, including where BytePlan notices but never closes work), docs for every config key, dogfood `hatch run byteplan scan` on BytePlan itself, CI on ubuntu/macos/windows | DoD | full suite · B: 19 |
 | 11 (optional) | spec §14 phase 5 items, `TODO(owner):` syntax | – | – |
 | 11b (optional) | Git reporting: `byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations | – | – |
 | 12. Assignment model (Addendum D: D0–D2, D4) | schema v2 + `byteplan migrate` (also converts `depends_on` to `blocked_by` links); `presence: unbound`; `binding_proposals`; `approval` + `approve` / `request-changes`, approval-gated `resolve`; `coverage_review`; typed `links` with ref grammar and patch IDs; `create`, `intake` (offline, idempotent), `bind`, `propose-binding`, `link` / `unlink`, `links`, `refs`, `history`, `impact REV`, `links discover` (trailers), `links reconcile` (patch IDs); event actor/revision/idempotency fields; merge driver handles the new fields; MCP gains the §D.7.1 contract (`intake_issue`, `propose_binding`, `bind_source`, `link_artifact`, `scaffold_regression`, `record_verification`, `get_assignment`, `get_handoff`, policy-checked `request_resolution`; no `approve`) | – | D.11: 1–8 (9 for local retries) |
@@ -1607,10 +1608,6 @@ runtime package has shipped.
 
 <!-- TODO[de66]: Phase 6c (optional): acceptance criteria and dependencies
      `acceptance_criteria`, `byteplan criteria ...`, `depends_on`, lifecycle facts in reports. -->
-
-<!-- TODO[93dd]: Phase 10: integration
-     README end-to-end developer journey, docs for every config key, dogfooding and CI on
-     ubuntu/macos/windows. -->
 
 <!-- TODO[75b4]: Phase 11 (optional): spec section 14 phase 5 items
      Includes the `TODO(owner):` syntax, also tracked on its own in comments.py. -->
@@ -1625,6 +1622,16 @@ runtime package has shipped.
 <!-- TODO[ec99]: Phase 13 (optional): relay-for-github
      Separate package: reusable workflows, triage-agent guide, branch-protection docs, end-to-end
      demo. -->
+
+**Phase 10 as built:**
+- **CI** runs the suite on ubuntu, macOS and Windows (Python 3.11–3.14). Windows found two real
+  bugs: the staged index swap wrote through a text-mode fd (`\n` → `\r\n`, a corrupt index),
+  and a write whose directory couldn't be created failed after its journal, leaving a
+  transaction no recovery could complete. Git output is now decoded as UTF-8 everywhere.
+- **The README journey** ("A task's life, end to end") was captured from a real run.
+- **Every config key is documented**, enforced by `tests/test_docs.py`, which compares the
+  README's TOML blocks with the config dataclasses and the Hatch hook's settings.
+- **The self-managed workflow** is `CONTRIBUTING.md`.
 
 **Phase 8 release tests:**
 - `release` changes only decorator lines, runtime imports and the registry. It never commits,
