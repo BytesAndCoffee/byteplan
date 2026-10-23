@@ -2,19 +2,18 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**9 open** · 40 closed (resolved 40)
+**8 open** · 41 closed (resolved 41)
 
 ## Open
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1569`](docs/IMPLEMENTATION_PLAN.md#L1569) | Phase 6c (optional): acceptance criteria and dependencies |
-| `f853` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1572`](docs/IMPLEMENTATION_PLAN.md#L1572) | Phase 9: MCP server |
-| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1576`](docs/IMPLEMENTATION_PLAN.md#L1576) | Phase 10: integration |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1580`](docs/IMPLEMENTATION_PLAN.md#L1580) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1583`](docs/IMPLEMENTATION_PLAN.md#L1583) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1586`](docs/IMPLEMENTATION_PLAN.md#L1586) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1590`](docs/IMPLEMENTATION_PLAN.md#L1590) | Phase 13 (optional): relay-for-github |
+| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1594`](docs/IMPLEMENTATION_PLAN.md#L1594) | Phase 6c (optional): acceptance criteria and dependencies |
+| `93dd` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1597`](docs/IMPLEMENTATION_PLAN.md#L1597) | Phase 10: integration |
+| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1601`](docs/IMPLEMENTATION_PLAN.md#L1601) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1604`](docs/IMPLEMENTATION_PLAN.md#L1604) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1607`](docs/IMPLEMENTATION_PLAN.md#L1607) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1611`](docs/IMPLEMENTATION_PLAN.md#L1611) | Phase 13 (optional): relay-for-github |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:302`](src/byteplan/config.py#L302) | Support detect.placeholder_assignments |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
 
@@ -58,6 +57,7 @@
 | `c8db` | resolved | FIXME | Keep runtime imports that other modules consume through re-exports |
 | `cc54` | resolved | FIXME | Detect a runtime module imported through its parent package |
 | `e7d9` | resolved | FIXME | ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side |
+| `f853` | resolved | TODO | Phase 9: MCP server |
 | `fb23` | resolved | FIXME | Keep a restored runtime import above every use of its names |
 | `fb9c` | resolved | FIXME | Track escapes of dotted module expressions like `alias = pkg.reexport` |
 | `fd44` | resolved | FIXME | Keep anchored imports below a __future__ import added since the release |

@@ -35,6 +35,7 @@ resolved. Only you resolve tasks.
 - [Commands](#commands)
 - [Configuration](#configuration)
 - [Hatch integration](#hatch-integration)
+- [MCP server for AI agents](#mcp-server-for-ai-agents)
 - [Safety guarantees and tradeoffs](#safety-guarantees-and-tradeoffs)
 - [License](#license)
 
@@ -318,6 +319,7 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 | `byteplan git install-hooks [--mode reconcile\|check\|scan]` | direct pre-commit hook (default `reconcile`: IDs at commit time); never replaces a hook it didn't write |
 | `byteplan git hooks-status` | show the pre-commit framework hook, direct hook and merge driver |
 | `byteplan merge-registry BASE OURS THEIRS [PATH]` | the merge driver itself; Git runs it, you don't |
+| `byteplan mcp [--allow-registry-write] [--allow-source-write] [--allow-test-execution]` | serve the registry to AI agents over MCP (stdio); needs `byteplan[mcp]` |
 | `byteplan merge-archive BASE OURS THEIRS [PATH]` | the archive index's merge driver (three-way per task ID); Git runs it |
 
 - **Common options:** `--project PATH` and `--format json` go after the command.
@@ -596,6 +598,61 @@ lint.extend-ignore = ["TD004"]
 Use `lint.extend-ignore` rather than `extend-ignore`. Hatch skips its default ruff configuration
 for a `[tool.ruff]` table containing a line that starts with `extend`. The other flake8-todos
 rules aren't affected.
+
+## MCP server for AI agents
+
+`byteplan mcp` serves the registry to AI agents and editors over the
+[Model Context Protocol](https://modelcontextprotocol.io) (stdio). Agents get the same tasks,
+IDs, diagnostics and JSON as the CLI, and every write goes through the same lock and journal.
+
+```console
+$ pip install 'byteplan[mcp]'      # the official MCP SDK, 2.x
+$ byteplan mcp                     # read-only; or the `byteplan-mcp` script
+```
+
+**Claude Code:**
+
+```console
+$ claude mcp add byteplan -- byteplan mcp --allow-registry-write
+```
+
+**Claude Desktop, Cursor and other `mcpServers` configs** (Claude Code's project `.mcp.json`
+too):
+
+```json
+{
+  "mcpServers": {
+    "byteplan": {"command": "byteplan", "args": ["mcp", "--project", "/path/to/project"]}
+  }
+}
+```
+
+**VS Code** (`.vscode/mcp.json`):
+
+```json
+{
+  "servers": {
+    "byteplan": {"type": "stdio", "command": "byteplan", "args": ["mcp", "--project", "${workspaceFolder}"]}
+  }
+}
+```
+
+**Read-only by default.** Three separate permissions add tools; without its permission a tool
+isn't offered at all:
+
+| Permission | Adds |
+|---|---|
+| (none) | `list_tasks`, `show_task`, `scan` (preview), `check`, `missing`, `duplicates`, `report`, `get_task_tests`, `get_verification` (recorded; runs nothing), `list_ready_tasks`, `sync_source` (preview), `preview_test_scaffold`; resources `byteplan://tasks` and `byteplan://tasks/{id}`; a `triage` prompt |
+| `--allow-registry-write` | `set_status`, `resolve`, `edit_task`, `add_task_test`, `remove_task_test` |
+| `--allow-source-write` | `scaffold_test`, `release`, `restore`, and `apply=true` on `scan`, `sync_source` and `resolve(sync_source=true)` |
+| `--allow-test-execution` | `verify_task`, and `release(smoke_test=true)` (both run project code) |
+
+- **Source writes are always explicit:** even with permission, a tool that edits source only
+  previews unless it's called with `apply=true`.
+- **Nothing runs tests on the side:** listing, searching and scanning never execute project code.
+- **Errors:** findings come back as `diagnostics`. A call fails only where the CLI would exit 2,
+  for example `locked:` while another BytePlan process is writing.
+- **stdout** carries JSON-RPC only; anything else goes to stderr.
 
 ## Safety guarantees and tradeoffs
 

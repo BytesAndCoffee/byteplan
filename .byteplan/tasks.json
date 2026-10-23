@@ -636,7 +636,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1586,
+        "line": 1607,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1721,7 +1721,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1580,
+        "line": 1601,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2042,7 +2042,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1583,
+        "line": 1604,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -2234,7 +2234,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1576,
+        "line": 1597,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3283,7 +3283,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1569,
+        "line": 1594,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3415,7 +3415,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1590,
+        "line": 1611,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3450,6 +3450,76 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_a_tool_without_its_permission_is_not_registered",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_read_only_tools_change_nothing",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_source_writes_need_permission_and_apply",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_registry_writes_and_managed_fields_survive_a_rescan",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_a_concurrent_writer_makes_writes_fail_cleanly",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_stdio_stdout_carries_json_rpc_only",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_verify_task_needs_test_execution",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:06Z",
+          "event": "test_linked",
+          "new": "tests/test_mcp.py::test_scaffold_release_and_restore_preview_unless_applied",
+          "old": null
+        },
+        {
+          "at": "2026-10-23T00:04:16Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "byteplan mcp with every planned tool, the three permissions, resources, triage prompt, README client snippets; 8 linked tests pass (verify)",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T00:04:17Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T00:04:17Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md"
+          }
         }
       ],
       "id": "f853",
@@ -3460,19 +3530,32 @@
       "last_seen": "2026-10-22T03:53:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1572,
+        "line": 1597,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_mcp.py::test_a_concurrent_writer_makes_writes_fail_cleanly",
+          "tests/test_mcp.py::test_a_tool_without_its_permission_is_not_registered",
+          "tests/test_mcp.py::test_read_only_tools_change_nothing",
+          "tests/test_mcp.py::test_registry_writes_and_managed_fields_survive_a_rescan",
+          "tests/test_mcp.py::test_scaffold_release_and_restore_preview_unless_applied",
+          "tests/test_mcp.py::test_source_writes_need_permission_and_apply",
+          "tests/test_mcp.py::test_stdio_stdout_carries_json_rpc_only",
+          "tests/test_mcp.py::test_verify_task_needs_test_execution"
+        ]
+      },
       "title": "Phase 9: MCP server",
       "title_override": null
     },

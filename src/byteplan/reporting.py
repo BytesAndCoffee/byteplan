@@ -17,7 +17,16 @@ from byteplan.registry import task_to_dict
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-    from byteplan.api import CleanupReport, ScanReport, SyncReport, VerifyReport
+    from byteplan.api import (
+        CleanupReport,
+        ReleaseReport,
+        RestoreReport,
+        ScaffoldResult,
+        ScanReport,
+        SyncReport,
+        VerifyReport,
+    )
+    from byteplan.diagnostics import Diagnostic
     from byteplan.models import Annotation, Task
     from byteplan.registry import Registry
     from byteplan.verification import Readiness
@@ -372,6 +381,50 @@ def tests_text(tasks: Sequence[Task]) -> str:
 
 
 # byteplan verify -----------------------------------------------------------------------------------
+
+
+def check_json(code: int, snapshot: str | None, diagnostics: Sequence[Diagnostic]) -> dict[str, Any]:
+    return {"exit_code": code, "snapshot": snapshot, "diagnostics": [d.to_dict() for d in diagnostics]}
+
+
+def scaffold_json(result: ScaffoldResult) -> dict[str, Any]:
+    return {
+        "id": result.task.id,
+        "node": result.node,
+        "path": result.path,
+        "created_file": result.created_file,
+        "existing": list(result.existing),
+        "dry_run": result.dry_run,
+        "written": list(result.written),
+    }
+
+
+def release_json(report: ReleaseReport) -> dict[str, Any]:
+    return {
+        "version": report.version,
+        "files": list(report.files),
+        "decorators": report.decorators,
+        "imports": report.imports,
+        "tasks": list(report.tasks),
+        "dry_run": report.dry_run,
+        "written": list(report.written),
+        "smoke_test": report.smoke_test,
+        "smoke_imports": list(report.smoke_imports),
+        "warnings": [w.to_dict() for w in report.warnings],
+    }
+
+
+def restore_json(report: RestoreReport) -> dict[str, Any]:
+    return {
+        "files": list(report.files),
+        "decorators": report.decorators,
+        "imports": report.imports,
+        "tasks": list(report.tasks),
+        "conflicts": list(report.conflicts),
+        "partial": report.partial,
+        "dry_run": report.dry_run,
+        "written": list(report.written),
+    }
 
 
 def verify_json(report: VerifyReport) -> dict[str, Any]:

@@ -1506,6 +1506,30 @@ contract as the CLI.
   fields after `edit_task` and a rescan, the lock conflict, and clean stdout from a subprocess
   stdio run.
 
+**Phase 9 as built** (`mcp_server.py`, `tests/test_mcp.py`):
+- **SDK:** `mcp>=2.3,<3`. In 2.x, FastMCP is `mcp.server.mcpserver.MCPServer`, and
+  `mcp.Client(server)` connects in process (the tests use it). Sync tools run in worker threads.
+- **Launch:** three flags, `--allow-registry-write`, `--allow-source-write` and
+  `--allow-test-execution`. There is no catch-all `--allow-write`. The options are defined in
+  `cli.py`, so the CLI never imports the SDK; a missing extra prints the install command and
+  exits 2.
+- **Gating, made precise:**
+  - `scan` and `sync_source` are always registered, because their previews are read-only.
+    `apply=true` without source-write is a tool error.
+  - `scaffold_test`, `release` and `restore` exist only with source-write (Addendum B).
+  - `release(smoke_test=true)` also needs test-execution, because it builds and imports the
+    project.
+  - `resolve(sync_source=true)` needs source-write.
+- **Shapes:** a list comes back wrapped in an object (`{"tasks": [...]}`), since structured
+  results must be objects. `get_task_tests` returns `{id, title, tests}`. `edit_task` takes the
+  CLI's `add_labels` / `remove_labels`, `unassign` and `clear_title` rather than a whole label
+  set.
+- **Errors:** `ByteplanError` becomes the SDK's `ToolError`, so the agent sees the message.
+  `LockedError` is prefixed `locked:`. Anything else is a crash, which the SDK reports
+  generically and logs to stderr.
+- **A fresh `Project` per call,** so config and registry changes made outside the server are
+  always seen.
+
 ## Phases
 
 Each phase ends green on `hatch fmt --check`, `hatch run types:check` and `hatch test --all`.
@@ -1523,7 +1547,8 @@ Addendum items are planned, not implemented, until their phase is marked ✅. Ph
 commit time) is done. Phases 4d, 4e and 5 (runtime and normalization: annotation modes,
 `byteplan sync`, `init --runtime-shim`) and 6a (test links, `byteplan tests`, `byteplan verify`
 with evidence, freshness and readiness) 6b (test scaffolding) and 7 (cleanup, for Python, Markdown and JSON annotations) are done. **Phase 8 is done** (`release`/`restore`, the opt-in `--smoke-test`, Hatch
-`require_stripped`, and the two release warnings). **Phase 9 comes next.** Deviations: the smoke
+`require_stripped`, and the two release warnings). **Phase 9 is done** (`byteplan mcp`; see
+"Phase 9 as built" under [MCP server](#mcp-server)). **Phase 10 comes next.** Phase 8 deviations: the smoke
 test installs into an isolated target directory run with `python -I -S` rather than a venv (the
 same isolation, without creating one); `unfinished_scaffold_in_sdist` is reported at release time and
 by `check` while stripped, not on every development `check`, where placeholders are expected.
@@ -1556,7 +1581,7 @@ runtime package has shipped.
 | 6c. Criteria + dependencies (optional) | `acceptance_criteria`, `byteplan criteria …`, `depends_on`, lifecycle facts in reports (Phase 12 later turns `depends_on` into `blocked_by` links) | – | – |
 | 7. Cleanup ✅ | `cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`, `--suppress-stubs` | – | 13 (cleanup), 14 |
 | 8. Release ✅ | `release.py`, `byteplan release [--version] [--dry-run] [--allow-dirty] [--smoke-test]`, `byteplan restore [--dry-run] [--partial]`, presence `stripped`, registry `release`/`releases`, `release_on_default_branch` and `unfinished_scaffold_in_sdist` warnings, Hatch `require_stripped`, documented release-branch workflow | – | release tests below · B: 13–18 |
-| 9. MCP | `[mcp]` extra, `mcp_server.py` with all tools above (including scaffold preview / `scaffold_test`), the three permissions, `byteplan mcp`, README client snippets | – | A: 16 (MCP part), 20 · B: 11 (MCP) |
+| 9. MCP ✅ | `[mcp]` extra, `mcp_server.py` with all tools above (including scaffold preview / `scaffold_test`), the three permissions, `byteplan mcp`, README client snippets | – | A: 16 (MCP part), 20 · B: 11 (MCP) |
 | 10. Integration | README end-to-end developer journey (`# TODO` → `scan` → `tests scaffold` → implement → `verify` → `resolve` → `sync`, including where BytePlan notices but never closes work), docs for every config key, dogfood `hatch run byteplan scan` on BytePlan itself, CI on ubuntu/macos/windows | DoD | full suite · B: 19 |
 | 11 (optional) | spec §14 phase 5 items, `TODO(owner):` syntax | – | – |
 | 11b (optional) | Git reporting: `byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations | – | – |
@@ -1568,10 +1593,6 @@ runtime package has shipped.
 
 <!-- TODO[de66]: Phase 6c (optional): acceptance criteria and dependencies
      `acceptance_criteria`, `byteplan criteria ...`, `depends_on`, lifecycle facts in reports. -->
-
-<!-- TODO[f853]: Phase 9: MCP server
-     `[mcp]` extra, `mcp_server.py` with every tool, the three permissions, `byteplan mcp`,
-     README client snippets. -->
 
 <!-- TODO[93dd]: Phase 10: integration
      README end-to-end developer journey, docs for every config key, dogfooding and CI on

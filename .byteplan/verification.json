@@ -153,6 +153,20 @@
       "head": "2348aa62df36bc8d8085a0763263db79ae00af2b",
       "python": "3.11.0",
       "timed_out": false
+    },
+    "fb05540f1fa2": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T00:04:06Z",
+      "dirty": true,
+      "head": "7e89473eb22d2fd72f38908b47a41d525eb4b6de",
+      "python": "3.11.0",
+      "timed_out": false
     }
   },
   "schema_version": 1,
@@ -699,6 +713,44 @@
       "tests": {
         "tests/test_archive.py::test_index_merge_is_three_way_per_entry": {
           "duration_ms": 17,
+          "outcome": "passed"
+        }
+      }
+    },
+    "f853": {
+      "fingerprint": "cbdc54a199703bdcb86d475df40ce48250f4d2eb1a841dde619328b2a6114002",
+      "run": "fb05540f1fa2",
+      "tests": {
+        "tests/test_mcp.py::test_a_concurrent_writer_makes_writes_fail_cleanly": {
+          "duration_ms": 24,
+          "outcome": "passed"
+        },
+        "tests/test_mcp.py::test_a_tool_without_its_permission_is_not_registered": {
+          "duration_ms": 96,
+          "outcome": "passed"
+        },
+        "tests/test_mcp.py::test_read_only_tools_change_nothing": {
+          "duration_ms": 53,
+          "outcome": "passed"
+        },
+        "tests/test_mcp.py::test_registry_writes_and_managed_fields_survive_a_rescan": {
+          "duration_ms": 34,
+          "outcome": "passed"
+        },
+        "tests/test_mcp.py::test_scaffold_release_and_restore_preview_unless_applied": {
+          "duration_ms": 46,
+          "outcome": "passed"
+        },
+        "tests/test_mcp.py::test_source_writes_need_permission_and_apply": {
+          "duration_ms": 34,
+          "outcome": "passed"
+        },
+        "tests/test_mcp.py::test_stdio_stdout_carries_json_rpc_only": {
+          "duration_ms": 389,
+          "outcome": "passed"
+        },
+        "tests/test_mcp.py::test_verify_task_needs_test_execution": {
+          "duration_ms": 16,
           "outcome": "passed"
         }
       }
