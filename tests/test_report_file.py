@@ -238,3 +238,63 @@ def test_open_tasks_are_in_source_order(reported: ProjectFactory, run_cli: RunCl
     assert run_cli("scan", "--project", reported.root).code == EXIT_OK
     steps = re.findall(r"\| step (\d) \|", report(reported))
     assert steps == ["1", "2", "3", "4", "5"]
+
+
+def test_report_branch_needs_a_report_file(project: ProjectFactory) -> None:
+    project.init()
+    configure(project, 'report_branch = "main"')
+    with pytest.raises(ConfigError, match="report_branch needs a report_file"):
+        Project.open(project.root)
+
+
+@pytest.fixture
+def on_main(hooked: ProjectFactory) -> ProjectFactory:
+    pyproject = hooked.root / "pyproject.toml"
+    text = pyproject.read_text().replace(
+        'report_file = "byteplan.md"', 'report_file = "byteplan.md"\nreport_branch = "main"'
+    )
+    pyproject.write_text(text)
+    git(hooked.root.parent, "commit", "-qam", "report on main only")
+    return hooked
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="git not installed")
+def test_report_branch_leaves_the_report_alone_elsewhere(on_main: ProjectFactory, run_cli: RunCli) -> None:
+    top = on_main.root.parent
+    before = report(on_main)
+    git(top, "switch", "-qc", "feature")
+    on_main.write("src/feature.py", "# TODO: feature work\n")
+    git(top, "add", "-A")
+    assert git(top, "commit", "-qm", "feature", check=False).returncode == 0
+    assert "feature work" in head(on_main, ".byteplan/tasks.json")
+    assert head(on_main, "byteplan.md") == before  # the hook didn't regenerate it
+    assert run_cli("scan", "--project", on_main.root).code == EXIT_OK
+    assert report(on_main) == before
+    # Not stale here: only the report branch checks it.
+    assert (
+        "report_out_of_sync"
+        not in run_cli("check", "--commit", "HEAD", "--format", "json", "--project", on_main.root).out
+    )
+    git(top, "switch", "-q", "--detach")  # how CI checks out a pull request
+    assert (
+        "report_out_of_sync"
+        not in run_cli("check", "--commit", "HEAD", "--format", "json", "--project", on_main.root).out
+    )
+
+    # Merged into main, it's stale until `report --write` (the post-merge CI job) catches up.
+    git(top, "switch", "-q", "main")
+    assert git(top, "merge", "-q", "--no-ff", "--no-edit", "feature", check=False).returncode == 0
+    assert "byteplan.md is out of date" in run_cli("check", "--commit", "HEAD", "--project", on_main.root).err
+    result = run_cli("report", "--write", "--project", on_main.root)
+    assert result.code == EXIT_OK
+    assert result.out == "byteplan: updated byteplan.md\n"
+    assert "feature work" in report(on_main)
+    assert run_cli("report", "--write", "--project", on_main.root).out == "byteplan: unchanged byteplan.md\n"
+    assert run_cli("check", "--project", on_main.root).code == EXIT_OK
+
+
+def test_report_write_needs_a_report_file(project: ProjectFactory, run_cli: RunCli) -> None:
+    project.init()
+    result = run_cli("report", "--write", "--project", project.root)
+    assert result.code != EXIT_OK
+    assert "no report_file is configured" in result.err

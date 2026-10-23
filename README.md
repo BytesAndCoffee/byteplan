@@ -342,6 +342,7 @@ respect_gitignore = true
 auto_annotate = true          # false: only track comments that already carry an ID
 missing_policy = "warn"       # or "ignore"
 report_file = ""              # e.g. "byteplan.md": a committed Markdown view of the registry
+report_branch = ""            # e.g. "main": only that branch writes and checks report_file
 
 [tool.byteplan.detect]
 todo_tags = ["TODO", "FIXME", "HACK", "XXX"]
@@ -541,6 +542,11 @@ GitHub visitors see without installing anything.
   `byteplan git install-merge-driver` also registers `byteplan.md merge=byteplan-report`, which
   keeps our copy. The next hooked commit, or `byteplan scan`, regenerates it from the merged
   registry; until then `check` warns that it's stale.
+- **Pull requests:** GitHub doesn't run merge drivers, so two PRs that both change tasks
+  conflict on the report there. Set `report_branch = "main"` and only `main` writes or checks
+  it: other branches (and the detached checkouts CI uses for PRs) leave the committed copy
+  alone. After a merge, `byteplan report --write` regenerates it on any branch, so a CI job on
+  `main` can catch it up (see [docs/ci.md](docs/ci.md#keeping-the-report-current-on-main)).
 - **Generated, not scanned:** the report file is never scanned for TODOs. Don't edit it by hand.
 
 ## Merging the registry in Git

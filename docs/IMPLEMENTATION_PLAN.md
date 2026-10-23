@@ -1168,6 +1168,12 @@ alongside Phase 4e.
   `install-merge-driver` registers `merge=byteplan-report` (driver `true`, which keeps ours), and
   the next hooked commit or scan regenerates it.
 - **Never scanned,** like the registry.
+- **`report_branch`** (added after Phase 9): GitHub runs no merge drivers, so two PRs that both
+  change tasks conflicted on the report there. With `report_branch = "main"`, `maintains_report`
+  is false on any other branch or a detached HEAD: registry writes skip the report and the
+  staleness check is skipped. `report --write` regenerates it explicitly, on any branch, for the
+  post-merge CI job (`.github/workflows/report.yml` here). The registry itself still merges
+  textually on GitHub; overlapping `reserved_ids` edits are resolved locally with the drivers.
 
 ## Registry format and merging
 

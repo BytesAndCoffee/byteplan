@@ -57,6 +57,8 @@ Source = "https://github.com/BytesAndCoffee/byteplan"
 registry = ".byteplan/tasks.json"
 include = ["src/**/*.py", "byteplan-runtime/src/**/*.py", "tests/**/*.py", "**/*.md"]
 report_file = "byteplan.md"
+# Pull requests leave byteplan.md alone; .github/workflows/report.yml regenerates it on main.
+report_branch = "main"
 
 [tool.byteplan.tests]
 # `byteplan verify` runs pytest in the hatch-test environment (the default one has no pytest).

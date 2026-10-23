@@ -147,6 +147,10 @@ class Config:
     # A Markdown view of the registry, regenerated whenever the registry is written (so the
     # commit hook stages it with the registry). Empty: no report file.
     report_file: str = ""
+    # Only this branch writes and checks report_file; other branches leave the committed copy
+    # alone, so pull requests never conflict on it (GitHub doesn't run merge drivers).
+    # Empty: every branch does.
+    report_branch: str = ""
     detect: DetectConfig = field(default_factory=DetectConfig)
     check: CheckConfig = field(default_factory=CheckConfig)
     annotations: AnnotationsConfig = field(default_factory=AnnotationsConfig)
@@ -362,3 +366,6 @@ def _validate(config: Config) -> None:
         if report == registry:
             msg = "tool.byteplan.report_file must differ from the registry"
             raise ConfigError(msg)
+    if config.report_branch and not config.report_file:
+        msg = "tool.byteplan.report_branch needs a report_file"
+        raise ConfigError(msg)
