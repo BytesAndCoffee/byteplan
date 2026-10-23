@@ -126,6 +126,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "925deaf35320": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T04:40:24Z",
+      "dirty": false,
+      "head": "9b653b14db363529ac788de99ae96414fa51eed7",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "99430208fd0d": {
       "argv": [
         "hatch",
@@ -151,20 +165,6 @@
       "at": "2026-10-22T18:44:39Z",
       "dirty": true,
       "head": "9301e39fbd3c31c148de7c2a97f46dad4fd481e5",
-      "python": "3.11.0",
-      "timed_out": false
-    },
-    "bf4c65f0bf26": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-23T04:37:43Z",
-      "dirty": true,
-      "head": "6146c2b7796c3c59d12e77f01b3be18f256cc932",
       "python": "3.11.0",
       "timed_out": false
     },
@@ -638,8 +638,8 @@
       }
     },
     "93dd": {
-      "fingerprint": "5320b12ae221935ab001477f005c5316305062e66fa4dc16f007fced0b6b5fbc",
-      "run": "bf4c65f0bf26",
+      "fingerprint": "e081b7cdc9e5c3658879275bbe26b86cba27dff078aa726c8a4df0af7012e0a5",
+      "run": "925deaf35320",
       "tests": {
         "tests/test_docs.py::test_every_config_key_is_documented_with_its_default": {
           "duration_ms": 1,
@@ -650,7 +650,7 @@
           "outcome": "passed"
         },
         "tests/test_persistence.py::test_uncreatable_directory_fails_before_the_journal": {
-          "duration_ms": 4,
+          "duration_ms": 3,
           "outcome": "passed"
         }
       }
