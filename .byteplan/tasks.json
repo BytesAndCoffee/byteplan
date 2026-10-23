@@ -49,6 +49,7 @@
     "c242",
     "c449",
     "c8db",
+    "c993",
     "cc54",
     "de66",
     "def0",
@@ -3534,6 +3535,55 @@
         ]
       },
       "title": "Keep runtime imports that other modules consume through re-exports",
+      "title_override": null
+    },
+    "c993": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/39#discussion_r4355748861",
+      "first_seen": "2026-10-23T03:18:42Z",
+      "history": [
+        {
+          "at": "2026-10-23T03:18:42Z",
+          "event": "created",
+          "new": {
+            "line": 35,
+            "path": "scripts/publish_report.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T03:19:04Z",
+          "event": "test_linked",
+          "new": "tests/test_publish_report.py::test_retries_when_main_advances_before_the_push",
+          "old": null
+        }
+      ],
+      "id": "c993",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T03:18:42Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 28,
+        "line": 41,
+        "path": "scripts/publish_report.py",
+        "representation": "comment",
+        "symbol": "publish"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [],
+        "managed": [
+          "tests/test_publish_report.py::test_retries_when_main_advances_before_the_push"
+        ]
+      },
+      "title": "Retry report generation when main advances before the push",
       "title_override": null
     },
     "cc54": {

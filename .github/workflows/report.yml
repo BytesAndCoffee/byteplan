@@ -22,11 +22,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install .
-      - run: byteplan report --write
-      - name: Commit and push
+      - name: Commit and push (retrying if main moves first)
         run: |
-          git diff --quiet -- byteplan.md && exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -qm "Regenerate byteplan.md" -- byteplan.md
-          git push
+          python scripts/publish_report.py

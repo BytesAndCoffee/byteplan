@@ -126,6 +126,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "c4b99806d441": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T03:23:58Z",
+      "dirty": true,
+      "head": "3936d3ca41a9a0869503876c7aff59fbcb527766",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "c6c988fe2179": {
       "argv": [
         "hatch",
@@ -707,6 +721,16 @@
       "tests": {
         "tests/test_release.py::test_runtime_reexported_to_another_module_refuses_the_release": {
           "duration_ms": 609,
+          "outcome": "passed"
+        }
+      }
+    },
+    "c993": {
+      "fingerprint": "4078b477a408bbfe445d3180cf5199b2187db9a22db6333b14c58dbaac22e2df",
+      "run": "c4b99806d441",
+      "tests": {
+        "tests/test_publish_report.py::test_retries_when_main_advances_before_the_push": {
+          "duration_ms": 679,
           "outcome": "passed"
         }
       }
