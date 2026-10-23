@@ -204,6 +204,9 @@ def render(
         "# THEN: TODO - assert the required result",
         f'pytest.fail("{message}")',
     ]
+    # FIXME[be8e]: Annotate scaffolded tests with -> None
+    #   Placeholders are `def test_x():`, which mypy --strict rejects (no-untyped-def), so a
+    #   project type-checking its tests fails CI on every scaffold until it's annotated by hand.
     header = f"{'async def' if use_async else 'def'} {name}():"
     lines = [*decorators, header, *(f"    {line}" if line else "" for line in body)]
     return nl.join(lines) + nl
@@ -285,6 +288,10 @@ def plan(
     missing = [line for line in imports if not _present(tree, line)]
     lines = existing.splitlines(keepends=True)
     if missing:
+        # FIXME[b55f]: Insert scaffold imports in sorted position
+        #   `from byteplan._todo import verifies` lands after the file's other imports, which
+        #   ruff's isort (I001) rejects, so a placeholder in an existing test file fails
+        #   `hatch fmt --check` in CI until `hatch fmt` runs.
         at = _import_offset(tree, lines)
         lines[at:at] = [line + nl for line in missing]
     text = "".join(lines)

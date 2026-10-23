@@ -128,6 +128,9 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
     def scan(paths: list[str] | None = None, apply: bool = False) -> dict[str, Any]:  # noqa: FBT001, FBT002
         """Discover annotations and reconcile the registry. Previews unless apply=true (which
         adds IDs to source and needs source-write permission)."""
+        # TODO[ce72]: Summarize scan results by default instead of listing every annotation
+        #   Even a no-op preview returns all tracked annotations (~6 KB here). Return counts plus
+        #   what changed (added, relocated, missing, diagnostics), with the full list on request.
         if apply:
             _needs(permissions.source_write, "scan(apply=true)")
         return run(lambda p: reporting.scan_json(p.scan(paths or None, p.root, dry_run=not apply)))
@@ -145,6 +148,10 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
     @server.tool()
     def missing() -> dict[str, Any]:
         """Tasks whose annotation is no longer found in source."""
+        # TODO[9c60]: List only active missing tasks by default
+        #   Closed tasks whose annotations cleanup removed on purpose are listed too (48 tasks,
+        #   82 KB here), flooding an agent's context. Default to open/in_progress/blocked, with
+        #   an option for closed ones; the CLI's `byteplan missing` has the same behavior.
         tasks = run(lambda p: p.list_tasks(presences=[Presence.MISSING]))
         return {"tasks": [reporting.task_json(t) for t in tasks]}
 
@@ -214,6 +221,9 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
         """The deliberately failing acceptance test `scaffold_test` would write; writes nothing."""
 
         def preview(p: Project) -> dict[str, Any]:
+            # TODO[d45d]: Return only the scaffolded test, not the whole target file
+            #   The preview's text is the full test file after insertion (~20 KB for a 12-line
+            #   placeholder in tests/test_decorators.py). Return the new test and imports, or a diff.
             result = p.scaffold_test(id, path=path, name=name, dry_run=True)
             return {**reporting.scaffold_json(result), "text": result.text}
 

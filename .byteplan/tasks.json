@@ -37,6 +37,7 @@
     "93dd",
     "98d6",
     "9b40",
+    "9c60",
     "9f8d",
     "a067",
     "a4bf",
@@ -46,14 +47,18 @@
     "ac9d",
     "ae7a",
     "aedf",
+    "b55f",
     "b68c",
     "b865",
     "baeb",
+    "be8e",
     "c242",
     "c449",
     "c8db",
     "c993",
     "cc54",
+    "ce72",
+    "d45d",
     "de66",
     "def0",
     "e7d9",
@@ -2830,6 +2835,64 @@
       "title": "Phase 6a: acceptance tests",
       "title_override": null
     },
+    "9c60": {
+      "assignee": null,
+      "description": "Closed tasks whose annotations cleanup removed on purpose are listed too (48 tasks,\n82 KB here), flooding an agent's context. Default to open/in_progress/blocked, with\nan option for closed ones; the CLI's `byteplan missing` has the same behavior.",
+      "first_seen": "2026-10-23T04:43:56Z",
+      "history": [
+        {
+          "at": "2026-10-23T04:43:56Z",
+          "event": "created",
+          "new": {
+            "line": 151,
+            "path": "src/byteplan/mcp_server.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T04:43:56Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_mcp_server.py::test_task_9c60",
+            "path": "tests/test_mcp_server.py",
+            "policy": "xfail"
+          },
+          "old": null
+        }
+      ],
+      "id": "9c60",
+      "kind": "TODO",
+      "labels": [],
+      "last_seen": "2026-10-23T04:43:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 149,
+        "line": 151,
+        "path": "src/byteplan/mcp_server.py",
+        "representation": "comment",
+        "symbol": "build_server.<locals>.missing"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 19,
+            "node": "tests/test_mcp_server.py::test_task_9c60",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "List only active missing tasks by default",
+      "title_override": null
+    },
     "9f8d": {
       "assignee": null,
       "description": "Codex review of #34: https://github.com/BytesAndCoffee/byteplan/pull/34#discussion_r4354123872\nA hotfix that brings decorators back after `release` slipped past the guard.",
@@ -3356,6 +3419,64 @@
       "title": "Check every runtime import, not just decorator bindings, before skipping a file",
       "title_override": null
     },
+    "b55f": {
+      "assignee": null,
+      "description": "`from byteplan._todo import verifies` lands after the file's other imports, which\nruff's isort (I001) rejects, so a placeholder in an existing test file fails\n`hatch fmt --check` in CI until `hatch fmt` runs.",
+      "first_seen": "2026-10-23T04:43:56Z",
+      "history": [
+        {
+          "at": "2026-10-23T04:43:56Z",
+          "event": "created",
+          "new": {
+            "line": 288,
+            "path": "src/byteplan/scaffold.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T04:43:56Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_scaffold.py::test_task_b55f",
+            "path": "tests/test_scaffold.py",
+            "policy": "xfail"
+          },
+          "old": null
+        }
+      ],
+      "id": "b55f",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T04:43:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 260,
+        "line": 291,
+        "path": "src/byteplan/scaffold.py",
+        "representation": "comment",
+        "symbol": "plan"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 599,
+            "node": "tests/test_scaffold.py::test_task_b55f",
+            "path": "tests/test_scaffold.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Insert scaffold imports in sorted position",
+      "title_override": null
+    },
     "b68c": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4352659119\nA hotfix that adds either would otherwise get the import above it (SyntaxError for __future__).",
@@ -3567,6 +3688,64 @@
         ]
       },
       "title": "Count every __all__ assignment form as an export",
+      "title_override": null
+    },
+    "be8e": {
+      "assignee": null,
+      "description": "Placeholders are `def test_x():`, which mypy --strict rejects (no-untyped-def), so a\nproject type-checking its tests fails CI on every scaffold until it's annotated by hand.",
+      "first_seen": "2026-10-23T04:44:17Z",
+      "history": [
+        {
+          "at": "2026-10-23T04:44:17Z",
+          "event": "created",
+          "new": {
+            "line": 207,
+            "path": "src/byteplan/scaffold.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T04:44:17Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_scaffold.py::test_task_be8e",
+            "path": "tests/test_scaffold.py",
+            "policy": "xfail"
+          },
+          "old": null
+        }
+      ],
+      "id": "be8e",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T04:44:17Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 161,
+        "line": 207,
+        "path": "src/byteplan/scaffold.py",
+        "representation": "comment",
+        "symbol": "render"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 613,
+            "node": "tests/test_scaffold.py::test_task_be8e",
+            "path": "tests/test_scaffold.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Annotate scaffolded tests with -> None",
       "title_override": null
     },
     "c242": {
@@ -3953,6 +4132,122 @@
         ]
       },
       "title": "Detect a runtime module imported through its parent package",
+      "title_override": null
+    },
+    "ce72": {
+      "assignee": null,
+      "description": "Even a no-op preview returns all tracked annotations (~6 KB here). Return counts plus\nwhat changed (added, relocated, missing, diagnostics), with the full list on request.",
+      "first_seen": "2026-10-23T04:43:56Z",
+      "history": [
+        {
+          "at": "2026-10-23T04:43:56Z",
+          "event": "created",
+          "new": {
+            "line": 131,
+            "path": "src/byteplan/mcp_server.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T04:43:56Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_mcp_server.py::test_task_ce72",
+            "path": "tests/test_mcp_server.py",
+            "policy": "xfail"
+          },
+          "old": null
+        }
+      ],
+      "id": "ce72",
+      "kind": "TODO",
+      "labels": [],
+      "last_seen": "2026-10-23T04:43:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 128,
+        "line": 131,
+        "path": "src/byteplan/mcp_server.py",
+        "representation": "comment",
+        "symbol": "build_server.<locals>.scan"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 5,
+            "node": "tests/test_mcp_server.py::test_task_ce72",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Summarize scan results by default instead of listing every annotation",
+      "title_override": null
+    },
+    "d45d": {
+      "assignee": null,
+      "description": "The preview's text is the full test file after insertion (~20 KB for a 12-line\nplaceholder in tests/test_decorators.py). Return the new test and imports, or a diff.",
+      "first_seen": "2026-10-23T04:43:56Z",
+      "history": [
+        {
+          "at": "2026-10-23T04:43:56Z",
+          "event": "created",
+          "new": {
+            "line": 224,
+            "path": "src/byteplan/mcp_server.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T04:43:56Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_mcp_server.py::test_build_server_preview_test_scaffold_preview",
+            "path": "tests/test_mcp_server.py",
+            "policy": "xfail"
+          },
+          "old": null
+        }
+      ],
+      "id": "d45d",
+      "kind": "TODO",
+      "labels": [],
+      "last_seen": "2026-10-23T04:43:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 223,
+        "line": 224,
+        "path": "src/byteplan/mcp_server.py",
+        "representation": "comment",
+        "symbol": "build_server.<locals>.preview_test_scaffold.<locals>.preview"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 33,
+            "node": "tests/test_mcp_server.py::test_build_server_preview_test_scaffold_preview",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Return only the scaffolded test, not the whole target file",
       "title_override": null
     },
     "de66": {

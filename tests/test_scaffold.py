@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from byteplan import persistence
+from byteplan._todo import verifies
 from byteplan.api import Project
 from byteplan.cli import EXIT_ERROR, EXIT_OK
 from byteplan.config import ScaffoldConfig
@@ -593,3 +594,31 @@ def test_auto_scaffold_reports_encoding_and_filesystem_failures(project: Project
     assert result.code == EXIT_OK, result.err
     (failure,) = json.loads(result.out)["scaffold_failures"]
     assert failure["id"] == task_by_title(project, "Third task")["id"]
+
+
+@verifies("b55f")
+@pytest.mark.xfail(reason="BytePlan b55f: acceptance test not implemented", strict=True)
+def test_task_b55f() -> None:
+    """Acceptance test scaffold for BytePlan task b55f.
+
+    Target: task b55f (statement)
+    Requirement: Insert scaffold imports in sorted position
+    """
+    # GIVEN: TODO - arrange the state this requirement depends on
+    # WHEN: TODO - exercise the code task b55f is about
+    # THEN: TODO - assert the required result
+    pytest.fail("BytePlan b55f: acceptance test not implemented")
+
+
+@verifies("be8e")
+@pytest.mark.xfail(reason="BytePlan be8e: acceptance test not implemented", strict=True)
+def test_task_be8e() -> None:
+    """Acceptance test scaffold for BytePlan task be8e.
+
+    Target: task be8e (statement)
+    Requirement: Annotate scaffolded tests with -> None
+    """
+    # GIVEN: TODO - arrange the state this requirement depends on
+    # WHEN: TODO - exercise the code task be8e is about
+    # THEN: TODO - assert the required result
+    pytest.fail("BytePlan be8e: acceptance test not implemented")
