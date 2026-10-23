@@ -60,7 +60,7 @@ def sha256(data: bytes) -> str:
 def file_hash(path: Path) -> str | None:
     try:
         return sha256(path.read_bytes())
-    except FileNotFoundError:
+    except (FileNotFoundError, NotADirectoryError):  # a file where a directory should be: absent too
         return None
 
 
@@ -207,6 +207,9 @@ def commit(root: Path, writes: Sequence[FileWrite]) -> list[str]:
             handle.flush()
             os.fsync(handle.fileno())
         target = root / write.path
+        # Before the journal exists, so a directory that can't be created (a file in the way)
+        # fails this commit cleanly instead of leaving a journal no recovery can complete.
+        target.parent.mkdir(parents=True, exist_ok=True)
         mode = stat.S_IMODE(target.stat().st_mode) if target.exists() else None
         entries.append(
             {

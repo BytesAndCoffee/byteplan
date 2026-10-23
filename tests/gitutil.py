@@ -26,7 +26,7 @@ def git(
         ["git", *args],
         cwd=cwd,
         capture_output=True,
-        text=True,
+        encoding="utf-8",  # not the locale's: cp1252 on Windows would garble non-ASCII output
         check=check,
         env={**os.environ, "COVERAGE_FILE": COVERAGE_FILE, **(env or {})},
     )
