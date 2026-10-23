@@ -1860,6 +1860,28 @@
             "policy": "xfail"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T04:58:52Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Codex review of #42. Fixed: future imports always end an import section. tests/test_scaffold.py::test_scaffold_imports_stay_below_future_imports fresh pass (SyntaxError on the old code).",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T04:58:53Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T04:58:53Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/scaffold.py"
+          }
         }
       ],
       "id": "67df",
@@ -1868,7 +1890,7 @@
       "last_seen": "2026-10-23T04:57:13Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -1879,7 +1901,7 @@
         "representation": "comment",
         "symbol": "_insert_imports"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [

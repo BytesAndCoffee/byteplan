@@ -310,10 +310,6 @@ def _insert_imports(tree: ast.Module, lines: list[str], missing: Sequence[str], 
         if block is None:
             new_section.append((_sort_key(node), statement + nl))
             continue
-        # FIXME[67df]: [P2] Keep inserted imports after all future imports
-        #   Codex review of #42: https://github.com/BytesAndCoffee/byteplan/pull/42#discussion_r4356228584
-        #   A future import with a third-party one in the same block sorts `import pytest` above it,
-        #   writing a module that fails with SyntaxError; the AST guard doesn't catch the order.
         later = next((n for n in block if _sort_key(n) > _sort_key(node)), None)
         at = later.lineno - 1 if later is not None else block[-1].end_lineno or 0
         inserts.append((at, _sort_key(node), statement + nl))
