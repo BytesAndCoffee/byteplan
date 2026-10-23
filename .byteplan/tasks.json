@@ -2858,6 +2858,28 @@
             "policy": "xfail"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T04:53:10Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed in 7eb2961: missing (MCP and CLI) lists active tasks; include_closed / --include-closed for all. tests/test_mcp.py::test_missing_lists_active_tasks_unless_closed_ones_are_asked_for fresh pass (fails on old code).",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T04:53:11Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T04:53:11Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/mcp_server.py"
+          }
         }
       ],
       "id": "9c60",
@@ -2866,18 +2888,18 @@
       "last_seen": "2026-10-23T04:43:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 167,
-        "line": 170,
+        "decl_line": 164,
+        "line": 167,
         "path": "src/byteplan/mcp_server.py",
         "representation": "comment",
         "symbol": "build_server.<locals>.missing"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
@@ -3442,6 +3464,28 @@
             "policy": "xfail"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T04:53:12Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed in 7eb2961: scaffold imports are inserted in isort order. tests/test_scaffold.py::test_scaffold_imports_land_in_isort_order fresh pass (fails on old code); expected outputs checked with ruff --select I.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T04:53:13Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T04:53:13Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/scaffold.py"
+          }
         }
       ],
       "id": "b55f",
@@ -3450,7 +3494,7 @@
       "last_seen": "2026-10-23T04:43:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -3461,7 +3505,7 @@
         "representation": "comment",
         "symbol": "plan"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
@@ -3713,6 +3757,28 @@
             "policy": "xfail"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T04:53:13Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed in 7eb2961: scaffolded tests are declared -> None. tests/test_scaffold.py::test_scaffolded_tests_are_annotated_for_strict_type_checkers fresh pass (fails on old code).",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T04:53:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T04:53:15Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/scaffold.py"
+          }
         }
       ],
       "id": "be8e",
@@ -3721,7 +3787,7 @@
       "last_seen": "2026-10-23T04:44:17Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -3732,7 +3798,7 @@
         "representation": "comment",
         "symbol": "render"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
@@ -4157,6 +4223,28 @@
             "policy": "xfail"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T04:53:09Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed in 7eb2961: scan summarizes unless detail=true. tests/test_mcp.py::test_scan_returns_counts_and_changes_unless_asked_for_detail fresh pass (fails on old code).",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T04:53:10Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T04:53:10Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/mcp_server.py"
+          }
         }
       ],
       "id": "ce72",
@@ -4165,7 +4253,7 @@
       "last_seen": "2026-10-23T04:43:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -4176,7 +4264,7 @@
         "representation": "comment",
         "symbol": "build_server.<locals>.scan"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
@@ -4215,6 +4303,28 @@
             "policy": "xfail"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-23T04:53:11Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed in 7eb2961: preview_test_scaffold/scaffold_test return the new test and added imports; full=true for the whole file. tests/test_mcp.py::test_preview_test_scaffold_returns_the_new_test_not_the_whole_file fresh pass (fails on old code).",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T04:53:12Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T04:53:12Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/mcp_server.py"
+          }
         }
       ],
       "id": "d45d",
@@ -4223,18 +4333,18 @@
       "last_seen": "2026-10-23T04:43:56Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 249,
-        "line": 250,
+        "decl_line": 242,
+        "line": 243,
         "path": "src/byteplan/mcp_server.py",
         "representation": "comment",
         "symbol": "build_server.<locals>.preview_test_scaffold.<locals>.preview"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
