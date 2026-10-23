@@ -71,7 +71,8 @@
     "fb9c",
     "fd44",
     "ff20",
-    "ff3a"
+    "ff3a",
+    "ff72"
   ],
   "schema_version": 1,
   "tasks": {
@@ -5752,6 +5753,104 @@
         ]
       },
       "title": "@verifies links to archived tasks are reported as unknown task references",
+      "title_override": null
+    },
+    "ff72": {
+      "assignee": null,
+      "description": "https://github.com/BytesAndCoffee/byteplan/pull/43#discussion_r4363730666\nResolving a linked test alias to its target deselects the valid test as not_found.",
+      "first_seen": "2026-10-23T20:10:49Z",
+      "history": [
+        {
+          "at": "2026-10-23T20:10:49Z",
+          "event": "created",
+          "new": {
+            "line": 46,
+            "path": "src/byteplan/_verify_plugin.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T20:10:49Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test__verify_plugin.py::test_task_ff72",
+            "path": "tests/test__verify_plugin.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T20:12:54Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:43"
+            ],
+            "notes": "P2 review follow-up on PR #43: preserve symlink spellings when converting pytest node IDs to project-relative paths. https://github.com/BytesAndCoffee/byteplan/pull/43#discussion_r4363730666"
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-23T20:56:06Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Preserve collected symlink spellings with lexical path normalization. All eight symlink regressions and 94 focused tests passed; strict typing and formatting passed.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T20:56:11Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T20:56:11Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/_verify_plugin.py"
+          }
+        }
+      ],
+      "id": "ff72",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:43"
+      ],
+      "last_seen": "2026-10-23T20:10:49Z",
+      "notes": "P2 review follow-up on PR #43: preserve symlink spellings when converting pytest node IDs to project-relative paths. https://github.com/BytesAndCoffee/byteplan/pull/43#discussion_r4363730666",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 39,
+        "line": 46,
+        "path": "src/byteplan/_verify_plugin.py",
+        "representation": "comment",
+        "symbol": "_project_nodeid"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 20,
+            "node": "tests/test__verify_plugin.py::test_verification_preserves_symlink_node_ids",
+            "path": "tests/test__verify_plugin.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Preserve pytest's symlink spelling when normalizing node IDs",
       "title_override": null
     }
   }

@@ -23,6 +23,10 @@ covered by regression tests. These fixes preserve task IDs and managed fields.
 The archive migration retains existing records and evidence; versioned records
 are selected by the hash in the committed archive index.
 
+PR #43's review follow-up `ff72` is also required before stable: node-ID normalization
+must preserve linked symlink names. Eight regression cases cover file and directory
+aliases, project and ancestor pytest roots, and passing tests and collection errors.
+
 Regression tests in `tests/test_stable_review.py` link back to each task with
 `@verifies`. The committed task registry records release priorities and resolution
 notes. Passing these regressions addresses this review's findings; the remaining

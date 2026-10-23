@@ -12,7 +12,7 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
   switches. Existing SQLite archives migrate transactionally without discarding records.
 - Staged reconciliation refuses pending ordinary transactions; source collection skips
   nonregular files and honors nested Git ignore exceptions.
-- Verification handles ancestor pytest roots and skipped/xfail teardown. The release guard
+- Verification handles ancestor pytest roots, linked symlink paths, and skipped/xfail teardown. The release guard
   rejects runtime decorators with dynamic arguments, and duplicate repair accepts valid
   whitespace, multiline IDs, and escaped string literals.
 - **Windows:** the commit hook's staged reconciliation (`scan --staged --apply`) corrupted the Git

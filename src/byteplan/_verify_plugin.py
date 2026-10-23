@@ -44,7 +44,9 @@ def _project_nodeid(nodeid: str) -> str:
     if not path:
         return nodeid
     try:
-        relative = (_PYTEST_ROOT / path).resolve().relative_to(Path(root).resolve()).as_posix()
+        # Keep symlink components spelled as pytest collected them.
+        absolute = Path(os.path.abspath(_PYTEST_ROOT / path))
+        relative = absolute.relative_to(os.path.abspath(root)).as_posix()
     except ValueError:
         return nodeid
     return relative + separator + selector
