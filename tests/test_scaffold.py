@@ -644,3 +644,18 @@ def test_scaffolded_tests_are_annotated_for_strict_type_checkers(
     assert isinstance(test.returns, ast.Constant)  # `-> None`, which mypy --strict's no-untyped-def wants
     assert test.returns.value is None
     assert not test.args.args
+
+
+@verifies("67df")
+def test_scaffold_imports_stay_below_future_imports(routed: ProjectFactory, run_cli: RunCli) -> None:
+    existing = (
+        "from __future__ import annotations\nfrom attrs import define\n\n\ndef test_a() -> None:\n    assert define\n"
+    )
+    routed.write("tests/test_routing.py", existing, dedent=False)
+    scaffold(routed, run_cli, task_by_title(routed, "Plain function")["id"])
+    text = (routed.root / "tests/test_routing.py").read_text()
+    compile(text, "tests/test_routing.py", "exec")  # a future import below another statement is a SyntaxError
+    assert text.startswith(
+        "from __future__ import annotations\nimport pytest\nfrom attrs import define\n"
+        "from byteplan_runtime import verifies\n\n\ndef test_a() -> None:\n"
+    )

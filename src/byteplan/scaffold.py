@@ -275,7 +275,8 @@ def _sort_key(node: ast.Import | ast.ImportFrom) -> tuple[bool, str]:
 
 
 def _import_blocks(tree: ast.Module, lines: Sequence[str]) -> list[list[ast.Import | ast.ImportFrom]]:
-    """The file's leading imports, split into sections wherever a blank line separates two."""
+    """The file's leading imports, split into sections wherever a blank line separates two, and
+    after the future imports."""
     body = tree.body[1:] if tree.body and _is_docstring(tree.body[0]) else tree.body
     blocks: list[list[ast.Import | ast.ImportFrom]] = []
     previous: ast.stmt | None = None
@@ -283,8 +284,9 @@ def _import_blocks(tree: ast.Module, lines: Sequence[str]) -> list[list[ast.Impo
         if not isinstance(node, ast.Import | ast.ImportFrom):
             break
         between = lines[previous.end_lineno or 0 : node.lineno - 1] if previous is not None else []
-        if previous is None or any(not line.strip() for line in between):
-            blocks.append([])
+        future_ends = isinstance(previous, ast.ImportFrom) and previous.module == "__future__" != _top_module(node)
+        if previous is None or future_ends or any(not line.strip() for line in between):
+            blocks.append([])  # future imports are a section of their own: nothing may go above them
         blocks[-1].append(node)
         previous = node
     return blocks
@@ -308,6 +310,10 @@ def _insert_imports(tree: ast.Module, lines: list[str], missing: Sequence[str], 
         if block is None:
             new_section.append((_sort_key(node), statement + nl))
             continue
+        # FIXME[67df]: [P2] Keep inserted imports after all future imports
+        #   Codex review of #42: https://github.com/BytesAndCoffee/byteplan/pull/42#discussion_r4356228584
+        #   A future import with a third-party one in the same block sorts `import pytest` above it,
+        #   writing a module that fails with SyntaxError; the AST guard doesn't catch the order.
         later = next((n for n in block if _sort_key(n) > _sort_key(node)), None)
         at = later.lineno - 1 if later is not None else block[-1].end_lineno or 0
         inserts.append((at, _sort_key(node), statement + nl))

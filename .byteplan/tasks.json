@@ -23,6 +23,7 @@
     "5aae",
     "5ff6",
     "6639",
+    "67df",
     "6b83",
     "71c4",
     "75b4",
@@ -1834,6 +1835,64 @@
         ]
       },
       "title": "Keep runtime imports that __all__ re-exports",
+      "title_override": null
+    },
+    "67df": {
+      "assignee": null,
+      "description": "Codex review of #42: https://github.com/BytesAndCoffee/byteplan/pull/42#discussion_r4356228584\nA future import with a third-party one in the same block sorts `import pytest` above it,\nwriting a module that fails with SyntaxError; the AST guard doesn't catch the order.",
+      "first_seen": "2026-10-23T04:57:13Z",
+      "history": [
+        {
+          "at": "2026-10-23T04:57:13Z",
+          "event": "created",
+          "new": {
+            "line": 311,
+            "path": "src/byteplan/scaffold.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T04:57:13Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_scaffold.py::test_task_67df",
+            "path": "tests/test_scaffold.py",
+            "policy": "xfail"
+          },
+          "old": null
+        }
+      ],
+      "id": "67df",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-23T04:57:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 293,
+        "line": 311,
+        "path": "src/byteplan/scaffold.py",
+        "representation": "comment",
+        "symbol": "_insert_imports"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 649,
+            "node": "tests/test_scaffold.py::test_scaffold_imports_stay_below_future_imports",
+            "path": "tests/test_scaffold.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "[P2] Keep inserted imports after all future imports",
       "title_override": null
     },
     "6b83": {

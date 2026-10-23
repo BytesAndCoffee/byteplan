@@ -98,6 +98,20 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "56eb3c2d7c07": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-23T04:58:46Z",
+      "dirty": true,
+      "head": "186b92af8ffba167a2a1a694ce996d4e9637e67a",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "64043655efb3": {
       "argv": [
         "hatch",
@@ -567,6 +581,16 @@
       "tests": {
         "tests/test_cleanup.py::test_runtime_import_reexported_through_all_stays": {
           "duration_ms": 18,
+          "outcome": "passed"
+        }
+      }
+    },
+    "67df": {
+      "fingerprint": "1065d4f50269b8b0df1ac5d7af188bd3ff67557132feb8e387943a7de2b14568",
+      "run": "56eb3c2d7c07",
+      "tests": {
+        "tests/test_scaffold.py::test_scaffold_imports_stay_below_future_imports": {
+          "duration_ms": 17,
           "outcome": "passed"
         }
       }
