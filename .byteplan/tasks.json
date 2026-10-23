@@ -1102,8 +1102,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 2109,
-        "line": 2112,
+        "decl_line": 2129,
+        "line": 2132,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "_find_decorator_id"
@@ -1668,8 +1668,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 136,
-        "line": 139,
+        "decl_line": 138,
+        "line": 141,
         "path": "src/byteplan/scaffold.py",
         "representation": "comment",
         "symbol": "defined_names"
@@ -2871,8 +2871,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 149,
-        "line": 151,
+        "decl_line": 167,
+        "line": 170,
         "path": "src/byteplan/mcp_server.py",
         "representation": "comment",
         "symbol": "build_server.<locals>.missing"
@@ -2882,9 +2882,9 @@
       "tests": {
         "discovered": [
           {
-            "line": 19,
-            "node": "tests/test_mcp_server.py::test_task_9c60",
-            "path": "tests/test_mcp_server.py",
+            "line": 422,
+            "node": "tests/test_mcp.py::test_missing_lists_active_tasks_unless_closed_ones_are_asked_for",
+            "path": "tests/test_mcp.py",
             "provenance": "verifies"
           }
         ],
@@ -3455,8 +3455,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 260,
-        "line": 291,
+        "decl_line": 327,
+        "line": 360,
         "path": "src/byteplan/scaffold.py",
         "representation": "comment",
         "symbol": "plan"
@@ -3467,7 +3467,7 @@
         "discovered": [
           {
             "line": 599,
-            "node": "tests/test_scaffold.py::test_task_b55f",
+            "node": "tests/test_scaffold.py::test_scaffold_imports_land_in_isort_order",
             "path": "tests/test_scaffold.py",
             "provenance": "verifies"
           }
@@ -3726,8 +3726,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 161,
-        "line": 207,
+        "decl_line": 163,
+        "line": 209,
         "path": "src/byteplan/scaffold.py",
         "representation": "comment",
         "symbol": "render"
@@ -3737,8 +3737,8 @@
       "tests": {
         "discovered": [
           {
-            "line": 613,
-            "node": "tests/test_scaffold.py::test_task_be8e",
+            "line": 635,
+            "node": "tests/test_scaffold.py::test_scaffolded_tests_are_annotated_for_strict_type_checkers",
             "path": "tests/test_scaffold.py",
             "provenance": "verifies"
           }
@@ -4170,8 +4170,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 128,
-        "line": 131,
+        "decl_line": 134,
+        "line": 142,
         "path": "src/byteplan/mcp_server.py",
         "representation": "comment",
         "symbol": "build_server.<locals>.scan"
@@ -4181,9 +4181,9 @@
       "tests": {
         "discovered": [
           {
-            "line": 5,
-            "node": "tests/test_mcp_server.py::test_task_ce72",
-            "path": "tests/test_mcp_server.py",
+            "line": 406,
+            "node": "tests/test_mcp.py::test_scan_returns_counts_and_changes_unless_asked_for_detail",
+            "path": "tests/test_mcp.py",
             "provenance": "verifies"
           }
         ],
@@ -4228,8 +4228,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 223,
-        "line": 224,
+        "decl_line": 249,
+        "line": 250,
         "path": "src/byteplan/mcp_server.py",
         "representation": "comment",
         "symbol": "build_server.<locals>.preview_test_scaffold.<locals>.preview"
@@ -4239,9 +4239,9 @@
       "tests": {
         "discovered": [
           {
-            "line": 33,
-            "node": "tests/test_mcp_server.py::test_build_server_preview_test_scaffold_preview",
-            "path": "tests/test_mcp_server.py",
+            "line": 442,
+            "node": "tests/test_mcp.py::test_preview_test_scaffold_returns_the_new_test_not_the_whole_file",
+            "path": "tests/test_mcp.py",
             "provenance": "verifies"
           }
         ],
@@ -4961,8 +4961,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 1052,
-        "line": 1074,
+        "decl_line": 1054,
+        "line": 1076,
         "path": "src/byteplan/api.py",
         "representation": "comment",
         "symbol": "Project.reconcile_archive"
