@@ -231,7 +231,7 @@ class ArchiveReport:
     tasks: tuple[str, ...]  # archived (or, for a dry run, archivable) task IDs
     dry_run: bool = False
     written: tuple[str, ...] = ()
-    # Eligible, but their current record isn't committed yet (other clones couldn't reconcile it).
+    # Eligible, but their current task/evidence isn't committed yet (another clone needs a durable copy).
     uncommitted: tuple[str, ...] = ()
 
 
@@ -301,6 +301,8 @@ class Project:
         return (self.root / self.config.report_file).resolve().relative_to(self.root.resolve()).as_posix()
 
     def load_registry(self) -> Registry:
+        if self.snapshot is not None:
+            return self._read_registry()[1]
         return load_registry(self.config.registry_path)
 
     def render_report(self, registry: Registry) -> bytes:
@@ -348,6 +350,7 @@ class Project:
     def write_report(self) -> bool:
         """Regenerate ``report_file`` from the registry on any branch (``report --write``):
         how ``report_branch`` gets its copy updated after a merge. True if it changed."""
+        self._require_working_tree()
         if self.report_rel is None:
             msg = "no report_file is configured in [tool.byteplan]"
             raise ConfigError(msg)
@@ -361,6 +364,18 @@ class Project:
     def _read_registry(self) -> tuple[str, Registry]:
         """The registry plus the hash of the exact bytes it was parsed from."""
         path = self.config.registry_path
+        if self.snapshot is not None:
+            data = self.snapshot.read(self.registry_rel)
+            if data is None:
+                msg = f"registry {self.registry_rel} does not exist in the {self.snapshot.label}"
+                raise RegistryError(msg)
+            try:
+                return sha256(data), registry_io.loads(
+                    data.decode("utf-8"), f"{self.snapshot.label}:{self.registry_rel}"
+                )
+            except UnicodeDecodeError as exc:
+                msg = f"cannot read registry in the {self.snapshot.label}: {exc}"
+                raise RegistryError(msg) from exc
         try:
             data = path.read_bytes()
         except FileNotFoundError:
@@ -394,6 +409,7 @@ class Project:
     @contextlib.contextmanager
     def _writing(self, *, recover_pending: bool = True) -> Iterator[tuple[str, ...]]:
         """Hold the project lock and finish any interrupted write first."""
+        self._require_working_tree()
         if (staged_dir(self.root) / "journal.json").exists():
             msg = (
                 "an interrupted staged reconciliation is pending; run `byteplan scan --staged --apply` "
@@ -405,6 +421,11 @@ class Project:
                 msg = "an ordinary transaction is pending; run `byteplan scan` to recover it before collision repair"
                 raise ConfigError(msg)
             yield tuple(recover(self.root)) if recover_pending else ()
+
+    def _require_working_tree(self) -> None:
+        if self.snapshot is not None:
+            msg = f"the {self.snapshot.label} is read-only; open the working-tree project for mutation or execution"
+            raise ConfigError(msg)
 
     def exit_code(self, diagnostics: Iterable[Diagnostic]) -> int:
         return exit_code(diagnostics, self.config.check, enforce_consistency=self.enforce_consistency)
@@ -971,6 +992,9 @@ class Project:
 
     def archived_task(self, task_id: str) -> Task | None:
         """An archived task, from the local store (reconciled from Git history if needed)."""
+        if self.snapshot is not None:
+            msg = "archived task lookup requires the working-tree project; snapshots do not use or reconcile its local cache"
+            raise ConfigError(msg)
         entry = self.archive_index().tasks.get(task_id)
         if entry is None:
             return None
@@ -993,7 +1017,9 @@ class Project:
         """Move tasks closed at least ``older_than`` (default ``after_days``) days ago, whose
         annotation is gone, out of ``tasks.json`` into the local store and the committed index.
         Their IDs stay reserved; their evidence moves with them. In a Git repository only
-        records already committed as they are are moved, so every clone can reconcile them."""
+        records and current evidence already committed as they are are moved, preserving a
+        recoverable copy. Automatic reconciliation recovers task records, not verification."""
+        self._require_working_tree()
         days = self.config.archive.after_days if older_than is None else older_than
         context = contextlib.nullcontext(()) if dry_run else self._writing()
         with context:
@@ -1003,18 +1029,69 @@ class Project:
             now = self.clock()
             eligible = sorted(t for t, task in registry.tasks.items() if archive.eligible(task, now, days))
             committed = self._committed_records() if eligible else None
+            evidence_before = None
+            if eligible:
+                try:
+                    evidence_before = (
+                        self.snapshot.read(verification.STORE)
+                        if self.snapshot is not None
+                        else (self.root / verification.STORE).read_bytes()
+                    )
+                except FileNotFoundError:
+                    pass
+                except OSError as exc:
+                    msg = f"{verification.STORE} is unreadable ({exc}); restore it from Git or resolve the conflict before retrying"
+                    raise ConfigError(msg) from exc
+            evidence = (
+                verification.Evidence.loads(evidence_before) if evidence_before is not None else verification.Evidence()
+            )
+            committed_evidence = (
+                self._committed_evidence()
+                if committed is not None and any(task_id in evidence.tasks for task_id in eligible)
+                else verification.Evidence()
+            )
             chosen: list[str] = []
             uncommitted: list[str] = []
             for task_id in eligible:
                 record = registry_io.task_to_dict(registry.tasks[task_id])
-                ok = committed is None or committed.get(task_id) == record
+                ok = committed is None or (
+                    task_id in committed and archive.canonical(committed[task_id]) == archive.canonical(record)
+                )
+                if ok and committed is not None and task_id in evidence.tasks:
+                    current = evidence.tasks[task_id]
+                    previous = committed_evidence.tasks.get(task_id)
+                    # Canonical JSON compares opaque extensions without conflating True with 1.
+                    ok = archive.canonical(
+                        {
+                            "entry": current,
+                            "run": evidence.runs.get(str(current.get("run"))),
+                        }
+                    ) == archive.canonical(
+                        {
+                            "entry": previous,
+                            "run": committed_evidence.runs.get(str(previous.get("run"))) if previous else None,
+                        }
+                    )
                 (chosen if ok else uncommitted).append(task_id)
             if dry_run or not chosen:
                 return ArchiveReport(tuple(chosen), dry_run, uncommitted=tuple(uncommitted))
-            evidence = verification.Evidence.load(self.root)
-            evidence_before = _read_bytes(self.root / verification.STORE)
-            index = self.archive_index()
-            index_before = _read_bytes(self.root / self.archive_index_rel)
+            index_before = None
+            try:
+                index_before = (
+                    self.snapshot.read(self.archive_index_rel)
+                    if self.snapshot is not None
+                    else (self.root / self.archive_index_rel).read_bytes()
+                )
+            except FileNotFoundError:
+                pass
+            except OSError as exc:
+                msg = f"{self.archive_index_rel} is unreadable ({exc}); restore it from Git"
+                raise ConfigError(msg) from exc
+            try:
+                index = archive.Index.loads(index_before.decode("utf-8") if index_before else None)
+            except (ValueError, AttributeError, TypeError) as exc:
+                msg = f"{self.archive_index_rel} is unreadable ({exc}); restore it from Git"
+                raise ConfigError(msg) from exc
             rows = []
             for task_id in chosen:
                 task = registry.tasks.pop(task_id)
@@ -1054,13 +1131,62 @@ class Project:
         try:
             gitio.git(["rev-parse", "--git-dir"], self.root)
         except ConfigError:
+            # A failed Git command is not proof this is a standalone project. Broken
+            # config, unavailable Git, worktree gitfiles and explicit selectors must
+            # fail closed instead of bypassing the committed-evidence requirement.
+            if any(name in os.environ for name in ("GIT_DIR", "GIT_COMMON_DIR", "GIT_WORK_TREE")):
+                raise
+            for directory in (self.root, *self.root.parents):
+                try:
+                    (directory / ".git").lstat()
+                except FileNotFoundError:
+                    pass
+                except OSError as exc:
+                    msg = f"cannot inspect Git metadata before archiving ({exc}); repair repository access and retry"
+                    raise ConfigError(msg) from exc
+                else:
+                    marker = directory / ".git"
+                    try:
+                        # Empty directories are not Git repositories (some execution
+                        # sandboxes place an empty .git marker in a shared ancestor).
+                        if marker.is_symlink() or not marker.is_dir() or next(marker.iterdir(), None) is not None:
+                            raise
+                    except OSError as exc:
+                        msg = (
+                            f"cannot inspect Git metadata before archiving ({exc}); repair repository access and retry"
+                        )
+                        raise ConfigError(msg) from exc
+                try:
+                    # Bare repositories have no .git entry. lstat also fails closed
+                    # when filesystem permissions prevent inspecting a candidate.
+                    for component in ("HEAD", "objects", "refs"):
+                        (directory / component).lstat()
+                except FileNotFoundError:
+                    pass
+                except OSError as exc:
+                    msg = f"cannot inspect Git metadata before archiving ({exc}); repair repository access and retry"
+                    raise ConfigError(msg) from exc
+                else:
+                    raise
             return None
         try:
             text = gitio.git(["show", f"HEAD:./{self.registry_rel}"], self.root)
-            tasks: dict[str, Any] = json.loads(text)["tasks"]
-        except (ConfigError, ValueError, KeyError, TypeError):
+        except ConfigError:
             return {}
+        # Validate shape/schema before returning raw records: tasks:null must never
+        # masquerade as the outside-Git sentinel, and normalization could make the
+        # archived record's hash differ from every version recoverable from Git.
+        registry_io.loads(text, f"HEAD:{self.registry_rel}")
+        tasks: dict[str, Any] = json.loads(text).get("tasks", {})
         return tasks
+
+    def _committed_evidence(self) -> verification.Evidence:
+        """HEAD's verification payload; staged or local-only evidence is not a durable copy."""
+        try:
+            text = gitio.git(["show", f"HEAD:./{verification.STORE}"], self.root)
+        except ConfigError:
+            return verification.Evidence()
+        return verification.Evidence.loads(text)
 
     def _ignore_archive_store(self) -> None:
         gitignore = self.root / STATE_DIR / ".gitignore"
@@ -1103,7 +1229,9 @@ class Project:
 
     def reconcile_archive(self) -> ReconcileReport:
         """Fill the local store with every archived record it lacks, found by hash in the
-        registry's Git history. (Evidence isn't in history; reconciled records come without it.)"""
+        registry's Git history. Verification payloads are stored separately and are not
+        automatically recovered by this traversal; reconciled records come without them."""
+        self._require_working_tree()
         index = self.archive_index()
         store = archive.Store(self.root / STATE_DIR)
         have = store.hashes()
@@ -1158,21 +1286,46 @@ class Project:
     def runner(self) -> list[str]:
         return list(self.config.tests.runner) or [sys.executable, "-m", "pytest"]
 
+    def _evidence(self) -> verification.Evidence:
+        if self.snapshot is None:
+            return verification.Evidence.load(self.root)
+        data = self.snapshot.read(verification.STORE)
+        return verification.Evidence() if data is None else verification.Evidence.loads(data)
+
     def readiness(self, task: Task, evidence: verification.Evidence | None = None) -> verification.Readiness:
         """Derived, never stored: ``unverified``, ``failing``, ``needs_review`` or ``ready_for_review``."""
         if evidence is None:
-            evidence = verification.Evidence.load(self.root)
+            evidence = self._evidence()
             if task.id not in evidence.tasks and task.id in self.archive_index().tasks:
+                if self.snapshot is not None:
+                    msg = "archived verification requires the working-tree project; snapshots do not consult its local cache"
+                    raise ConfigError(msg)
                 evidence = self._archived_evidence(task.id)
-        head = verification.git_state(self.root) if self.config.tests.stale_on == "head" else (None, False)
-        return verification.readiness(
+        head: tuple[str | None, bool] = (None, False)
+        if self.config.tests.stale_on == "head":
+            if self.snapshot is None:
+                head = verification.git_state(self.root)
+            else:
+                head = (self.snapshot.commit, False) if self.snapshot.kind == "commit" else (None, True)
+        state = verification.readiness(
             task,
             evidence,
             self.root,
             stale_on=self.config.tests.stale_on,
             head=head,
             placeholders=self._placeholders(task.linked_tests()),
+            read=None if self.snapshot is None else self.snapshot.read,
         )
+        if (
+            self.snapshot is not None
+            and self.snapshot.kind == "index"
+            and self.config.tests.stale_on == "head"
+            and state.state == "needs_review"
+        ):
+            state = dataclasses.replace(
+                state, reasons=(*state.reasons, "HEAD freshness is uncertain for an index snapshot")
+            )
+        return state
 
     def _placeholders(self, nodes: Iterable[str]) -> frozenset[str]:
         """Which of these node IDs are still scaffold placeholders (read statically from the
@@ -1187,6 +1340,7 @@ class Project:
     def verify(self, task_ids: Sequence[str] | None = None) -> VerifyReport:
         """Run the linked tests of ``task_ids`` (default: every open task with links) and record
         the evidence in ``.byteplan/verification.json``. Never changes a task's status."""
+        self._require_working_tree()
         registry = self.load_registry()
         if task_ids:
             tasks = list({task.id: task for task in (self.get_task(task_id) for task_id in task_ids)}.values())
@@ -1258,6 +1412,7 @@ class Project:
         If the task already has linked tests, nothing is written (unless ``force_new``).
         Raises ``ScaffoldError`` when it can't be done safely.
         """
+        self._require_working_tree()
         if not dry_run:
             self._refuse_while_stripped("tests scaffold")
         settings = self.config.tests.scaffold
@@ -1403,7 +1558,7 @@ class Project:
 
     def ready(self) -> list[tuple[Task, verification.Readiness]]:
         """Open tasks whose evidence makes them ready for a human to review and resolve."""
-        evidence = verification.Evidence.load(self.root)
+        evidence = self._evidence()
         found = []
         for _, task in sorted(self.load_registry().tasks.items()):
             if task.status.is_closed:
@@ -1432,13 +1587,20 @@ class Project:
     def release_version(self, override: str | None) -> str:
         if override:
             return override
-        pyproject = read_pyproject(self.root)
+        pyproject = (
+            read_pyproject(self.root)
+            if self.snapshot is None
+            else parse_pyproject_text(
+                (self.snapshot.read(PYPROJECT) or b"").decode("utf-8"), f"{self.snapshot.label}:{PYPROJECT}"
+            )
+        )
         project = pyproject.get("project", {})
         if isinstance(project.get("version"), str):
             return str(project["version"])
         source = pyproject.get("tool", {}).get("hatch", {}).get("version", {}).get("path")
         if "version" in project.get("dynamic", []) and isinstance(source, str):
-            text = (_read_bytes(self.root / source) or b"").decode("utf-8", "replace")
+            data = _read_bytes(self.root / source) if self.snapshot is None else self.snapshot.read(source)
+            text = (data or b"").decode("utf-8", "replace")
             match = re.search(r"""__version__\s*=\s*["']([^"']+)["']""", text)
             if match:
                 return match.group(1)
@@ -1460,6 +1622,7 @@ class Project:
         imports it without ``byteplan_runtime``. If that fails, the strip is restored
         automatically, so a release is all-or-nothing, and ``ReleaseError`` reports why.
         """
+        self._require_working_tree()
         report = self._strip_for_release(version, dry_run=dry_run, allow_dirty=allow_dirty)
         report = dataclasses.replace(report, warnings=(*report.warnings, *self._release_warnings()))
         if dry_run or not smoke_test:
@@ -1643,6 +1806,7 @@ class Project:
         one by AST anchors. Unplaceable entries are ``restore_conflict``: nothing is written,
         unless ``partial``, which restores the rest and keeps those on record.
         """
+        self._require_working_tree()
         context = contextlib.nullcontext(()) if dry_run else self._writing()
         with context:
             registry_hash, registry = self._read_registry()
@@ -1739,6 +1903,7 @@ class Project:
         tasks minus the removed ones. The registry keeps the ID, the last source reference and
         the history, and logs ``cleaned`` (or ``suppressed``).
         """
+        self._require_working_tree()
         if not dry_run:
             self._refuse_while_stripped("sync --remove-resolved")
         context = contextlib.nullcontext(()) if dry_run else self._writing()
@@ -1849,14 +2014,24 @@ class Project:
         scope, else None. ``development`` also counts dev dependencies (optional dependencies,
         dependency groups, Hatch environments), which is enough for test code."""
         modules = self.config.annotations.runtime_modules
-        pyproject = read_pyproject(self.root)
+        pyproject = (
+            read_pyproject(self.root)
+            if self.snapshot is None
+            else parse_pyproject_text(
+                (self.snapshot.read(PYPROJECT) or b"").decode("utf-8"), f"{self.snapshot.label}:{PYPROJECT}"
+            )
+        )
         dependencies = list(pyproject.get("project", {}).get("dependencies", []))
         if development:
             dependencies += _development_dependencies(pyproject)
         names = {_requirement_name(dep) for dep in dependencies if isinstance(dep, str)}
         if "byteplan-runtime" in names and "byteplan_runtime" in modules:
             return "byteplan_runtime"
-        files = set(collect_files(self.config).files)
+        files = set(
+            collect_files(self.config).files
+            if self.snapshot is None
+            else scope_from_paths(self.config, list(self.snapshot.files()), self.snapshot)[0].files
+        )
         for module in modules:
             if module == "byteplan_runtime":
                 continue
@@ -1873,6 +2048,7 @@ class Project:
         one of ``convert_attached_comments`` / ``auto_decorate_stubs`` is on. The tree must be
         scanned first (no untagged annotations, no duplicate IDs).
         """
+        self._require_working_tree()
         if not dry_run:
             self._refuse_while_stripped("sync")
         settings = self.config.annotations
@@ -2036,6 +2212,7 @@ class Project:
 
     def reassign(self, path: str, line: int, *, against: str | None = None, dry_run: bool = False) -> RepairResult:
         """Reassign a duplicate copy, or preserve/rekey an independent branch collision via ``against``."""
+        self._require_working_tree()
         if against is not None:
             return self._reassign_branch(path, line, against, dry_run=dry_run)
         context = contextlib.nullcontext(()) if dry_run else self._writing()

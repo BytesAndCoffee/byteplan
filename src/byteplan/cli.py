@@ -486,6 +486,7 @@ def cmd_archive(args: argparse.Namespace) -> int:
             _out(
                 f"byteplan: waiting for a commit (their current records aren't committed): {', '.join(report.uncommitted)}"
             )
+            _out("Commit the task records and their current verification evidence, including run metadata, then retry.")
     return EXIT_OK
 
 

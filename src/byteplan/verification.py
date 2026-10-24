@@ -98,11 +98,12 @@ def task_files(task: Task) -> list[str]:
     return sorted(files)
 
 
-def fingerprint(root: Path, files: Sequence[str]) -> str:
+def fingerprint(root: Path, files: Sequence[str], *, read: Callable[[str], bytes | None] | None = None) -> str:
     digest = hashlib.sha256()
     for rel in sorted(files):
         try:
-            content = hashlib.sha256((root / rel).read_bytes()).hexdigest()
+            data = (root / rel).read_bytes() if read is None else read(rel)
+            content = "missing" if data is None else hashlib.sha256(data).hexdigest()
         except OSError:
             content = "missing"
         digest.update(f"{rel}\0{content}\n".encode())
@@ -136,6 +137,11 @@ def changed_since(root: Path, base: str, head: str) -> bool:
 
 # Running pytest --------------------------------------------------------------------------------
 
+_NOT_FOUND_HINT = (
+    "run `byteplan scan` to refresh discovered test links; "
+    "if this is a managed link, update it with `byteplan tests remove` / `byteplan tests add`"
+)
+
 
 def _plugin_source() -> bytes:
     return resources.files("byteplan").joinpath("_verify_plugin.py").read_bytes()
@@ -155,7 +161,7 @@ def run_tests(
     for node in dict.fromkeys(nodes):
         path = node.split("::", 1)[0]
         if not (root / path).is_file():
-            results[node] = TestResult("not_found", message=f"{path} doesn't exist")
+            results[node] = TestResult("not_found", message=f"{path} doesn't exist; {_NOT_FOUND_HINT}")
         elif path not in files:
             files.append(path)
     pending = [node for node in dict.fromkeys(nodes) if node not in results]
@@ -259,11 +265,7 @@ def _aggregate(
             outcome = "timeout" if timed_out else "not_run"
             results[node] = TestResult(outcome, message=f"pytest exited with code {returncode} before collecting")
         elif not items:
-            # FIXME[b29c72]: Refresh or explain stale discovered links when a linked test is not found
-            #   Renaming a scaffolded placeholder into the real test leaves the registry linking the old
-            #   name until a rescan, so verify reports not_found with no hint (hit twice on 2026-10-23/24).
-            #   Rescan the test files' links before running, or at least say to run `byteplan scan`.
-            results[node] = TestResult("not_found", message="no test matches this node ID")
+            results[node] = TestResult("not_found", message=f"no test matches this node ID; {_NOT_FOUND_HINT}")
         else:
             finished = [
                 item_results[nodeid]
@@ -463,6 +465,7 @@ def readiness(
     stale_on: str,
     head: tuple[str | None, bool],
     placeholders: frozenset[str] = frozenset(),
+    read: Callable[[str], bytes | None] | None = None,
 ) -> Readiness:
     """``placeholders`` are linked tests that are still scaffold placeholders: never ready."""
     linked = list(task.linked_tests())
@@ -472,7 +475,7 @@ def readiness(
     if entry is None:
         return Readiness("unverified", dict.fromkeys(linked, "not_run"), ("never verified",))
     provenance = provenance_problem(entry, evidence.runs)
-    stale = provenance is not None or _is_stale(task, entry, evidence, root, stale_on=stale_on, head=head)
+    stale = provenance is not None or _is_stale(task, entry, evidence, root, stale_on=stale_on, head=head, read=read)
     results = entry.get("tests", {})
     tests = {
         node: ("stale" if stale and node in results else results.get(node, {}).get("outcome", "not_run"))
@@ -511,8 +514,9 @@ def _is_stale(
     *,
     stale_on: str,
     head: tuple[str | None, bool],
+    read: Callable[[str], bytes | None] | None = None,
 ) -> bool:
-    if entry.get("fingerprint") != fingerprint(root, task_files(task)):
+    if entry.get("fingerprint") != fingerprint(root, task_files(task), read=read):
         return True
     if stale_on == "head":
         run = evidence.runs.get(entry.get("run", ""), {})

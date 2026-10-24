@@ -6,6 +6,11 @@
 **Relationship to prior specifications:** Extends the BytePlan core specification and Addenda A–C. Where existing task terminology overlaps with *assignment*, this addendum proposes an explicit canonical abstraction; it does not assert that a migration is implemented.  
 **Scope:** Core data model, provenance, verification semantics, optional workflows, and a GitHub Relay reference implementation.
 
+**Release boundary update:** [Addendum E](spec-addendum-e.md) defers Assignment/Relay and graph
+implementation beyond 1.0. Its persistent-ID/schema compatibility requirements supersede the
+four-character and schema-v2 assumptions below; schema v2 now protects expanded task IDs.
+See the [1.0 compatibility policy](compatibility-policy.md) for current public guarantees.
+
 ---
 
 ## D.1 Executive intent

@@ -11,9 +11,12 @@ diffs and its merges stay small. Their IDs stay in ``reserved_ids`` forever.
 * **``.byteplan/archive.json``** (committed) is the reconciliation artifact: per task, when it
   was closed and archived, its title, and the sha256 of its canonical record. It's small,
   deterministic, and merges by task ID (entries never change once written).
-* **Reconciling** on another clone: every archived record is in Git history (an earlier
+* **Reconciling** on another clone: every archived task record is in Git history (an earlier
   ``tasks.json``). Walking the registry's history finds each artifact entry's record by its
-  hash and fills the local store. Nothing is lost by the store being local.
+  hash and fills the local store. Verification is not automatically reconciled. Git archives
+  require task evidence and its referenced run to be committed before removing them from
+  ``verification.json``; inspect Git history to recover historical evidence and reverify for
+  fresh results. Outside Git, back up the SQLite store: it can be the only archived copy.
 
 Only tasks whose annotation is already gone from source (presence ``missing``, or no source)
 are archived, so an archived ID never shows up in source as "unregistered".

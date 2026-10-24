@@ -53,13 +53,19 @@ compatibility increment and original-branch collision recovery procedure are rec
 [RC1 compatibility report](rc1-compatibility.md). The historical completion table does not
 complete these new release gates.
 
-**Pause checkpoint:** PR #45 contains the identity/schema work and a focused merge/evidence
-hardening follow-up (`237cb5`, `279e27`, `492312`, `6d434f`). After its verification, pause as
-requested; resume with final A4 disposition (`edc2`), source/first-run safety (`1b81`), storage
-validation (`4842`) and interface policy (`8aeb`). See the
-[compatibility checkpoint](rc1-compatibility.md#a4-follow-up-and-pause-checkpoint).
-API decomposition (`3844`) starts only after compatibility integration; final reviews and RC1
-approval remain later gates.
+**Compatibility execution checkpoint (24 October 2026):** the approved
+[next-steps assessment](rc1-next-steps.md) has been executed through the remaining Track A
+acceptance work: merge (`edc2`), source safety (`1b81`), storage (`4842`) and interface policy
+(`8aeb`). Independent review additionally confirmed archive durability (`af82fd`) and snapshot
+isolation (`c35e66`) defects; both are corrected with linked regression evidence and explicit
+resolution. Missing-test and MCP diagnostic gaps (`b29c72`, `932b36`) are also resolved.
+First-party scaffold formatting (`67a65c`) remains an explicitly nonblocking P3.
+
+Finish final checks and integrate PR #45 before API decomposition (`3844`) in a dedicated PR.
+Final whole-repository reviews (`c053`) and the release-readiness/approval report (`a70d`) remain
+later gates. The [compatibility report](rc1-compatibility.md) links acceptance maps, independent
+review evidence, the storage decision and public stability policy. Its earlier pause checkpoint
+retains historical evidence; it does not describe the current execution state.
 
 **Compatibility decisions pending:** A6 inventories CLI, Python API, configuration, decorators,
 MCP, Hatch and extension points before classifying stable versus experimental interfaces. Core

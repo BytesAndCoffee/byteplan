@@ -6,6 +6,11 @@
 **Python:** 3.11+  
 **Tagline:** *Plan in code. Track in one place.*
 
+**Compatibility update:** The four-character allocation assumptions in this historical addendum
+are superseded by [Addendum E](spec-addendum-e.md#track-a--pre-10-compatibility-and-reliability)
+and the [1.0 compatibility policy](compatibility-policy.md). Legacy identities remain valid;
+new allocation uses six characters, with supported longer identities and explicit migration.
+
 ## 1. Purpose and compatibility
 
 Extend BytePlan from source-comment discovery into a source-aware development task registry with three equivalent ways to originate a task: an ordinary TODO/FIXME/HACK/XXX comment, an explicit decorator on a function/method/class, and automatic discovery of AST stubs. All representations reconcile to the same central registry and stable four-character hexadecimal ID. Add test linkage and verification evidence so developers, teammates, and AI agents can determine whether work is ready for resolution.

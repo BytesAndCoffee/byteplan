@@ -45,8 +45,9 @@ def todo(
 
     Args:
         title: One-line summary of the work.
-        id: The task's four-hex-digit ID. Leave it out; ``byteplan scan``
-            allocates one and writes it here.
+        id: The task's persistent hexadecimal ID (legacy four-character IDs
+            remain supported). Leave it out; ``byteplan scan`` allocates a
+            six-character ID and writes it here.
         kind: ``"TODO"``, ``"FIXME"``, ``"HACK"`` or ``"XXX"``.
         description: Longer explanation.
         test: One pytest node ID that verifies the task.

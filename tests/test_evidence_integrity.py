@@ -186,6 +186,8 @@ def test_archive_restores_conflicting_runs_without_substitution(repo: ProjectFac
             {"schema_version": 1, "tasks": {task_id: entry}, "runs": {"same-id": old_run}, "x-store": {"keep": True}}
         ),
     )
+    git(repo.root.parent, "add", "-A")
+    git(repo.root.parent, "commit", "-qm", "preserve original evidence before archival")
     p.archive(older_than=0)
     assert verification.Evidence.load(repo.root).extra == {"x-store": {"keep": True}}
     other_id = next(iter(p.load_registry().tasks))

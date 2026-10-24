@@ -112,10 +112,6 @@ boundary; schema v2 is no longer reserved for Assignments.
 
 ### A3. Registry layout and history storage
 
-<!-- TODO[4842]: RC1 authoritative storage decision based on measured collaboration and integrity risk
-     Compare embedded history, separate append-only history and individual task records.
-     Document the long-term contract before deciding whether any RC1 migration is justified. -->
-
 Choose and document the intended long-term authoritative storage contract before RC1. Compare:
 
 1. Keeping history embedded in registry tasks.
@@ -136,10 +132,6 @@ become a second task authority.
 
 ### A4. Plain-Git merge compatibility
 
-<!-- FIXME[edc2]: RC1 plain-Git merge and conflicting-evidence validation
-     Exercise divergent tasks, collisions, histories, lifecycle states and malformed merges
-     both with and without the custom driver; require actionable check diagnostics. -->
-
 Test independently created tasks on divergent branches both with the custom merge driver and
 without it. Include colliding identities, independently updated histories, conflicting
 verification evidence, competing lifecycle states, malformed or partially merged JSON,
@@ -153,10 +145,6 @@ Git conflict is acceptable where automatic merging cannot be safe.
 
 ### A5. Source-editing safety and first-run ergonomics
 
-<!-- TODO[1b81]: RC1 source-safety and first-run preview audit
-     Validate large initial scans, hooks, synchronization, BOM/newlines, AST preservation,
-     idempotence and recovery; document existing report-only and preview workflows first. -->
-
 Evaluate whether users can understand proposed changes before inserting IDs or detected-stub
 annotations in an existing repository. Cover large initial scans, commit-hook behavior,
 synchronization, BOM and newline preservation, syntax/AST preservation, idempotence, clear
@@ -165,10 +153,6 @@ documenting safe behavior already present. An ostensibly read-only operation mus
 mutate source.
 
 ### A6. Compatibility boundary and remaining review inputs
-
-<!-- TODO[8aeb]: RC1 public compatibility contract and documentation audit
-     Classify CLI, Python API, configuration, decorators, MCP and Hatch guarantees; reassess
-     TD004 guidance, documentation drift, first-run complexity and experimental designations. -->
 
 Define the public 1.0 compatibility boundary for CLI, Python API, configuration, decorators,
 MCP, Hatch and documented extension points. Inventory advanced interfaces and explicitly decide

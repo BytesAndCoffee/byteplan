@@ -1,9 +1,67 @@
 # RC1 compatibility hardening: triage, migration and remaining work
 
-This is the first implementation increment of Addendum E Track A, based on merged main
+This report covers Addendum E Track A, based on merged main
 `471ccca`. PRs #43 and #44 are integrated. This report is not an RC1 readiness declaration:
 API decomposition, the final two whole-repository reviews, platform/artifact validation and
 explicit release approval remain required.
+
+## Compatibility acceptance completion
+
+The approved [execution plan](rc1-next-steps.md) extends the earlier pause checkpoint with
+real-Git mixed-schema acceptance, source-safety and storage audits, interface policy and narrow
+diagnostic fixes. See the [A4 acceptance map](rc1-merge-acceptance.md),
+[source-safety report](rc1-source-safety.md), [storage decision](rc1-storage.md) and
+[1.0 compatibility policy](compatibility-policy.md) for current contracts and evidence.
+The prior checkpoint below remains historical validation of its increment.
+
+Supported schema-1/schema-2 merges now use schema 2; each input is independently validated.
+This is safe for the present metadata-only migration, not a general rule for future schemas.
+Real divergent branches cover either/both sides migrated, both orientations and driver/plain
+Git. Unknown schemas and expanded identities under schema 1 fail explicitly.
+
+The storage audit confirmed task `af82fd`: archiving could remove uncommitted verification
+from shared JSON into the ignored local store without a recoverable Git copy. Archival now
+requires each current task record, evidence entry and referenced run to match committed HEAD,
+using type-sensitive canonical comparison. Staging alone is insufficient; unrelated evidence
+does not block archival. Ordinary archive reconciliation recovers task records, not evidence.
+Outside Git, the local archive must be backed up explicitly. No layout migration is introduced.
+
+Missing-test verification results now explain explicit discovery refresh and managed-link
+repair. Newer-schema MCP errors retain upgrade guidance and explain restarting the server or
+owning client to load upgraded code. Neither fix adds implicit scanning or source mutation.
+The first-party scaffold-formatting task `67a65c` remains a tracked P3 nonblocking issue.
+
+Final PR review also confirmed `c35e66`: snapshot projects accepted working-tree registry
+mutation, and queries could combine selected source with live registry/evidence. Snapshot
+mutation and execution now fail before side effects; supported queries use selected registry,
+evidence and source bytes. Source/archive previews needing working-tree state fail explicitly.
+Commit freshness uses the selected commit, while index HEAD freshness remains explicitly
+uncertain. This corrects the read-only contract without changing the CLI's separate staged
+reconciliation workflow.
+
+Final local validation for this completion increment:
+
+- **1,171 passed, 3 network cases deselected, 1 expected P3 xfail** on Linux/Python 3.12.
+  All three network cases passed separately, including actual released-client interoperability.
+- Formatting and strict typing passed (98 source files). Wheel/sdist builds and isolated
+  installations/CLI import-help checks passed. These are local unreleased 0.2.0 development
+  artifacts, not a published RC1 or its final artifact approval.
+- Fifteen compatibility tasks have fresh passing linked evidence after source cleanup.
+  Policy task `8aeb` records manual public-interface inventory and review evidence; no
+  documentation-only tests were invented to claim implementation verification.
+- Independent focused review passed 233 merge cases, 96 archive cases (including six
+  adversarial probes), 48 diagnostic/verification/MCP cases and 163 snapshot/verification
+  cases. Source-safety audit additionally passed 326 safety and 103 build/release cases.
+  Final PR review's confirmed snapshot finding is fixed; no unresolved blocker remains in
+  those focused scopes. They do not replace either final whole-repository review.
+- Reconciliation is idempotent; checks preserve the existing P3 placeholder as an informational
+  finding. All 100 previous identities, reservations and history prefixes remain; two new
+  defect identities were allocated through BytePlan. No source/registry compatibility
+  migration beyond the already documented schema-v2 boundary is introduced.
+
+The final pushed revision must pass the full platform CI matrix before compatibility
+integration. API decomposition and the final frozen-SHA reviews/readiness report remain
+required. `67a65c` is explicitly nonblocking; graph/Assignment implementation remains deferred.
 
 ## Triage in BytePlan
 
@@ -14,10 +72,10 @@ defect. High scheduling priority also applies to work explicitly required before
 |---|---|---|
 | `c978` | Highest compatibility priority: the former four-character-only contract cannot recognize expanded identities. Old clients warn but can still exit successfully with zero tracked tasks. | Implemented six-character allocation, legacy/long IDs, exact-first prefixes, scanner consistency and tests. Completed and explicitly resolved after linked verification and independent collision-recovery review. Original-branch repair preserves the complete task record, supported exact references and historical evidence. |
 | `8756` | Highest prerequisite: incompatible source must never be introduced under metadata accepted by older clients. | Completed and explicitly resolved with journaled migration, allocation guards, released-package interoperability and preservation/recovery evidence. |
-| `edc2` | P1 integrity risk: duplicate JSON keys can silently discard competing records; malformed merged evidence could escape `check`. | Strict parsing, evidence validation and real Git collision tests implemented. Broader lifecycle/history/evidence reconciliation and recovery matrix remains open. |
-| `1b81` | P2 confirmed first-run problem: initialization could write a new shim before rejecting an incompatible registry. The broader safety audit is a required gate. | Validate before writes; retain the task for the full large-scan/hook/preview/source-recovery audit. |
-| `4842` | P2 design decision required before RC1; file size alone is not an integrity defect. | Retain the JSON layout under the intended authority contract below; review the decision and collaboration/performance evidence before resolution. |
-| `8aeb` | P2 documentation and compatibility-policy work. | Inventory stable/experimental interfaces, first-run guidance and drift after compatibility behavior settles. |
+| `edc2` | P1 integrity risk: duplicate JSON keys can silently discard competing records; malformed merged evidence could escape `check`. | Completed and explicitly resolved after full A4 acceptance, real-Git mixed-schema tests, independent review and fresh verification. |
+| `1b81` | P2 confirmed first-run problem and required safety audit. Final review also found snapshot state leakage. | Completed source/preview/transaction audit; separately tracked snapshot defect `c35e66` corrected, independently reviewed and verified before explicit resolution. |
+| `4842` | Required storage decision; file size alone is not an integrity defect. Audit found P1 local-only archival evidence loss. | Retain JSON layout after measured scale/collaboration review. Defect `af82fd` fixed with durable evidence guards, independently reviewed and verified; explicitly resolved. |
+| `8aeb` | P2 documentation and compatibility-policy work. | Completed public stable/experimental inventory, first-run/TD004 guidance and documentation drift audit; explicitly resolved with manual inventory evidence. |
 | `3844` | Required structural gate, scheduled high; size/coupling is a maintainability concern, not evidence of a P1 correctness defect. | Dedicated PR B after compatibility integration. |
 | `c053` | Required independent-review gate; no defect severity assigned. | Freeze one integrated SHA only after A/B/C; run two independent whole-repository reviews. |
 | `a70d` | Required artifact/platform/readiness approval gate; no defect severity assigned. | Assemble the final evidence report; do not tag or publish automatically. |

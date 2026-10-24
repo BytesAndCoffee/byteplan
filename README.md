@@ -38,6 +38,7 @@ resolved. Only you resolve tasks.
 - [Status, presence and resolution](#status-presence-and-resolution)
 - [Commands](#commands)
 - [Configuration](#configuration)
+- [1.0 compatibility boundary](#10-compatibility-boundary)
 - [Hatch integration](#hatch-integration)
 - [MCP server for AI agents](#mcp-server-for-ai-agents)
 - [Safety guarantees and tradeoffs](#safety-guarantees-and-tradeoffs)
@@ -68,13 +69,13 @@ BytePlan: 3 files scanned
   +3 added · ~0 relocated · !0 missing · !0 duplicate · 0 stale
 
 Annotated:
-  + [33b4] TODO  src/pkg/rip.py:2  Implement route poisoning
-  + [dc20] FIXME src/pkg/rip.py:5  ARP entries outlive interfaces
-  + [243a] TODO  src/pkg/rip.py:22  Implement Router.withdraw (detected stub)
+  + [33b421] TODO  src/pkg/rip.py:2  Implement route poisoning
+  + [dc20f8] FIXME src/pkg/rip.py:5  ARP entries outlive interfaces
+  + [243a09] TODO  src/pkg/rip.py:22  Implement Router.withdraw (detected stub)
 $ byteplan list
-$ byteplan edit 33b4 --priority high --assignee sam --label routing
-$ byteplan status 33b4 in_progress
-$ byteplan resolve 33b4 --note "shipped in 1.2"
+$ byteplan edit 33b421 --priority high --assignee sam --label routing
+$ byteplan status 33b421 in_progress
+$ byteplan resolve 33b421 --note "shipped in 1.2"
 ```
 
 Commit `.byteplan/tasks.json` along with your code. `init` keeps `.byteplan/` out of Hatch sdists
@@ -376,10 +377,14 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
   title, status, dates and the sha256 of its record. It's small and merges by task ID.
 - **Other clones:** every archived record is in an earlier commit's `tasks.json`. `byteplan show
   ID` finds it there by hash when the local store lacks it, and `byteplan archive --reconcile`
-  fills the store for all of them at once. (Evidence isn't in history, so it stays with the
-  clone that archived the task.)
-- **Only committed records move:** in a Git repository, a task is archived only once its
-  current record is committed, so other clones can always find it.
+  fills the store for all of them at once. This may populate the ignored local cache, but never
+  rewrites source or authoritative JSON. Evidence is not automatically reconciled; inspect its
+  committed Git history to recover historical results, then reverify for fresh evidence.
+- **Only committed records and evidence move:** in a Git repository, the current task record,
+  its evidence and referenced run must be committed before archival removes them from shared
+  JSON. Staging alone is insufficient. Unrelated evidence edits do not block a task's archival.
+- **Outside Git:** the SQLite store may be the only archived copy; back it up. See the
+  [storage contract and recovery limits](docs/rc1-storage.md).
 - **What stays:** the ID stays in `reserved_ids`, so it's never reused. If it turns up in source
   again, `check` says it's archived; `byteplan archive --restore ID` brings it back.
 
@@ -501,6 +506,15 @@ find_links = []                    # extra package sources for --offline install
 - **Paths and patterns:** paths are relative to the project root (the directory with
   `pyproject.toml`), not your current directory. Patterns use `.gitignore` syntax.
 - **Strictness:** unknown keys are errors, so typos don't silently do nothing.
+
+## 1.0 compatibility boundary
+
+The [1.0 compatibility policy](docs/compatibility-policy.md) covers task identities and registry
+semantics, source safety, the documented CLI and Python API, configuration, runtime decorators,
+MCP tools and Hatch/Git integrations. Advanced shipped commands share these guarantees.
+Python MCP embedding is explicitly experimental; the documented stdio protocol is included in
+the stable boundary. Assignments and semantic graph operations remain future architecture.
+This is the intended 1.0 contract; RC1 still requires its documented validation and approval.
 
 ## Hatch integration
 

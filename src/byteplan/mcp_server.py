@@ -40,7 +40,7 @@ from byteplan.__about__ import __version__
 from byteplan.api import UNSET, Project
 from byteplan.cli import add_mcp_arguments
 from byteplan.diagnostics import Code
-from byteplan.errors import ByteplanError, LockedError
+from byteplan.errors import ByteplanError, LockedError, RegistryError
 from byteplan.models import Presence, Status
 
 if TYPE_CHECKING:
@@ -71,17 +71,19 @@ class Permissions:
 
 
 def _errors_as_tool_errors(call: Callable[[], _T]) -> _T:
-    # FIXME[932b36]: Tell agents to restart the MCP server when the registry schema is newer than it
-    #   The server keeps the code it started with. After a checkout whose registry needs a newer
-    #   schema, every tool fails with "upgrade byteplan" even though the installed byteplan is
-    #   already new enough; the fix is restarting the server (or the client session that owns it).
     try:
         return call()
     except LockedError as exc:
         msg = f"locked: {exc}"
         raise ToolError(msg) from exc
     except ByteplanError as exc:
-        raise ToolError(str(exc)) from exc
+        msg = str(exc)
+        if isinstance(exc, RegistryError) and "is newer than this byteplan supports" in msg:
+            msg += (
+                "; upgrade BytePlan if needed, then restart this MCP server or its owning client session "
+                "so it loads the upgraded code (an already-running server keeps its original code)"
+            )
+        raise ToolError(msg) from exc
 
 
 def _needs(allowed: bool, what: str) -> None:  # noqa: FBT001
