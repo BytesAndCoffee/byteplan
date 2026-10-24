@@ -259,6 +259,10 @@ def _aggregate(
             outcome = "timeout" if timed_out else "not_run"
             results[node] = TestResult(outcome, message=f"pytest exited with code {returncode} before collecting")
         elif not items:
+            # FIXME[b29c72]: Refresh or explain stale discovered links when a linked test is not found
+            #   Renaming a scaffolded placeholder into the real test leaves the registry linking the old
+            #   name until a rescan, so verify reports not_found with no hint (hit twice on 2026-10-23/24).
+            #   Rescan the test files' links before running, or at least say to run `byteplan scan`.
             results[node] = TestResult("not_found", message="no test matches this node ID")
         else:
             finished = [

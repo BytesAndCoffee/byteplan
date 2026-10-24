@@ -35,6 +35,7 @@
     "5aae",
     "5ff6",
     "6639",
+    "67a65c",
     "67df",
     "680a",
     "6b83",
@@ -51,6 +52,7 @@
     "9054",
     "90c6",
     "9185",
+    "932b36",
     "93dd",
     "98d6",
     "9b40",
@@ -66,6 +68,7 @@
     "ac9d",
     "ae7a",
     "aedf",
+    "b29c72",
     "b55f",
     "b68c",
     "b865",
@@ -3157,6 +3160,64 @@
       "title": "Keep runtime imports that __all__ re-exports",
       "title_override": null
     },
+    "67a65c": {
+      "assignee": null,
+      "description": "A new file gets `import pytest` and `from <runtime> import verifies` in one block. When the\nruntime is a first-party shim (BytePlan's own `byteplan._todo`), ruff's isort wants a blank\nline between them (I001), so `hatch fmt --check` fails until the file is formatted.",
+      "first_seen": "2026-10-24T18:22:27Z",
+      "history": [
+        {
+          "at": "2026-10-24T18:22:27Z",
+          "event": "created",
+          "new": {
+            "line": 333,
+            "path": "src/byteplan/scaffold.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T18:22:27Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_scaffold.py::test_task_67a65c",
+            "path": "tests/test_scaffold.py",
+            "policy": "xfail"
+          },
+          "old": null
+        }
+      ],
+      "id": "67a65c",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-24T18:22:27Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 315,
+        "line": 333,
+        "path": "src/byteplan/scaffold.py",
+        "representation": "comment",
+        "symbol": "plan"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 664,
+            "node": "tests/test_scaffold.py::test_task_67a65c",
+            "path": "tests/test_scaffold.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Separate first-party runtime imports from pytest in new scaffold files",
+      "title_override": null
+    },
     "67df": {
       "assignee": null,
       "description": "Codex review of #42: https://github.com/BytesAndCoffee/byteplan/pull/42#discussion_r4356228584\nA future import with a third-party one in the same block sorts `import pytest` above it,\nwriting a module that fails with SyntaxError; the AST guard doesn't catch the order.",
@@ -4491,6 +4552,64 @@
       "title": "Keep the space between words around an inline Markdown comment",
       "title_override": null
     },
+    "932b36": {
+      "assignee": null,
+      "description": "The server keeps the code it started with. After a checkout whose registry needs a newer\nschema, every tool fails with \"upgrade byteplan\" even though the installed byteplan is\nalready new enough; the fix is restarting the server (or the client session that owns it).",
+      "first_seen": "2026-10-24T18:21:53Z",
+      "history": [
+        {
+          "at": "2026-10-24T18:21:53Z",
+          "event": "created",
+          "new": {
+            "line": 74,
+            "path": "src/byteplan/mcp_server.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T18:21:53Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_mcp_server.py::test_errors_as_tool_errors",
+            "path": "tests/test_mcp_server.py",
+            "policy": "xfail"
+          },
+          "old": null
+        }
+      ],
+      "id": "932b36",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-24T18:21:53Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 73,
+        "line": 74,
+        "path": "src/byteplan/mcp_server.py",
+        "representation": "comment",
+        "symbol": "_errors_as_tool_errors"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 6,
+            "node": "tests/test_mcp_server.py::test_errors_as_tool_errors",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Tell agents to restart the MCP server when the registry schema is newer than it",
+      "title_override": null
+    },
     "93dd": {
       "assignee": null,
       "description": "README end-to-end developer journey, docs for every config key, dogfooding and CI on\nubuntu/macos/windows.",
@@ -5659,6 +5778,64 @@
         ]
       },
       "title": "Check every runtime import, not just decorator bindings, before skipping a file",
+      "title_override": null
+    },
+    "b29c72": {
+      "assignee": null,
+      "description": "Renaming a scaffolded placeholder into the real test leaves the registry linking the old\nname until a rescan, so verify reports not_found with no hint (hit twice on 2026-10-23/24).\nRescan the test files' links before running, or at least say to run `byteplan scan`.",
+      "first_seen": "2026-10-24T18:21:53Z",
+      "history": [
+        {
+          "at": "2026-10-24T18:21:53Z",
+          "event": "created",
+          "new": {
+            "line": 262,
+            "path": "src/byteplan/verification.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T18:21:53Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_verification.py::test_task_b29c72",
+            "path": "tests/test_verification.py",
+            "policy": "xfail"
+          },
+          "old": null
+        }
+      ],
+      "id": "b29c72",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-24T18:21:53Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 229,
+        "line": 262,
+        "path": "src/byteplan/verification.py",
+        "representation": "comment",
+        "symbol": "_aggregate"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 6,
+            "node": "tests/test_verification.py::test_task_b29c72",
+            "path": "tests/test_verification.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Refresh or explain stale discovered links when a linked test is not found",
       "title_override": null
     },
     "b55f": {

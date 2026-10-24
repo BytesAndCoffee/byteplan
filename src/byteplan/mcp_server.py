@@ -71,6 +71,10 @@ class Permissions:
 
 
 def _errors_as_tool_errors(call: Callable[[], _T]) -> _T:
+    # FIXME[932b36]: Tell agents to restart the MCP server when the registry schema is newer than it
+    #   The server keeps the code it started with. After a checkout whose registry needs a newer
+    #   schema, every tool fails with "upgrade byteplan" even though the installed byteplan is
+    #   already new enough; the fix is restarting the server (or the client session that owns it).
     try:
         return call()
     except LockedError as exc:
