@@ -18,8 +18,9 @@ import json
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, NoReturn
 
+from byteplan import jsonio
 from byteplan.errors import RegistryError
-from byteplan.ids import is_valid_id
+from byteplan.ids import LEGACY_ID_LENGTH, is_valid_id
 from byteplan.models import (
     AttachmentKind,
     HistoryEvent,
@@ -39,7 +40,8 @@ if TYPE_CHECKING:
 
     _Fail = Callable[[str], NoReturn]
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+EXPANDED_ID_SCHEMA_VERSION = 2
 
 _TOP_LEVEL_KEYS = frozenset({"schema_version", "reserved_ids", "tasks"})
 _TASK_KEYS = frozenset({
@@ -55,9 +57,15 @@ class Registry:
     tasks: dict[str, Task] = field(default_factory=dict)
     # Unknown top-level keys from newer tools, carried through unchanged.
     extra: dict[str, Any] = field(default_factory=dict)
+    schema_version: int = SCHEMA_VERSION
 
     def get(self, task_id: str) -> Task | None:
         return self.tasks.get(task_id)
+
+    def require_expanded_ids(self) -> None:
+        if self.schema_version < EXPANDED_ID_SCHEMA_VERSION:
+            msg = "expanded task IDs require schema version 2; run `byteplan migrate` and stage the registry first"
+            raise RegistryError(msg)
 
 
 def load_registry(path: Path) -> Registry:
@@ -74,9 +82,12 @@ def load_registry(path: Path) -> Registry:
 
 def loads(text: str, name: str = "registry") -> Registry:
     try:
-        data = json.loads(text)
+        data = jsonio.loads(text)
     except json.JSONDecodeError as exc:
         msg = f"{name} is not valid JSON (line {exc.lineno}, column {exc.colno}): {exc.msg}"
+        raise RegistryError(msg) from exc
+    except ValueError as exc:
+        msg = f"{name}: {exc}"
         raise RegistryError(msg) from exc
     return from_dict(data, name)
 
@@ -98,12 +109,20 @@ def from_dict(data: Any, name: str = "registry") -> Registry:
 
     reserved = data.get("reserved_ids", [])
     if not isinstance(reserved, list) or not all(isinstance(i, str) and is_valid_id(i) for i in reserved):
-        fail("reserved_ids must be a list of four-hex-digit IDs")
+        fail("reserved_ids must be a list of lowercase hexadecimal IDs (at least four characters)")
     tasks_data = data.get("tasks", {})
     if not isinstance(tasks_data, dict):
         fail("tasks must be an object")
 
-    registry = Registry(reserved_ids=set(reserved), extra={k: v for k, v in data.items() if k not in _TOP_LEVEL_KEYS})
+    if version == 1 and any(
+        is_valid_id(value) and len(value) != LEGACY_ID_LENGTH for value in [*reserved, *tasks_data]
+    ):
+        fail("expanded task IDs cannot use schema version 1; restore consistent metadata and run `byteplan migrate`")
+    registry = Registry(
+        reserved_ids=set(reserved),
+        extra={k: v for k, v in data.items() if k not in _TOP_LEVEL_KEYS},
+        schema_version=version,
+    )
     for key, raw in tasks_data.items():
         task = _task_from_dict(key, raw, fail)
         if key not in registry.reserved_ids:
@@ -115,7 +134,7 @@ def from_dict(data: Any, name: str = "registry") -> Registry:
 def _task_from_dict(key: str, raw: Any, fail: _Fail) -> Task:
     where = f"task {key!r}"
     if not is_valid_id(key):
-        fail(f"{where}: key is not a four-hex-digit ID")
+        fail(f"{where}: key is not a lowercase hexadecimal ID (at least four characters)")
     if not isinstance(raw, dict):
         fail(f"{where} must be an object")
     if raw.get("id") != key:
@@ -189,7 +208,11 @@ def _tests_from_dict(raw: Any, where: str, fail: _Fail) -> dict[str, Any]:
         for entry in discovered
     ):
         fail(f"{where}: tests.discovered entries need node, provenance, path and line")
-    return {"tests_managed": list(managed), "tests_discovered": [dict(entry) for entry in discovered]}
+    return {
+        "tests_managed": list(managed),
+        "tests_discovered": [dict(entry) for entry in discovered],
+        "tests_extra": {k: v for k, v in raw.items() if k not in {"managed", "discovered"}},
+    }
 
 
 def _source_from_dict(raw: Any, where: str, fail: _Fail) -> SourceRef | None:
@@ -220,6 +243,11 @@ def _source_from_dict(raw: Any, where: str, fail: _Fail) -> SourceRef | None:
         raw.get("decl_line"),
         optional_enum("attachment_kind", AttachmentKind),
         optional_enum("representation", Representation),
+        extra={
+            k: v
+            for k, v in raw.items()
+            if k not in {"path", "line", "symbol", "decl_line", "attachment_kind", "representation"}
+        },
     )
 
 
@@ -237,7 +265,16 @@ def _history_from_list(raw: Any, where: str, fail: _Fail) -> list[HistoryEvent]:
         note = entry.get("note")
         if note is not None and not isinstance(note, str):
             fail(f"{where}: history note must be a string")
-        events.append(HistoryEvent(entry["event"], entry["at"], entry.get("old"), entry.get("new"), note))
+        events.append(
+            HistoryEvent(
+                entry["event"],
+                entry["at"],
+                entry.get("old"),
+                entry.get("new"),
+                note,
+                extra={k: v for k, v in entry.items() if k not in {"event", "at", "old", "new", "note"}},
+            )
+        )
     return events
 
 
@@ -265,8 +302,12 @@ def task_to_dict(task: Task) -> dict[str, Any]:
             "history": [_event_to_dict(e) for e in task.history],
         }
     )
-    if task.tests_managed or task.tests_discovered:  # omitted when empty: no churn for test-less tasks
-        data["tests"] = {"managed": list(task.tests_managed), "discovered": list(task.tests_discovered)}
+    if task.tests_managed or task.tests_discovered or task.tests_extra:
+        data["tests"] = {
+            **task.tests_extra,
+            "managed": list(task.tests_managed),
+            "discovered": list(task.tests_discovered),
+        }
     else:
         data.pop("tests", None)
     return data
@@ -274,6 +315,7 @@ def task_to_dict(task: Task) -> dict[str, Any]:
 
 def _source_to_dict(source: SourceRef) -> dict[str, Any]:
     return {
+        **source.extra,
         "path": source.path,
         "line": source.line,
         "symbol": source.symbol,
@@ -284,17 +326,21 @@ def _source_to_dict(source: SourceRef) -> dict[str, Any]:
 
 
 def _event_to_dict(event: HistoryEvent) -> dict[str, Any]:
-    data: dict[str, Any] = {"event": event.event, "at": event.at, "old": event.old, "new": event.new}
+    data: dict[str, Any] = {**event.extra, "event": event.event, "at": event.at, "old": event.old, "new": event.new}
     if event.note is not None:
         data["note"] = event.note
     return data
 
 
 def to_dict(registry: Registry) -> dict[str, Any]:
+    if registry.schema_version == 1 and any(
+        len(value) != LEGACY_ID_LENGTH for value in registry.reserved_ids | registry.tasks.keys()
+    ):
+        registry.require_expanded_ids()
     data: dict[str, Any] = dict(registry.extra)
     data.update(
         {
-            "schema_version": SCHEMA_VERSION,
+            "schema_version": registry.schema_version,
             "reserved_ids": sorted(registry.reserved_ids),
             "tasks": {task_id: task_to_dict(registry.tasks[task_id]) for task_id in sorted(registry.tasks)},
         }

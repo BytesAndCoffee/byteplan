@@ -8,7 +8,7 @@
 
 ## 1. Product summary
 
-BytePlan is a source-first, project-local development task manager. Developers declare unfinished work where it is encountered: source comments and unfinished implementations. BytePlan scans Python source, assigns each tracked item a permanent four-character lowercase hexadecimal ID, writes the ID back into the source, and reconciles discoveries with a Git-versioned central registry. Project management fields live in the registry, not in comments.
+BytePlan is a source-first, project-local development task manager. Developers declare unfinished work where it is encountered: source comments and unfinished implementations. BytePlan scans Python source, assigns each tracked item a permanent lowercase hexadecimal ID, writes the ID back into the source, and reconciles discoveries with a Git-versioned central registry. Project management fields live in the registry, not in comments.
 
 BytePlan must also detect when a registry item no longer exists within a completed source scan and flag it as **missing**, without assuming the task has been resolved. Scanning must be deterministic, idempotent after the initial annotation, and safe to run from Hatch builds or CI.
 
@@ -16,8 +16,8 @@ The product is not a GitHub Issues replacement, not a full code-quality linter, 
 
 ## 2. Core invariants
 
-1. A tracked task has **one immutable, project-unique four-character ID**, e.g. `7fa2`.
-2. IDs use exactly `[0-9a-f]{4}`. They are assigned once, embedded in source, and *never recomputed* when text, file path, symbol, or line number changes.
+1. A tracked task has **one immutable, project-unique ID**. Existing four-character identities such as `7fa2` remain valid; newly allocated tasks use six characters.
+2. Persistent IDs use `[0-9a-f]{4,}`. They are assigned once, embedded in source, and *never recomputed* when text, file path, symbol, or line number changes. Exact lookup takes precedence over unambiguous UI prefixes; stored references always use full IDs.
 3. The registry is the canonical source of status, priority, assignee, notes, and history; source code is the canonical evidence that the item exists.
 4. IDs are never reused, including IDs from closed or deleted/archived entries. Maintain a permanent reservation ledger.
 5. Registry lifecycle status and source presence are separate dimensions.
@@ -78,7 +78,7 @@ A nearby existing TODO immediately attached to the same declaration is the owner
 
 ## 5. ID allocation
 
-Use Python stdlib `hashlib.shake_128` to propose a 16-bit (two-byte) ID, represented as four lowercase hex characters. **SHAKE128 is an implementation choice for convenient deterministic output, not a security claim.** A CRC-16 implementation is acceptable only if explicitly substituted, fully tested, and collision-handled.
+Use Python stdlib `hashlib.shake_128` to propose a 24-bit (three-byte) ID, represented as six lowercase hex characters. **SHAKE128 is an implementation choice for convenient deterministic output, not a security claim.** Preserve existing four-character IDs and support longer lowercase hexadecimal identities. The expanded contract supersedes the original 16-bit proposal under Addendum E A1–A2.
 
 Input seed for new annotations: normalized relative source path, qualified symbol when available, TODO kind and text, and deterministic disambiguator for identical occurrences. Include a counter for collision retries. Example:
 
@@ -86,10 +86,10 @@ Input seed for new annotations: normalized relative source path, qualified symbo
 from hashlib import shake_128
 
 def candidate(seed: str, attempt: int) -> str:
-    return shake_128(f"{seed}\0{attempt}".encode("utf-8")).hexdigest(2)
+    return shake_128(f"{seed}\0{attempt}".encode("utf-8")).hexdigest(3)
 ```
 
-Scan files in a stable sorted order and allocate IDs in a stable order within each file. When a candidate is in the used-or-reserved set, increment `attempt` until an unused ID is found. Never overwrite an existing ID. Preserve the reservation ledger even if the task is archived or removed from the active view. Exhaustion of all 65,536 possible IDs must be reported as a clear failure, never produce an invalid ID. IDs provide only **project-local uniqueness**, not collision resistance or cross-project coordination.
+Scan files in a stable sorted order and allocate IDs in a stable order within each file. When a candidate is in the active-or-reserved set, increment `attempt` until an unused ID is found, with a deterministic fallback probe. Never overwrite an existing ID. Preserve the reservation ledger even if the task is archived or removed from the active view. Exhaustion of the 16,777,216 six-character candidates must be reported as a clear failure; legacy and longer identities do not consume that entire namespace merely by sharing prefixes. IDs provide only **project-local uniqueness**, not collision resistance or cross-project coordination.
 
 ## 6. Registry format
 
@@ -97,9 +97,14 @@ Default: `.byteplan/tasks.json`, UTF-8, formatted with 2-space indentation and d
 
 Suggested schema (evolve with `schema_version` and migrations):
 
+New repositories use schema v2. Existing schema-v1 repositories retain their version until an
+explicit, journaled `byteplan migrate`. Incompatible annotation writes require completed
+migration first. Migration preserves source, task/history metadata and verification evidence;
+see [the compatibility and recovery procedure](rc1-compatibility.md#migration-and-recovery).
+
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "reserved_ids": ["7fa2", "a491", "e301"],
   "tasks": {
     "7fa2": {
@@ -255,7 +260,7 @@ Implement tests with `pytest` covering at least:
 2. Stub discovery for sync/async functions, methods, classes, `pass`, `...`, `NotImplementedError`.
 3. Intentional stubs/interfaces excluded, explicit suppressions honored.
 4. One attached TODO plus stub results in one task, not two.
-5. Four-character lowercase hex IDs; collision retry; exhaustion; reservation of historic IDs.
+5. Legacy four-character and expanded lowercase hex IDs; six-character allocation; exact-first/prefix lookup; collision retry, exhaustion and historical reservations; schema migration and released-client rejection.
 6. Fresh annotation writes IDs to source while preserving indentation, comments, encodings, newline style, and parseability.
 7. Inserted lines above a task do not change its ID; moving/renaming source does not change its ID.
 8. Edit task's priority/notes/status, scan again: those managed fields survive.
@@ -303,7 +308,7 @@ Keep scanners pure: return discovery objects and source edit proposals rather th
 
 ## 14. Implementation order for Kiro
 
-**Phase 1:** Config, registry schema, SHAKE128 16-bit ID allocator with collision handling, comment tokenizer, CLI `init/scan/list/show`.  
+**Phase 1:** Config, registry schema, SHAKE128 ID allocator with collision handling (originally 16-bit; expanded to 24-bit under Addendum E), comment tokenizer, CLI `init/scan/list/show`.
 **Phase 2:** Source annotator, full reconciliation, missing detection, duplicates, status management, idempotence and safe writes.  
 **Phase 3:** AST stubs, association/suppression rules, diagnostics and `check/report`.  
 **Phase 4:** Hatch build hook, isolated-build testing, packaging and README.  

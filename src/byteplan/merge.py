@@ -40,6 +40,11 @@ from byteplan.registry import SCHEMA_VERSION
 _DISCOVERED = frozenset({"kind", "title", "description", "presence", "origin", "scope_state", "source", "stub"})
 _SET_LIKE = frozenset({"labels"})
 _TOP_LEVEL_KEYS = frozenset({"schema_version", "reserved_ids", "tasks"})
+# Discovery can rebuild only these fields. Unknown siblings retain managed merge semantics.
+_DISCOVERED_MAPPING_KEYS = {
+    "source": frozenset({"path", "line", "symbol", "decl_line", "attachment_kind", "representation"}),
+    "stub": frozenset({"symbol", "implemented"}),
+}
 
 
 @dataclass
@@ -107,6 +112,8 @@ def _merge_task(
         value: Any
         if key == "tests":
             value = _merge_tests(task_id, b, o, t, result)
+        elif key in _DISCOVERED_MAPPING_KEYS:
+            value = _merge_discovered_mapping(task_id, key, b, o, t, result)
         elif key == "history":
             value = _merge_history(task_id, _list(b), _list(o), _list(t), result.conflicts)
         elif key in _SET_LIKE:
@@ -160,6 +167,38 @@ def _merge_value(where: str, base: Any, ours: Any, theirs: Any, conflicts: list[
     return ours
 
 
+def _merge_discovered_mapping(task_id: str, key: str, base: Any, ours: Any, theirs: Any, result: MergeResult) -> Any:
+    """Refreshable source/stub details must never choose unknown metadata arbitrarily."""
+    known = _DISCOVERED_MAPPING_KEYS[key]
+    b, o, t = (
+        {name: value for name, value in mapping.items() if name in known} if isinstance(mapping, dict) else mapping
+        for mapping in (base, ours, theirs)
+    )
+    if _same(t, o) or _same(t, b):
+        chosen = o
+    elif _same(o, b):
+        chosen = t
+    else:
+        chosen = o
+        if task_id not in result.rescan_needed:
+            result.rescan_needed.append(task_id)
+    extensions = [
+        {name: value for name, value in mapping.items() if name not in known} if isinstance(mapping, dict) else _ABSENT
+        for mapping in (base, ours, theirs)
+    ]
+    extra = _merge_value(f"task {task_id}: {key}", extensions[0], extensions[1], extensions[2], result.conflicts)
+    if isinstance(chosen, dict):
+        return {
+            **{name: value for name, value in chosen.items() if name in known},
+            **({} if extra is _ABSENT else extra),
+        }
+    if extra is not _ABSENT and extra:
+        result.conflicts.append(
+            f"task {task_id}: {key} was removed while its metadata changed; reconcile it explicitly"
+        )
+    return chosen
+
+
 def _merge_tests(task_id: str, base: Any, ours: Any, theirs: Any, result: MergeResult) -> Any:
     """``managed`` links merge as a set; ``discovered`` ones are rescanned from merged source."""
     parts = [{} if v is _ABSENT or v is None else v for v in (base, ours, theirs)]
@@ -173,9 +212,11 @@ def _merge_tests(task_id: str, base: Any, ours: Any, theirs: Any, result: MergeR
         discovered = o
         if task_id not in result.rescan_needed:
             result.rescan_needed.append(task_id)
-    if not managed and not discovered:
+    extensions = [{key: value for key, value in part.items() if key not in {"managed", "discovered"}} for part in parts]
+    extra = _merge_value(f"task {task_id}: tests", extensions[0], extensions[1], extensions[2], result.conflicts)
+    if not managed and not discovered and not extra:
         return _ABSENT
-    return {"managed": managed, "discovered": discovered}
+    return {**extra, "managed": managed, "discovered": discovered}
 
 
 def _list(value: Any) -> list[Any]:
@@ -186,7 +227,7 @@ def merge_registries(base: dict[str, Any], ours: dict[str, Any], theirs: dict[st
     """Merge three registry dicts (as produced by ``registry.to_dict``)."""
     result = MergeResult(data=None)
     versions = {base.get("schema_version"), ours.get("schema_version"), theirs.get("schema_version")}
-    if versions != {SCHEMA_VERSION}:
+    if len(versions) != 1 or any(type(v) is not int or not 1 <= v <= SCHEMA_VERSION for v in versions):
         result.conflicts.append(f"schema_version differs between versions ({sorted(map(str, versions))})")
         return result
 
@@ -222,5 +263,5 @@ def merge_registries(base: dict[str, Any], ours: dict[str, Any], theirs: dict[st
             extra[key] = value
 
     if not result.conflicts:
-        result.data = {**extra, "schema_version": SCHEMA_VERSION, "reserved_ids": reserved, "tasks": tasks}
+        result.data = {**extra, "schema_version": base["schema_version"], "reserved_ids": reserved, "tasks": tasks}
     return result

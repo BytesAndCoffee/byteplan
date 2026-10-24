@@ -11,7 +11,10 @@
     "1e7f",
     "1fe7",
     "205d",
+    "237cb5",
     "2533",
+    "2650ec",
+    "279e27",
     "2887",
     "30c3",
     "34da",
@@ -24,6 +27,7 @@
     "46b6",
     "478d",
     "4842",
+    "492312",
     "4d48",
     "4d69",
     "4fb5",
@@ -34,6 +38,7 @@
     "67df",
     "680a",
     "6b83",
+    "6d434f",
     "71c4",
     "75b4",
     "7ff8",
@@ -92,7 +97,7 @@
     "ff3a",
     "ff72"
   ],
-  "schema_version": 1,
+  "schema_version": 2,
   "tasks": {
     "0413": {
       "assignee": null,
@@ -706,7 +711,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1668,
+        "line": 1681,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -815,6 +820,35 @@
             "labels": [],
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: audit source mutation guarantees and report-only paths after compatibility changes; existing previews/BOM/AST tests are protections to preserve, not missing features.",
+            "priority": "high"
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T21:50:37Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Compatibility implementation started: strict merged-record parsing and init-before-write validation; broader audit remains open.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T21:59:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: audit source mutation guarantees and report-only paths after compatibility changes; existing previews/BOM/AST tests are protections to preserve, not missing features.\n\nTriage clarification: confirmed init-before-validation behavior is P2 because it adds a new inert shim, without overwriting existing task/source/evidence records. Broader source-safety audit remains a high-priority release gate. The new init validation regression is linked; do not treat it as completion of the entire audit."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: audit source mutation guarantees and report-only paths after compatibility changes; existing previews/BOM/AST tests are protections to preserve, not missing features."
+          }
         }
       ],
       "id": "1b81",
@@ -824,21 +858,32 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: audit source mutation guarantees and report-only paths after compatibility changes; existing previews/BOM/AST tests are protections to preserve, not missing features.\n\nTriage clarification: confirmed init-before-validation behavior is P2 because it adds a new inert shim, without overwriting existing task/source/evidence records. Broader source-safety audit remains a high-priority release gate. The new init validation regression is linked; do not treat it as completion of the entire audit.",
       "origin": "comment",
       "presence": "present",
-      "priority": "normal",
+      "priority": "high",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 160,
+        "line": 156,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "A5. Source-editing safety and first-run ergonomics"
       },
-      "status": "open",
+      "status": "in_progress",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 247,
+            "node": "tests/test_compatibility.py::test_init_rejects_future_schema_before_writing_any_source",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "RC1 source-safety and first-run preview audit",
       "title_override": null
     },
@@ -966,7 +1011,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 267,
+        "line": 263,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E3. BytePlan 1.5 — Graph foundations"
@@ -1059,6 +1104,166 @@
       "title": "Check for a pending journal before the write context recovers it",
       "title_override": null
     },
+    "237cb5": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-24T00:02:17Z",
+      "history": [
+        {
+          "at": "2026-10-24T00:02:17Z",
+          "event": "created",
+          "new": {
+            "line": 211,
+            "path": "src/byteplan/merge.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T00:02:18Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_merge.py::test_task_237cb5",
+            "path": "tests/test_merge.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T00:02:18Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-24T00:10:31Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-24T00:10:31Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: a successful registry-driver merge discarded unknown nested metadata, including metadata-only test containers. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition."
+          },
+          "old": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review."
+          }
+        },
+        {
+          "at": "2026-10-24T00:11:43Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Confirmed defect corrected with regression coverage, passing linked BytePlan verification and independent focused review. Source annotation removed explicitly; final CI remains required for this increment.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-24T00:11:51Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-24T00:11:51Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/merge.py"
+          }
+        },
+        {
+          "at": "2026-10-24T00:16:36Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: a successful registry-driver merge discarded unknown nested metadata, including metadata-only test containers. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition.\n\nFinal local suite1035 passed; strict typing/formatting, packaging builds and isolated installs passed. Source annotation explicitly cleaned and linked evidence refreshed. Independent focused reviews found no remaining blocker. Pause requested after this increment; final cross-platform CI recorded in PR45."
+          },
+          "old": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: a successful registry-driver merge discarded unknown nested metadata, including metadata-only test containers. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition."
+          }
+        }
+      ],
+      "id": "237cb5",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0"
+      ],
+      "last_seen": "2026-10-24T00:02:17Z",
+      "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: a successful registry-driver merge discarded unknown nested metadata, including metadata-only test containers. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition.\n\nFinal local suite1035 passed; strict typing/formatting, packaging builds and isolated installs passed. Source annotation explicitly cleaned and linked evidence refreshed. Independent focused reviews found no remaining blocker. Pause requested after this increment; final cross-platform CI recorded in PR45.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 202,
+        "line": 215,
+        "path": "src/byteplan/merge.py",
+        "representation": "comment",
+        "symbol": "_merge_tests"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 225,
+            "node": "tests/test_merge_integrity.py::test_merge_driver_serialization_preserves_nested_metadata",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 45,
+            "node": "tests/test_merge_integrity.py::test_merge_keeps_independent_nested_extensions",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 30,
+            "node": "tests/test_merge_integrity.py::test_merge_preserves_test_container_extensions",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 67,
+            "node": "tests/test_merge_integrity.py::test_merge_refuses_competing_nested_extension_values",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 83,
+            "node": "tests/test_merge_integrity.py::test_merge_respects_nested_extension_deletion",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 99,
+            "node": "tests/test_merge_integrity.py::test_real_git_histories_and_lifecycle_states",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 202,
+            "node": "tests/test_merge_integrity.py::test_removed_container_cannot_discard_competing_metadata",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Preserve unknown nested metadata when combining branch task records.",
+      "title_override": null
+    },
     "2533": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353183658\nA function-local `import os as util` overwrote a module-level `import pkg.reexport as util`.",
@@ -1128,6 +1333,254 @@
         ]
       },
       "title": "Keep every module an import alias may refer to, across scopes",
+      "title_override": null
+    },
+    "2650ec": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-23T23:23:40Z",
+      "history": [
+        {
+          "at": "2026-10-23T23:23:40Z",
+          "event": "created",
+          "new": {
+            "line": 141,
+            "path": "tests/test_collision_recovery.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-23T23:23:41Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "P2 acceptance-test portability defect. GitHub Actions run40035199597 on4471395 failed all Windows3.11–3.14 runners at first post-merge scan .written==(). Reproduced with real Git core.autocrlf=true on Linux. Registry semantic contents and history preserved; first scan only canonically normalizes Git CRLF to LF. Test must explicitly cover both Git settings, preservation and second-scan idempotence. No production behavior changes needed.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T23:24:26Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T23:24:50Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Corrected P2 platform-test assumption after real Git core.autocrlf=true reproduction. Eight matrix combinations passed through BytePlan verification and independent review. Exact JSON/normalization/file/index preservation and second-scan idempotence assertions retained. Updated Windows CI remains the separate release validation gate.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-23T23:24:55Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T23:24:55Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "tests/test_collision_recovery.py"
+          }
+        }
+      ],
+      "id": "2650ec",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0"
+      ],
+      "last_seen": "2026-10-23T23:23:40Z",
+      "notes": "P2 acceptance-test portability defect. GitHub Actions run40035199597 on4471395 failed all Windows3.11–3.14 runners at first post-merge scan .written==(). Reproduced with real Git core.autocrlf=true on Linux. Registry semantic contents and history preserved; first scan only canonically normalizes Git CRLF to LF. Test must explicitly cover both Git settings, preservation and second-scan idempotence. No production behavior changes needed.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 93,
+        "line": 141,
+        "path": "tests/test_collision_recovery.py",
+        "representation": "comment",
+        "symbol": "test_premerge_rekey_preserves_both_original_records"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 99,
+            "node": "tests/test_collision_recovery.py::test_premerge_rekey_preserves_both_original_records",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Verify merge preservation across Git checkout newline conversion.",
+      "title_override": null
+    },
+    "279e27": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-24T00:02:17Z",
+      "history": [
+        {
+          "at": "2026-10-24T00:02:17Z",
+          "event": "created",
+          "new": {
+            "line": 428,
+            "path": "src/byteplan/verification.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T00:02:18Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_verification.py::test_task_279e27",
+            "path": "tests/test_verification.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T00:02:18Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-24T00:10:31Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-24T00:10:31Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: incomplete run provenance or HEAD-mode fingerprint mismatch could falsely report ready_for_review. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition."
+          },
+          "old": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review."
+          }
+        },
+        {
+          "at": "2026-10-24T00:11:51Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Confirmed defect corrected with regression coverage, passing linked BytePlan verification and independent focused review. Source annotation removed explicitly; final CI remains required for this increment.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-24T00:11:57Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-24T00:11:57Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/verification.py"
+          }
+        },
+        {
+          "at": "2026-10-24T00:16:36Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: incomplete run provenance or HEAD-mode fingerprint mismatch could falsely report ready_for_review. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition.\n\nFinal local suite1035 passed; strict typing/formatting, packaging builds and isolated installs passed. Source annotation explicitly cleaned and linked evidence refreshed. Independent focused reviews found no remaining blocker. Pause requested after this increment; final cross-platform CI recorded in PR45."
+          },
+          "old": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: incomplete run provenance or HEAD-mode fingerprint mismatch could falsely report ready_for_review. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition."
+          }
+        }
+      ],
+      "id": "279e27",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0"
+      ],
+      "last_seen": "2026-10-24T00:02:17Z",
+      "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: incomplete run provenance or HEAD-mode fingerprint mismatch could falsely report ready_for_review. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition.\n\nFinal local suite1035 passed; strict typing/formatting, packaging builds and isolated installs passed. Source annotation explicitly cleaned and linked evidence refreshed. Independent focused reviews found no remaining blocker. Pause requested after this increment; final cross-platform CI recorded in PR45.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 433,
+        "line": 435,
+        "path": "src/byteplan/verification.py",
+        "representation": "comment",
+        "symbol": "provenance_problem"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 241,
+            "node": "tests/test_evidence_integrity.py::test_completed_passes_survive_a_timed_out_multi_test_run",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 111,
+            "node": "tests/test_evidence_integrity.py::test_head_mode_also_requires_current_file_fingerprint",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 60,
+            "node": "tests/test_evidence_integrity.py::test_incomplete_positive_evidence_is_rejected_without_writes",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 90,
+            "node": "tests/test_evidence_integrity.py::test_known_run_fields_reject_malformed_types",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 217,
+            "node": "tests/test_evidence_integrity.py::test_malformed_archived_evidence_is_actionable_and_atomic",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 149,
+            "node": "tests/test_merge_integrity.py::test_real_git_verification_evidence_merge",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Reject positive verification claims without complete provenance and matching file fingerprints.",
       "title_override": null
     },
     "2887": {
@@ -1473,7 +1926,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 263,
+        "line": 259,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E3. BytePlan 1.5 — Graph foundations"
@@ -1513,6 +1966,26 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only."
+          }
         }
       ],
       "id": "3844",
@@ -1522,7 +1995,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -1530,7 +2003,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 191,
+        "line": 187,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "Track B — Required pre-RC1 API decomposition"
@@ -2010,6 +2483,33 @@
             "labels": [],
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 design decision: evaluate merge integrity and evidence preservation. Keep JSON registry authoritative until measured risk justifies layout migration; size alone is insufficient."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:09Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Measured merged registry at91tasks/450events/218671bytes; documented intended JSON authority contract and alternatives. Larger-repository performance/evidence reconciliation review remains pending.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T21:59:09Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 design decision: evaluate merge integrity and evidence preservation. Keep JSON registry authoritative until measured risk justifies layout migration; size alone is insufficient.\n\nSee docs/rc1-compatibility.md: retain embedded authoritative task/history JSON, separate committed verification evidence and managed external mappings conceptually, rebuildable indexes/graph and local SQLite cache. No layout migration justified by current measurements; explicit Git conflicts acceptable. Keep task open for scale/evidence review and final decision disposition."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 design decision: evaluate merge integrity and evidence preservation. Keep JSON registry authoritative until measured risk justifies layout migration; size alone is insufficient."
+          }
         }
       ],
       "id": "4842",
@@ -2019,7 +2519,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 design decision: evaluate merge integrity and evidence preservation. Keep JSON registry authoritative until measured risk justifies layout migration; size alone is insufficient.\n\nSee docs/rc1-compatibility.md: retain embedded authoritative task/history JSON, separate committed verification evidence and managed external mappings conceptually, rebuildable indexes/graph and local SQLite cache. No layout migration justified by current measurements; explicit Git conflicts acceptable. Keep task open for scale/evidence review and final decision disposition.",
       "origin": "comment",
       "presence": "present",
       "priority": "normal",
@@ -2027,14 +2527,162 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 119,
+        "line": 115,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "A3. Registry layout and history storage"
       },
-      "status": "open",
+      "status": "in_progress",
       "stub": null,
       "title": "RC1 authoritative storage decision based on measured collaboration and integrity risk",
+      "title_override": null
+    },
+    "492312": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-24T00:02:17Z",
+      "history": [
+        {
+          "at": "2026-10-24T00:02:17Z",
+          "event": "created",
+          "new": {
+            "line": 379,
+            "path": "src/byteplan/verification.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T00:02:18Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_verification.py::test_evidence_restore_task",
+            "path": "tests/test_verification.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T00:02:18Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-24T00:10:31Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-24T00:10:31Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: restoring a colliding archived run silently substituted live provenance; new runs also reused same-second identities. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition."
+          },
+          "old": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review."
+          }
+        },
+        {
+          "at": "2026-10-24T00:11:58Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Confirmed defect corrected with regression coverage, passing linked BytePlan verification and independent focused review. Source annotation removed explicitly; final CI remains required for this increment.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-24T00:12:04Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-24T00:12:04Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/verification.py"
+          }
+        },
+        {
+          "at": "2026-10-24T00:16:36Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: restoring a colliding archived run silently substituted live provenance; new runs also reused same-second identities. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition.\n\nFinal local suite1035 passed; strict typing/formatting, packaging builds and isolated installs passed. Source annotation explicitly cleaned and linked evidence refreshed. Independent focused reviews found no remaining blocker. Pause requested after this increment; final cross-platform CI recorded in PR45."
+          },
+          "old": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: restoring a colliding archived run silently substituted live provenance; new runs also reused same-second identities. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition."
+          }
+        }
+      ],
+      "id": "492312",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0"
+      ],
+      "last_seen": "2026-10-24T00:02:17Z",
+      "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP1: restoring a colliding archived run silently substituted live provenance; new runs also reused same-second identities. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition.\n\nFinal local suite1035 passed; strict typing/formatting, packaging builds and isolated installs passed. Source annotation explicitly cleaned and linked evidence refreshed. Independent focused reviews found no remaining blocker. Pause requested after this increment; final cross-platform CI recorded in PR45.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "method",
+        "decl_line": 381,
+        "line": 382,
+        "path": "src/byteplan/verification.py",
+        "representation": "comment",
+        "symbol": "Evidence.restore_task"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 173,
+            "node": "tests/test_evidence_integrity.py::test_archive_restores_conflicting_runs_without_substitution",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 217,
+            "node": "tests/test_evidence_integrity.py::test_malformed_archived_evidence_is_actionable_and_atomic",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 250,
+            "node": "tests/test_evidence_integrity.py::test_restore_does_not_conflate_boolean_and_numeric_extension_values",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 124,
+            "node": "tests/test_evidence_integrity.py::test_verification_runs_do_not_alias_at_the_same_second",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 149,
+            "node": "tests/test_merge_integrity.py::test_real_git_verification_evidence_merge",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Keep archived evidence bound to its original run when live run identities collide.",
       "title_override": null
     },
     "4d48": {
@@ -2155,7 +2803,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 296,
+        "line": 292,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
@@ -2262,7 +2910,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 300,
+        "line": 296,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
@@ -2635,7 +3283,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 288,
+        "line": 284,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
@@ -2713,6 +3361,136 @@
         ]
       },
       "title": "Keep sync's top-level JSON fields when only cleanup runs",
+      "title_override": null
+    },
+    "6d434f": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-24T00:02:17Z",
+      "history": [
+        {
+          "at": "2026-10-24T00:02:17Z",
+          "event": "created",
+          "new": {
+            "line": 396,
+            "path": "src/byteplan/verification.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T00:02:18Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_verification.py::test_task_6d434f",
+            "path": "tests/test_verification.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T00:02:18Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-24T00:10:31Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-24T00:10:31Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP2: ordinary evidence writes discarded unrelated root/task/test extension fields. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition."
+          },
+          "old": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review."
+          }
+        },
+        {
+          "at": "2026-10-24T00:12:05Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Confirmed defect corrected with regression coverage, passing linked BytePlan verification and independent focused review. Source annotation removed explicitly; final CI remains required for this increment.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-24T00:12:18Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-24T00:12:18Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/verification.py"
+          }
+        },
+        {
+          "at": "2026-10-24T00:16:36Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP2: ordinary evidence writes discarded unrelated root/task/test extension fields. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition.\n\nFinal local suite1035 passed; strict typing/formatting, packaging builds and isolated installs passed. Source annotation explicitly cleaned and linked evidence refreshed. Independent focused reviews found no remaining blocker. Pause requested after this increment; final cross-platform CI recorded in PR45."
+          },
+          "old": {
+            "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP2: ordinary evidence writes discarded unrelated root/task/test extension fields. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition."
+          }
+        }
+      ],
+      "id": "6d434f",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0"
+      ],
+      "last_seen": "2026-10-24T00:02:17Z",
+      "notes": "Confirmed during Addendum E Track A4 review. Preserve all valid work and require trusted provenance for positive verification. Regression evidence and explicit resolution will follow implementation review.\n\nP2: ordinary evidence writes discarded unrelated root/task/test extension fields. Implemented a compatibility-preserving correction and focused regression coverage. Independent affected-area review found no remaining blocker; full-suite/CI evidence pending before final disposition.\n\nFinal local suite1035 passed; strict typing/formatting, packaging builds and isolated installs passed. Source annotation explicitly cleaned and linked evidence refreshed. Independent focused reviews found no remaining blocker. Pause requested after this increment; final cross-platform CI recorded in PR45.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 399,
+        "line": 401,
+        "path": "src/byteplan/verification.py",
+        "representation": "comment",
+        "symbol": "Evidence.dumps"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 173,
+            "node": "tests/test_evidence_integrity.py::test_archive_restores_conflicting_runs_without_substitution",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 151,
+            "node": "tests/test_evidence_integrity.py::test_reverification_preserves_opaque_metadata_and_clears_old_failure",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Preserve opaque evidence metadata across ordinary verification and archive writes.",
       "title_override": null
     },
     "71c4": {
@@ -2837,7 +3615,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1662,
+        "line": 1675,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -3144,6 +3922,65 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Started compatibility track A after PRs43 and44 merged. Schema boundary precedes incompatible source writes.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T21:50:37Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments.\n\nActual released PyPI0.1.0/0.2.0 packages tested: schema2 rejects check, writing scan, status mutation and ordinary init without changing repository files. Schema1 with six-ID annotations warns MALFORMED_ID but exits0 with zero tracked tasks; migration-first boundary is required. Published0.2.0 init --runtime-shim adds a new inert shim before rejecting schema2; it leaves existing tasks/evidence intact. New init now validates before any shim/config write. Record this old-client limitation in compatibility matrix."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments.\n\nActual released PyPI0.1.0/0.2.0 packages tested: schema2 rejects check, writing scan, status mutation and ordinary init without changing repository files. Schema1 with six-ID annotations warns MALFORMED_ID but exits0 with zero tracked tasks; migration-first boundary is required. Published0.2.0 init --runtime-shim adds a new inert shim before rejecting schema2; it leaves existing tasks/evidence intact. New init now validates before any shim/config write. Record this old-client limitation in compatibility matrix.\n\nIndependent implementation review P2: ordinary post-migration writes previously dropped unknown event/source/link metadata. Preserved nested extension fields in domain serialization/reconciliation and added post-migration edit/scan regression. Migration changes only raw schema metadata via journal and preserves evidence/source. Review findings are tracked under this existing migration-preservation obligation."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments.\n\nActual released PyPI0.1.0/0.2.0 packages tested: schema2 rejects check, writing scan, status mutation and ordinary init without changing repository files. Schema1 with six-ID annotations warns MALFORMED_ID but exits0 with zero tracked tasks; migration-first boundary is required. Published0.2.0 init --runtime-shim adds a new inert shim before rejecting schema2; it leaves existing tasks/evidence intact. New init now validates before any shim/config write. Record this old-client limitation in compatibility matrix."
+          }
+        },
+        {
+          "at": "2026-10-23T22:02:34Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicit schema2 migration completed: raw metadata-only journaled upgrade, idempotence and interrupted recovery, schema1 allocation/staged guards, post-upgrade nested metadata preservation, init prevalidation, and actual PyPI0.1.0/0.2.0 rejection tests. Independent review P2s corrected;918 non-network tests,2 actual released-client cases,typing and formatting passed. Older0.2.0 init --runtime-shim additive-file limitation documented; existing records remain intact.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-23T22:02:42Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T22:02:42Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/spec-addendum-e.md"
+          }
         }
       ],
       "id": "8756",
@@ -3153,9 +3990,9 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker prerequisite: migration/version boundary must protect older released clients before six-character annotations are written. Start with transactional explicit migration and actual released-client experiments.\n\nActual released PyPI0.1.0/0.2.0 packages tested: schema2 rejects check, writing scan, status mutation and ordinary init without changing repository files. Schema1 with six-ID annotations warns MALFORMED_ID but exits0 with zero tracked tasks; migration-first boundary is required. Published0.2.0 init --runtime-shim adds a new inert shim before rejecting schema2; it leaves existing tasks/evidence intact. New init now validates before any shim/config write. Record this old-client limitation in compatibility matrix.\n\nIndependent implementation review P2: ordinary post-migration writes previously dropped unknown event/source/link metadata. Preserved nested extension fields in domain serialization/reconciliation and added post-migration edit/scan regression. Migration changes only raw schema metadata via journal and preserves evidence/source. Review findings are tracked under this existing migration-preservation obligation.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "high",
       "scope_state": "in_scope",
       "source": {
@@ -3166,8 +4003,61 @@
         "representation": "comment",
         "symbol": "A2. Registry schema compatibility and migration"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 68,
+            "node": "tests/test_compatibility.py::test_extension_metadata_survives_post_migration_writes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 247,
+            "node": "tests/test_compatibility.py::test_init_rejects_future_schema_before_writing_any_source",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 84,
+            "node": "tests/test_compatibility.py::test_interrupted_migration_recovers_before_source_allocation",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 113,
+            "node": "tests/test_compatibility.py::test_legacy_allocation_requires_migration_without_source_changes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 50,
+            "node": "tests/test_compatibility.py::test_migration_is_explicit_lossless_and_idempotent",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 125,
+            "node": "tests/test_compatibility.py::test_schema_one_metadata_writes_preserve_the_version",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 218,
+            "node": "tests/test_compatibility.py::test_staged_legacy_allocation_refuses_without_index_or_source_changes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 24,
+            "node": "tests/test_released_clients.py::test_released_clients_reject_schema_two_without_touching_tasks",
+            "path": "tests/test_released_clients.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "RC1 schema boundary and transactional migration for expanded persistent IDs",
       "title_override": null
     },
@@ -3199,6 +4089,16 @@
             "labels": [],
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 compatibility inventory: document stable/experimental interfaces, TD004 and first-run guidance after compatibility implementation; no speculative new functionality."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
         }
       ],
       "id": "8aeb",
@@ -3208,7 +4108,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P2 mandatory pre-RC1 compatibility inventory: document stable/experimental interfaces, TD004 and first-run guidance after compatibility implementation; no speculative new functionality.",
       "origin": "comment",
       "presence": "present",
       "priority": "normal",
@@ -3216,7 +4116,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 173,
+        "line": 169,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "A6. Compatibility boundary and remaining review inputs"
@@ -3439,7 +4339,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1665,
+        "line": 1678,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -4347,6 +5247,26 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication."
+          }
         }
       ],
       "id": "a70d",
@@ -4356,7 +5276,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -4364,7 +5284,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 419,
+        "line": 415,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "Track G — Release candidate readiness and approval"
@@ -4498,7 +5418,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 242,
+        "line": 238,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E2. Semantic entities and relationships"
@@ -5143,6 +6063,26 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews."
+          }
         }
       ],
       "id": "c053",
@@ -5152,7 +6092,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -5160,7 +6100,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 387,
+        "line": 383,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "Track F — Final independent whole-repository reviews"
@@ -5432,6 +6372,85 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C."
+          }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Started compatibility track A after PRs43 and44 merged. Schema boundary precedes incompatible source writes.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T21:50:37Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:09Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open.\n\nIndependent implementation review P2: sync prefix selection formerly ran before write locking/recovery. It now resolves against the transaction registry; regression injects concurrent creation and requires actionable ambiguity without source mutation."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open."
+          }
+        },
+        {
+          "at": "2026-10-23T22:36:03Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open.\n\nIndependent implementation review P2: sync prefix selection formerly ran before write locking/recovery. It now resolves against the transaction registry; regression injects concurrent creation and requires actionable ambiguity without source mutation.\n\nPre-merge collision recovery implemented: repair --reassign PATH:LINE --against REV [--dry-run]. Pinned branches and every merge base, distinct creation binding and original history proof; reject pending Git/BytePlan state, ignored/dynamic/unknown current references. Journal preserves complete record, supported exact references and raw evidence with old fingerprint. Independent review corrected resolved-merge, encoded ignored-reference and cherry-picked/shared-binding cases. Acceptance includes legacy IDs, shared tests, Markdown/JSONC/decorators, BOM/CRLF/Unicode, linked worktrees, crisscross bases, evidence merge and interrupted transaction recovery. Final verification pending before explicit resolution."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open.\n\nIndependent implementation review P2: sync prefix selection formerly ran before write locking/recovery. It now resolves against the transaction registry; regression injects concurrent creation and requires actionable ambiguity without source mutation."
+          }
+        },
+        {
+          "at": "2026-10-23T22:38:19Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Implemented A1 persistent-ID contract and explicit original-branch collision recovery. Linked acceptance tests passed through BytePlan verify; independent reviewer passed all 47 collision cases with no unresolved blocker. Broader merge/storage/source audit obligations remain independently open.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-23T22:38:27Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-23T22:38:27Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/spec-addendum-e.md"
+          }
+        },
+        {
+          "at": "2026-10-23T22:39:54Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open.\n\nIndependent implementation review P2: sync prefix selection formerly ran before write locking/recovery. It now resolves against the transaction registry; regression injects concurrent creation and requires actionable ambiguity without source mutation.\n\nPre-merge collision recovery implemented: repair --reassign PATH:LINE --against REV [--dry-run]. Pinned branches and every merge base, distinct creation binding and original history proof; reject pending Git/BytePlan state, ignored/dynamic/unknown current references. Journal preserves complete record, supported exact references and raw evidence with old fingerprint. Independent review corrected resolved-merge, encoded ignored-reference and cherry-picked/shared-binding cases. Acceptance includes legacy IDs, shared tests, Markdown/JSONC/decorators, BOM/CRLF/Unicode, linked worktrees, crisscross bases, evidence merge and interrupted transaction recovery. Final verification pending before explicit resolution.\n\nExplicitly resolved after passing linked BytePlan verification and independent review. resolve --sync-source removed only the completed annotation; subsequent scan and re-verification recorded fresh ready_for_review evidence with source presence missing. Actual released clients 0.1.0/0.2.0 interoperability tests passed again; final PR CI remains required. Other RC1 gates remain open."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open.\n\nIndependent implementation review P2: sync prefix selection formerly ran before write locking/recovery. It now resolves against the transaction registry; regression injects concurrent creation and requires actionable ambiguity without source mutation.\n\nPre-merge collision recovery implemented: repair --reassign PATH:LINE --against REV [--dry-run]. Pinned branches and every merge base, distinct creation binding and original history proof; reject pending Git/BytePlan state, ignored/dynamic/unknown current references. Journal preserves complete record, supported exact references and raw evidence with old fingerprint. Independent review corrected resolved-merge, encoded ignored-reference and cherry-picked/shared-binding cases. Acceptance includes legacy IDs, shared tests, Markdown/JSONC/decorators, BOM/CRLF/Unicode, linked worktrees, crisscross bases, evidence merge and interrupted transaction recovery. Final verification pending before explicit resolution."
+          }
         }
       ],
       "id": "c978",
@@ -5441,21 +6460,218 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release blocker: four-character-only validation/allocation blocks the approved persistent identity contract. Implement with schema boundary 8756; preserve existing IDs and source safety.\n\nFirst implementation: six-character allocator, supported lowercase hex IDs length>=4, exact-first UI prefixes across active/archive identities, full canonical persisted references, scanner/JSON guards and malformed pytest-marker diagnostics. Tests cover independent branch collisions with explicit conflicts; full collision-state recovery acceptance remains open.\n\nIndependent implementation review P2: sync prefix selection formerly ran before write locking/recovery. It now resolves against the transaction registry; regression injects concurrent creation and requires actionable ambiguity without source mutation.\n\nPre-merge collision recovery implemented: repair --reassign PATH:LINE --against REV [--dry-run]. Pinned branches and every merge base, distinct creation binding and original history proof; reject pending Git/BytePlan state, ignored/dynamic/unknown current references. Journal preserves complete record, supported exact references and raw evidence with old fingerprint. Independent review corrected resolved-merge, encoded ignored-reference and cherry-picked/shared-binding cases. Acceptance includes legacy IDs, shared tests, Markdown/JSONC/decorators, BOM/CRLF/Unicode, linked worktrees, crisscross bases, evidence merge and interrupted transaction recovery. Final verification pending before explicit resolution.\n\nExplicitly resolved after passing linked BytePlan verification and independent review. resolve --sync-source removed only the completed annotation; subsequent scan and re-verification recorded fresh ready_for_review evidence with source presence missing. Actual released clients 0.1.0/0.2.0 interoperability tests passed again; final PR CI remains required. Other RC1 gates remain open.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "high",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 57,
+        "line": 61,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "A1. Persistent task identifier compatibility"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 316,
+            "node": "tests/test_collision_recovery.py::test_collision_cli_preview_and_apply",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 625,
+            "node": "tests/test_collision_recovery.py::test_creation_extension_cannot_disguise_shared_binding",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 224,
+            "node": "tests/test_collision_recovery.py::test_interrupted_rekey_recovers_all_source_evidence_and_registry",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 608,
+            "node": "tests/test_collision_recovery.py::test_keyword_identity_references_are_diagnosed",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 99,
+            "node": "tests/test_collision_recovery.py::test_premerge_rekey_preserves_both_original_records",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 420,
+            "node": "tests/test_collision_recovery.py::test_rekey_accepts_empty_valid_evidence_store",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 587,
+            "node": "tests/test_collision_recovery.py::test_rekey_allocator_avoids_peer_evidence_only_identities",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 671,
+            "node": "tests/test_collision_recovery.py::test_rekey_checks_every_crisscross_merge_base",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 359,
+            "node": "tests/test_collision_recovery.py::test_rekey_preserves_supported_primary_annotation_formats",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 334,
+            "node": "tests/test_collision_recovery.py::test_rekey_preserves_unknown_fields_and_historical_old_identity",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 485,
+            "node": "tests/test_collision_recovery.py::test_rekey_refuses_cherry_picked_shared_task_identity",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 394,
+            "node": "tests/test_collision_recovery.py::test_rekey_refuses_identity_reserved_in_merge_base",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 464,
+            "node": "tests/test_collision_recovery.py::test_rekey_refuses_ignored_encoded_identity_references",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 247,
+            "node": "tests/test_collision_recovery.py::test_rekey_refuses_inherited_identity",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 445,
+            "node": "tests/test_collision_recovery.py::test_rekey_refuses_other_pending_git_operations",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 429,
+            "node": "tests/test_collision_recovery.py::test_rekey_refuses_resolved_but_uncommitted_merge",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 503,
+            "node": "tests/test_collision_recovery.py::test_rekey_refuses_rewritten_local_lineage",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 410,
+            "node": "tests/test_collision_recovery.py::test_rekey_refuses_unresolved_merge",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 262,
+            "node": "tests/test_collision_recovery.py::test_rekey_refuses_unsafe_context_without_changes",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 175,
+            "node": "tests/test_collision_recovery.py::test_rekey_rewrites_exact_references_and_retains_stale_evidence",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 516,
+            "node": "tests/test_collision_recovery.py::test_rekey_then_merge_preserves_both_branches_evidence",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 650,
+            "node": "tests/test_collision_recovery.py::test_rekey_uses_linked_worktree_index_lock",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 257,
+            "node": "tests/test_compatibility.py::test_archived_exact_identity_precedes_active_prefix",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 323,
+            "node": "tests/test_compatibility.py::test_divergent_branch_identity_collisions_fail_explicitly",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 184,
+            "node": "tests/test_compatibility.py::test_exact_identity_precedes_prefix_and_ambiguity_is_actionable",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 241,
+            "node": "tests/test_compatibility.py::test_expanded_registry_round_trip",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 277,
+            "node": "tests/test_compatibility.py::test_malformed_pytest_marker_is_diagnosed",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 162,
+            "node": "tests/test_compatibility.py::test_new_ids_use_six_characters_and_preserve_source_encoding",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 204,
+            "node": "tests/test_compatibility.py::test_persisted_verification_references_do_not_resolve_prefixes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 218,
+            "node": "tests/test_compatibility.py::test_staged_legacy_allocation_refuses_without_index_or_source_changes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 135,
+            "node": "tests/test_compatibility.py::test_supported_id_lengths_round_trip_across_scanners",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 380,
+            "node": "tests/test_compatibility.py::test_sync_rechecks_prefix_after_acquiring_write_context",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "RC1 persistent identity compatibility: remove four-character-only assumptions",
       "title_override": null
     },
@@ -5660,7 +6876,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 292,
+        "line": 288,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
@@ -5881,7 +7097,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1659,
+        "line": 1672,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -6009,7 +7225,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 259,
+        "line": 255,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E3. BytePlan 1.5 — Graph foundations"
@@ -6141,7 +7357,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1672,
+        "line": 1685,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -6337,30 +7553,262 @@
             "labels": [],
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-23T21:37:53Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.",
+            "priority": "high"
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-23T21:50:37Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Compatibility implementation started: strict merged-record parsing and init-before-write validation; broader audit remains open.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-23T21:50:37Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving."
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:07Z",
+          "event": "text_changed",
+          "new": {
+            "kind": "FIXME"
+          },
+          "old": {
+            "kind": "TODO"
+          }
+        },
+        {
+          "at": "2026-10-23T21:59:09Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending."
+          }
+        },
+        {
+          "at": "2026-10-23T22:36:03Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress."
+          }
+        },
+        {
+          "at": "2026-10-23T23:24:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone.\n\nWindows CI run40035199597 exposed an overstrict first-scan assertion, tracked as2650ec. Reproduced using real Git core.autocrlf=true; registry content/history unchanged, only canonical LF rewrite. New regression covers both newline settings, full record/source/index preservation and exact first-/second-scan write guarantees."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone."
+          }
+        },
+        {
+          "at": "2026-10-24T00:02:19Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone.\n\nWindows CI run40035199597 exposed an overstrict first-scan assertion, tracked as2650ec. Reproduced using real Git core.autocrlf=true; registry content/history unchanged, only canonical LF rewrite. New regression covers both newline settings, full record/source/index preservation and exact first-/second-scan write guarantees.\n\nA4 continuation confirmed nested test/source/stub extension loss during driver merge, incomplete run provenance falsely ready, head mode bypassing file fingerprints, evidence extension loss on writes, and archive restore run-ID substitution. Dedicated allocated FIXMEs and regression tests added. No semantic graph or API decomposition included."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone.\n\nWindows CI run40035199597 exposed an overstrict first-scan assertion, tracked as2650ec. Reproduced using real Git core.autocrlf=true; registry content/history unchanged, only canonical LF rewrite. New regression covers both newline settings, full record/source/index preservation and exact first-/second-scan write guarantees."
+          }
+        },
+        {
+          "at": "2026-10-24T00:16:36Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone.\n\nWindows CI run40035199597 exposed an overstrict first-scan assertion, tracked as2650ec. Reproduced using real Git core.autocrlf=true; registry content/history unchanged, only canonical LF rewrite. New regression covers both newline settings, full record/source/index preservation and exact first-/second-scan write guarantees.\n\nA4 continuation confirmed nested test/source/stub extension loss during driver merge, incomplete run provenance falsely ready, head mode bypassing file fingerprints, evidence extension loss on writes, and archive restore run-ID substitution. Dedicated allocated FIXMEs and regression tests added. No semantic graph or API decomposition included.\n\nPause checkpoint: completed and explicitly resolved237cb5/279e27/492312/6d434f with passing evidence and independent review. Added real Git driver/plain-Git histories, competing lifecycle states and evidence reconciliation tests. Broad A4 final disposition remains open, alongside1b81/4842/8aeb. Do not begin API decomposition before compatibility integration; pause after this increment as requested."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone.\n\nWindows CI run40035199597 exposed an overstrict first-scan assertion, tracked as2650ec. Reproduced using real Git core.autocrlf=true; registry content/history unchanged, only canonical LF rewrite. New regression covers both newline settings, full record/source/index preservation and exact first-/second-scan write guarantees.\n\nA4 continuation confirmed nested test/source/stub extension loss during driver merge, incomplete run provenance falsely ready, head mode bypassing file fingerprints, evidence extension loss on writes, and archive restore run-ID substitution. Dedicated allocated FIXMEs and regression tests added. No semantic graph or API decomposition included."
+          }
         }
       ],
       "id": "edc2",
-      "kind": "TODO",
+      "kind": "FIXME",
       "labels": [
         "release:1.0",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
+      "last_seen": "2026-10-23T21:59:07Z",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate: demonstrate ordinary Git preserves valid work or produces detectable explicit conflicts; test collisions, history and evidence before resolving.\n\nConfirmed defects: json.loads silently selected duplicate JSON keys; check did not always validate evidence. Strict parsing now rejects duplicates/conflict markers for registry, evidence and archive index, including staged evidence. Divergent branch collision tests with/without driver preserve both original records in Git and fail explicitly. Expanded collision recovery of branch-specific managed state remains pending.\n\nIndependent implementation review P2: nested malformed test evidence formerly passed checks. Added shape/outcome/duration/metadata validation with actionable diagnostics and four non-mutating regression cases. Kind changed to FIXME for the confirmed integrity defects; broader merge acceptance remains in progress.\n\nCollision follow-up preserves both original branch records and verification payloads; no choosing one registry record to finish a merge. Strict check rejects conflicted evidence after repair/remerge. Both ordinary Git and configured-driver evidence merge regressions retain valid work or explicit conflicts. Broader lifecycle/history/evidence reconciliation matrix remains open; this task is not resolved by collision repair alone.\n\nWindows CI run40035199597 exposed an overstrict first-scan assertion, tracked as2650ec. Reproduced using real Git core.autocrlf=true; registry content/history unchanged, only canonical LF rewrite. New regression covers both newline settings, full record/source/index preservation and exact first-/second-scan write guarantees.\n\nA4 continuation confirmed nested test/source/stub extension loss during driver merge, incomplete run provenance falsely ready, head mode bypassing file fingerprints, evidence extension loss on writes, and archive restore run-ID substitution. Dedicated allocated FIXMEs and regression tests added. No semantic graph or API decomposition included.\n\nPause checkpoint: completed and explicitly resolved237cb5/279e27/492312/6d434f with passing evidence and independent review. Added real Git driver/plain-Git histories, competing lifecycle states and evidence reconciliation tests. Broad A4 final disposition remains open, alongside1b81/4842/8aeb. Do not begin API decomposition before compatibility integration; pause after this increment as requested.",
       "origin": "comment",
       "presence": "present",
-      "priority": "normal",
+      "priority": "high",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 143,
+        "line": 139,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "A4. Plain-Git merge compatibility"
       },
-      "status": "open",
+      "status": "in_progress",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 99,
+            "node": "tests/test_collision_recovery.py::test_premerge_rekey_preserves_both_original_records",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 516,
+            "node": "tests/test_collision_recovery.py::test_rekey_then_merge_preserves_both_branches_evidence",
+            "path": "tests/test_collision_recovery.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 290,
+            "node": "tests/test_compatibility.py::test_check_rejects_inconsistent_merge_records_without_writes",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 357,
+            "node": "tests/test_compatibility.py::test_check_rejects_malformed_nested_evidence",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 323,
+            "node": "tests/test_compatibility.py::test_divergent_branch_identity_collisions_fail_explicitly",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 310,
+            "node": "tests/test_compatibility.py::test_staged_check_validates_staged_evidence_not_worktree",
+            "path": "tests/test_compatibility.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 173,
+            "node": "tests/test_evidence_integrity.py::test_archive_restores_conflicting_runs_without_substitution",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 241,
+            "node": "tests/test_evidence_integrity.py::test_completed_passes_survive_a_timed_out_multi_test_run",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 111,
+            "node": "tests/test_evidence_integrity.py::test_head_mode_also_requires_current_file_fingerprint",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 60,
+            "node": "tests/test_evidence_integrity.py::test_incomplete_positive_evidence_is_rejected_without_writes",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 90,
+            "node": "tests/test_evidence_integrity.py::test_known_run_fields_reject_malformed_types",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 217,
+            "node": "tests/test_evidence_integrity.py::test_malformed_archived_evidence_is_actionable_and_atomic",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 250,
+            "node": "tests/test_evidence_integrity.py::test_restore_does_not_conflate_boolean_and_numeric_extension_values",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 151,
+            "node": "tests/test_evidence_integrity.py::test_reverification_preserves_opaque_metadata_and_clears_old_failure",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 124,
+            "node": "tests/test_evidence_integrity.py::test_verification_runs_do_not_alias_at_the_same_second",
+            "path": "tests/test_evidence_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 225,
+            "node": "tests/test_merge_integrity.py::test_merge_driver_serialization_preserves_nested_metadata",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 45,
+            "node": "tests/test_merge_integrity.py::test_merge_keeps_independent_nested_extensions",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 30,
+            "node": "tests/test_merge_integrity.py::test_merge_preserves_test_container_extensions",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 67,
+            "node": "tests/test_merge_integrity.py::test_merge_refuses_competing_nested_extension_values",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 83,
+            "node": "tests/test_merge_integrity.py::test_merge_respects_nested_extension_deletion",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 99,
+            "node": "tests/test_merge_integrity.py::test_real_git_histories_and_lifecycle_states",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 149,
+            "node": "tests/test_merge_integrity.py::test_real_git_verification_evidence_merge",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 202,
+            "node": "tests/test_merge_integrity.py::test_removed_container_cannot_discard_competing_metadata",
+            "path": "tests/test_merge_integrity.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "RC1 plain-Git merge and conflicting-evidence validation",
       "title_override": null
     },

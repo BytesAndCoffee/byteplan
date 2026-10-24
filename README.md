@@ -7,7 +7,7 @@
 
 BytePlan is a source-first task tracker for Python projects. You write `# TODO:` where the work is,
 or leave a function unfinished, and BytePlan does the rest:
-- gives each obligation a permanent four-character ID, written back into the source (`# TODO[7fa2]:`)
+- gives each obligation a permanent hexadecimal ID, written back into the source (`# TODO[7fa2]:`)
 - keeps status, priority, owner, notes and history in a Git-versioned registry,
   `.byteplan/tasks.json`
 - reconciles the two on every scan
@@ -54,6 +54,10 @@ BytePlan needs Python 3.11+ and has one runtime dependency, `pathspec`. The opti
 dependencies) provides the `@todo` and `@verifies` decorators. It's only needed if you use them.
 
 ## Quick start
+
+New tasks receive six-character IDs. Four-character IDs in existing projects and the examples
+below remain fully supported. Existing projects must [migrate their registry](docs/rc1-compatibility.md#migration-and-recovery)
+before allocating new IDs with this version.
 
 ```console
 $ byteplan init                      # adds [tool.byteplan], creates .byteplan/tasks.json
@@ -357,6 +361,11 @@ Every task has two independent dimensions:
 IDs never change and are never reused. Line numbers, file paths and function names are only
 metadata, so moving or renaming code keeps the same task.
 
+Persistent IDs are lowercase hexadecimal strings of at least four characters; new allocations
+use six. Commands accept an exact ID first, then an unambiguous prefix. An exact legacy ID
+wins even when a longer ID starts with it. Ambiguous prefixes report candidates and change
+nothing. Store full IDs in annotations, verification references and external mappings.
+
 **Archiving.** Closed tasks don't stay in `tasks.json` forever. Once a task has been resolved or
 dismissed for a week (`[tool.byteplan.archive] after_days`) and its annotation is gone from
 source, the next writing `scan` moves it out (or run `byteplan archive` yourself):
@@ -390,6 +399,7 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 | `byteplan resolve ID --sync-source` | resolve, and remove the task's annotation in the same step |
 | `byteplan scan [PATHS] [--dry-run] [--staged]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing. `--staged --dry-run` previews against the Git index |
 | `byteplan scan --staged --apply` | add IDs to the staged commit (index and working tree) before it's finalized; what the pre-commit hook runs |
+| `byteplan migrate [--dry-run]` | explicitly upgrade registry metadata through the recovery journal without editing source; required before expanded-ID allocation in older repositories |
 | `byteplan check [--staged \| --commit REV]` | read-only validation, with policy-based exit code. `--staged` checks exactly what's staged (pre-commit); `--commit HEAD` checks a commit (CI) |
 | `byteplan list [--status S] [--presence P] [--kind K]` | list tasks |
 | `byteplan show ID` | details, location and history (archived tasks too) |
@@ -403,7 +413,8 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 | `byteplan duplicates` | the same ID on more than one annotation |
 | `byteplan report [--format text\|json\|markdown]` | summary by status, presence, kind and priority, plus findings |
 | `byteplan repair --import ID` | register an ID found in source but not in the registry |
-| `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID |
+| `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID; use `--dry-run` to preview |
+| `byteplan repair --reassign PATH:LINE --against REV` | preserve/reassign an independently created branch collision before merging; [procedure and limits](docs/rc1-compatibility.md#merge-and-collision-recovery) |
 | `byteplan git install-merge-driver` | merge the registry by task ID in Git merges (per clone) |
 | `byteplan git install-hooks [--mode reconcile\|check\|scan]` | direct pre-commit hook (default `reconcile`: IDs at commit time); never replaces a hook it didn't write |
 | `byteplan git hooks-status` | show the pre-commit framework hook, direct hook and merge driver |

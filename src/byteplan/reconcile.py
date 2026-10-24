@@ -73,8 +73,16 @@ def reconcile(
     for obs in observations:
         seen.add(obs.task_id)
         tag = obs.tag
-        source = SourceRef(tag.path, tag.line, tag.symbol, tag.decl_line, tag.attachment_kind, tag.representation)
         task = result.tasks.get(obs.task_id)
+        source = SourceRef(
+            tag.path,
+            tag.line,
+            tag.symbol,
+            tag.decl_line,
+            tag.attachment_kind,
+            tag.representation,
+            extra=task.source.extra if task is not None and task.source is not None else {},
+        )
         if task is None:
             if not obs.new:
                 continue  # unregistered IDs are diagnosed, never imported implicitly

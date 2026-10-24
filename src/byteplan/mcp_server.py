@@ -56,7 +56,7 @@ _T = TypeVar("_T")
 
 INSTRUCTIONS = """\
 BytePlan tracks development obligations (TODO/FIXME comments, stubs, @todo decorators) that live
-in source, each with a permanent 4-hex ID such as `a83f`, in a committed registry. Status
+in source, each with a permanent hexadecimal ID (legacy `a83f`, new `a83f21`), in a committed registry. Status
 (open, in_progress, blocked, resolved, dismissed) changes only on request; presence (present,
 missing, stripped) is what scans observe. Resolving is a human decision: don't resolve a task
 unless the user asked you to. Tools that write source preview unless called with apply=true.

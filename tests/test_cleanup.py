@@ -61,7 +61,7 @@ def setup(project: ProjectFactory, run_cli: RunCli, files: dict[str, str], *, in
     pyproject.write_text(pyproject.read_text().replace('include = ["**/*.py"]', f"include = {include}"))
     for path, text in files.items():
         project.write(path, text)
-    ids = {m for text in files.values() for m in re.findall(r"[\[\"]([0-9a-f]{4})[\]\"]", text)}
+    ids = {m for text in files.values() for m in re.findall(r"[\[\"]([0-9a-f]{4,})[\]\"]", text)}
     for task_id in sorted(ids):
         assert run_cli("repair", "--import", task_id, "--project", project.root).code == EXIT_OK
     assert run_cli("scan", "--project", project.root).code == EXIT_OK

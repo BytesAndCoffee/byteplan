@@ -48,8 +48,18 @@ duplicate them here. Future tasks stay open. Annotation disappearance never reso
 decision. Size alone does not authorize redesign. A1 preserves four-character IDs, allocates
 six-character IDs, supports longer identities, prefers exact lookup before unambiguous prefixes,
 and persists full identities. A2 establishes schema v2 where required before incompatible
-annotation writes, superseding the older reservation for Assignments below. No ID, schema,
-storage or API implementation changes are made by this documentation update.
+annotation writes, superseding the older reservation for Assignments below. The active
+compatibility increment and original-branch collision recovery procedure are recorded in the
+[RC1 compatibility report](rc1-compatibility.md). The historical completion table does not
+complete these new release gates.
+
+**Pause checkpoint:** PR #45 contains the identity/schema work and a focused merge/evidence
+hardening follow-up (`237cb5`, `279e27`, `492312`, `6d434f`). After its verification, pause as
+requested; resume with final A4 disposition (`edc2`), source/first-run safety (`1b81`), storage
+validation (`4842`) and interface policy (`8aeb`). See the
+[compatibility checkpoint](rc1-compatibility.md#a4-follow-up-and-pause-checkpoint).
+API decomposition (`3844`) starts only after compatibility integration; final reviews and RC1
+approval remain later gates.
 
 **Compatibility decisions pending:** A6 inventories CLI, Python API, configuration, decorators,
 MCP, Hatch and extension points before classifying stable versus experimental interfaces. Core
@@ -119,7 +129,7 @@ src/byteplan/
   models.py         frozen dataclasses + enums (Task, SourceRef, HistoryEvent, Edit, Diagnostic, ...)
   config.py         [tool.byteplan] via tomllib, defaults, validation, project-root resolution
   files.py          scope collection: pathspec include/exclude, .gitignore, symlink policy, sorted
-  ids.py            current: shake_128 16-bit candidates; Addendum E A1 plans expanded identities
+  ids.py            shake_128 24-bit candidates, legacy/long ID validation, exact-first UI prefixes
   scanner/
     source.py       bytes -> detect_encoding (BOM / PEP 263) -> text + newline style
     symbols.py      ast declarations, qualnames, line -> symbol
@@ -266,8 +276,10 @@ to the replace step (addendum test 18).
   conversion keys arrive with Phase 5.
 - **`@verifies` links:** discovered and validated now (`unknown_task_reference`, `malformed_id`),
   but stored in the registry only from Phase 6a.
-- **`repair --reassign`:** only works on an ID that really is duplicated; reassigning a unique ID
-  would orphan its task. `PATH:LINE` is taken root-relative first, as diagnostics print it.
+- **`repair --reassign`:** ordinary duplicate-copy repair requires a duplicated annotation.
+  Addendum E adds explicit `--against REV` recovery for independently created branch collisions,
+  preserving the original branch's record and stale evidence before merging; shared/inherited
+  identity is rejected. Both support `--dry-run`. `PATH:LINE` is root-relative first, as diagnostics print it.
 
 **Exit codes.** 0 means OK, 1 means findings under the check policy, 2 means a
 config, runtime or registry error.
@@ -1273,7 +1285,8 @@ local SQLite use foreseen above, and the registry stays authoritative for every 
 
 **Conflicts fall back to `git merge-file` markers, with an explanation.** These include the same
 field changed differently on both sides, an ID allocated on both branches for different work
-(follow up with `repair --reassign`), removed versus changed, and a schema mismatch. Nothing is
+(return to an original branch and use the [explicit pre-merge repair procedure](rc1-compatibility.md#merge-and-collision-recovery)),
+removed versus changed, and a schema mismatch. Nothing is
 chosen silently.
 
 **Discovered fields** changed on both sides keep ours and ask for a `scan`, which recomputes them

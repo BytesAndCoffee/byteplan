@@ -61,8 +61,9 @@ report_file = "byteplan.md"
 report_branch = "main"
 
 [tool.byteplan.tests]
-# `byteplan verify` runs pytest in the hatch-test environment (the default one has no pytest).
-runner = ["hatch", "test", "--"]
+# Run every linked acceptance test, including the explicit released-client network cases.
+# Ordinary `hatch test` still excludes network tests through pytest's default addopts.
+runner = ["hatch", "test", "--", "-m", "network or not network"]
 
 [tool.byteplan.tests.scaffold]
 # Every new task in src/ starts with an acceptance test: an xfail(strict=True) placeholder, so
