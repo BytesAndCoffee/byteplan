@@ -61,16 +61,23 @@ isolation (`c35e66`) defects; both are corrected with linked regression evidence
 resolution. Missing-test and MCP diagnostic gaps (`b29c72`, `932b36`) are also resolved.
 First-party scaffold formatting (`67a65c`) remains an explicitly nonblocking P3.
 
-Finish final checks and integrate PR #45 before API decomposition (`3844`) in a dedicated PR.
+PR #45 is integrated after all 15 platform/quality jobs passed on `182c882`. The dedicated API
+decomposition (`3844`) is implemented behind the existing public facade. Its independent review
+also reproduced an inherited archive-restore integrity defect (`50ad66`): concurrent edits could
+be overwritten and cached passing evidence could replace a newer canonical failure. The separate
+compatibility follow-up PR #46 must be integrated before the structural PR; its correction must
+remain equivalent in the extracted archive operation.
+
 Final whole-repository reviews (`c053`) and the release-readiness/approval report (`a70d`) remain
 later gates. The [compatibility report](rc1-compatibility.md) links acceptance maps, independent
 review evidence, the storage decision and public stability policy. Its earlier pause checkpoint
 retains historical evidence; it does not describe the current execution state.
 
-**Compatibility decisions pending:** A6 inventories CLI, Python API, configuration, decorators,
-MCP, Hatch and extension points before classifying stable versus experimental interfaces. Core
-identity, source safety and authoritative state need coherent 1.0 guarantees. Explain existing
-previews and read-only defaults before adding commands.
+**Compatibility policy:** the completed [interface inventory](compatibility-policy.md) defines
+stable CLI, Python API, configuration, decorators, MCP stdio, Hatch and documented extension
+contracts. Python MCP embedding remains experimental. Core identity, source safety and
+authoritative state share the stable contract. Existing previews and read-only defaults are
+documented without adding commands.
 
 **Post-1.0:** optional historical phases 6c/11/11b, Assignments (12) and Relay (13) are outside
 RC1. Existing Assignment task `15df` remains authoritative; its specification traceability

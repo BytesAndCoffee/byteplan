@@ -83,10 +83,17 @@ their acceptance work. Diagnostics `b29c72` and `932b36` are fixed. Independent 
 and verified two additional defects, allocated through BytePlan: archive durability `af82fd`
 and snapshot isolation `c35e66`. Both are explicitly resolved with real regression tests.
 The earlier assessment above is retained as a dated starting point, not a claim that its
-original stale evidence or task statuses are current.
+original stale evidence or task statuses are current. PR #45 is now merged as `3745551`
+after all 15 CI jobs passed on `182c882`, including the corrected Windows storage fixtures.
 
 See [the compatibility report](rc1-compatibility.md) and its linked acceptance maps for
 implementation/recovery boundaries and final validation. The P3 scaffold import-formatting
-issue `67a65c` remains open and nonblocking. Next: complete PR A checks/integration, then
-dedicated API decomposition, a common reviewed SHA and the final approval report. No graph
+issue `67a65c` remains open and nonblocking. Independent API review subsequently reproduced
+inherited restore defect `50ad66`: concurrent evidence/index changes could be overwritten,
+and an old cached pass could replace a newer canonical failure. Its compatibility correction
+is isolated in PR #46; integration precedes the structural PR. The
+[API decomposition](api-architecture.md) is implemented locally and retains the corrected
+restore semantics, with public contract and method-body comparisons. Next: integrate the
+compatibility follow-up and dedicated decomposition, prepare candidate artifacts, freeze a
+common reviewed SHA and complete the final approval report. No graph
 or Assignment implementation is authorized by this execution; do not tag or publish RC1.
