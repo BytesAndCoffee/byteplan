@@ -155,7 +155,9 @@ src/byteplan/
   persistence.py    lock, staged writes, journal, atomic replace, roll-forward recovery
   diagnostics.py    codes, severity, remediation text, exit-code policy
   reporting.py      text / json / markdown
-  api.py            Project facade: the single programmatic surface used by cli, hook and MCP
+  api.py            stable Project facade, configuration/snapshots and guarded transaction boundaries
+  _api_types.py     canonical public result types and sentinel, re-exported through api.py
+  operations/       internal scan/task/verify/scaffold/release/sync/archive/init orchestration
   cli.py            argparse; stdout = payload, stderr = diagnostics
   hatch_hook.py     BuildHookInterface subclass + hookimpl registration
   snapshot.py       read-only Snapshot sources: working tree, Git index, Git commit
@@ -164,8 +166,10 @@ src/byteplan/
   _verify_plugin.py pytest plugin injected into `verify` runs (pytest-only imports)
 ```
 
-Only `persistence.py` writes to disk. `cli`, `hatch_hook` and `mcp_server` are thin adapters
-over `api.Project`, so all three front ends behave the same.
+Project file writes use `persistence.py`; `cli`, `hatch_hook` and `mcp_server` remain thin
+adapters over `api.Project`. The [facade/operations architecture](api-architecture.md) documents
+the internal boundaries, preserved patch targets and validation. Leaf modules retain their
+existing algorithms; the facade and internal operations share one canonical set of result types.
 
 ## Resolved design decisions
 

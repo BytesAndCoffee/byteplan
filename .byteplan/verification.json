@@ -14,6 +14,22 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "0c9354203dce4dfbb42978c863cb75a2": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-24T21:47:15Z",
+      "dirty": true,
+      "head": "0be125ecbdebcb5c621af71f028b6780a40f6cda",
+      "python": "3.12.14",
+      "timed_out": false
+    },
     "165678588f64": {
       "argv": [
         "hatch",
@@ -697,6 +713,32 @@
       "tests": {
         "tests/test_release.py::test_shadowed_todo_is_not_stripped": {
           "duration_ms": 125,
+          "outcome": "passed"
+        }
+      }
+    },
+    "3844": {
+      "fingerprint": "7d35ef86550227cfa6cd895a9c2fe376790e44d3df418b55aaaa2bb91d789b98",
+      "run": "0c9354203dce4dfbb42978c863cb75a2",
+      "tests": {
+        "tests/test_api_facade_contract.py::test_edit_task_preserves_omitted_fields_and_clears_only_explicit_none": {
+          "duration_ms": 31,
+          "outcome": "passed"
+        },
+        "tests/test_api_facade_contract.py::test_registry_edit_keeps_the_facade_commit_patch_target": {
+          "duration_ms": 17,
+          "outcome": "passed"
+        },
+        "tests/test_api_facade_contract.py::test_result_constructor_annotations_remain_resolvable": {
+          "duration_ms": 25,
+          "outcome": "passed"
+        },
+        "tests/test_api_facade_contract.py::test_result_types_retain_public_import_and_pickle_identity": {
+          "duration_ms": 591,
+          "outcome": "passed"
+        },
+        "tests/test_api_facade_contract.py::test_runtime_template_does_not_add_unshipped_facade_decorator_exports": {
+          "duration_ms": 0,
           "outcome": "passed"
         }
       }

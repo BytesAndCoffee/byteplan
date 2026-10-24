@@ -129,6 +129,7 @@ deprecation guidance should precede removal where feasible.
 
 The RC1 API extraction is behavior-preserving: capture imports, signatures, result shapes,
 exceptions, patch targets and CLI/MCP/Hatch/Git behavior before extraction, then compare after
-it. Final whole-repository reviews and the readiness report must assess this policy against the
+it. See the [facade and internal operations architecture](api-architecture.md) for the module
+boundaries and preserved constructor annotation/pickle identities. Final whole-repository reviews and the readiness report must assess this policy against the
 same frozen revision. A policy document and passing individual tests do not substitute for
 those release gates.
