@@ -87,16 +87,18 @@ An initial post-extraction full suite passed 1,187 ordinary tests plus three exp
 cases. Seven additional constructor-introspection regressions now cover every previously
 resolvable result constructor. The combined final local suite passes **1,210 tests**, with three network cases passed
 separately and one existing nonblocking P3 placeholder xfailed. Full formatting and strict
-typing pass (110 checked files). Wheel and sdist installations both exercise installed scan,
+typing pass (111 checked files; 112 formatted files). Wheel and sdist installations both exercise installed scan,
 query, check and result-pickle behavior outside the checkout. Platform CI and final independent
 review remain integration gates for the structural PR.
 
 Review also reproduced inherited restore integrity defect `50ad66` against both baseline and
 extraction. Its correction is isolated in compatibility PR #46: exact parsed-byte transaction
 baselines, consistent cache/index selection and preservation of newer canonical evidence.
+The compatibility PR is integrated as `027578b`, with all 15 CI jobs passing on `fea1d3e`.
 The archive operation retains that same body after delegation/alias normalization; all 16
-restore regression cases also pass against the extracted implementation. Integrate the
-compatibility PR first so this structural change does not introduce that behavior change.
+restore regression cases also pass against the extracted implementation. A final independent
+affected-area review passed 80 cases and confirmed the same runtime dependency bindings.
+This structural PR is based on the correction and introduces no intended behavior change.
 
 This work introduces no schema migration, storage-layout change, semantic graph or Assignment
 functionality. Final whole-repository reviews and RC1 approval remain separate release gates.

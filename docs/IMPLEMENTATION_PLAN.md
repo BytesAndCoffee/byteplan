@@ -65,8 +65,9 @@ PR #45 is integrated after all 15 platform/quality jobs passed on `182c882`. The
 decomposition (`3844`) is implemented behind the existing public facade. Its independent review
 also reproduced an inherited archive-restore integrity defect (`50ad66`): concurrent edits could
 be overwritten and cached passing evidence could replace a newer canonical failure. The separate
-compatibility follow-up PR #46 must be integrated before the structural PR; its correction must
-remain equivalent in the extracted archive operation.
+compatibility follow-up PR #46 is integrated as `027578b` after all 15 jobs passed on `fea1d3e`.
+The extracted archive operation retains the same correction, confirmed by method-body and
+runtime-binding comparisons plus the restore regressions.
 
 Final whole-repository reviews (`c053`) and the release-readiness/approval report (`a70d`) remain
 later gates. The [compatibility report](rc1-compatibility.md) links acceptance maps, independent

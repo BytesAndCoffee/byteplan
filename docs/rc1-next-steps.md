@@ -91,9 +91,9 @@ implementation/recovery boundaries and final validation. The P3 scaffold import-
 issue `67a65c` remains open and nonblocking. Independent API review subsequently reproduced
 inherited restore defect `50ad66`: concurrent evidence/index changes could be overwritten,
 and an old cached pass could replace a newer canonical failure. Its compatibility correction
-is isolated in PR #46; integration precedes the structural PR. The
+is isolated in PR #46, now integrated as `027578b` after all 15 CI jobs passed. The
 [API decomposition](api-architecture.md) is implemented locally and retains the corrected
 restore semantics, with public contract and method-body comparisons. Next: integrate the
-compatibility follow-up and dedicated decomposition, prepare candidate artifacts, freeze a
+dedicated decomposition, prepare candidate artifacts, freeze a
 common reviewed SHA and complete the final approval report. No graph
 or Assignment implementation is authorized by this execution; do not tag or publish RC1.
