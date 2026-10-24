@@ -18,6 +18,7 @@ import pytest
 
 from byteplan._todo import verifies
 from byteplan.merge import merge_registries
+from byteplan.registry import SCHEMA_VERSION
 
 if TYPE_CHECKING:
     from tests.conftest import ProjectFactory, RunCli
@@ -147,9 +148,12 @@ def test_removal_rules() -> None:
     assert merged.data is None  # removed vs changed
 
 
-def test_schema_mismatch_is_a_conflict() -> None:
-    newer = {**BASE, "schema_version": 2}
-    assert merge_registries(BASE, BASE, newer).data is None
+@pytest.mark.parametrize("version", [SCHEMA_VERSION + 1, 0, "2", None])
+def test_unsupported_schema_is_a_conflict(version: object) -> None:
+    other = {**BASE, "schema_version": version}
+    result = merge_registries(BASE, BASE, other)
+    assert result.data is None
+    assert "unsupported schema_version" in result.conflicts[0]
 
 
 # Git end to end -----------------------------------------------------------------------------------
@@ -425,7 +429,6 @@ def test_bool_change_on_one_side_still_merges() -> None:
 
 
 @verifies("ee606e")
-@pytest.mark.xfail(reason="BytePlan ee606e: merges across the v1->v2 migration still conflict", strict=True)
 @pytest.mark.parametrize(
     ("base", "ours", "theirs"),
     [

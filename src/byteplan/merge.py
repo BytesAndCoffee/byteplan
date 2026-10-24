@@ -231,9 +231,12 @@ def merge_registries(base: dict[str, Any], ours: dict[str, Any], theirs: dict[st
     #   Every branch forked before `migrate` has a v1 merge base, so its merges conflict here even after it
     #   migrates too (base 1, ours 2, theirs 2). Taking one side and rescanning loses the other's status,
     #   notes and history. v2 only bumps schema_version, so accept 1..SCHEMA_VERSION and emit the maximum.
-    if len(versions) != 1 or any(type(v) is not int or not 1 <= v <= SCHEMA_VERSION for v in versions):
-        result.conflicts.append(f"schema_version differs between versions ({sorted(map(str, versions))})")
+    # A migration only raises schema_version, so a branch forked before it (a v1 merge base) still
+    # merges; the result takes the newest version. Unknown or future versions remain conflicts.
+    if any(type(v) is not int or not 1 <= v <= SCHEMA_VERSION for v in versions):
+        result.conflicts.append(f"unsupported schema_version in merge ({sorted(map(str, versions))})")
         return result
+    version = max(v for v in versions if isinstance(v, int))
 
     reserved = sorted({*base.get("reserved_ids", []), *ours.get("reserved_ids", []), *theirs.get("reserved_ids", [])})
     base_tasks, our_tasks, their_tasks = base.get("tasks", {}), ours.get("tasks", {}), theirs.get("tasks", {})
@@ -267,5 +270,5 @@ def merge_registries(base: dict[str, Any], ours: dict[str, Any], theirs: dict[st
             extra[key] = value
 
     if not result.conflicts:
-        result.data = {**extra, "schema_version": base["schema_version"], "reserved_ids": reserved, "tasks": tasks}
+        result.data = {**extra, "schema_version": version, "reserved_ids": reserved, "tasks": tasks}
     return result

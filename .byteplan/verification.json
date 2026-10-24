@@ -198,6 +198,22 @@
       "python": "3.12.14",
       "timed_out": false
     },
+    "75543f9a7614446bb50dc8bcc952ebb4": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-24T18:20:58Z",
+      "dirty": true,
+      "head": "8edd833dfb382d05fb7f64643b537846ce2bc672",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "7d4f28e5d140": {
       "argv": [
         "hatch",
@@ -1577,6 +1593,16 @@
         },
         "tests/test_merge_integrity.py::test_removed_container_cannot_discard_competing_metadata": {
           "duration_ms": 1579,
+          "outcome": "passed"
+        }
+      }
+    },
+    "ee606e": {
+      "fingerprint": "97b833f8c009fb436dfb952d10978d1c389bb6c4a8e0e31f1f854b7c1a889c9f",
+      "run": "75543f9a7614446bb50dc8bcc952ebb4",
+      "tests": {
+        "tests/test_merge.py::test_merges_across_the_schema_migration": {
+          "duration_ms": 0,
           "outcome": "passed"
         }
       }

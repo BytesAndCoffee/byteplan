@@ -7860,8 +7860,8 @@
       "tests": {
         "discovered": [
           {
-            "line": 427,
-            "node": "tests/test_merge.py::test_task_ee606e",
+            "line": 431,
+            "node": "tests/test_merge.py::test_merges_across_the_schema_migration",
             "path": "tests/test_merge.py",
             "provenance": "verifies"
           }
