@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from byteplan._todo import verifies
 from byteplan.merge import merge_registries
 
 if TYPE_CHECKING:
@@ -421,3 +422,26 @@ def test_bool_change_on_one_side_still_merges() -> None:
     assert nested.data is not None
     assert nested.data["cfg"] == {"on": True, "x": 2}
     assert nested.data["cfg"]["on"] is True
+
+
+@verifies("ee606e")
+@pytest.mark.xfail(reason="BytePlan ee606e: merges across the v1->v2 migration still conflict", strict=True)
+@pytest.mark.parametrize(
+    ("base", "ours", "theirs"),
+    [
+        pytest.param(1, 2, 2, id="both branches migrated after forking"),
+        pytest.param(1, 1, 2, id="the other side migrated"),
+        pytest.param(1, 2, 1, id="this side migrated"),
+    ],
+)
+def test_merges_across_the_schema_migration(base: int, ours: int, theirs: int) -> None:
+    def registry(version: int, status: str) -> dict[str, Any]:
+        task = {"id": "abcd", "kind": "TODO", "title": "t", "status": status, "notes": "", "history": []}
+        return {"schema_version": version, "reserved_ids": ["abcd"], "tasks": {"abcd": task}}
+
+    # Our side's status change must survive; a conflict forces taking one side and losing it.
+    result = merge_registries(registry(base, "open"), registry(ours, "in_progress"), registry(theirs, "open"))
+    assert result.conflicts == []
+    assert result.data is not None
+    assert result.data["schema_version"] == 2
+    assert result.data["tasks"]["abcd"]["status"] == "in_progress"

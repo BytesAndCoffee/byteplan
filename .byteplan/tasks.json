@@ -89,6 +89,7 @@
     "ecf4",
     "ed2b",
     "edc2",
+    "ee606e",
     "f853",
     "fb23",
     "fb9c",
@@ -7810,6 +7811,64 @@
         "managed": []
       },
       "title": "RC1 plain-Git merge and conflicting-evidence validation",
+      "title_override": null
+    },
+    "ee606e": {
+      "assignee": null,
+      "description": "Every branch forked before `migrate` has a v1 merge base, so its merges conflict here even after it\nmigrates too (base 1, ours 2, theirs 2). Taking one side and rescanning loses the other's status,\nnotes and history. v2 only bumps schema_version, so accept 1..SCHEMA_VERSION and emit the maximum.",
+      "first_seen": "2026-10-24T18:12:19Z",
+      "history": [
+        {
+          "at": "2026-10-24T18:12:19Z",
+          "event": "created",
+          "new": {
+            "line": 230,
+            "path": "src/byteplan/merge.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T18:12:19Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_merge.py::test_task_ee606e",
+            "path": "tests/test_merge.py",
+            "policy": "xfail"
+          },
+          "old": null
+        }
+      ],
+      "id": "ee606e",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-24T18:12:19Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 226,
+        "line": 230,
+        "path": "src/byteplan/merge.py",
+        "representation": "comment",
+        "symbol": "merge_registries"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 427,
+            "node": "tests/test_merge.py::test_task_ee606e",
+            "path": "tests/test_merge.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "[P1] Merge registries across the v1->v2 migration instead of conflicting",
       "title_override": null
     },
     "f853": {
