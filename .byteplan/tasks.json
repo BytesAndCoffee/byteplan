@@ -77,6 +77,7 @@
     "be8e",
     "c053",
     "c242",
+    "c26d29",
     "c35e66",
     "c449",
     "c8db",
@@ -2643,97 +2644,97 @@
       "tests": {
         "discovered": [
           {
-            "line": 331,
+            "line": 338,
             "node": "tests/test_rc1_storage.py::test_a_fresh_clone_can_recover_archived_records_without_claiming_missing_evidence",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 285,
+            "line": 292,
             "node": "tests/test_rc1_storage.py::test_archive_detects_evidence_changes_during_git_reads",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 309,
+            "line": 316,
             "node": "tests/test_rc1_storage.py::test_archive_detects_index_changes_after_parsing",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 190,
+            "line": 197,
             "node": "tests/test_rc1_storage.py::test_archive_rejects_type_changes_in_unknown_task_fields",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 39,
+            "line": 46,
             "node": "tests/test_rc1_storage.py::test_archive_waits_for_a_committed_copy_of_current_evidence",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 113,
+            "line": 120,
             "node": "tests/test_rc1_storage.py::test_automatic_archive_preserves_uncommitted_evidence",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 249,
+            "line": 256,
             "node": "tests/test_rc1_storage.py::test_explicit_git_selectors_do_not_become_a_non_git_fallback",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 208,
+            "line": 215,
             "node": "tests/test_rc1_storage.py::test_git_errors_cannot_enable_local_only_archival",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 264,
+            "line": 271,
             "node": "tests/test_rc1_storage.py::test_invalid_committed_registry_cannot_disable_git_guards",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 101,
+            "line": 108,
             "node": "tests/test_rc1_storage.py::test_metadata_only_evidence_also_requires_a_committed_copy",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 126,
+            "line": 133,
             "node": "tests/test_rc1_storage.py::test_non_git_archival_remains_local_and_keeps_evidence",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 139,
+            "line": 146,
             "node": "tests/test_rc1_storage.py::test_only_an_empty_git_directory_is_treated_as_a_standalone_marker",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 58,
+            "line": 65,
             "node": "tests/test_rc1_storage.py::test_staged_evidence_changes_wait_for_a_commit",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 178,
+            "line": 185,
             "node": "tests/test_rc1_storage.py::test_unreadable_current_evidence_has_an_actionable_error",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 87,
+            "line": 94,
             "node": "tests/test_rc1_storage.py::test_unrelated_uncommitted_evidence_does_not_block_archival",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 228,
+            "line": 235,
             "node": "tests/test_rc1_storage.py::test_worktree_gitfile_cannot_hide_failed_git_discovery",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
@@ -6251,97 +6252,97 @@
       "tests": {
         "discovered": [
           {
-            "line": 331,
+            "line": 338,
             "node": "tests/test_rc1_storage.py::test_a_fresh_clone_can_recover_archived_records_without_claiming_missing_evidence",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 285,
+            "line": 292,
             "node": "tests/test_rc1_storage.py::test_archive_detects_evidence_changes_during_git_reads",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 309,
+            "line": 316,
             "node": "tests/test_rc1_storage.py::test_archive_detects_index_changes_after_parsing",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 190,
+            "line": 197,
             "node": "tests/test_rc1_storage.py::test_archive_rejects_type_changes_in_unknown_task_fields",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 39,
+            "line": 46,
             "node": "tests/test_rc1_storage.py::test_archive_waits_for_a_committed_copy_of_current_evidence",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 113,
+            "line": 120,
             "node": "tests/test_rc1_storage.py::test_automatic_archive_preserves_uncommitted_evidence",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 249,
+            "line": 256,
             "node": "tests/test_rc1_storage.py::test_explicit_git_selectors_do_not_become_a_non_git_fallback",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 208,
+            "line": 215,
             "node": "tests/test_rc1_storage.py::test_git_errors_cannot_enable_local_only_archival",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 264,
+            "line": 271,
             "node": "tests/test_rc1_storage.py::test_invalid_committed_registry_cannot_disable_git_guards",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 101,
+            "line": 108,
             "node": "tests/test_rc1_storage.py::test_metadata_only_evidence_also_requires_a_committed_copy",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 126,
+            "line": 133,
             "node": "tests/test_rc1_storage.py::test_non_git_archival_remains_local_and_keeps_evidence",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 139,
+            "line": 146,
             "node": "tests/test_rc1_storage.py::test_only_an_empty_git_directory_is_treated_as_a_standalone_marker",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 58,
+            "line": 65,
             "node": "tests/test_rc1_storage.py::test_staged_evidence_changes_wait_for_a_commit",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 178,
+            "line": 185,
             "node": "tests/test_rc1_storage.py::test_unreadable_current_evidence_has_an_actionable_error",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 87,
+            "line": 94,
             "node": "tests/test_rc1_storage.py::test_unrelated_uncommitted_evidence_does_not_block_archival",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
           },
           {
-            "line": 228,
+            "line": 235,
             "node": "tests/test_rc1_storage.py::test_worktree_gitfile_cannot_hide_failed_git_discovery",
             "path": "tests/test_rc1_storage.py",
             "provenance": "verifies"
@@ -6992,6 +6993,111 @@
         ]
       },
       "title": "Check the current binding before restoring a decorator",
+      "title_override": null
+    },
+    "c26d29": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-24T20:51:20Z",
+      "history": [
+        {
+          "at": "2026-10-24T20:51:20Z",
+          "event": "created",
+          "new": {
+            "line": 38,
+            "path": "tests/test_rc1_storage.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T20:51:20Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "Confirmed P2 test-portability defect in CI40130766421: nine archive fixtures fail on Windows PermissionError deleting read-only Git object files before exercising product assertions. Detach the disposable .git directory by renaming outside discovery instead; preserve original metadata and all assertions. Product code unchanged; Windows matrix must pass before integration."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-24T20:51:20Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Portable fixture preparation implemented; independent review, fresh evidence and Windows CI pending.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-24T20:54:45Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "P2 fixture setup corrected by renaming disposable Git metadata instead of deleting Windows read-only objects. All28storagecases and independent28case review passed, with productassertions intact and no productcodechanges. Fresh linked verification passed locally; new WindowsCI remains mandatory before PR45integration.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-24T20:54:49Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-24T20:54:49Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "tests/test_rc1_storage.py"
+          }
+        }
+      ],
+      "id": "c26d29",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0"
+      ],
+      "last_seen": "2026-10-24T20:51:20Z",
+      "notes": "Confirmed P2 test-portability defect in CI40130766421: nine archive fixtures fail on Windows PermissionError deleting read-only Git object files before exercising product assertions. Detach the disposable .git directory by renaming outside discovery instead; preserve original metadata and all assertions. Product code unchanged; Windows matrix must pass before integration.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 39,
+        "line": 38,
+        "path": "tests/test_rc1_storage.py",
+        "representation": "comment",
+        "symbol": "_detach_git"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 256,
+            "node": "tests/test_rc1_storage.py::test_explicit_git_selectors_do_not_become_a_non_git_fallback",
+            "path": "tests/test_rc1_storage.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 133,
+            "node": "tests/test_rc1_storage.py::test_non_git_archival_remains_local_and_keeps_evidence",
+            "path": "tests/test_rc1_storage.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 146,
+            "node": "tests/test_rc1_storage.py::test_only_an_empty_git_directory_is_treated_as_a_standalone_marker",
+            "path": "tests/test_rc1_storage.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Detach disposable Git metadata without deleting Windows read-only object files",
       "title_override": null
     },
     "c35e66": {

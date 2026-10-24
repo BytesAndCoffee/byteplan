@@ -196,6 +196,22 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "7f7f427cc6fe4431a1e5c29bdfd475e1": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-24T20:54:52Z",
+      "dirty": true,
+      "head": "b0e47167b4554bbebac07ab34d78fdddb261a74f",
+      "python": "3.12.14",
+      "timed_out": false
+    },
     "925deaf35320": {
       "argv": [
         "hatch",
@@ -744,71 +760,71 @@
       }
     },
     "4842": {
-      "fingerprint": "e55d96cdbb2fa24c4a391bd72c605e6503749200c54135811a379727e78aec6b",
-      "run": "d13a1256f1b84d16bf72dbf535322fcd",
+      "fingerprint": "3de8b49b7ba305a3875720088b99d154d48d3aaf0d2d1ff8ddc131d54c56a47d",
+      "run": "7f7f427cc6fe4431a1e5c29bdfd475e1",
       "tests": {
         "tests/test_rc1_storage.py::test_a_fresh_clone_can_recover_archived_records_without_claiming_missing_evidence": {
-          "duration_ms": 1086,
+          "duration_ms": 878,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_archive_detects_evidence_changes_during_git_reads": {
-          "duration_ms": 1066,
+          "duration_ms": 818,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_archive_detects_index_changes_after_parsing": {
-          "duration_ms": 143,
+          "duration_ms": 137,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_archive_rejects_type_changes_in_unknown_task_fields": {
-          "duration_ms": 140,
+          "duration_ms": 119,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_archive_waits_for_a_committed_copy_of_current_evidence": {
-          "duration_ms": 1038,
+          "duration_ms": 963,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_automatic_archive_preserves_uncommitted_evidence": {
-          "duration_ms": 921,
+          "duration_ms": 756,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_explicit_git_selectors_do_not_become_a_non_git_fallback": {
-          "duration_ms": 3042,
+          "duration_ms": 2269,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_git_errors_cannot_enable_local_only_archival": {
-          "duration_ms": 2046,
+          "duration_ms": 1593,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_invalid_committed_registry_cannot_disable_git_guards": {
-          "duration_ms": 4781,
+          "duration_ms": 3137,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_metadata_only_evidence_also_requires_a_committed_copy": {
-          "duration_ms": 158,
+          "duration_ms": 110,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_non_git_archival_remains_local_and_keeps_evidence": {
-          "duration_ms": 922,
+          "duration_ms": 726,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_only_an_empty_git_directory_is_treated_as_a_standalone_marker": {
-          "duration_ms": 4767,
+          "duration_ms": 3985,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_staged_evidence_changes_wait_for_a_commit": {
-          "duration_ms": 3567,
+          "duration_ms": 3479,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_unreadable_current_evidence_has_an_actionable_error": {
-          "duration_ms": 112,
+          "duration_ms": 99,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_unrelated_uncommitted_evidence_does_not_block_archival": {
-          "duration_ms": 1012,
+          "duration_ms": 796,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_worktree_gitfile_cannot_hide_failed_git_discovery": {
-          "duration_ms": 1905,
+          "duration_ms": 786,
           "outcome": "passed"
         }
       }
@@ -1250,71 +1266,71 @@
       }
     },
     "af82fd": {
-      "fingerprint": "e55d96cdbb2fa24c4a391bd72c605e6503749200c54135811a379727e78aec6b",
-      "run": "d13a1256f1b84d16bf72dbf535322fcd",
+      "fingerprint": "3de8b49b7ba305a3875720088b99d154d48d3aaf0d2d1ff8ddc131d54c56a47d",
+      "run": "7f7f427cc6fe4431a1e5c29bdfd475e1",
       "tests": {
         "tests/test_rc1_storage.py::test_a_fresh_clone_can_recover_archived_records_without_claiming_missing_evidence": {
-          "duration_ms": 1086,
+          "duration_ms": 878,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_archive_detects_evidence_changes_during_git_reads": {
-          "duration_ms": 1066,
+          "duration_ms": 818,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_archive_detects_index_changes_after_parsing": {
-          "duration_ms": 143,
+          "duration_ms": 137,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_archive_rejects_type_changes_in_unknown_task_fields": {
-          "duration_ms": 140,
+          "duration_ms": 119,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_archive_waits_for_a_committed_copy_of_current_evidence": {
-          "duration_ms": 1038,
+          "duration_ms": 963,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_automatic_archive_preserves_uncommitted_evidence": {
-          "duration_ms": 921,
+          "duration_ms": 756,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_explicit_git_selectors_do_not_become_a_non_git_fallback": {
-          "duration_ms": 3042,
+          "duration_ms": 2269,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_git_errors_cannot_enable_local_only_archival": {
-          "duration_ms": 2046,
+          "duration_ms": 1593,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_invalid_committed_registry_cannot_disable_git_guards": {
-          "duration_ms": 4781,
+          "duration_ms": 3137,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_metadata_only_evidence_also_requires_a_committed_copy": {
-          "duration_ms": 158,
+          "duration_ms": 110,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_non_git_archival_remains_local_and_keeps_evidence": {
-          "duration_ms": 922,
+          "duration_ms": 726,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_only_an_empty_git_directory_is_treated_as_a_standalone_marker": {
-          "duration_ms": 4767,
+          "duration_ms": 3985,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_staged_evidence_changes_wait_for_a_commit": {
-          "duration_ms": 3567,
+          "duration_ms": 3479,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_unreadable_current_evidence_has_an_actionable_error": {
-          "duration_ms": 112,
+          "duration_ms": 99,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_unrelated_uncommitted_evidence_does_not_block_archival": {
-          "duration_ms": 1012,
+          "duration_ms": 796,
           "outcome": "passed"
         },
         "tests/test_rc1_storage.py::test_worktree_gitfile_cannot_hide_failed_git_discovery": {
-          "duration_ms": 1905,
+          "duration_ms": 786,
           "outcome": "passed"
         }
       }
@@ -1389,6 +1405,24 @@
       "tests": {
         "tests/test_release.py::test_restore_refuses_a_decorator_shadowed_since_the_release": {
           "duration_ms": 122,
+          "outcome": "passed"
+        }
+      }
+    },
+    "c26d29": {
+      "fingerprint": "3de8b49b7ba305a3875720088b99d154d48d3aaf0d2d1ff8ddc131d54c56a47d",
+      "run": "7f7f427cc6fe4431a1e5c29bdfd475e1",
+      "tests": {
+        "tests/test_rc1_storage.py::test_explicit_git_selectors_do_not_become_a_non_git_fallback": {
+          "duration_ms": 2269,
+          "outcome": "passed"
+        },
+        "tests/test_rc1_storage.py::test_non_git_archival_remains_local_and_keeps_evidence": {
+          "duration_ms": 726,
+          "outcome": "passed"
+        },
+        "tests/test_rc1_storage.py::test_only_an_empty_git_directory_is_treated_as_a_standalone_marker": {
+          "duration_ms": 3985,
           "outcome": "passed"
         }
       }

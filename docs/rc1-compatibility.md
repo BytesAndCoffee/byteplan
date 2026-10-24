@@ -63,6 +63,19 @@ The final pushed revision must pass the full platform CI matrix before compatibi
 integration. API decomposition and the final frozen-SHA reviews/readiness report remain
 required. `67a65c` is explicitly nonblocking; graph/Assignment implementation remains deferred.
 
+### Windows fixture follow-up
+
+CI run `40130766421` passed Linux/macOS and the quality/consistency/interoperability jobs,
+but Windows exposed nine setup failures in the new storage tests. The fixtures deleted
+`.git` with `shutil.rmtree`; Windows protects Git's read-only object files from that deletion,
+so the tests stopped before reaching their archive assertions. This P2 test-portability defect
+is tracked as allocator-created task `c26d29`.
+
+The corrected setup renames disposable Git metadata to a sibling directory outside Git's
+discovery path. It retains the object files and all existing assertions, with no new skips or
+expected failures. All 28 storage cases passed locally and independently after the correction;
+Windows validation still requires the new revision's CI matrix. Product code is unchanged.
+
 ## Triage in BytePlan
 
 Severity describes demonstrated impact; an obligatory release gate is not itself a correctness

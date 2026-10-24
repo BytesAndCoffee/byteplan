@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 import json
-import shutil
 from typing import TYPE_CHECKING
 
 import pytest
@@ -34,6 +33,14 @@ def _verified_closed_task(repo: ProjectFactory, run_cli: RunCli) -> tuple[Projec
     assert report.returncode == 0
     assert project.readiness(project.get_task(task_id)).state == "ready_for_review"
     return project, task_id
+
+
+def _detach_git(repo: ProjectFactory) -> None:
+    metadata = repo.root.parent / ".git"
+    detached = repo.root.parent / "detached-git-metadata"
+    metadata.rename(detached)
+    assert not metadata.exists()
+    assert detached.is_dir()
 
 
 @verifies("4842", "af82fd")
@@ -123,11 +130,11 @@ def test_automatic_archive_preserves_uncommitted_evidence(repo: ProjectFactory, 
     assert verification.Evidence.load(repo.root).dumps() == before
 
 
-@verifies("4842", "af82fd")
+@verifies("4842", "af82fd", "c26d29")
 def test_non_git_archival_remains_local_and_keeps_evidence(repo: ProjectFactory, run_cli: RunCli) -> None:
     project, task_id = _verified_closed_task(repo, run_cli)
     original = verification.Evidence.load(repo.root).tasks[task_id]
-    shutil.rmtree(repo.root.parent / ".git")
+    _detach_git(repo)
     assert project.archive(older_than=0).tasks == (task_id,)
     saved = archive.Store(repo.root / ".byteplan").get(task_id)
     assert saved is not None
@@ -136,13 +143,13 @@ def test_non_git_archival_remains_local_and_keeps_evidence(repo: ProjectFactory,
     assert verification.Evidence.load(repo.root).tasks[task_id] == original
 
 
-@verifies("4842", "af82fd")
+@verifies("4842", "af82fd", "c26d29")
 @pytest.mark.parametrize("marker", ["empty-directory", "malformed-directory", "gitfile", "symlink", "bare"])
 def test_only_an_empty_git_directory_is_treated_as_a_standalone_marker(
     repo: ProjectFactory, run_cli: RunCli, tmp_path: Path, marker: str
 ) -> None:
     project, task_id = _verified_closed_task(repo, run_cli)
-    shutil.rmtree(repo.root.parent / ".git")
+    _detach_git(repo)
     git_path = repo.root / ".git"
     if marker in {"empty-directory", "malformed-directory"}:
         git_path.mkdir()
@@ -246,13 +253,13 @@ def test_worktree_gitfile_cannot_hide_failed_git_discovery(
     assert not (other_project.root / ".byteplan/archive.sqlite").exists()
 
 
-@verifies("4842", "af82fd")
+@verifies("4842", "af82fd", "c26d29")
 @pytest.mark.parametrize("selector", ["GIT_DIR", "GIT_COMMON_DIR", "GIT_WORK_TREE"])
 def test_explicit_git_selectors_do_not_become_a_non_git_fallback(
     repo: ProjectFactory, run_cli: RunCli, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, selector: str
 ) -> None:
     project, task_id = _verified_closed_task(repo, run_cli)
-    shutil.rmtree(repo.root.parent / ".git")
+    _detach_git(repo)
     monkeypatch.setenv(selector, str(tmp_path / "missing-git-metadata"))
     before = repo.snapshot()
     with pytest.raises(ConfigError):
