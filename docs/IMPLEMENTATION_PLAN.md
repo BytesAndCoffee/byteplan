@@ -21,6 +21,8 @@ passing test never resolves a task. Only an explicit `status`/`resolve` does.
 ## Active release plan — Addendum E
 
 **Target: `v1.0.0rc1`. Core feature freeze remains in effect.**
+The [release-readiness report](rc1-readiness.md) records candidate preparation evidence and
+pending integration/review/artifact gates. It is not yet an approval declaration.
 The [verified starting-point assessment](spec-addendum-e.md#operating-instructions-and-verified-starting-point)
 records main revision `e0b66318574ef72e23c80b529fb28a825b6d12ec`, current limitations,
 existing protections and unmerged review work. Reinspect the base before implementation.

@@ -5,6 +5,27 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+## 1.0.0rc1 — candidate preparation
+
+This candidate is being prepared for review; it is not approved or published by these notes.
+The final integrated revision still requires the independent whole-repository reviews,
+artifact/platform validation and explicit approval described in
+[Addendum E](docs/spec-addendum-e.md#track-g--release-candidate-readiness-and-approval).
+`byteplan-runtime` remains separately versioned; this is the devtool's release candidate.
+
+### Upgrade and compatibility
+- Upgrade participating clients, preview and run `byteplan migrate`, then stage or commit
+  the schema-v2 registry before allocating expanded IDs. Migration preserves task identities,
+  history, verification evidence and extension metadata, is idempotent, and uses the existing
+  transaction journal for recovery. Do not downgrade by changing `schema_version` alone.
+- Existing four-character IDs remain valid and unchanged. New tasks receive six-character IDs;
+  longer lowercase hexadecimal identities remain supported. Exact identities take precedence
+  over unambiguous UI prefixes; persisted links retain complete identities.
+- Actual published 0.1.0/0.2.0 clients reject schema v2 for the tested ordinary commands.
+  Their schema-v1 scanners can otherwise warn about expanded IDs yet exit successfully with
+  no tracked tasks. Historical 0.2.0 `init --runtime-shim` can add a new inert shim before
+  rejection; see the [compatibility matrix and recovery procedure](docs/rc1-compatibility.md).
+
 ### Added
 - Explicit `byteplan migrate [--dry-run]` upgrades registry metadata to schema v2 through the
   existing recovery journal before expanded task identities can be written. New repositories
@@ -12,7 +33,40 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 - New tasks receive six-character IDs. Legacy four-character and longer hexadecimal IDs are
   supported, with exact-ID lookup before unambiguous user-interface prefixes.
 
+### Architecture and public interfaces
+- `byteplan.api.Project` is a concise facade over cohesive internal scan, task, verification,
+  scaffold, source-sync, release, archive and initialization operations. Supported signatures,
+  public result identities, exceptions, sentinel behavior and tested patch targets are retained.
+  Result constructors retain their previously supported runtime annotation introspection.
+- The [1.0 compatibility policy](docs/compatibility-policy.md) covers the documented CLI,
+  Python API, configuration, decorators, MCP protocol and Hatch/Git integrations. SDK-specific
+  Python MCP embedding is explicitly experimental; source safety and authoritative state
+  guarantees still apply. Advanced shipped commands are included in the compatibility boundary.
+- Addendum E documents future graph foundations for 1.5 and graph intelligence/Assignment
+  traceability for 2.0. These capabilities are tracked and excluded from RC1 implementation.
+
 ### Fixed
+- Original-branch collision recovery (`repair --reassign PATH:LINE --against REV [--dry-run]`)
+  preserves the complete task record, supported exact source references and historical evidence.
+  Repair reserves both identities and requires new verification; uncertain references, inherited
+  identities, active Git operations, index locks and pending transactions are rejected safely.
+- Registry-driver merges preserve nested source/stub/test extension metadata and reject
+  competing authoritative edits. Supported schema-1/schema-2 branches can merge across the
+  migration boundary. Plain Git may retain explicit conflicts; installing the driver is optional.
+- Verification requires complete run provenance and current file fingerprints, including HEAD
+  mode. Opaque evidence fields survive normal writes; run identities remain unique and archive
+  restore preserves provenance under run-ID collisions. Missing renamed tests explain explicit
+  rescanning or managed-link repair; verification does not silently rescan the registry.
+- Git-snapshot Python API queries use selected registry, evidence, source and configuration
+  blobs. Mutations and test execution reject snapshot projects before side effects. Source and
+  archive previews requiring working-tree state fail explicitly; index HEAD freshness remains
+  conservative instead of borrowing a working-tree pass.
+- Archiving requires a committed copy of the current task and evidence in Git repositories,
+  preserves type-sensitive canonical record hashes and refuses unreadable or malformed stores.
+  Restore checks the paired archive-index/evidence state before writes and preserves newer
+  canonical verification rather than overwriting it with an archived payload.
+- MCP newer-schema errors explain upgrading and restarting the long-running server while
+  retaining the original diagnostic and error cause.
 - Registry, archive-index and verification parsing reject duplicate JSON keys and unresolved
   Git markers. Checks validate evidence from the same working-tree or Git snapshot as source.
 - JSON annotation edit guards recognize expanded IDs; malformed pytest marker IDs are reported.
@@ -45,8 +99,10 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
   test for each open task it adds in a Python file outside the test directory. `scan` lists
   what it scaffolded (`scaffolded` / `scaffold_failures` in JSON). BytePlan's own repo enables it,
   with `policy = "xfail"`.
-- **Scaffolds pass strict linters:** tests are annotated `-> None` (mypy `--strict`), and
-  imports added to an existing file go into its import sections in isort order (ruff `I001`).
+- **Scaffold typing and existing-file imports:** tests are annotated `-> None` (mypy
+  `--strict`), and imports added to an existing file go into its import sections in isort order
+  (ruff `I001`). New files using a first-party runtime shim may still need a formatter pass
+  to separate that shim from third-party pytest imports (tracked as nonblocking `67a65c`).
 
 ### Compact MCP results
 - **`scan`** returns counts and what changed; `detail=true` lists every annotation.
@@ -79,9 +135,12 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 - **Local first:** the full record and its evidence go to `.byteplan/archive.sqlite`
   (gitignored, zlib-compressed). The committed `.byteplan/archive.json` is the reconciliation
   artifact: per task, its title, status, dates and record hash.
-- **Other clones reconcile from Git history:** `show` finds an archived record by hash in earlier
-  `tasks.json` versions, and `archive --reconcile` fills the store for every one. Only committed
-  records are archived, so this always works.
+- **Other clones reconcile task records from Git history:** `show` finds an archived record
+  by hash in earlier `tasks.json` versions, and `archive --reconcile` fills the local store when
+  that history is available. Shallow, rewritten or missing history can prevent recovery and is
+  reported explicitly. Verification payloads have committed copies before archiving, but this
+  traversal does not automatically restore another clone's evidence; unavailable evidence stays
+  unverified. Preserve the historical payload or run fresh verification before claiming readiness.
 - `list --archived`, `archive --restore ID`, and a `byteplan-archive` merge driver (three-way per task ID),
   installed by `git install-merge-driver`. An archived ID back in source gets its own hint.
 
