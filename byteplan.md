@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**19 open** · 84 closed (resolved 84)
+**19 open** · 85 closed (resolved 85)
 
 ## Open
 
@@ -57,6 +57,7 @@
 | `492312` | resolved | FIXME | Keep archived evidence bound to its original run when live run identities collide. |
 | `4d48` | resolved | FIXME | Keep decorators pending when their runtime import can't be restored |
 | `4fb5` | resolved | TODO | Update the status line for the next release |
+| `50ad66` | resolved | FIXME | Preserve external evidence and archive-index edits during archived task restoration |
 | `5aae` | resolved | FIXME | [P2] Collect occupied test names inside module-level control-flow blocks |
 | `5ff6` | resolved | FIXME | [P2] Report scaffold encoding and filesystem failures per task |
 | `6639` | resolved | FIXME | Keep runtime imports that __all__ re-exports |
