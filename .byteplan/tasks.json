@@ -31,6 +31,7 @@
     "4d48",
     "4d69",
     "4fb5",
+    "50ad66",
     "595f",
     "5aae",
     "5ff6",
@@ -3069,6 +3070,191 @@
       "status": "resolved",
       "stub": null,
       "title": "Update the status line for the next release",
+      "title_override": null
+    },
+    "50ad66": {
+      "assignee": null,
+      "description": "Parse the exact bytes whose hashes guard the transaction. Rereading a newer\nbaseline after parsing would authorize overwriting edits this plan never saw.",
+      "first_seen": "2026-10-24T21:41:02Z",
+      "history": [
+        {
+          "at": "2026-10-24T21:41:02Z",
+          "event": "created",
+          "new": {
+            "line": 1202,
+            "path": "src/byteplan/api.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T21:41:03Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_api.py::test_task_50ad66",
+            "path": "tests/test_api.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-24T21:41:03Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0"
+            ],
+            "notes": "Confirmed inherited P1 integrity defect in independent PRB review: restore_archived parses current evidence/index before rereading transaction hash baselines, silently overwriting concurrent authored changes. Repro fails on integrated0be125e and extractedversion; fix in dedicated compatibility follow-up before structuralPRintegration. Preserve selected archived record, opaque metadata, provenance and allvalid concurrentwork; no schema/layout/API changes.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-24T21:41:03Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implementing paired snapshot/read-hash restore correction and meaningful concurrent-edit/unreadable-input regressions.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-24T21:46:06Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed inherited P1 integrity defect in independent PRB review: restore_archived parses current evidence/index before rereading transaction hash baselines, silently overwriting concurrent authored changes. Repro fails on integrated0be125e and extractedversion; fix in dedicated compatibility follow-up before structuralPRintegration. Preserve selected archived record, opaque metadata, provenance and allvalid concurrentwork; no schema/layout/API changes.\n\nIndependentfocusedreview additionally reproduced P2 supportedAPI loss: verify an archivedtask after testchanges to produce newer canonical failed evidence, thenrestore used toreplace it withcached oldpass andprune itsrun. Currentcanonicalentry/run mustremainauthoritative; cachedhistoricalpayload restoresonlyifno canonicalentry exists. Keepbothconcurrent-edit races andopaque/run/lifecycle/cacherecovery regressions."
+          },
+          "old": {
+            "notes": "Confirmed inherited P1 integrity defect in independent PRB review: restore_archived parses current evidence/index before rereading transaction hash baselines, silently overwriting concurrent authored changes. Repro fails on integrated0be125e and extractedversion; fix in dedicated compatibility follow-up before structuralPRintegration. Preserve selected archived record, opaque metadata, provenance and allvalid concurrentwork; no schema/layout/API changes."
+          }
+        },
+        {
+          "at": "2026-10-24T21:54:36Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed inherited P1 integrity defect in independent PRB review: restore_archived parses current evidence/index before rereading transaction hash baselines, silently overwriting concurrent authored changes. Repro fails on integrated0be125e and extractedversion; fix in dedicated compatibility follow-up before structuralPRintegration. Preserve selected archived record, opaque metadata, provenance and allvalid concurrentwork; no schema/layout/API changes.\n\nIndependentfocusedreview additionally reproduced P2 supportedAPI loss: verify an archivedtask after testchanges to produce newer canonical failed evidence, thenrestore used toreplace it withcached oldpass andprune itsrun. Currentcanonicalentry/run mustremainauthoritative; cachedhistoricalpayload restoresonlyifno canonicalentry exists. Keepbothconcurrent-edit races andopaque/run/lifecycle/cacherecovery regressions.\n\nFinalindependentreview demonstrates existing-entry overwrite can be P1 falseverification: unchangedtestsource +environmentfailure yieldsfreshfailedrun, butoldcachedpassrestoration falselybecameready. Newcanonical-wins rule leavesentry/run/filebytes untouched, preservingallopaque/orphaned/concurrentdata.16meaningfulrestorecases includeambientregression; independent107acceptancecasesacrossruns pass; fullcurrentCI remainsrequired."
+          },
+          "old": {
+            "notes": "Confirmed inherited P1 integrity defect in independent PRB review: restore_archived parses current evidence/index before rereading transaction hash baselines, silently overwriting concurrent authored changes. Repro fails on integrated0be125e and extractedversion; fix in dedicated compatibility follow-up before structuralPRintegration. Preserve selected archived record, opaque metadata, provenance and allvalid concurrentwork; no schema/layout/API changes.\n\nIndependentfocusedreview additionally reproduced P2 supportedAPI loss: verify an archivedtask after testchanges to produce newer canonical failed evidence, thenrestore used toreplace it withcached oldpass andprune itsrun. Currentcanonicalentry/run mustremainauthoritative; cachedhistoricalpayload restoresonlyifno canonicalentry exists. Keepbothconcurrent-edit races andopaque/run/lifecycle/cacherecovery regressions."
+          }
+        },
+        {
+          "at": "2026-10-24T21:56:26Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "P1 restore integrity correction verified: index/evidence writes guard exact parsed bytes; selected task/cache evidence stay consistent; current canonical entries/runs remain untouched, preventing stale-cache falseverification after a newer failedrun.16meaningfulregressions and107independentacceptancecasespass, stricttyping/format/buildpass. Finalfull/platformCI gates remain mandatory beforeintegration; no schema/API/layout changes.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-24T21:56:31Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-24T21:56:31Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/api.py"
+          }
+        }
+      ],
+      "id": "50ad66",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0"
+      ],
+      "last_seen": "2026-10-24T21:41:02Z",
+      "notes": "Confirmed inherited P1 integrity defect in independent PRB review: restore_archived parses current evidence/index before rereading transaction hash baselines, silently overwriting concurrent authored changes. Repro fails on integrated0be125e and extractedversion; fix in dedicated compatibility follow-up before structuralPRintegration. Preserve selected archived record, opaque metadata, provenance and allvalid concurrentwork; no schema/layout/API changes.\n\nIndependentfocusedreview additionally reproduced P2 supportedAPI loss: verify an archivedtask after testchanges to produce newer canonical failed evidence, thenrestore used toreplace it withcached oldpass andprune itsrun. Currentcanonicalentry/run mustremainauthoritative; cachedhistoricalpayload restoresonlyifno canonicalentry exists. Keepbothconcurrent-edit races andopaque/run/lifecycle/cacherecovery regressions.\n\nFinalindependentreview demonstrates existing-entry overwrite can be P1 falseverification: unchangedtestsource +environmentfailure yieldsfreshfailedrun, butoldcachedpassrestoration falselybecameready. Newcanonical-wins rule leavesentry/run/filebytes untouched, preservingallopaque/orphaned/concurrentdata.16meaningfulrestorecases includeambientregression; independent107acceptancecasesacrossruns pass; fullcurrentCI remainsrequired.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 1198,
+        "line": 1202,
+        "path": "src/byteplan/api.py",
+        "representation": "comment",
+        "symbol": "Project.restore_archived"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 187,
+            "node": "tests/test_restore_integrity.py::test_restore_does_not_combine_one_archived_record_with_another_versions_evidence",
+            "path": "tests/test_restore_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 308,
+            "node": "tests/test_restore_integrity.py::test_restore_does_not_overwrite_external_edits_when_canonical_evidence_already_exists",
+            "path": "tests/test_restore_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 247,
+            "node": "tests/test_restore_integrity.py::test_restore_does_not_reinstate_a_pass_after_failure_with_unchanged_source",
+            "path": "tests/test_restore_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 151,
+            "node": "tests/test_restore_integrity.py::test_restore_keeps_lazy_record_reconciliation_when_the_local_cache_is_missing",
+            "path": "tests/test_restore_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 112,
+            "node": "tests/test_restore_integrity.py::test_restore_keeps_lifecycle_opaque_fields_and_conflicting_run_provenance",
+            "path": "tests/test_restore_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 274,
+            "node": "tests/test_restore_integrity.py::test_restore_leaves_existing_canonical_evidence_bytes_and_runs_untouched",
+            "path": "tests/test_restore_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 164,
+            "node": "tests/test_restore_integrity.py::test_restore_preserves_an_evidence_file_created_during_the_plan",
+            "path": "tests/test_restore_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 35,
+            "node": "tests/test_restore_integrity.py::test_restore_preserves_evidence_edited_after_parsing",
+            "path": "tests/test_restore_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 65,
+            "node": "tests/test_restore_integrity.py::test_restore_preserves_other_index_entries_edited_after_parsing",
+            "path": "tests/test_restore_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 222,
+            "node": "tests/test_restore_integrity.py::test_restore_preserves_verification_recorded_for_the_archived_identity",
+            "path": "tests/test_restore_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 99,
+            "node": "tests/test_restore_integrity.py::test_restore_reports_unreadable_inputs_without_writes",
+            "path": "tests/test_restore_integrity.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Preserve external evidence and archive-index edits during archived task restoration",
       "title_override": null
     },
     "595f": {

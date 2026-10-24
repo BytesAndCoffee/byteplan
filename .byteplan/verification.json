@@ -112,6 +112,22 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "5e07b7fda7c149629f552003bca20e3d": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-24T21:56:34Z",
+      "dirty": true,
+      "head": "0be125ecbdebcb5c621af71f028b6780a40f6cda",
+      "python": "3.12.14",
+      "timed_out": false
+    },
     "64043655efb3": {
       "argv": [
         "hatch",
@@ -861,6 +877,56 @@
       "tests": {
         "tests/test_release.py::test_partial_restore_keeps_decorators_whose_import_is_unplaced": {
           "duration_ms": 116,
+          "outcome": "passed"
+        }
+      }
+    },
+    "50ad66": {
+      "fingerprint": "6b3a52814fe859ba310a41540bca947afd1d8e8da1f8b351b424a47bdb895bf0",
+      "run": "5e07b7fda7c149629f552003bca20e3d",
+      "tests": {
+        "tests/test_restore_integrity.py::test_restore_does_not_combine_one_archived_record_with_another_versions_evidence": {
+          "duration_ms": 892,
+          "outcome": "passed"
+        },
+        "tests/test_restore_integrity.py::test_restore_does_not_overwrite_external_edits_when_canonical_evidence_already_exists": {
+          "duration_ms": 1017,
+          "outcome": "passed"
+        },
+        "tests/test_restore_integrity.py::test_restore_does_not_reinstate_a_pass_after_failure_with_unchanged_source": {
+          "duration_ms": 2980,
+          "outcome": "passed"
+        },
+        "tests/test_restore_integrity.py::test_restore_keeps_lazy_record_reconciliation_when_the_local_cache_is_missing": {
+          "duration_ms": 1097,
+          "outcome": "passed"
+        },
+        "tests/test_restore_integrity.py::test_restore_keeps_lifecycle_opaque_fields_and_conflicting_run_provenance": {
+          "duration_ms": 886,
+          "outcome": "passed"
+        },
+        "tests/test_restore_integrity.py::test_restore_leaves_existing_canonical_evidence_bytes_and_runs_untouched": {
+          "duration_ms": 3840,
+          "outcome": "passed"
+        },
+        "tests/test_restore_integrity.py::test_restore_preserves_an_evidence_file_created_during_the_plan": {
+          "duration_ms": 1042,
+          "outcome": "passed"
+        },
+        "tests/test_restore_integrity.py::test_restore_preserves_evidence_edited_after_parsing": {
+          "duration_ms": 924,
+          "outcome": "passed"
+        },
+        "tests/test_restore_integrity.py::test_restore_preserves_other_index_entries_edited_after_parsing": {
+          "duration_ms": 1000,
+          "outcome": "passed"
+        },
+        "tests/test_restore_integrity.py::test_restore_preserves_verification_recorded_for_the_archived_identity": {
+          "duration_ms": 2924,
+          "outcome": "passed"
+        },
+        "tests/test_restore_integrity.py::test_restore_reports_unreadable_inputs_without_writes": {
+          "duration_ms": 1889,
           "outcome": "passed"
         }
       }
