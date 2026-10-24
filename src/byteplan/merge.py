@@ -227,10 +227,6 @@ def merge_registries(base: dict[str, Any], ours: dict[str, Any], theirs: dict[st
     """Merge three registry dicts (as produced by ``registry.to_dict``)."""
     result = MergeResult(data=None)
     versions = {base.get("schema_version"), ours.get("schema_version"), theirs.get("schema_version")}
-    # FIXME[ee606e]: [P1] Merge registries across the v1->v2 migration instead of conflicting
-    #   Every branch forked before `migrate` has a v1 merge base, so its merges conflict here even after it
-    #   migrates too (base 1, ours 2, theirs 2). Taking one side and rescanning loses the other's status,
-    #   notes and history. v2 only bumps schema_version, so accept 1..SCHEMA_VERSION and emit the maximum.
     # A migration only raises schema_version, so a branch forked before it (a v1 merge base) still
     # merges; the result takes the newest version. Unknown or future versions remain conflicts.
     if any(type(v) is not int or not 1 <= v <= SCHEMA_VERSION for v in versions):

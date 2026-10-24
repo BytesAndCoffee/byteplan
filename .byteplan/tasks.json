@@ -7836,6 +7836,28 @@
             "policy": "xfail"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-24T18:21:04Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed: merge driver accepts 1..SCHEMA_VERSION and writes the newest. tests/test_merge.py::test_merges_across_the_schema_migration fresh pass (conflicted on the old code).",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-24T18:21:05Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-24T18:21:05Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/merge.py"
+          }
         }
       ],
       "id": "ee606e",
@@ -7844,7 +7866,7 @@
       "last_seen": "2026-10-24T18:12:19Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -7855,7 +7877,7 @@
         "representation": "comment",
         "symbol": "merge_registries"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
