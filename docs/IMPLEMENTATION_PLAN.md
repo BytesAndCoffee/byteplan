@@ -53,6 +53,14 @@ compatibility increment and original-branch collision recovery procedure are rec
 [RC1 compatibility report](rc1-compatibility.md). The historical completion table does not
 complete these new release gates.
 
+**Pause checkpoint:** PR #45 contains the identity/schema work and a focused merge/evidence
+hardening follow-up (`237cb5`, `279e27`, `492312`, `6d434f`). After its verification, pause as
+requested; resume with final A4 disposition (`edc2`), source/first-run safety (`1b81`), storage
+validation (`4842`) and interface policy (`8aeb`). See the
+[compatibility checkpoint](rc1-compatibility.md#a4-follow-up-and-pause-checkpoint).
+API decomposition (`3844`) starts only after compatibility integration; final reviews and RC1
+approval remain later gates.
+
 **Compatibility decisions pending:** A6 inventories CLI, Python API, configuration, decorators,
 MCP, Hatch and extension points before classifying stable versus experimental interfaces. Core
 identity, source safety and authoritative state need coherent 1.0 guarantees. Explain existing

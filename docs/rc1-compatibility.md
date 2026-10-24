@@ -211,6 +211,48 @@ states, conflicting verification evidence, partially resolved semantic inconsist
 source-editing/first-run audits. API decomposition begins only after compatibility integration.
 Final whole-repository reviews and the readiness report require a later integrated, frozen SHA.
 
+## A4 follow-up and pause checkpoint
+
+The next focused increment corrects four confirmed defects, registered through BytePlan:
+
+| Task | Demonstrated impact | Correction |
+|---|---|---|
+| `237cb5` | P1: a successful custom merge discarded test-container metadata, and source/stub metadata could be chosen away as if rebuildable. | Merge unknown nested fields conservatively; preserve compatible additions/deletions and reject competing values, including null/absent containers. Only known discovery fields use the rescan policy. |
+| `279e27` | P1: incomplete verification provenance could appear ready; HEAD mode could ignore a mismatched file fingerprint. | Validate referenced runs before accepting nonempty evidence, reject malformed present run fields, and require current fingerprints in both freshness modes. In-memory incomplete evidence remains stale. |
+| `492312` | P1: restoring evidence under a colliding run ID could silently attach another run's provenance. Same-second verification calls could reuse IDs. | New runs use unique opaque UUID identities. Restore validates cached evidence and rekeys an unequal colliding run while retaining both provenance records and the historical fingerprint. Malformed cache data fails before canonical writes. |
+| `6d434f` | P2: verification/archive writes discarded opaque evidence fields. | Preserve root, task and test extension fields while updating known results. Clear superseded failure messages. |
+
+Evidence schema remains version 1; valid previously generated records keep their interpretation,
+and historical run IDs remain supported. Complete referenced provenance consists of runner argv,
+Python version, time, HEAD (or null outside Git), and boolean dirty/timeout fields. Metadata-only
+records without results may be retained, but cannot establish verification. Reconcile incomplete
+nonempty evidence from Git before retrying; failed validation does not rewrite the payload.
+A completed test may remain a passing result in a timed-out multi-test run; timeout alone does
+not invalidate results that were actually obtained.
+
+All four defect tasks are explicitly resolved after passing linked verification, independent
+focused review, `resolve --sync-source`, reconciliation and fresh verification. The final local
+suite passed **1,035 tests** (three network cases excluded by the ordinary policy). Strict typing
+(91 source files), formatting, wheel/sdist builds and isolated install/CLI checks passed. The
+independent reviews passed 61 merge cases plus 60 additional absence/null assertions, and 162
+evidence/integration cases followed by 27 final evidence-integrity cases. These are focused
+reviews, not the final two whole-repository release reviews.
+
+The real-Git matrix covers driver/plain-Git merges, both checkout-newline settings, independent
+histories, competing lifecycle states and independent/conflicting verification evidence. Successful
+merges retain records/history/provenance; failed merges retain original Git versions, and checks
+reject conflicted records without writes. Strict source/registry reconciliation remains available
+through `check --staged`, `check --commit` and `require_reconciled`; ordinary working-tree checks
+retain their documented policy. A manually selected valid lifecycle value is not proof that all
+competing branch obligations were reconciled. Broad task `edc2` retains the final A4 disposition.
+
+Pause after this increment as requested. PR #45 remains a draft until the broader A4 disposition,
+source/first-run audit (`1b81`), storage validation (`4842`) and stable/experimental inventory
+(`8aeb`) are complete. API decomposition (`3844`) remains a separate PR after compatibility
+integration. Final whole-repository reviews (`c053`) and release approval (`a70d`) remain later
+gates. No semantic graph implementation, release tag or publication is included. Applicable
+validation and the resulting CI run are recorded in PR #45.
+
 ## Validation of this increment
 
 - Clean merged baseline: 864 non-network tests passed.

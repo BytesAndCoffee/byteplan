@@ -256,6 +256,22 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "b469036a134d49c68dac0fd976d619a4": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-24T00:12:24Z",
+      "dirty": true,
+      "head": "8c0ec8edf330701c9f3783066c34e2b490476bce",
+      "python": "3.12.14",
+      "timed_out": false
+    },
     "bac7c95f5a71": {
       "argv": [
         "hatch",
@@ -539,6 +555,40 @@
         }
       }
     },
+    "237cb5": {
+      "fingerprint": "529acd04a6ec69d4f24bb286e0165b308215abf2f43c89f65307a53ec5f61498",
+      "run": "b469036a134d49c68dac0fd976d619a4",
+      "tests": {
+        "tests/test_merge_integrity.py::test_merge_driver_serialization_preserves_nested_metadata": {
+          "duration_ms": 10,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_merge_keeps_independent_nested_extensions": {
+          "duration_ms": 3,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_merge_preserves_test_container_extensions": {
+          "duration_ms": 6,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_merge_refuses_competing_nested_extension_values": {
+          "duration_ms": 7,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_merge_respects_nested_extension_deletion": {
+          "duration_ms": 3,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_real_git_histories_and_lifecycle_states": {
+          "duration_ms": 5839,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_removed_container_cannot_discard_competing_metadata": {
+          "duration_ms": 1579,
+          "outcome": "passed"
+        }
+      }
+    },
     "2533": {
       "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
       "run": "7d4f28e5d140",
@@ -555,6 +605,36 @@
       "tests": {
         "tests/test_collision_recovery.py::test_premerge_rekey_preserves_both_original_records": {
           "duration_ms": 12587,
+          "outcome": "passed"
+        }
+      }
+    },
+    "279e27": {
+      "fingerprint": "058eef482d557de83a65b58b42f290bc6fe118b20f77087ecb1dec031b42c45d",
+      "run": "b469036a134d49c68dac0fd976d619a4",
+      "tests": {
+        "tests/test_evidence_integrity.py::test_completed_passes_survive_a_timed_out_multi_test_run": {
+          "duration_ms": 97,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_head_mode_also_requires_current_file_fingerprint": {
+          "duration_ms": 255,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_incomplete_positive_evidence_is_rejected_without_writes": {
+          "duration_ms": 6889,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_known_run_fields_reject_malformed_types": {
+          "duration_ms": 14,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_malformed_archived_evidence_is_actionable_and_atomic": {
+          "duration_ms": 629,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_real_git_verification_evidence_merge": {
+          "duration_ms": 6714,
           "outcome": "passed"
         }
       }
@@ -687,6 +767,32 @@
         }
       }
     },
+    "492312": {
+      "fingerprint": "058eef482d557de83a65b58b42f290bc6fe118b20f77087ecb1dec031b42c45d",
+      "run": "b469036a134d49c68dac0fd976d619a4",
+      "tests": {
+        "tests/test_evidence_integrity.py::test_archive_restores_conflicting_runs_without_substitution": {
+          "duration_ms": 310,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_malformed_archived_evidence_is_actionable_and_atomic": {
+          "duration_ms": 629,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_restore_does_not_conflate_boolean_and_numeric_extension_values": {
+          "duration_ms": 1,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_verification_runs_do_not_alias_at_the_same_second": {
+          "duration_ms": 148,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_real_git_verification_evidence_merge": {
+          "duration_ms": 6714,
+          "outcome": "passed"
+        }
+      }
+    },
     "4d48": {
       "fingerprint": "512a31da49996f58909edfb33042007d1b0aed7350b7348827f08990c330fd34",
       "run": "7d4f28e5d140",
@@ -743,6 +849,20 @@
       "tests": {
         "tests/test_cleanup.py::test_sync_json_keeps_its_shape_when_only_cleanup_runs": {
           "duration_ms": 37,
+          "outcome": "passed"
+        }
+      }
+    },
+    "6d434f": {
+      "fingerprint": "08412b3c6ccefc156189923ecf05e6c8da51d4a69c1de800ab57fc71820d4b0d",
+      "run": "b469036a134d49c68dac0fd976d619a4",
+      "tests": {
+        "tests/test_evidence_integrity.py::test_archive_restores_conflicting_runs_without_substitution": {
+          "duration_ms": 310,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_reverification_preserves_opaque_metadata_and_clears_old_failure": {
+          "duration_ms": 250,
           "outcome": "passed"
         }
       }
@@ -1150,119 +1270,119 @@
       }
     },
     "c978": {
-      "fingerprint": "3ec7612a5941d4937e53080871a36a55234e7b09777d129c8ade803d49af6c4e",
-      "run": "05164e74589e",
+      "fingerprint": "1170728c8e8efe24f508083ec9b5c23013fb10fcab75bd69bc034ae94ff7052c",
+      "run": "b469036a134d49c68dac0fd976d619a4",
       "tests": {
         "tests/test_collision_recovery.py::test_collision_cli_preview_and_apply": {
-          "duration_ms": 554,
+          "duration_ms": 724,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_creation_extension_cannot_disguise_shared_binding": {
-          "duration_ms": 565,
+          "duration_ms": 759,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_interrupted_rekey_recovers_all_source_evidence_and_registry": {
-          "duration_ms": 2350,
+          "duration_ms": 4659,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_keyword_identity_references_are_diagnosed": {
-          "duration_ms": 210,
+          "duration_ms": 218,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_premerge_rekey_preserves_both_original_records": {
-          "duration_ms": 12587,
+          "duration_ms": 12733,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_accepts_empty_valid_evidence_store": {
-          "duration_ms": 282,
+          "duration_ms": 363,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_allocator_avoids_peer_evidence_only_identities": {
-          "duration_ms": 341,
+          "duration_ms": 452,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_checks_every_crisscross_merge_base": {
-          "duration_ms": 337,
+          "duration_ms": 393,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_preserves_supported_primary_annotation_formats": {
-          "duration_ms": 956,
+          "duration_ms": 1285,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_preserves_unknown_fields_and_historical_old_identity": {
-          "duration_ms": 285,
+          "duration_ms": 765,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_refuses_cherry_picked_shared_task_identity": {
-          "duration_ms": 364,
+          "duration_ms": 368,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_refuses_identity_reserved_in_merge_base": {
-          "duration_ms": 260,
+          "duration_ms": 322,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_refuses_ignored_encoded_identity_references": {
-          "duration_ms": 798,
+          "duration_ms": 747,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_refuses_inherited_identity": {
-          "duration_ms": 188,
+          "duration_ms": 244,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_refuses_other_pending_git_operations": {
-          "duration_ms": 923,
+          "duration_ms": 1226,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_refuses_resolved_but_uncommitted_merge": {
-          "duration_ms": 321,
+          "duration_ms": 417,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_refuses_rewritten_local_lineage": {
-          "duration_ms": 282,
+          "duration_ms": 270,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_refuses_unresolved_merge": {
-          "duration_ms": 201,
+          "duration_ms": 192,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_refuses_unsafe_context_without_changes": {
-          "duration_ms": 1353,
+          "duration_ms": 1976,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_rewrites_exact_references_and_retains_stale_evidence": {
-          "duration_ms": 1154,
+          "duration_ms": 1834,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_then_merge_preserves_both_branches_evidence": {
-          "duration_ms": 1558,
+          "duration_ms": 5066,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_uses_linked_worktree_index_lock": {
-          "duration_ms": 398,
+          "duration_ms": 475,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_archived_exact_identity_precedes_active_prefix": {
-          "duration_ms": 150,
+          "duration_ms": 154,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_divergent_branch_identity_collisions_fail_explicitly": {
-          "duration_ms": 917,
+          "duration_ms": 1215,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_exact_identity_precedes_prefix_and_ambiguity_is_actionable": {
-          "duration_ms": 73,
+          "duration_ms": 24,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_expanded_registry_round_trip": {
-          "duration_ms": 2,
+          "duration_ms": 1,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_malformed_pytest_marker_is_diagnosed": {
-          "duration_ms": 8,
+          "duration_ms": 14,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_new_ids_use_six_characters_and_preserve_source_encoding": {
-          "duration_ms": 80,
+          "duration_ms": 57,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_persisted_verification_references_do_not_resolve_prefixes": {
@@ -1270,15 +1390,15 @@
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_staged_legacy_allocation_refuses_without_index_or_source_changes": {
-          "duration_ms": 188,
+          "duration_ms": 146,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_supported_id_lengths_round_trip_across_scanners": {
-          "duration_ms": 371,
+          "duration_ms": 309,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_sync_rechecks_prefix_after_acquiring_write_context": {
-          "duration_ms": 25,
+          "duration_ms": 20,
           "outcome": "passed"
         }
       }
@@ -1364,31 +1484,99 @@
       }
     },
     "edc2": {
-      "fingerprint": "933fdab350292df02685c67e2893ad0d0377b9b0221d1024c56b3e8c929737e3",
-      "run": "05164e74589e",
+      "fingerprint": "31e516a47bae82d3e02464353784c44cf4a4032ea51441d5162efc390a0cc88f",
+      "run": "b469036a134d49c68dac0fd976d619a4",
       "tests": {
         "tests/test_collision_recovery.py::test_premerge_rekey_preserves_both_original_records": {
-          "duration_ms": 12587,
+          "duration_ms": 12733,
           "outcome": "passed"
         },
         "tests/test_collision_recovery.py::test_rekey_then_merge_preserves_both_branches_evidence": {
-          "duration_ms": 1558,
+          "duration_ms": 5066,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_check_rejects_inconsistent_merge_records_without_writes": {
-          "duration_ms": 199,
+          "duration_ms": 244,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_check_rejects_malformed_nested_evidence": {
-          "duration_ms": 70,
+          "duration_ms": 54,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_divergent_branch_identity_collisions_fail_explicitly": {
-          "duration_ms": 917,
+          "duration_ms": 1215,
           "outcome": "passed"
         },
         "tests/test_compatibility.py::test_staged_check_validates_staged_evidence_not_worktree": {
-          "duration_ms": 268,
+          "duration_ms": 148,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_archive_restores_conflicting_runs_without_substitution": {
+          "duration_ms": 310,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_completed_passes_survive_a_timed_out_multi_test_run": {
+          "duration_ms": 97,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_head_mode_also_requires_current_file_fingerprint": {
+          "duration_ms": 255,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_incomplete_positive_evidence_is_rejected_without_writes": {
+          "duration_ms": 6889,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_known_run_fields_reject_malformed_types": {
+          "duration_ms": 14,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_malformed_archived_evidence_is_actionable_and_atomic": {
+          "duration_ms": 629,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_restore_does_not_conflate_boolean_and_numeric_extension_values": {
+          "duration_ms": 1,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_reverification_preserves_opaque_metadata_and_clears_old_failure": {
+          "duration_ms": 250,
+          "outcome": "passed"
+        },
+        "tests/test_evidence_integrity.py::test_verification_runs_do_not_alias_at_the_same_second": {
+          "duration_ms": 148,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_merge_driver_serialization_preserves_nested_metadata": {
+          "duration_ms": 10,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_merge_keeps_independent_nested_extensions": {
+          "duration_ms": 3,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_merge_preserves_test_container_extensions": {
+          "duration_ms": 6,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_merge_refuses_competing_nested_extension_values": {
+          "duration_ms": 7,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_merge_respects_nested_extension_deletion": {
+          "duration_ms": 3,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_real_git_histories_and_lifecycle_states": {
+          "duration_ms": 5839,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_real_git_verification_evidence_merge": {
+          "duration_ms": 6714,
+          "outcome": "passed"
+        },
+        "tests/test_merge_integrity.py::test_removed_container_cannot_discard_competing_metadata": {
+          "duration_ms": 1579,
           "outcome": "passed"
         }
       }

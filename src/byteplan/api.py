@@ -8,7 +8,6 @@ from __future__ import annotations
 import ast
 import contextlib
 import dataclasses
-import hashlib
 import json
 import os
 import platform
@@ -1042,8 +1041,13 @@ class Project:
         kept, run = payload.get("evidence"), payload.get("run")
         if kept is None:
             return verification.Evidence()
+        if not isinstance(kept, dict) or (run is not None and not isinstance(kept.get("run"), str)):
+            msg = f"task {task_id}: archived verification evidence has an invalid entry/run identity; preserve and repair its payload"
+            raise ConfigError(msg)
         runs = {str(kept.get("run")): run} if run is not None else {}
-        return verification.Evidence({task_id: kept}, runs)
+        return verification.Evidence.loads(
+            json.dumps({"schema_version": verification.STORE_VERSION, "tasks": {task_id: kept}, "runs": runs})
+        )
 
     def _committed_records(self) -> dict[str, Any] | None:
         """Task records in ``HEAD``'s registry; None outside Git (no other clones to serve)."""
@@ -1091,10 +1095,7 @@ class Project:
             if payload.get("evidence") is not None:
                 evidence = verification.Evidence.load(self.root)
                 evidence_before = _read_bytes(self.root / verification.STORE)
-                evidence.tasks[task_id] = payload["evidence"]
-                run_id = payload["evidence"].get("run")
-                if payload.get("run") is not None and run_id not in evidence.runs:
-                    evidence.runs[run_id] = payload["run"]
+                evidence.restore_task(task_id, payload["evidence"], payload.get("run"))
                 before = None if evidence_before is None else sha256(evidence_before)
                 writes.append(FileWrite(verification.STORE, before, evidence.dumps()))
             writes.extend(self._registry_writes(registry_hash, registry))
@@ -1201,22 +1202,36 @@ class Project:
         started = self.clock()
         run = verification.run_tests(self.root, nodes, self.runner(), self.config.tests.timeout)
 
-        run_id = hashlib.sha256(f"{started}\0{' '.join(argv)}".encode()).hexdigest()[:12]
         with self._writing():  # brief: the tests ran without holding the project lock
             evidence = verification.Evidence.load(self.root)
-            evidence.runs[run_id] = {
-                "argv": list(argv),
-                "python": platform.python_version(),
-                "at": started,
-                "head": head,
-                "dirty": dirty,
-                "timed_out": run.timed_out,
-            }
+            run_id = evidence.add_run(
+                {
+                    "argv": list(argv),
+                    "python": platform.python_version(),
+                    "at": started,
+                    "head": head,
+                    "dirty": dirty,
+                    "timed_out": run.timed_out,
+                }
+            )
             for task in tasks:
+                previous = evidence.tasks.get(task.id, {})
+                prior_tests = previous.get("tests", {})
                 evidence.tasks[task.id] = {
+                    **previous,
                     "fingerprint": fingerprints[task.id],
                     "run": run_id,
-                    "tests": {node: run.results[node].to_dict() for node in task.linked_tests()},
+                    "tests": {
+                        node: {
+                            **{
+                                key: value
+                                for key, value in prior_tests.get(node, {}).items()
+                                if key not in {"outcome", "duration_ms", "message"}
+                            },
+                            **run.results[node].to_dict(),
+                        }
+                        for node in task.linked_tests()
+                    },
                 }
             evidence.save(self.root)
         verified = tuple(

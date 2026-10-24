@@ -32,6 +32,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import uuid
 from dataclasses import dataclass, field
 from importlib import resources
 from pathlib import Path
@@ -302,6 +303,7 @@ def _item_result(reports: Sequence[Mapping[str, Any]]) -> TestResult:
 class Evidence:
     tasks: dict[str, dict[str, Any]] = field(default_factory=dict)
     runs: dict[str, dict[str, Any]] = field(default_factory=dict)
+    extra: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def load(cls, root: Path) -> Evidence:
@@ -333,6 +335,10 @@ class Evidence:
         ):
             msg = f"{STORE} has an unsupported format; restore valid evidence from Git before retrying"
             raise ConfigError(msg)
+        for run_id, run in data.get("runs", {}).items():
+            if _invalid_run(run, complete=False):
+                msg = f"{STORE}: run {run_id} has invalid provenance fields; restore complete evidence from Git"
+                raise ConfigError(msg)
         for task_id, entry in data.get("tasks", {}).items():
             tests = entry.get("tests", {})
             if not isinstance(tests, dict) or any(
@@ -349,11 +355,51 @@ class Evidence:
             if any(key in entry and not isinstance(entry[key], str) for key in ("fingerprint", "run")):
                 msg = f"{STORE}: task {task_id} has malformed evidence metadata; restore valid records from Git"
                 raise ConfigError(msg)
-        return cls(dict(data.get("tasks", {})), dict(data.get("runs", {})))
+            if tests and (problem := provenance_problem(entry, data.get("runs", {}))):
+                msg = f"{STORE}: task {task_id}: {problem}; reconcile complete evidence from Git before retrying"
+                raise ConfigError(msg)
+        return cls(
+            dict(data.get("tasks", {})),
+            dict(data.get("runs", {})),
+            {key: value for key, value in data.items() if key not in {"schema_version", "tasks", "runs"}},
+        )
+
+    def add_run(self, metadata: dict[str, Any], *, preferred: str | None = None) -> str:
+        """Preserve provenance under a unique identity, including archive restore collisions."""
+        if preferred is not None and (
+            preferred not in self.runs
+            or json.dumps(self.runs[preferred], sort_keys=True) == json.dumps(metadata, sort_keys=True)
+        ):
+            run_id = preferred
+        else:
+            run_id = uuid.uuid4().hex
+            while run_id in self.runs:
+                run_id = uuid.uuid4().hex
+        self.runs[run_id] = metadata
+        return run_id
+
+    def restore_task(self, task_id: str, entry: dict[str, Any], run: dict[str, Any] | None) -> None:
+        if not isinstance(entry, dict) or (run is not None and not isinstance(entry.get("run"), str)):
+            msg = "archived verification evidence has an invalid entry/run identity; preserve the payload and restore valid evidence before retrying"
+            raise ConfigError(msg)
+        incoming = self.loads(
+            json.dumps(
+                {
+                    "schema_version": STORE_VERSION,
+                    "tasks": {task_id: entry},
+                    "runs": {entry.get("run"): run} if run is not None else {},
+                }
+            )
+        )
+        restored = incoming.tasks[task_id]
+        if run is not None:
+            restored["run"] = self.add_run(run, preferred=restored.get("run"))
+        self.tasks[task_id] = restored
 
     def dumps(self) -> bytes:
         used = {entry.get("run") for entry in self.tasks.values()}
         data = {
+            **self.extra,
             "schema_version": STORE_VERSION,
             "runs": {run: meta for run, meta in sorted(self.runs.items()) if run in used},
             "tasks": dict(sorted(self.tasks.items())),
@@ -362,6 +408,37 @@ class Evidence:
 
     def save(self, root: Path) -> None:
         atomic_write_bytes(root / STORE, self.dumps())
+
+
+def _invalid_run(run: Mapping[str, Any], *, complete: bool) -> bool:
+    checks = (
+        (
+            "argv",
+            isinstance(run.get("argv"), list)
+            and bool(run["argv"])
+            and all(isinstance(arg, str) for arg in run["argv"])
+            and bool(run["argv"][0]),
+        ),
+        ("python", isinstance(run.get("python"), str) and bool(run["python"])),
+        ("at", isinstance(run.get("at"), str) and bool(run["at"])),
+        ("head", "head" in run and isinstance(run["head"], str | None)),
+        ("dirty", type(run.get("dirty")) is bool),
+        ("timed_out", type(run.get("timed_out")) is bool),
+    )
+    return any(not valid for key, valid in checks if complete or key in run)
+
+
+def provenance_problem(entry: Mapping[str, Any], runs: Mapping[str, dict[str, Any]]) -> str | None:
+    """Incomplete historical payloads can be retained, but cannot establish verification."""
+    if not isinstance(entry.get("fingerprint"), str) or not entry["fingerprint"]:
+        return "missing verification fingerprint"
+    run_id = entry.get("run")
+    if not isinstance(run_id, str) or not run_id or run_id not in runs:
+        return "missing referenced verification run"
+    run = runs[run_id]
+    if _invalid_run(run, complete=True):
+        return f"run {run_id} has incomplete or invalid provenance"
+    return None
 
 
 # Readiness -------------------------------------------------------------------------------------
@@ -390,7 +467,8 @@ def readiness(
         return Readiness("unverified", {}, ("no linked tests",))
     if entry is None:
         return Readiness("unverified", dict.fromkeys(linked, "not_run"), ("never verified",))
-    stale = _is_stale(task, entry, evidence, root, stale_on=stale_on, head=head)
+    provenance = provenance_problem(entry, evidence.runs)
+    stale = provenance is not None or _is_stale(task, entry, evidence, root, stale_on=stale_on, head=head)
     results = entry.get("tests", {})
     tests = {
         node: ("stale" if stale and node in results else results.get(node, {}).get("outcome", "not_run"))
@@ -404,9 +482,13 @@ def readiness(
         return Readiness("failing", tests, tuple(f"{node}: {tests[node]}" for node in failing))
     if stale:
         reasons.append(
-            "results are stale: files changed since `byteplan verify`"
-            if stale_on == "files"
-            else "results are stale: HEAD moved or the tree is dirty"
+            f"verification provenance is incomplete: {provenance}"
+            if provenance
+            else (
+                "results are stale: files changed since `byteplan verify`"
+                if stale_on == "files"
+                else "results are stale: files changed, HEAD moved or the tree is dirty"
+            )
         )
     reasons.extend(
         f"{node}: {outcome}" for node, outcome in sorted(tests.items()) if outcome not in {"passed", "stale"}
@@ -426,6 +508,8 @@ def _is_stale(
     stale_on: str,
     head: tuple[str | None, bool],
 ) -> bool:
+    if entry.get("fingerprint") != fingerprint(root, task_files(task)):
+        return True
     if stale_on == "head":
         run = evidence.runs.get(entry.get("run", ""), {})
         current, dirty = head
@@ -433,4 +517,4 @@ def _is_stale(
         if dirty or run.get("dirty") or recorded is None or current is None:
             return True
         return recorded != current and changed_since(root, recorded, current)
-    return entry.get("fingerprint") != fingerprint(root, task_files(task))
+    return False

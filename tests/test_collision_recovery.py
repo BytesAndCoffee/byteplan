@@ -77,7 +77,17 @@ def references(repo: ProjectFactory, old: str) -> None:
             {
                 "schema_version": 1,
                 "tasks": {old: entry, shared: shared_entry},
-                "runs": {"original": {"head": head, "dirty": False}, "orphaned": {"keep": True}},
+                "runs": {
+                    "original": {
+                        "head": head,
+                        "dirty": False,
+                        "argv": ["pytest"],
+                        "at": "original",
+                        "python": "3",
+                        "timed_out": False,
+                    },
+                    "orphaned": {"keep": True},
+                },
                 "x-store": old,
             }
         ),
@@ -532,7 +542,17 @@ def test_rekey_then_merge_preserves_both_branches_evidence(
                 "tests": {"tests/test_left.py::test_left": {"outcome": "passed", "duration_ms": 11}},
             }
         },
-        "runs": {"left-run": {"keep": "left provenance"}},
+        "runs": {
+            "left-run": {
+                "keep": "left provenance",
+                "head": None,
+                "dirty": False,
+                "argv": ["pytest"],
+                "at": "left",
+                "python": "3",
+                "timed_out": False,
+            }
+        },
     }
     repo.write(verification.STORE, json.dumps(left_evidence, indent=2, sort_keys=True) + "\n")
     git(repo.root, "add", "-A")
