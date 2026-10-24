@@ -37,7 +37,7 @@ class ScanError(ByteplanError):
 
 
 class IdExhaustedError(ByteplanError):
-    """All 65,536 task IDs are used or reserved."""
+    """The namespace for newly generated task IDs is exhausted."""
 
 
 class TaskNotFoundError(ByteplanError):

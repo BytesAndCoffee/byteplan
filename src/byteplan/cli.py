@@ -58,6 +58,16 @@ def cmd_init(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def cmd_migrate(args: argparse.Namespace) -> int:
+    paths = _project(args).migrate(dry_run=args.dry_run)
+    if args.format == "json":
+        _out(reporting.to_json({"paths": list(paths), "dry_run": args.dry_run}))
+    else:
+        action = "would migrate" if args.dry_run else "migrated"
+        _out(f"byteplan: {action}: {', '.join(paths)}" if paths else "byteplan: registry is already current")
+    return EXIT_OK
+
+
 def cmd_sync(args: argparse.Namespace) -> int:
     project = _project(args)
     settings = project.config.annotations
@@ -401,6 +411,9 @@ def cmd_report(args: argparse.Namespace) -> int:
 def cmd_repair(args: argparse.Namespace) -> int:
     project = _project(args)
     if args.import_id:
+        if args.against is not None or args.dry_run:
+            msg = "--against and --dry-run apply only to --reassign"
+            raise ConfigError(msg)
         result = project.import_task(args.import_id)
         _out(f"byteplan: imported [{result.task.id}] {result.task.display_title}")
     else:
@@ -413,8 +426,17 @@ def cmd_repair(args: argparse.Namespace) -> int:
             rel = (project.root / path).resolve().relative_to(project.root).as_posix()
         else:
             rel = resolve_targets(project.root, [path])[0]
-        result = project.reassign(rel, int(line))
-        _out(f"byteplan: {rel}:{line} now has [{result.task.id}] (was duplicate [{result.old_id}])")
+        result = project.reassign(rel, int(line), against=args.against, dry_run=args.dry_run)
+        if result.dry_run:
+            _out(f"byteplan: would reassign [{result.old_id}] to [{result.task.id}] at {rel}:{line}")
+            for proposed in result.planned:
+                _out(f"  would update {proposed}")
+        else:
+            _out(f"byteplan: {rel}:{line} now has [{result.task.id}] (was [{result.old_id}])")
+        if args.against is not None:
+            event = next(e for e in reversed(result.task.history) if e.event == "identity_reassigned")
+            _out(f"  pinned HEAD {event.new['head']} against {event.new['against']}")
+            _out("  Historical evidence is retained; run `byteplan verify` for fresh evidence before resolution.")
     return EXIT_OK
 
 
@@ -464,6 +486,7 @@ def cmd_archive(args: argparse.Namespace) -> int:
             _out(
                 f"byteplan: waiting for a commit (their current records aren't committed): {', '.join(report.uncommitted)}"
             )
+            _out("Commit the task records and their current verification evidence, including run metadata, then retry.")
     return EXIT_OK
 
 
@@ -550,6 +573,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     init.set_defaults(handler=cmd_init)
 
+    migrate = sub.add_parser(
+        "migrate", parents=[common, formatted], help="upgrade registry metadata without editing source"
+    )
+    migrate.add_argument("--dry-run", action="store_true", help="preview the metadata upgrade; write nothing")
+    migrate.set_defaults(handler=cmd_migrate)
+
     sync = sub.add_parser(
         "sync",
         parents=[common, formatted],
@@ -603,7 +632,7 @@ def build_parser() -> argparse.ArgumentParser:
     archive_cmd.set_defaults(handler=cmd_archive)
 
     show = sub.add_parser("show", parents=[common, formatted], help="show one task with its history")
-    show.add_argument("id", help="four-hex-digit task ID")
+    show.add_argument("id", help="exact hexadecimal task ID or unique prefix")
     show.set_defaults(handler=cmd_show)
 
     status = sub.add_parser("status", parents=[common, formatted], help="change a task's lifecycle status")
@@ -692,6 +721,10 @@ def build_parser() -> argparse.ArgumentParser:
     action = repair.add_mutually_exclusive_group(required=True)
     action.add_argument("--import", dest="import_id", metavar="ID", help="register an ID found in source")
     action.add_argument("--reassign", metavar="PATH:LINE", help="give a duplicate ID copy a fresh ID")
+    repair.add_argument(
+        "--against", metavar="REV", help="reassign a task independently created on another Git branch, before merging"
+    )
+    repair.add_argument("--dry-run", action="store_true", help="preview reassignment without writing files")
     repair.set_defaults(handler=cmd_repair)
 
     merge = sub.add_parser(

@@ -25,6 +25,17 @@ jobs:
       - run: python -m pip install hatch
       - run: hatch test --python ${{ matrix.python }}
 
+  released-clients:
+    name: released-client compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install hatch
+      - run: hatch test --python 3.12 -- -m network tests/test_released_clients.py
+
   quality:
     name: lint and types
     runs-on: ubuntu-latest

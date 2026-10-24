@@ -659,3 +659,17 @@ def test_scaffold_imports_stay_below_future_imports(routed: ProjectFactory, run_
         "from __future__ import annotations\nimport pytest\nfrom attrs import define\n"
         "from byteplan_runtime import verifies\n\n\ndef test_a() -> None:\n"
     )
+
+
+@verifies("67a65c")
+@pytest.mark.xfail(reason="BytePlan 67a65c: acceptance test not implemented", strict=True)
+def test_task_67a65c() -> None:
+    """Acceptance test scaffold for BytePlan task 67a65c.
+
+    Target: task 67a65c (statement)
+    Requirement: Separate first-party runtime imports from pytest in new scaffold files
+    """
+    # GIVEN: TODO - arrange the state this requirement depends on
+    # WHEN: TODO - exercise the code task 67a65c is about
+    # THEN: TODO - assert the required result
+    pytest.fail("BytePlan 67a65c: acceptance test not implemented")

@@ -41,7 +41,7 @@ def report(project: ProjectFactory, name: str = "byteplan.md") -> str:
 
 
 def ids(text: str) -> list[str]:
-    return re.findall(r"\[([0-9a-f]{4})\]", text)
+    return re.findall(r"\[([0-9a-f]{4,})\]", text)
 
 
 def test_scan_writes_the_report(reported: ProjectFactory, run_cli: RunCli) -> None:

@@ -40,7 +40,7 @@ from byteplan.__about__ import __version__
 from byteplan.api import UNSET, Project
 from byteplan.cli import add_mcp_arguments
 from byteplan.diagnostics import Code
-from byteplan.errors import ByteplanError, LockedError
+from byteplan.errors import ByteplanError, LockedError, RegistryError
 from byteplan.models import Presence, Status
 
 if TYPE_CHECKING:
@@ -56,7 +56,7 @@ _T = TypeVar("_T")
 
 INSTRUCTIONS = """\
 BytePlan tracks development obligations (TODO/FIXME comments, stubs, @todo decorators) that live
-in source, each with a permanent 4-hex ID such as `a83f`, in a committed registry. Status
+in source, each with a permanent hexadecimal ID (legacy `a83f`, new `a83f21`), in a committed registry. Status
 (open, in_progress, blocked, resolved, dismissed) changes only on request; presence (present,
 missing, stripped) is what scans observe. Resolving is a human decision: don't resolve a task
 unless the user asked you to. Tools that write source preview unless called with apply=true.
@@ -77,7 +77,13 @@ def _errors_as_tool_errors(call: Callable[[], _T]) -> _T:
         msg = f"locked: {exc}"
         raise ToolError(msg) from exc
     except ByteplanError as exc:
-        raise ToolError(str(exc)) from exc
+        msg = str(exc)
+        if isinstance(exc, RegistryError) and "is newer than this byteplan supports" in msg:
+            msg += (
+                "; upgrade BytePlan if needed, then restart this MCP server or its owning client session "
+                "so it loads the upgraded code (an already-running server keeps its original code)"
+            )
+        raise ToolError(msg) from exc
 
 
 def _needs(allowed: bool, what: str) -> None:  # noqa: FBT001

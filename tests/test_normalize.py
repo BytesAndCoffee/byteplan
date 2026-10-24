@@ -64,7 +64,7 @@ def tasks(project: ProjectFactory) -> dict[str, Any]:
 
 def ids(text: str) -> list[str]:
     """Task IDs in source, in comment (`[abcd]`) or decorator (`id="abcd"`) form."""
-    return [a or b for a, b in re.findall(r'\[([0-9a-f]{4})\]|id="([0-9a-f]{4})"', text)]
+    return [a or b for a, b in re.findall(r'\[([0-9a-f]{4,})\]|id="([0-9a-f]{4,})"', text)]
 
 
 # Modes and scan ------------------------------------------------------------------------------------

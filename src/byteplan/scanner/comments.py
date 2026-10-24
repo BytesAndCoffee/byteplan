@@ -108,7 +108,7 @@ def tag_annotation(
         return Diagnostic(
             Code.MALFORMED_ID,
             Severity.WARNING,
-            f"tag ID [{raw_id}] is not four lowercase hex digits; the tag is not tracked",
+            f"tag ID [{raw_id}] is not a lowercase hexadecimal ID (at least four characters); the tag is not tracked",
             locations=(Location(source.path, line),),
             hint=f"remove the brackets to get a new ID, or fix it to a registered ID, e.g. {match.group('tag')}[7fa2]",
         )

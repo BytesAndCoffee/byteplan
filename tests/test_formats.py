@@ -41,7 +41,7 @@ def tasks(project: ProjectFactory) -> dict[str, Any]:
 
 
 def ids(text: str) -> list[str]:
-    return re.findall(r"\[([0-9a-f]{4})\]", text)
+    return re.findall(r"\[([0-9a-f]{4,})\]", text)
 
 
 def test_default_scope_is_still_python_only(project: ProjectFactory) -> None:

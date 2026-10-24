@@ -55,7 +55,7 @@ def test_init_creates_config_registry_and_sdist_exclude(project: ProjectFactory,
     assert pyproject["tool"]["byteplan"]["registry"] == ".byteplan/tasks.json"
     assert pyproject["tool"]["hatch"]["build"]["targets"]["sdist"]["exclude"] == [".byteplan"]
     assert json.loads((project.root / ".byteplan/tasks.json").read_text()) == {
-        "schema_version": 1,
+        "schema_version": 2,
         "reserved_ids": [],
         "tasks": {},
     }

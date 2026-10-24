@@ -95,7 +95,7 @@ def test_minimal_task_gets_defaults() -> None:
             ),
             "not in reserved_ids",
         ),
-        (json.dumps({"schema_version": 1, "reserved_ids": [], "tasks": {"bad": {}}}), "four-hex-digit"),
+        (json.dumps({"schema_version": 1, "reserved_ids": [], "tasks": {"bad": {}}}), "lowercase hexadecimal ID"),
     ],
 )
 def test_invalid_registry(text: str, message: str) -> None:

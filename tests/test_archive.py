@@ -113,6 +113,8 @@ def test_evidence_moves_with_the_task(repo: ProjectFactory, run_cli: RunCli) -> 
     store.write_text(
         json.dumps({"schema_version": 1, "runs": {}, "tasks": {task_id: {"fingerprint": "x", "run": "r", "tests": {}}}})
     )
+    git(repo.root.parent, "add", "-A")
+    git(repo.root.parent, "commit", "-qm", "preserve evidence before archival")
     assert run_cli("archive", "--older-than", "0", "--project", repo.root).code == EXIT_OK
     assert task_id not in json.loads(store.read_text())["tasks"]
     payload = archive.Store(repo.root / ".byteplan").get(task_id)
@@ -282,6 +284,8 @@ def test_restore_brings_back_the_evidence_run(repo: ProjectFactory, run_cli: Run
     run = {"argv": ["pytest"], "at": "t", "dirty": False, "head": "abc", "python": "3", "timed_out": False}
     evidence = {"fingerprint": "x", "run": "r1", "tests": {}}
     store.write_text(json.dumps({"schema_version": 1, "runs": {"r1": run}, "tasks": {task_id: evidence}}))
+    git(repo.root.parent, "add", "-A")
+    git(repo.root.parent, "commit", "-qm", "preserve verification run before archival")
     assert run_cli("archive", "--older-than", "0", "--project", repo.root).code == EXIT_OK
     assert json.loads(store.read_text())["runs"] == {}
     assert run_cli("archive", "--restore", task_id, "--project", repo.root).code == EXIT_OK

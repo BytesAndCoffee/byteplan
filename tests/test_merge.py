@@ -16,7 +16,9 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from byteplan._todo import verifies
 from byteplan.merge import merge_registries
+from byteplan.registry import SCHEMA_VERSION
 
 if TYPE_CHECKING:
     from tests.conftest import ProjectFactory, RunCli
@@ -146,9 +148,12 @@ def test_removal_rules() -> None:
     assert merged.data is None  # removed vs changed
 
 
-def test_schema_mismatch_is_a_conflict() -> None:
-    newer = {**BASE, "schema_version": 2}
-    assert merge_registries(BASE, BASE, newer).data is None
+@pytest.mark.parametrize("version", [SCHEMA_VERSION + 1, 0, "2", None])
+def test_unsupported_schema_is_a_conflict(version: object) -> None:
+    other = {**BASE, "schema_version": version}
+    result = merge_registries(BASE, BASE, other)
+    assert result.data is None
+    assert "unsupported schema_version" in result.conflicts[0]
 
 
 # Git end to end -----------------------------------------------------------------------------------
@@ -421,3 +426,25 @@ def test_bool_change_on_one_side_still_merges() -> None:
     assert nested.data is not None
     assert nested.data["cfg"] == {"on": True, "x": 2}
     assert nested.data["cfg"]["on"] is True
+
+
+@verifies("ee606e")
+@pytest.mark.parametrize(
+    ("base", "ours", "theirs"),
+    [
+        pytest.param(1, 2, 2, id="both branches migrated after forking"),
+        pytest.param(1, 1, 2, id="the other side migrated"),
+        pytest.param(1, 2, 1, id="this side migrated"),
+    ],
+)
+def test_merges_across_the_schema_migration(base: int, ours: int, theirs: int) -> None:
+    def registry(version: int, status: str) -> dict[str, Any]:
+        task = {"id": "abcd", "kind": "TODO", "title": "t", "status": status, "notes": "", "history": []}
+        return {"schema_version": version, "reserved_ids": ["abcd"], "tasks": {"abcd": task}}
+
+    # Our side's status change must survive; a conflict forces taking one side and losing it.
+    result = merge_registries(registry(base, "open"), registry(ours, "in_progress"), registry(theirs, "open"))
+    assert result.conflicts == []
+    assert result.data is not None
+    assert result.data["schema_version"] == 2
+    assert result.data["tasks"]["abcd"]["status"] == "in_progress"

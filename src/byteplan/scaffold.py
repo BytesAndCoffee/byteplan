@@ -330,6 +330,10 @@ def plan(
             _check_name(name, set())
         test = name or default_name(task, target, set())
         function = render(task, target, test, policy=policy, link_style=link_style, async_tests=async_tests)
+        # FIXME[67a65c]: Separate first-party runtime imports from pytest in new scaffold files
+        #   A new file gets `import pytest` and `from <runtime> import verifies` in one block. When the
+        #   runtime is a first-party shim (BytePlan's own `byteplan._todo`), ruff's isort wants a blank
+        #   line between them (I001), so `hatch fmt --check` fails until the file is formatted.
         text = "\n".join(imports) + "\n\n\n" + function
         return ScaffoldPlan(
             path, test, f"{path}::{test}", text, created=True, imports=tuple(imports), function=function

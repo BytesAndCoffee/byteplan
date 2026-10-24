@@ -35,6 +35,7 @@ from typing import TYPE_CHECKING
 from byteplan.diagnostics import Diagnostic
 from byteplan.edits import line_offsets
 from byteplan.errors import EditError, SourceError
+from byteplan.ids import ID_RE
 from byteplan.scanner.comments import IGNORE_FILE_MAX_LINE, IGNORE_RE, tag_annotation, tag_pattern
 
 if TYPE_CHECKING:
@@ -340,7 +341,7 @@ def scan_json(source: SourceFile, detect: DetectConfig) -> tuple[list[Annotation
 def _structure(text: str, path: str, tags: Sequence[str]) -> list[tuple[str, str]]:
     """Tokens without comments, with a tagged string's ``[id]`` removed."""
     alternatives = "|".join(re.escape(tag) for tag in sorted(tags, key=len, reverse=True))
-    tagged = re.compile(rf'^"({alternatives})\[[0-9a-f]{{4}}\]:')
+    tagged = re.compile(rf'^"({alternatives})\[{ID_RE.pattern}\]:')
     return [
         (t.kind, tagged.sub(r'"\1:', t.text) if t.kind == "string" and t.is_value else t.text)
         for t in tokenize_json(path, text)
