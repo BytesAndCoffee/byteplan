@@ -41,6 +41,7 @@ from byteplan.diagnostics import Code, Diagnostic, Location, Severity, exit_code
 from byteplan.edits import char_col, physical_lines, replace_at
 from byteplan.errors import (
     ByteplanError,
+    ConcurrentModificationError,
     ConfigError,
     EditError,
     RegistryError,
@@ -1198,6 +1199,19 @@ class Project:
         """Put an archived task back into ``tasks.json`` (with its evidence, if this clone has it)."""
         with self._writing():
             registry_hash, registry = self._read_registry()
+            index_before = None
+            try:
+                index_before = (self.root / self.archive_index_rel).read_bytes()
+            except FileNotFoundError:
+                pass
+            except OSError as exc:
+                msg = f"{self.archive_index_rel} is unreadable ({exc}); restore it from Git"
+                raise ConfigError(msg) from exc
+            try:
+                index = archive.Index.loads(index_before.decode("utf-8") if index_before else None)
+            except (ValueError, AttributeError, TypeError) as exc:
+                msg = f"{self.archive_index_rel} is unreadable ({exc}); restore it from Git"
+                raise ConfigError(msg) from exc
             task_id = self._resolve_task_id(task_id, registry)
             if task_id in registry.tasks:
                 msg = f"task {task_id} is already in the registry"
@@ -1206,10 +1220,27 @@ class Project:
             if task is None:
                 msg = f"task {task_id} isn't archived"
                 raise ConfigError(msg)
+            entry = index.tasks.get(task_id)
+            if entry is None:
+                raise ConcurrentModificationError([self.archive_index_rel])
+            payload = archive.Store(self.root / STATE_DIR).get(task_id, entry["sha256"])
+            if payload is None or archive.record_hash(payload["task"]) != entry["sha256"]:
+                raise ConcurrentModificationError([self.archive_index_rel])
+            # Lazy reconciliation may have consulted a newer index. The restored task
+            # and its evidence must still refer to the record selected by this plan.
+            selected = registry_io.from_dict(
+                {
+                    "schema_version": registry_io.SCHEMA_VERSION,
+                    "reserved_ids": [task_id],
+                    "tasks": {task_id: payload["task"]},
+                },
+                f"archive:{task_id}",
+            ).tasks[task_id]
+            if archive.canonical(registry_io.task_to_dict(task)) != archive.canonical(
+                registry_io.task_to_dict(selected)
+            ):
+                raise ConcurrentModificationError([self.archive_index_rel])
             registry.tasks[task_id] = task
-            index = self.archive_index()
-            payload = archive.Store(self.root / STATE_DIR).get(task_id, index.tasks[task_id]["sha256"]) or {}
-            index_before = _read_bytes(self.root / self.archive_index_rel)
             del index.tasks[task_id]
             writes = [
                 FileWrite(
@@ -1219,11 +1250,26 @@ class Project:
                 )
             ]
             if payload.get("evidence") is not None:
-                evidence = verification.Evidence.load(self.root)
-                evidence_before = _read_bytes(self.root / verification.STORE)
-                evidence.restore_task(task_id, payload["evidence"], payload.get("run"))
-                before = None if evidence_before is None else sha256(evidence_before)
-                writes.append(FileWrite(verification.STORE, before, evidence.dumps()))
+                evidence_before = None
+                try:
+                    evidence_before = (self.root / verification.STORE).read_bytes()
+                except FileNotFoundError:
+                    pass
+                except OSError as exc:
+                    msg = f"{verification.STORE} is unreadable ({exc}); restore it from Git or resolve the conflict before retrying"
+                    raise ConfigError(msg) from exc
+                evidence = (
+                    verification.Evidence.loads(evidence_before)
+                    if evidence_before is not None
+                    else verification.Evidence()
+                )
+                # An archived identity can be verified again before restoring its
+                # task record. Current canonical evidence remains authoritative,
+                # even when empty, stale or failing; its cached history stays local.
+                if task_id not in evidence.tasks:
+                    evidence.restore_task(task_id, payload["evidence"], payload.get("run"))
+                    before = None if evidence_before is None else sha256(evidence_before)
+                    writes.append(FileWrite(verification.STORE, before, evidence.dumps()))
             writes.extend(self._registry_writes(registry_hash, registry))
             return tuple(commit(self.root, writes))
 

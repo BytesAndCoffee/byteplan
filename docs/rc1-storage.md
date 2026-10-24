@@ -169,6 +169,42 @@ The evidence safeguard prevents new local-only archival in Git repositories, but
 retroactively recover evidence already archived without a committed copy. Preserve existing
 local SQLite archives until their contents have been audited or backed up.
 
+## Restore transaction integrity follow-up
+
+Task `50ad66` records an inherited P1 restore defect identified during the separate API
+decomposition review. Before correction, `archive --restore ID` parsed verification and
+archive-index data, then read those files again for transaction hashes. An external edit
+between the reads became an accepted baseline even though the restore plan had never seen
+it. Restoration could silently discard authored evidence or changes to another archive entry.
+
+Restoration now captures each input's bytes once and uses those same bytes for parsing and
+the transaction hash. It captures the index before lazy record lookup and checks that the
+restored task and cached evidence refer to the same selected record. Competing input edits
+raise the existing concurrency error while preserving external work, including a verification
+file created after the plan observed its absence. Unreadable files produce actionable
+configuration errors before canonical writes. Task lifecycle/history and evidence fingerprints
+remain unchanged by restoration; colliding run identities still retain both provenance records.
+
+Independent review also reproduced a P1 false-verification case through a supported workflow:
+verify an archived identity again, then restore its task record. The older cached entry
+replaced the current canonical result and could prune its referenced run. When a test fails
+because its environment changed while its source bytes remain unchanged, the old passing
+fingerprint still matches and restoration could incorrectly report `ready_for_review`.
+Restoration now imports cached evidence
+only when the current canonical store has no entry for that identity. Any existing entry wins,
+including empty or metadata-only entries, equal entries, stale results and fresh failures.
+No timestamp or pass/fail comparison chooses an authority. In that case the evidence file is
+not rewritten at all, preserving its exact bytes, opaque fields, unreferenced historical runs
+and external edits. The older payload remains available in the local archive and committed
+Git history. Restoration still leaves task lifecycle decisions explicit.
+
+`tests/test_restore_integrity.py` covers evidence/index edits, cache reconciliation, concurrent
+file creation, an archive version changing and changing back during lookup, unreadable inputs,
+opaque metadata, run collisions and stale evidence. The original evidence and index race
+regressions fail against `0be125e` before the correction. This remains a bounded compatibility
+fix with no storage-layout or public-signature change; it is integrated separately from the
+behavior-preserving API decomposition.
+
 The resulting contract supports ordinary Git collaboration and future mappings/Assignments
 without a physical layout migration. Final independent repository reviews still need to
 assess this implementation and its documented limits before RC1 approval.
