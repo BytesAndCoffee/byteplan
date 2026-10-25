@@ -27,13 +27,17 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
+import re
 import sqlite3
 import zlib
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-from byteplan import jsonio
+from byteplan import jsonio, writeguard
+from byteplan.errors import ConfigError
+from byteplan.ids import is_valid_id
+from byteplan.merge import _ABSENT, _merge_value, _same
 from byteplan.models import Presence
 
 if TYPE_CHECKING:
@@ -45,6 +49,7 @@ if TYPE_CHECKING:
 STORE = "archive.sqlite"
 INDEX = "archive.json"
 INDEX_VERSION = 1
+_ENTRY_FIELDS = frozenset({"archived_at", "closed_at", "kind", "sha256", "status", "title"})
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS tasks (
     id TEXT NOT NULL,
@@ -91,18 +96,54 @@ def _parse(stamp: str) -> datetime:
 # The local store -------------------------------------------------------------------------------
 
 
-class Store:
-    """``.byteplan/archive.sqlite``: full records, compressed."""
+def _check_sqlite_links(path: Path) -> None:
+    try:
+        links = path.lstat().st_nlink
+    except FileNotFoundError:
+        return
+    if links > 1:
+        msg = f"SQLite file {path.name!r} has multiple hard links"
+        raise ValueError(msg)
 
-    def __init__(self, state_dir: Path) -> None:
-        self.path = state_dir / STORE
+
+class Store:
+    """Compressed records in an explicitly selected state directory.
+
+    Project callers bind ``project_root`` to their actual project. Standalone callers
+    authorize the selected directory under its parent; the directory itself and all
+    SQLite files must retain their lexical identity and have no other hard links.
+    """
+
+    def __init__(self, state_dir: Path, *, project_root: Path | None = None) -> None:
+        directory = state_dir.absolute()
+        self._root = (directory.parent if project_root is None else project_root).resolve()
+        # A standalone caller explicitly selects the parent, including its spelling
+        # through an alias. Project callers must instead retain the real root boundary.
+        self.path = (self._root / directory.name if project_root is None else directory) / STORE
+
+    def _checked_path(self) -> Path:
+        try:
+            directory = self.path.parent.relative_to(self._root).as_posix()
+            writeguard.control_directory(self._root, directory)
+            for suffix in ("", "-journal", "-wal", "-shm"):
+                path = writeguard.project_target(self._root, f"{directory}/{STORE}{suffix}", control=True)
+                _check_sqlite_links(path)
+        except (OSError, RuntimeError, ValueError) as exc:
+            msg = (
+                f"archive cache {self.path} cannot be used safely ({exc}); preserve existing files and "
+                "repair the cache directory, file or SQLite sidecar aliases/shared files before retrying"
+            )
+            raise ConfigError(msg) from exc
+        return self.path
 
     @contextlib.contextmanager
     def _connect(self) -> Iterator[sqlite3.Connection]:
         """A connection that commits on success and is always closed (sqlite3's own context
         manager only commits)."""
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with contextlib.closing(sqlite3.connect(self.path)) as connection, connection:
+        path = self._checked_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path = self._checked_path()
+        with contextlib.closing(sqlite3.connect(path)) as connection, connection:
             connection.execute(_SCHEMA)
             if _legacy_schema(connection):
                 # DDL must share the copy's transaction: interruption keeps the old store intact.
@@ -140,7 +181,7 @@ class Store:
                 )
 
     def get(self, task_id: str, sha: str | None = None) -> dict[str, Any] | None:
-        if not self.path.exists():
+        if not self._checked_path().exists():
             return None
         with self._connect() as connection:
             if sha is None:
@@ -157,7 +198,7 @@ class Store:
         return payload
 
     def hashes(self) -> set[tuple[str, str]]:
-        if not self.path.exists():
+        if not self._checked_path().exists():
             return set()
         with self._connect() as connection:
             return set(connection.execute("SELECT id, sha256 FROM tasks").fetchall())
@@ -175,16 +216,49 @@ class Index:
     """``.byteplan/archive.json``: what's archived, for every clone to reconcile against."""
 
     tasks: dict[str, dict[str, Any]] = field(default_factory=dict)
+    extra: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def loads(cls, text: str | None) -> Index:
         if not text:
             return cls()
         data = jsonio.loads(text)
-        return cls(dict(data.get("tasks", {})))
+        if not isinstance(data, dict):
+            msg = "archive index must be a JSON object; restore valid metadata from Git before retrying"
+            raise TypeError(msg)
+        version = data.get("schema_version")
+        if type(version) is not int or version != INDEX_VERSION:
+            msg = (
+                f"unsupported archive index schema_version {version!r}; upgrade BytePlan or restore "
+                "a supported archive index from Git; do not change its version number by hand"
+            )
+            raise ValueError(msg)
+        tasks = data.get("tasks")
+        if not isinstance(tasks, dict):
+            msg = "archive index tasks must be an object; restore valid metadata from Git before retrying"
+            raise TypeError(msg)
+        for task_id, record in tasks.items():
+            if not is_valid_id(task_id) or not isinstance(record, dict):
+                msg = f"archive index has an invalid task identity or record for {task_id!r}; restore it from Git"
+                raise ValueError(msg)
+            sha = record.get("sha256")
+            if not isinstance(sha, str) or re.fullmatch(r"[0-9a-f]{64}", sha) is None:
+                msg = f"archive index task {task_id} requires a SHA-256 record hash; restore valid metadata from Git"
+                raise ValueError(msg)
+            for key in ("archived_at", "kind", "status", "title"):
+                if key in record and not isinstance(record[key], str):
+                    msg = f"archive index task {task_id} has invalid {key}; restore valid metadata from Git"
+                    raise ValueError(msg)
+            if "closed_at" in record and record["closed_at"] is not None and not isinstance(record["closed_at"], str):
+                msg = f"archive index task {task_id} has invalid closed_at; restore valid metadata from Git"
+                raise ValueError(msg)
+            if "status" in record and record["status"] not in {"resolved", "dismissed"}:
+                msg = f"archive index task {task_id} has a non-closed status; restore valid metadata from Git"
+                raise ValueError(msg)
+        return cls(dict(tasks), {key: value for key, value in data.items() if key not in {"schema_version", "tasks"}})
 
     def dumps(self) -> str:
-        data = {"schema_version": INDEX_VERSION, "tasks": dict(sorted(self.tasks.items()))}
+        data = {**self.extra, "schema_version": INDEX_VERSION, "tasks": dict(sorted(self.tasks.items()))}
         return json.dumps(data, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
 
 
@@ -203,7 +277,8 @@ def merge(base: str | None, ours: str | None, theirs: str | None) -> tuple[str |
     """Three-way merge of two indexes, entry by entry against ``base``: the merged text, or
     None and the conflicting task IDs. Entries are compared by record hash, so two branches
     archiving the same record independently agree."""
-    b, o, t = (Index.loads(text).tasks for text in (base, ours, theirs))
+    indexes = [Index.loads(text) for text in (base, ours, theirs)]
+    b, o, t = (index.tasks for index in indexes)
     merged: dict[str, dict[str, Any]] = {}
     conflicts: list[str] = []
     for task_id in sorted(set(b) | set(o) | set(t)):
@@ -215,11 +290,45 @@ def merge(base: str | None, ours: str | None, theirs: str | None) -> tuple[str |
         else:
             conflicts.append(task_id)
             continue
+        original = b.get(task_id, {})
+        if chosen is None and (kept := o.get(task_id) or t.get(task_id)) is not None:
+            # Restoration may delete the index entry, but must not silently discard
+            # an independent edit to its metadata. Archive timestamps alone are incidental.
+            previous = {key: value for key, value in original.items() if key != "archived_at"}
+            remaining = {key: value for key, value in kept.items() if key != "archived_at"}
+            if not _same(previous, remaining):
+                conflicts.append(f"{task_id} was restored on one side and its index metadata changed on the other")
         if chosen is not None:
+            # The hash selects authoritative task state. Extra index metadata for that
+            # same record still needs an ordinary conservative three-way merge.
+            if mine is not None and theirs_ is not None:
+                our_entry, their_entry = o[task_id], t[task_id]
+                chosen = dict(chosen)
+                excluded = {"sha256", "archived_at"} if mine == theirs_ else _ENTRY_FIELDS
+                for key in sorted({*original, *our_entry, *their_entry} - excluded):
+                    value = _merge_value(
+                        f"{task_id}.{key}",
+                        original.get(key, _ABSENT),
+                        our_entry.get(key, _ABSENT),
+                        their_entry.get(key, _ABSENT),
+                        conflicts,
+                    )
+                    if value is _ABSENT:
+                        chosen.pop(key, None)
+                    else:
+                        chosen[key] = value
             merged[task_id] = chosen
+    extra: dict[str, Any] = {}
+    b_extra, o_extra, t_extra = (index.extra for index in indexes)
+    for key in sorted({*b_extra, *o_extra, *t_extra}):
+        value = _merge_value(
+            key, b_extra.get(key, _ABSENT), o_extra.get(key, _ABSENT), t_extra.get(key, _ABSENT), conflicts
+        )
+        if value is not _ABSENT:
+            extra[key] = value
     if conflicts:
         return None, conflicts
-    return Index(merged).dumps(), []
+    return Index(merged, extra).dumps(), []
 
 
 def _sha(entry: dict[str, Any] | None) -> str | None:

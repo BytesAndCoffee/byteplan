@@ -94,6 +94,12 @@ def import_task(self: Project, task_id: str) -> RepairResult:
         if task_id in registry.tasks:
             msg = f"task {task_id} is already registered"
             raise ConfigError(msg)
+        if task_id in self.archive_index().tasks:
+            msg = (
+                f"task {task_id} is archived; use `byteplan archive --restore {task_id}` "
+                "to preserve its lifecycle, managed fields, history and evidence"
+            )
+            raise ConfigError(msg)
         annotations, _, _ = self._scan_sources()
         found = [a for a in annotations if a.task_id == task_id]
         if len(found) != 1:

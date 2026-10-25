@@ -20,8 +20,10 @@
     "34da",
     "3644",
     "3844",
+    "38e8db",
     "3b20",
     "3d3a",
+    "3d5bb4",
     "3f50",
     "4518",
     "46b6",
@@ -35,6 +37,7 @@
     "595f",
     "5aae",
     "5ff6",
+    "62edd5",
     "6639",
     "67a65c",
     "67df",
@@ -43,7 +46,9 @@
     "6d434f",
     "71c4",
     "75b4",
+    "765f23",
     "7ff8",
+    "81cc04",
     "82b3",
     "86e1",
     "8756",
@@ -85,9 +90,11 @@
     "c978",
     "c993",
     "cc54",
+    "cda4d1",
     "cdcb",
     "ce72",
     "d45d",
+    "dcd417",
     "de66",
     "def0",
     "e4af",
@@ -2203,6 +2210,139 @@
       "title": "RC1 behavior-preserving decomposition of the public Project facade",
       "title_override": null
     },
+    "38e8db": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 89,
+            "path": "src/byteplan/operations/tasks.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_tasks.py::test_import_task",
+            "path": "tests/test_tasks.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: review A3 demonstrates repair import recreating an archived permanent identity as open with only created history, masking authored notes/assignee/lifecycle/evidence. Refuse import of archived IDs and direct to the existing guarded archive restore; preserve cache/index/canonical evidence byte-for-byte, including a fresh clone with missing local cache."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        },
+        {
+          "at": "2026-10-25T16:34:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: review A3 demonstrates repair import recreating an archived permanent identity as open with only created history, masking authored notes/assignee/lifecycle/evidence. Refuse import of archived IDs and direct to the existing guarded archive restore; preserve cache/index/canonical evidence byte-for-byte, including a fresh clone with missing local cache.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: review A3 demonstrates repair import recreating an archived permanent identity as open with only created history, masking authored notes/assignee/lifecycle/evidence. Refuse import of archived IDs and direct to the existing guarded archive restore; preserve cache/index/canonical evidence byte-for-byte, including a fresh clone with missing local cache."
+          }
+        },
+        {
+          "at": "2026-10-25T16:34:26Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicitly complete the verified compatibility correction after linked evidence and independent review; retain the final full-suite/platform/re-review release gates.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/operations/tasks.py"
+          }
+        }
+      ],
+      "id": "38e8db",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T03:20:35Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: review A3 demonstrates repair import recreating an archived permanent identity as open with only created history, masking authored notes/assignee/lifecycle/evidence. Refuse import of archived IDs and direct to the existing guarded archive restore; preserve cache/index/canonical evidence byte-for-byte, including a fresh clone with missing local cache.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 90,
+        "line": 89,
+        "path": "src/byteplan/operations/tasks.py",
+        "representation": "comment",
+        "symbol": "import_task"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 30,
+            "node": "tests/test_tasks.py::test_import_refuses_archived_identity_without_masking_state",
+            "path": "tests/test_tasks.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 91,
+            "node": "tests/test_tasks.py::test_import_still_registers_a_genuinely_unregistered_identity",
+            "path": "tests/test_tasks.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Refuse import of archived identities and preserve their authoritative lifecycle and evidence.",
+      "title_override": null
+    },
     "3b20": {
       "assignee": null,
       "description": "Independent PR C review confirmed the completed row contradicts registry preservation\nand the corrected migration discussion. Verify the corrected row against registry.py.",
@@ -2377,6 +2517,173 @@
         ]
       },
       "title": "the archive index is read from the working tree even when checking a Git snapshot",
+      "title_override": null
+    },
+    "3d5bb4": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 211,
+            "path": "src/byteplan/operations/scan.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_scan.py::test_task_3d5bb4",
+            "path": "tests/test_scan.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: independent reviews A5/B2-4 confirm narrowed scans allocate an ID already embedded but unregistered outside selected targets; the next full scan blocks on duplicates. Reserve full configured-scope source identities for allocation without reconciling or marking unselected tasks missing. Cover working tree and selected Git snapshots, and preserve source-editing/missing-detection semantics."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        },
+        {
+          "at": "2026-10-25T16:34:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: independent reviews A5/B2-4 confirm narrowed scans allocate an ID already embedded but unregistered outside selected targets; the next full scan blocks on duplicates. Reserve full configured-scope source identities for allocation without reconciling or marking unselected tasks missing. Cover working tree and selected Git snapshots, and preserve source-editing/missing-detection semantics.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: independent reviews A5/B2-4 confirm narrowed scans allocate an ID already embedded but unregistered outside selected targets; the next full scan blocks on duplicates. Reserve full configured-scope source identities for allocation without reconciling or marking unselected tasks missing. Cover working tree and selected Git snapshots, and preserve source-editing/missing-detection semantics."
+          }
+        },
+        {
+          "at": "2026-10-25T16:34:26Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicitly complete the verified compatibility correction after linked evidence and independent review; retain the final full-suite/platform/re-review release gates.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/operations/scan.py"
+          }
+        }
+      ],
+      "id": "3d5bb4",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T03:20:35Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: independent reviews A5/B2-4 confirm narrowed scans allocate an ID already embedded but unregistered outside selected targets; the next full scan blocks on duplicates. Reserve full configured-scope source identities for allocation without reconciling or marking unselected tasks missing. Cover working tree and selected Git snapshots, and preserve source-editing/missing-detection semantics.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 116,
+        "line": 211,
+        "path": "src/byteplan/operations/scan.py",
+        "representation": "comment",
+        "symbol": "scan_core"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 124,
+            "node": "tests/test_narrowed_allocation.py::test_narrowed_allocation_refuses_incomplete_identity_universe",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 149,
+            "node": "tests/test_narrowed_allocation.py::test_narrowed_allocation_refuses_unreadable_reservation_file",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 30,
+            "node": "tests/test_narrowed_allocation.py::test_narrowed_scan_avoids_unregistered_id_without_observing_other_tasks",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 189,
+            "node": "tests/test_narrowed_allocation.py::test_narrowed_scan_without_allocation_does_not_require_unselected_parsing",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 170,
+            "node": "tests/test_narrowed_allocation.py::test_narrowed_snapshot_refuses_malformed_unselected_identity",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 98,
+            "node": "tests/test_narrowed_allocation.py::test_narrowed_snapshot_reserves_selected_view_not_live_worktree",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 204,
+            "node": "tests/test_narrowed_allocation.py::test_reservation_scope_honors_excluded_files",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 70,
+            "node": "tests/test_narrowed_allocation.py::test_reservations_cover_supported_lengths_and_languages",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Reserve unregistered embedded IDs outside narrowed targets before allocation.",
       "title_override": null
     },
     "3f50": {
@@ -3594,6 +3901,288 @@
       "title": "[P2] Report scaffold encoding and filesystem failures per task",
       "title_override": null
     },
+    "62edd5": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 234,
+            "path": "src/byteplan/persistence.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_persistence.py::test_recover",
+            "path": "tests/test_persistence.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        },
+        {
+          "at": "2026-10-25T16:23:30Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures."
+          }
+        },
+        {
+          "at": "2026-10-25T16:34:25Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment."
+          }
+        },
+        {
+          "at": "2026-10-25T16:34:25Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicitly complete the verified compatibility correction after linked evidence and independent review; retain the final full-suite/platform/re-review release gates.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/persistence.py"
+          }
+        },
+        {
+          "at": "2026-10-25T16:56:12Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Reopen after independent follow-up demonstrated control-directory alias cleanup can delete unrelated in-project files under junction-like Windows path behavior. Do not merge until guarded and reverified.",
+          "old": "resolved"
+        },
+        {
+          "at": "2026-10-25T16:56:12Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.\nIndependent follow-up at b1d11c4 models a Windows directory junction (is_symlink=False while resolve follows the alias). Both control_directory and project_target(control=True) accept an in-project transaction alias; no-journal recovery clears unrelated target files. The fixture is entirely inside one temporary project and does not claim native Windows execution. Reopened this existing confinement obligation to enforce resolved-component identity for all control paths, preserve ordinary confined source-parent aliases, add complete-state no-journal regressions and native Windows coverage where supported. Prior explicit resolution remains historical; current task is in progress."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication."
+          }
+        },
+        {
+          "at": "2026-10-25T16:56:18Z",
+          "event": "reappeared",
+          "new": "present",
+          "old": "missing"
+        },
+        {
+          "at": "2026-10-25T17:24:14Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.\nIndependent follow-up at b1d11c4 models a Windows directory junction (is_symlink=False while resolve follows the alias). Both control_directory and project_target(control=True) accept an in-project transaction alias; no-journal recovery clears unrelated target files. The fixture is entirely inside one temporary project and does not claim native Windows execution. Reopened this existing confinement obligation to enforce resolved-component identity for all control paths, preserve ordinary confined source-parent aliases, add complete-state no-journal regressions and native Windows coverage where supported. Prior explicit resolution remains historical; current task is in progress.\nControl-alias amendment is complete and independently verified: resolved component identity now rejects junction-like control paths in both guards before cleanup; ordinary confined source-parent aliases remain supported. Author combined run: 193 passed, 1 native-Windows skip; independent portable fixture confirms exact preservation. Local canonical evidence accurately leaves the native Windows node skipped and derived readiness needs_review. Explicit manual resolution records implemented, independently verified code; it DOES NOT claim native execution. Dedicated Windows3.12 CI step must actually PASS on the new head before PR49 merge, with its result recorded as external platform evidence. No skipped outcome is rewritten as passing."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.\nIndependent follow-up at b1d11c4 models a Windows directory junction (is_symlink=False while resolve follows the alias). Both control_directory and project_target(control=True) accept an in-project transaction alias; no-journal recovery clears unrelated target files. The fixture is entirely inside one temporary project and does not claim native Windows execution. Reopened this existing confinement obligation to enforce resolved-component identity for all control paths, preserve ordinary confined source-parent aliases, add complete-state no-journal regressions and native Windows coverage where supported. Prior explicit resolution remains historical; current task is in progress."
+          }
+        },
+        {
+          "at": "2026-10-25T17:24:14Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicitly complete independently verified confinement implementation. Preserve honest local platform-specific skip; native Windows CI and full release gates remain mandatory before merge/approval.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-25T17:24:25Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-25T17:24:25Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/persistence.py"
+          }
+        }
+      ],
+      "id": "62edd5",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T16:56:18Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.\nIndependent follow-up at b1d11c4 models a Windows directory junction (is_symlink=False while resolve follows the alias). Both control_directory and project_target(control=True) accept an in-project transaction alias; no-journal recovery clears unrelated target files. The fixture is entirely inside one temporary project and does not claim native Windows execution. Reopened this existing confinement obligation to enforce resolved-component identity for all control paths, preserve ordinary confined source-parent aliases, add complete-state no-journal regressions and native Windows coverage where supported. Prior explicit resolution remains historical; current task is in progress.\nControl-alias amendment is complete and independently verified: resolved component identity now rejects junction-like control paths in both guards before cleanup; ordinary confined source-parent aliases remain supported. Author combined run: 193 passed, 1 native-Windows skip; independent portable fixture confirms exact preservation. Local canonical evidence accurately leaves the native Windows node skipped and derived readiness needs_review. Explicit manual resolution records implemented, independently verified code; it DOES NOT claim native execution. Dedicated Windows3.12 CI step must actually PASS on the new head before PR49 merge, with its result recorded as external platform evidence. No skipped outcome is rewritten as passing.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 266,
+        "line": 265,
+        "path": "src/byteplan/persistence.py",
+        "representation": "comment",
+        "symbol": "recover"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 176,
+            "node": "tests/test_gitwrite.py::test_linked_worktree_uses_its_own_git_index",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 192,
+            "node": "tests/test_gitwrite.py::test_recovery_rejects_inconsistent_original_presence_before_any_side_effect",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 128,
+            "node": "tests/test_gitwrite.py::test_saved_index_cannot_select_existing_sibling_by_prefix",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 162,
+            "node": "tests/test_gitwrite.py::test_staged_recovery_rejects_symlink_copy",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 67,
+            "node": "tests/test_gitwrite.py::test_staged_recovery_rejects_whole_invalid_journal",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 142,
+            "node": "tests/test_gitwrite.py::test_supported_index_modes_recover",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 339,
+            "node": "tests/test_persistence.py::test_commit_validates_entire_target_set_first",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 438,
+            "node": "tests/test_persistence.py::test_control_guards_reject_resolved_aliases_without_symlink_flag",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 484,
+            "node": "tests/test_persistence.py::test_native_windows_control_junction_is_rejected_before_cleanup",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 455,
+            "node": "tests/test_persistence.py::test_no_journal_recovery_rejects_control_alias_before_cleanup",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 470,
+            "node": "tests/test_persistence.py::test_ordinary_confined_source_parent_alias_remains_supported",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 324,
+            "node": "tests/test_persistence.py::test_recover_checks_all_copies_before_first_write",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 361,
+            "node": "tests/test_persistence.py::test_recover_rejects_symlink_copy_without_cleanup",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 262,
+            "node": "tests/test_persistence.py::test_recover_rejects_whole_invalid_journal_without_changes",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 37,
+            "node": "tests/test_restore_path_safety.py::test_restore_validates_all_records_before_source_reads",
+            "path": "tests/test_restore_path_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 72,
+            "node": "tests/test_restore_path_safety.py::test_source_parent_replaced_by_symlink_fails_safely",
+            "path": "tests/test_restore_path_safety.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Confine serialized transaction and restore targets before filesystem side effects.",
+      "title_override": null
+    },
     "6639": {
       "assignee": null,
       "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185449\nA name listed in __all__ is used by importers even with no local reference.",
@@ -3739,7 +4328,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 664,
+            "line": 678,
             "node": "tests/test_scaffold.py::test_task_67a65c",
             "path": "tests/test_scaffold.py",
             "provenance": "verifies"
@@ -3819,7 +4408,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 649,
+            "line": 663,
             "node": "tests/test_scaffold.py::test_scaffold_imports_stay_below_future_imports",
             "path": "tests/test_scaffold.py",
             "provenance": "verifies"
@@ -4219,6 +4808,191 @@
       "title": "Phase 11 (optional): spec section 14 phase 5 items",
       "title_override": null
     },
+    "765f23": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 173,
+            "path": "src/byteplan/archive.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: reviews A6/B2-3 confirm archive index loading ignores unsupported schemas/shapes and dumps version 1 while dropping top-level metadata. Enforce a coherent supported schema/record boundary and domain errors, preserve supported opaque fields, and reject future/malformed formats without writes in checks, mutations and merge driver. No layout redesign or new schema feature."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_archive_index_integrity.py::test_index",
+            "path": "tests/test_archive_index_integrity.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T16:34:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: reviews A6/B2-3 confirm archive index loading ignores unsupported schemas/shapes and dumps version 1 while dropping top-level metadata. Enforce a coherent supported schema/record boundary and domain errors, preserve supported opaque fields, and reject future/malformed formats without writes in checks, mutations and merge driver. No layout redesign or new schema feature.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: reviews A6/B2-3 confirm archive index loading ignores unsupported schemas/shapes and dumps version 1 while dropping top-level metadata. Enforce a coherent supported schema/record boundary and domain errors, preserve supported opaque fields, and reject future/malformed formats without writes in checks, mutations and merge driver. No layout redesign or new schema feature."
+          }
+        },
+        {
+          "at": "2026-10-25T16:34:26Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicitly complete the verified compatibility correction after linked evidence and independent review; retain the final full-suite/platform/re-review release gates.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/archive.py"
+          }
+        }
+      ],
+      "id": "765f23",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T03:20:35Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: reviews A6/B2-3 confirm archive index loading ignores unsupported schemas/shapes and dumps version 1 while dropping top-level metadata. Enforce a coherent supported schema/record boundary and domain errors, preserve supported opaque fields, and reject future/malformed formats without writes in checks, mutations and merge driver. No layout redesign or new schema feature.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "class",
+        "decl_line": 179,
+        "line": 177,
+        "path": "src/byteplan/archive.py",
+        "representation": "comment",
+        "symbol": "Index"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 226,
+            "node": "tests/test_archive_index_integrity.py::test_archive_driver_leaves_competing_opaque_values_for_manual_resolution",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 72,
+            "node": "tests/test_archive_index_integrity.py::test_archive_index_duplicate_keys_fail_explicitly",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 37,
+            "node": "tests/test_archive_index_integrity.py::test_archive_index_rejects_invalid_containers_and_records",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 30,
+            "node": "tests/test_archive_index_integrity.py::test_archive_index_rejects_unsupported_schema_versions",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 60,
+            "node": "tests/test_archive_index_integrity.py::test_archive_index_retains_legacy_minimal_records_and_opaque_fields",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 208,
+            "node": "tests/test_archive_index_integrity.py::test_archive_merge_driver_preserves_invalid_inputs",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 187,
+            "node": "tests/test_archive_index_integrity.py::test_archive_merge_never_silently_selects_competing_extensions",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 169,
+            "node": "tests/test_archive_index_integrity.py::test_archive_merge_preserves_root_and_entry_extensions",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 80,
+            "node": "tests/test_archive_index_integrity.py::test_archive_operations_reject_invalid_indexes_without_writes",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 115,
+            "node": "tests/test_archive_index_integrity.py::test_snapshot_index_validation_uses_authoritative_bytes",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 140,
+            "node": "tests/test_archive_index_integrity.py::test_unreadable_index_fails_closed_before_import_or_noop_archive",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Validate archive-index schema and records while preserving supported opaque metadata.",
+      "title_override": null
+    },
     "7ff8": {
       "assignee": null,
       "description": "https://github.com/BytesAndCoffee/byteplan/pull/37#discussion_r4354839056",
@@ -4295,6 +5069,193 @@
         ]
       },
       "title": "resolve(sync_source=true) removes the annotation without apply=true",
+      "title_override": null
+    },
+    "81cc04": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 104,
+            "path": "src/byteplan/mcp_server.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_mcp_server.py::test_build_server",
+            "path": "tests/test_mcp_server.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A2/B2-2 confirm legitimate pending source writes replay during registry-only MCP lifecycle edits, without source permission or apply authority. Enforce an operation recovery policy while holding the project lock, including registry tools and verification completion. Read-only previews must stay read-only; valid source recovery needs explicit authority. A preflight outside the lock is insufficient."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        },
+        {
+          "at": "2026-10-25T16:34:25Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A2/B2-2 confirm legitimate pending source writes replay during registry-only MCP lifecycle edits, without source permission or apply authority. Enforce an operation recovery policy while holding the project lock, including registry tools and verification completion. Read-only previews must stay read-only; valid source recovery needs explicit authority. A preflight outside the lock is insufficient.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A2/B2-2 confirm legitimate pending source writes replay during registry-only MCP lifecycle edits, without source permission or apply authority. Enforce an operation recovery policy while holding the project lock, including registry tools and verification completion. Read-only previews must stay read-only; valid source recovery needs explicit authority. A preflight outside the lock is insufficient."
+          }
+        },
+        {
+          "at": "2026-10-25T16:34:26Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicitly complete the verified compatibility correction after linked evidence and independent review; retain the final full-suite/platform/re-review release gates.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/mcp_server.py"
+          }
+        }
+      ],
+      "id": "81cc04",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T03:20:35Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A2/B2-2 confirm legitimate pending source writes replay during registry-only MCP lifecycle edits, without source permission or apply authority. Enforce an operation recovery policy while holding the project lock, including registry tools and verification completion. Read-only previews must stay read-only; valid source recovery needs explicit authority. A preflight outside the lock is insufficient.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 105,
+        "line": 104,
+        "path": "src/byteplan/mcp_server.py",
+        "representation": "comment",
+        "symbol": "build_server"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 297,
+            "node": "tests/test_mcp_server.py::test_execution_only_verify_can_recover_metadata_and_record_results",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 329,
+            "node": "tests/test_mcp_server.py::test_execution_permission_cannot_recover_source_when_recording_results",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 182,
+            "node": "tests/test_mcp_server.py::test_explicit_authorized_source_apply_can_complete_pending_recovery",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 269,
+            "node": "tests/test_mcp_server.py::test_mixed_metadata_and_source_recovery_is_rejected_before_any_target_changes",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 387,
+            "node": "tests/test_mcp_server.py::test_ordinary_python_api_keeps_existing_automatic_recovery",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 356,
+            "node": "tests/test_mcp_server.py::test_recovery_policy_is_enforced_after_the_project_lock_is_acquired",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 229,
+            "node": "tests/test_mcp_server.py::test_registry_permission_recovers_only_canonical_metadata",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 113,
+            "node": "tests/test_mcp_server.py::test_registry_requests_preserve_pending_source_transaction",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 408,
+            "node": "tests/test_mcp_server.py::test_source_apply_authority_does_not_leak_into_later_registry_call",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 211,
+            "node": "tests/test_mcp_server.py::test_source_apply_without_source_permission_preserves_pending_recovery",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 157,
+            "node": "tests/test_mcp_server.py::test_source_previews_do_not_recover_pending_source",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Enforce per-operation source permission and apply authority during transaction recovery.",
       "title_override": null
     },
     "82b3": {
@@ -5251,13 +6212,13 @@
       "tests": {
         "discovered": [
           {
-            "line": 28,
+            "line": 35,
             "node": "tests/test_mcp_server.py::test_future_schema_tool_errors_include_upgrade_and_restart",
             "path": "tests/test_mcp_server.py",
             "provenance": "verifies"
           },
           {
-            "line": 51,
+            "line": 58,
             "node": "tests/test_mcp_server.py::test_unrelated_tool_errors_keep_existing_messages",
             "path": "tests/test_mcp_server.py",
             "provenance": "verifies"
@@ -6848,7 +7809,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 599,
+            "line": 613,
             "node": "tests/test_scaffold.py::test_scaffold_imports_land_in_isort_order",
             "path": "tests/test_scaffold.py",
             "provenance": "verifies"
@@ -7141,7 +8102,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 635,
+            "line": 649,
             "node": "tests/test_scaffold.py::test_scaffolded_tests_are_annotated_for_strict_type_checkers",
             "path": "tests/test_scaffold.py",
             "provenance": "verifies"
@@ -8194,6 +9155,165 @@
       "title": "Detect a runtime module imported through its parent package",
       "title_override": null
     },
+    "cda4d1": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T17:07:49Z",
+      "history": [
+        {
+          "at": "2026-10-25T17:07:49Z",
+          "event": "created",
+          "new": {
+            "line": 104,
+            "path": "src/byteplan/archive.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T17:07:49Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "P1 confirmed by independent follow-up at b1d11c4: a fresh archived-task lookup follows a cache-file symlink to an unrelated sibling SQLite DB outside the selected project, and Store._connect creates/migrates its tasks table before the lookup fails. Private fixture observes outside DB bytes/schema changed while sentinel row remains; no real external files. Guard cache parent/file and engine sidecar write paths before mkdir/connect/DDL, including read-side cache population. Preserve supported direct Store(state_dir) usage and legacy store migration; project operations must enforce the actual project root. No storage redesign or new product functionality. Record benign regressions and independent recheck before explicit resolution.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-25T17:07:49Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement confirmed archive cache write-boundary correction before RC1; keep PR49 draft.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T17:07:49Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_archive_cache_safety.py::test_store_connect",
+            "path": "tests/test_archive_cache_safety.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T17:24:14Z",
+          "event": "edited",
+          "new": {
+            "notes": "P1 confirmed by independent follow-up at b1d11c4: a fresh archived-task lookup follows a cache-file symlink to an unrelated sibling SQLite DB outside the selected project, and Store._connect creates/migrates its tasks table before the lookup fails. Private fixture observes outside DB bytes/schema changed while sentinel row remains; no real external files. Guard cache parent/file and engine sidecar write paths before mkdir/connect/DDL, including read-side cache population. Preserve supported direct Store(state_dir) usage and legacy store migration; project operations must enforce the actual project root. No storage redesign or new product functionality. Record benign regressions and independent recheck before explicit resolution.\nImplemented and independently verified: all five Project Store callers bind actual Project.root; main DB and -journal/-wal/-shm paths are checked before directory/SQLite access, including missing-cache early returns; multiply linked files rejected. Normal standalone/bound custom stores, WAL and legacy migration preserved. Author focused44 and broader116 passed; independent original fixture safely rejects with foreign DB/schema/sentinel/alias unchanged, new module43 plus legacy1 passed. Full updated source checks/platform CI and new whole-repository review freeze remain release gates."
+          },
+          "old": {
+            "notes": "P1 confirmed by independent follow-up at b1d11c4: a fresh archived-task lookup follows a cache-file symlink to an unrelated sibling SQLite DB outside the selected project, and Store._connect creates/migrates its tasks table before the lookup fails. Private fixture observes outside DB bytes/schema changed while sentinel row remains; no real external files. Guard cache parent/file and engine sidecar write paths before mkdir/connect/DDL, including read-side cache population. Preserve supported direct Store(state_dir) usage and legacy store migration; project operations must enforce the actual project root. No storage redesign or new product functionality. Record benign regressions and independent recheck before explicit resolution."
+          }
+        },
+        {
+          "at": "2026-10-25T17:24:14Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicitly complete independently verified confinement implementation. Preserve honest local platform-specific skip; native Windows CI and full release gates remain mandatory before merge/approval.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-25T17:24:25Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-25T17:24:25Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/archive.py"
+          }
+        }
+      ],
+      "id": "cda4d1",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T17:07:49Z",
+      "notes": "P1 confirmed by independent follow-up at b1d11c4: a fresh archived-task lookup follows a cache-file symlink to an unrelated sibling SQLite DB outside the selected project, and Store._connect creates/migrates its tasks table before the lookup fails. Private fixture observes outside DB bytes/schema changed while sentinel row remains; no real external files. Guard cache parent/file and engine sidecar write paths before mkdir/connect/DDL, including read-side cache population. Preserve supported direct Store(state_dir) usage and legacy store migration; project operations must enforce the actual project root. No storage redesign or new product functionality. Record benign regressions and independent recheck before explicit resolution.\nImplemented and independently verified: all five Project Store callers bind actual Project.root; main DB and -journal/-wal/-shm paths are checked before directory/SQLite access, including missing-cache early returns; multiply linked files rejected. Normal standalone/bound custom stores, WAL and legacy migration preserved. Author focused44 and broader116 passed; independent original fixture safely rejects with foreign DB/schema/sentinel/alias unchanged, new module43 plus legacy1 passed. Full updated source checks/platform CI and new whole-repository review freeze remain release gates.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "method",
+        "decl_line": 141,
+        "line": 139,
+        "path": "src/byteplan/archive.py",
+        "representation": "comment",
+        "symbol": "Store._connect"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 197,
+            "node": "tests/test_archive_cache_safety.py::test_archiving_rejects_aliases_without_changing_registry_index_or_foreign_database",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 161,
+            "node": "tests/test_archive_cache_safety.py::test_dangling_and_nonregular_sqlite_paths_fail_without_creating_cache",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 120,
+            "node": "tests/test_archive_cache_safety.py::test_every_store_entrypoint_validates_cache_and_sidecars_before_connect",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 185,
+            "node": "tests/test_archive_cache_safety.py::test_explicit_project_root_rejects_an_external_state_directory_without_mkdir",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 53,
+            "node": "tests/test_archive_cache_safety.py::test_fresh_archived_lookup_rejects_cache_alias_before_mutating_foreign_database",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 215,
+            "node": "tests/test_archive_cache_safety.py::test_legitimate_custom_store_creation_and_versioned_roundtrip",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 237,
+            "node": "tests/test_archive_cache_safety.py::test_legitimate_wal_cache_sidecars_remain_supported",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 90,
+            "node": "tests/test_archive_cache_safety.py::test_project_cache_parent_alias_keeps_actual_project_root_authority",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Confine archive cache and SQLite sidecar paths before implicit writes.",
+      "title_override": null
+    },
     "cdcb": {
       "assignee": null,
       "description": "Associate changes with obligations, explicit staleness/unverified-change rules and\ntargeted regression recommendations; graph uncertainty cannot establish verification.",
@@ -8409,6 +9529,141 @@
         "managed": []
       },
       "title": "Return only the scaffolded test, not the whole target file",
+      "title_override": null
+    },
+    "dcd417": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 277,
+            "path": "src/byteplan/gitwrite.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_gitwrite.py::test_read_copy",
+            "path": "tests/test_gitwrite.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        },
+        {
+          "at": "2026-10-25T03:25:40Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5.\nReplacement reviewer B2 independently confirmed the staged copy-integrity gap in its completed initial report. Both completed whole-repository reviews block RC1; all six accepted findings remain in progress until real regressions, verification and explicit resolution."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5."
+          }
+        },
+        {
+          "at": "2026-10-25T16:34:25Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5.\nReplacement reviewer B2 independently confirmed the staged copy-integrity gap in its completed initial report. Both completed whole-repository reviews block RC1; all six accepted findings remain in progress until real regressions, verification and explicit resolution.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5.\nReplacement reviewer B2 independently confirmed the staged copy-integrity gap in its completed initial report. Both completed whole-repository reviews block RC1; all six accepted findings remain in progress until real regressions, verification and explicit resolution."
+          }
+        },
+        {
+          "at": "2026-10-25T16:34:25Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicitly complete the verified compatibility correction after linked evidence and independent review; retain the final full-suite/platform/re-review release gates.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-25T16:34:33Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/gitwrite.py"
+          }
+        }
+      ],
+      "id": "dcd417",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T03:20:35Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5.\nReplacement reviewer B2 independently confirmed the staged copy-integrity gap in its completed initial report. Both completed whole-repository reviews block RC1; all six accepted findings remain in progress until real regressions, verification and explicit resolution.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 432,
+        "line": 431,
+        "path": "src/byteplan/gitwrite.py",
+        "representation": "comment",
+        "symbol": "_read_copy"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 40,
+            "node": "tests/test_gitwrite.py::test_recovery_validates_all_copies_before_any_side_effect",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Validate all staged recovery copy hashes before forward or rollback side effects.",
       "title_override": null
     },
     "de66": {

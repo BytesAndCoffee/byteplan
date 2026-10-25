@@ -24,6 +24,9 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m pip install hatch
       - run: hatch test --python ${{ matrix.python }}
+      - name: Native Windows control-junction regression
+        if: matrix.os == 'windows-latest' && matrix.python == '3.12'
+        run: hatch test --python 3.12 -- -v tests/test_persistence.py::test_native_windows_control_junction_is_rejected_before_cleanup
 
   released-clients:
     name: released-client compatibility

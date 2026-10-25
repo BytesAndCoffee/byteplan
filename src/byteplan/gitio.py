@@ -181,7 +181,11 @@ def archive_driver_main(base: str, ours: str, theirs: str, label: str | None) ->
         texts = [Path(p).read_text(encoding="utf-8") for p in (base, ours, theirs)]
         merged, conflicts = archive.merge(*texts)
     except (OSError, ValueError, AttributeError, TypeError) as exc:
-        merged, conflicts = None, [f"can't merge by task ID: {exc}"]
+        sys.stderr.write(
+            f"byteplan: {label} cannot be merged safely: {exc}. "
+            "Inputs were left unchanged; restore supported valid indexes or upgrade BytePlan, then retry.\n"
+        )
+        return 1
     if merged is not None:
         Path(ours).write_text(merged, encoding="utf-8", newline="\n")
         return 0

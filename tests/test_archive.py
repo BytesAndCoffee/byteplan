@@ -188,7 +188,7 @@ def test_reconcile_reports_records_missing_from_history(repo: ProjectFactory, ru
 
 def test_index_merge_is_a_union_by_id(tmp_path: Path) -> None:
     def index(**tasks: str) -> str:
-        return archive.Index({t: {"sha256": sha, "title": t} for t, sha in tasks.items()}).dumps()
+        return archive.Index({t: {"sha256": sha * 64, "title": t} for t, sha in tasks.items()}).dumps()
 
     base, ours, theirs = (tmp_path / name for name in ("base", "ours", "theirs"))
     base.write_text(index(aaaa="1"))
@@ -333,7 +333,7 @@ def test_show_uses_archived_evidence(repo: ProjectFactory, run_cli: RunCli) -> N
 
 def test_index_merge_is_three_way_per_entry(tmp_path: Path) -> None:
     def index(**tasks: str) -> str:
-        return archive.Index({t: {"sha256": sha, "archived_at": f"at-{sha}"} for t, sha in tasks.items()}).dumps()
+        return archive.Index({t: {"sha256": sha * 64, "archived_at": f"at-{sha}"} for t, sha in tasks.items()}).dumps()
 
     def run(base: str, ours: str, theirs: str) -> tuple[int, dict[str, str]]:
         paths = [tmp_path / name for name in ("base", "ours", "theirs")]
@@ -345,13 +345,13 @@ def test_index_merge_is_three_way_per_entry(tmp_path: Path) -> None:
         return code, {t: e["sha256"] for t, e in archive.Index.loads(paths[1].read_text()).tasks.items()}
 
     # Theirs re-archived aaaa (new hash); ours archived bbbb: both survive.
-    assert run(index(aaaa="1"), index(aaaa="1", bbbb="2"), index(aaaa="9")) == (0, {"aaaa": "9", "bbbb": "2"})
-    assert run(index(aaaa="1"), index(aaaa="9"), index(aaaa="1", bbbb="2")) == (0, {"aaaa": "9", "bbbb": "2"})
+    assert run(index(aaaa="1"), index(aaaa="1", bbbb="2"), index(aaaa="9")) == (0, {"aaaa": "9" * 64, "bbbb": "2" * 64})
+    assert run(index(aaaa="1"), index(aaaa="9"), index(aaaa="1", bbbb="2")) == (0, {"aaaa": "9" * 64, "bbbb": "2" * 64})
     # Restored (entry removed) on one side, untouched on the other: stays removed.
     assert run(index(aaaa="1"), index(), index(aaaa="1")) == (0, {})
     # Both sides archived the same record independently (different archived_at is fine).
-    same = archive.Index({"aaaa": {"sha256": "1", "archived_at": "later"}}).dumps()
-    assert run(index(), index(aaaa="1"), same) == (0, {"aaaa": "1"})
+    same = archive.Index({"aaaa": {"sha256": "1" * 64, "archived_at": "later"}}).dumps()
+    assert run(index(), index(aaaa="1"), same) == (0, {"aaaa": "1" * 64})
     # Both changed the same entry differently: a conflict, left to the user.
     assert run(index(aaaa="1"), index(aaaa="8"), index(aaaa="9"))[0] == 1
     assert run(index(aaaa="1"), index(), index(aaaa="9"))[0] == 1

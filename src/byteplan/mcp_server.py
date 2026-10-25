@@ -35,7 +35,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ResourceError, ToolError
 
-from byteplan import reporting
+from byteplan import reporting, verification
 from byteplan.__about__ import __version__
 from byteplan.api import UNSET, Project
 from byteplan.cli import add_mcp_arguments
@@ -106,11 +106,19 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
     registry changes made outside the server are always seen)."""
     server = MCPServer("byteplan", instructions=INSTRUCTIONS, version=__version__)
 
-    def project() -> Project:
-        return Project.open(root)
+    def project(*, allow_source_recovery: bool = False) -> Project:
+        current = Project.open(root)
+        if not (allow_source_recovery and permissions.source_write):
+            metadata = {current.registry_rel, current.archive_index_rel, verification.STORE}
+            report = current.report_rel
+            if report is not None:
+                metadata.add(report)
+            # Internal adapter policy; this is deliberately not a public Project interface.
+            current._recovery_allowed_targets = frozenset(metadata)  # noqa: SLF001
+        return current
 
-    def run(call: Callable[[Project], _T]) -> _T:
-        return _errors_as_tool_errors(lambda: call(project()))
+    def run(call: Callable[[Project], _T], *, allow_source_recovery: bool = False) -> _T:
+        return _errors_as_tool_errors(lambda: call(project(allow_source_recovery=allow_source_recovery)))
 
     # Read-only --------------------------------------------------------------------------------
 
@@ -154,7 +162,7 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
                 payload["annotation_count"] = len(payload.pop("annotations"))
             return payload
 
-        return run(scanned)
+        return run(scanned, allow_source_recovery=apply)
 
     @server.tool()
     def check() -> dict[str, Any]:
@@ -233,7 +241,7 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
                 payload["cleanup"] = reporting.cleanup_json(p.cleanup(only, dry_run=not apply))
             return payload
 
-        return run(synced)
+        return run(synced, allow_source_recovery=apply)
 
     @server.tool()
     def preview_test_scaffold(
@@ -281,7 +289,7 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
                     result["cleanup"] = reporting.cleanup_json(p.cleanup([task.id], dry_run=not apply))
                 return result
 
-            return run(resolved)
+            return run(resolved, allow_source_recovery=sync_source and apply)
 
         @server.tool()
         def edit_task(
@@ -345,7 +353,7 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
                 )
                 return _scaffold_payload(result, full=full)
 
-            return run(scaffolded)
+            return run(scaffolded, allow_source_recovery=apply)
 
         @server.tool()
         def release(
@@ -363,13 +371,17 @@ def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPSer
             return run(
                 lambda p: reporting.release_json(
                     p.release(version, dry_run=not apply, allow_dirty=allow_dirty, smoke_test=smoke_test and apply)
-                )
+                ),
+                allow_source_recovery=apply,
             )
 
         @server.tool()
         def restore(apply: bool = False, partial: bool = False) -> dict[str, Any]:  # noqa: FBT001, FBT002
             """Put back what `release` stripped. Previews unless apply=true."""
-            return run(lambda p: reporting.restore_json(p.restore(dry_run=not apply, partial=partial)))
+            return run(
+                lambda p: reporting.restore_json(p.restore(dry_run=not apply, partial=partial)),
+                allow_source_recovery=apply,
+            )
 
     # Test execution ---------------------------------------------------------------------------
 

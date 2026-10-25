@@ -7,7 +7,9 @@ Git and persistence modules continue to own their algorithms.
 
 The initial integrated baseline, `0be125e`, had a 3,058-line `api.py` and a 2,302-line
 `Project` class. The restore-corrected compatibility revision `fea1d3e` has 3,104 and 2,347
-lines respectively. The extraction produces a 725-line facade with a 536-line `Project` class.
+lines respectively. The extraction produced a 725-line facade with a 536-line `Project` class.
+The subsequent per-adapter recovery guard brings these to 734 and 545 lines, retaining the
+same supported public signatures and delegation boundaries.
 Private delegation methods retain existing coordination and patch boundaries; no mixin
 hierarchy, service locator or second implementation of task operations is introduced.
 
@@ -26,6 +28,7 @@ hierarchy, service locator or second implementation of task operations is introd
 | `operations/archive.py` | Archive eligibility/durability, selected archived records/evidence, restore and reconciliation orchestration. `archive.py` retains the index, compressed local store and history algorithms. |
 | `operations/initialize.py` | Initialization, runtime-shim templates and configuration/sdist exclusion setup, behind the existing facade functions. |
 | `operations/common.py` | Small shared read/validation/diagnostic and dependency-name helpers; no lifecycle state or operation dispatch registry. |
+| `writeguard.py` | Shared validation of project-relative write targets, transaction control directories and confined recovery copies, below the persistence and operation layers. |
 
 Operations are internal implementation modules, not additional public interfaces. Their first
 argument is the existing `Project` instance. They import `Project` only for static typing;
@@ -61,6 +64,10 @@ dispatch instead of introducing subclass-dependent construction.
   explicitly uncertain. The separate staged Git workflow keeps its own journal/rollback logic.
 - Scan follow-ups, registry-last transactions, collision index locks and release smoke-failure
   restoration retain their previous boundaries. No extra operation lock is introduced.
+- MCP-created projects carry a private per-operation recovery scope. The project lock covers
+  journal validation, authority checking and replay. Ordinary CLI/API callers retain their
+  default recovery hook; metadata-only MCP requests cannot recover source without a meaningful
+  source apply and permission. This is adapter authority, not a new public facade interface.
 - Strict archive evidence/index reads remain distinct from the tolerant convenience read
   helper. A transaction baseline must hash the exact bytes parsed; a later reread must never
   authorize overwriting data absent from the plan.

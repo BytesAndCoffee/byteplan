@@ -35,15 +35,18 @@ import contextlib
 import hashlib
 import json
 import os
+import secrets
 import stat
 import sys
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
+from byteplan import jsonio
 from byteplan.errors import ConcurrentModificationError, JournalConflictError, LockedError
+from byteplan.writeguard import control_directory, copy_path, project_target, valid_hash
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Collection, Iterator, Sequence
     from pathlib import Path
 
 STATE_DIR = ".byteplan"
@@ -95,9 +98,18 @@ def atomic_write_bytes(path: Path, data: bytes, mode: int | None = None) -> bool
         pass
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f".{path.name}.byteplan-{os.getpid()}.tmp")
+    for _ in range(10):
+        tmp = path.with_name(f".{path.name}.byteplan-{secrets.token_hex(8)}.tmp")
+        try:
+            fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0), 0o666)
+        except FileExistsError:
+            continue
+        break
+    else:
+        msg = f"could not allocate an exclusive temporary file for {path}"
+        raise FileExistsError(msg)
     try:
-        with tmp.open("wb") as handle:
+        with os.fdopen(fd, "wb") as handle:
             handle.write(data)
             handle.flush()
             os.fsync(handle.fileno())
@@ -117,7 +129,12 @@ def atomic_write_bytes(path: Path, data: bytes, mode: int | None = None) -> bool
 @contextlib.contextmanager
 def project_lock(root: Path) -> Iterator[None]:
     """Hold ``.byteplan/scan.lock`` for the duration of a read-plan-write cycle."""
-    path = root / STATE_DIR / LOCK
+    try:
+        control_directory(root, STATE_DIR)
+        path = project_target(root, f"{STATE_DIR}/{LOCK}", control=True)
+    except ValueError as exc:
+        msg = f"unsafe project lock: {exc}"
+        raise JournalConflictError(msg) from exc
     path.parent.mkdir(parents=True, exist_ok=True)
     for attempt in range(2):
         try:
@@ -185,6 +202,19 @@ def commit(root: Path, writes: Sequence[FileWrite]) -> list[str]:
     """
     changed: list[FileWrite] = []
     conflicts: list[str] = []
+    targets: set[Path] = set()
+    try:
+        control_directory(root, f"{STATE_DIR}/{TXN_DIR}")
+        for write in writes:
+            target = project_target(root, write.path)
+            canonical = target.resolve(strict=False)
+            if canonical in targets:
+                msg = f"unsafe write plan; duplicate write target {write.path!r}; nothing was written"
+                raise JournalConflictError(msg)
+            targets.add(canonical)
+    except (ValueError, OSError) as exc:
+        msg = f"unsafe write plan; nothing was written: {exc}"
+        raise JournalConflictError(msg) from exc
     for write in writes:
         current = file_hash(root / write.path)
         if current != write.before:
@@ -202,7 +232,8 @@ def commit(root: Path, writes: Sequence[FileWrite]) -> list[str]:
     entries: list[dict[str, Any]] = []
     for index, write in enumerate(changed):
         staged = f"{index}.stage"
-        with (txn / staged).open("wb") as handle:
+        fd = os.open(txn / staged, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0), 0o600)
+        with os.fdopen(fd, "wb") as handle:
             handle.write(write.data)
             handle.flush()
             os.fsync(handle.fileno())
@@ -231,18 +262,31 @@ def commit(root: Path, writes: Sequence[FileWrite]) -> list[str]:
     return [write.path for write in changed]
 
 
-def recover(root: Path) -> list[str]:
+def recover(root: Path, *, allowed_targets: Collection[str] | None = None) -> list[str]:
     """Roll forward an interrupted transaction. Returns the paths it completed."""
     path = journal_path(root)
     try:
-        journal = json.loads(path.read_text(encoding="utf-8"))
-        entries = journal["entries"]
+        txn = control_directory(root, f"{STATE_DIR}/{TXN_DIR}")
+        project_target(root, f"{STATE_DIR}/{TXN_DIR}/{JOURNAL}", control=True)
+        journal = jsonio.loads(path.read_text(encoding="utf-8"))
+        entries = _journal_entries(root, journal)
     except FileNotFoundError:
         _clear_staging(path.parent)
         return []
     except (OSError, ValueError, KeyError, TypeError) as exc:
         msg = f"unreadable journal {path.relative_to(root).as_posix()}: {exc}"
         raise JournalConflictError(msg) from exc
+
+    if isinstance(allowed_targets, (str, bytes)):
+        msg = "allowed recovery write scope must be a collection of exact target paths"
+        raise JournalConflictError(msg)
+    if allowed_targets is not None and any(entry["target"] not in allowed_targets for entry in entries):
+        msg = (
+            "pending recovery includes targets outside the allowed write scope; "
+            "deliberately authorize source recovery with source-write permission and apply=true, "
+            "or run `byteplan scan` through an authorized CLI before retrying"
+        )
+        raise JournalConflictError(msg)
 
     conflicts = []
     for entry in entries:
@@ -256,16 +300,76 @@ def recover(root: Path) -> list[str]:
             + f". Inspect them, then delete {path.parent.relative_to(root).as_posix()}/ to discard the rest"
         )
         raise JournalConflictError(msg)
-    completed = _apply(root, entries)
+    # Read every required payload before the first target changes. Applying this immutable
+    # plan cannot accidentally use bytes swapped into a copy after validation.
+    payloads: dict[str, bytes] = {}
+    try:
+        for entry in entries:
+            staged = copy_path(txn, entry["staged"], "stage")
+            if file_hash(root / entry["target"]) == entry["after"] and not staged.exists():
+                continue
+            data = staged.read_bytes()
+            if sha256(data) != entry["after"]:
+                msg = f"invalid recovery copies; staged copy of {entry['target']} is corrupt; preserve and inspect it"
+                raise JournalConflictError(msg)
+            payloads[entry["staged"]] = data
+    except (OSError, ValueError) as exc:
+        msg = f"invalid recovery copies; preserve the journal and inspect them: {exc}"
+        raise JournalConflictError(msg) from exc
+    completed = _apply(root, entries, payloads=payloads)
     _finish(path.parent)
     return completed
 
 
-def _apply(root: Path, entries: Sequence[dict[str, Any]]) -> list[str]:
+def _journal_entries(root: Path, journal: Any) -> list[dict[str, Any]]:
+    if (
+        not isinstance(journal, dict)
+        or set(journal) != {"version", "entries"}
+        or type(journal["version"]) is not int
+        or journal["version"] != JOURNAL_VERSION
+        or not isinstance(journal["entries"], list)
+    ):
+        msg = "unsupported journal version or structure; preserve it and use a compatible client"
+        raise ValueError(msg)
+    paths: set[Path] = set()
+    copies: set[str] = set()
+    entries: list[dict[str, Any]] = []
+    txn = control_directory(root, f"{STATE_DIR}/{TXN_DIR}")
+    for entry in journal["entries"]:
+        if not isinstance(entry, dict) or set(entry) != {"target", "staged", "before", "after", "mode"}:
+            msg = "invalid journal entry structure"
+            raise ValueError(msg)
+        target = project_target(root, entry["target"])
+        canonical = target.resolve(strict=False)
+        if canonical in paths:
+            msg = "duplicate journal target"
+            raise ValueError(msg)
+        copy_path(txn, entry["staged"], "stage")
+        if entry["staged"] in copies:
+            msg = "duplicate journal copy"
+            raise ValueError(msg)
+        if not valid_hash(entry["before"], absent=True) or not valid_hash(entry["after"]):
+            msg = "invalid journal fingerprint"
+            raise ValueError(msg)
+        mode = entry["mode"]
+        if mode is not None and (type(mode) is not int or mode != stat.S_IMODE(mode)):
+            msg = "invalid journal file mode"
+            raise ValueError(msg)
+        paths.add(canonical)
+        copies.add(entry["staged"])
+        entries.append(entry)
+    return entries
+
+
+def _apply(root: Path, entries: Sequence[dict[str, Any]], *, payloads: dict[str, bytes] | None = None) -> list[str]:
     txn = root / STATE_DIR / TXN_DIR
     completed = []
     for entry in entries:
-        target = root / entry["target"]
+        try:
+            target = project_target(root, entry["target"])
+        except (OSError, ValueError) as exc:
+            msg = f"unsafe target while applying recovery: {exc}"
+            raise JournalConflictError(msg) from exc
         current = file_hash(target)
         if current == entry["after"]:
             continue
@@ -278,7 +382,9 @@ def _apply(root: Path, entries: Sequence[dict[str, Any]]) -> list[str]:
                 "to discard the rest of the interrupted write)"
             )
             raise JournalConflictError(msg)
-        data = (txn / entry["staged"]).read_bytes()
+        data = (
+            payloads[entry["staged"]] if payloads is not None else copy_path(txn, entry["staged"], "stage").read_bytes()
+        )
         if sha256(data) != entry["after"]:
             msg = f"staged copy of {entry['target']} is corrupt; delete {txn.relative_to(root).as_posix()}/ and re-run"
             raise JournalConflictError(msg)
@@ -288,6 +394,11 @@ def _apply(root: Path, entries: Sequence[dict[str, Any]]) -> list[str]:
 
 
 def _finish(txn: Path) -> None:
+    try:
+        control_directory(txn.parent.parent, f"{STATE_DIR}/{TXN_DIR}")
+    except ValueError as exc:
+        msg = f"unsafe transaction cleanup: {exc}"
+        raise JournalConflictError(msg) from exc
     with contextlib.suppress(FileNotFoundError):
         (txn / JOURNAL).unlink()
     _fsync_dir(txn)
@@ -296,6 +407,11 @@ def _finish(txn: Path) -> None:
 
 def _clear_staging(txn: Path) -> None:
     """Remove staged files from a transaction that never reached its journal."""
+    try:
+        control_directory(txn.parent.parent, f"{STATE_DIR}/{TXN_DIR}")
+    except ValueError as exc:
+        msg = f"unsafe transaction cleanup: {exc}"
+        raise JournalConflictError(msg) from exc
     if not txn.is_dir():
         return
     for leftover in txn.iterdir():
