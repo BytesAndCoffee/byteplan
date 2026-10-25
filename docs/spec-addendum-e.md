@@ -168,10 +168,6 @@ a simple TODO must remain productive without learning Assignments or graph inter
 
 ## Track B — Required pre-RC1 API decomposition
 
-<!-- TODO[3844]: RC1 behavior-preserving decomposition of the public Project facade
-     Begin after compatibility integration. Preserve imports, signatures, errors, patch
-     targets, source safety, transaction semantics and integrations; document final boundaries. -->
-
 After compatibility changes are integrated, transform `api.py` into a concise stable public
 facade. Inspect actual dependencies first and reuse existing modules. This is a structural
 refactor, not a public API redesign. Suggested cohesive boundaries are:

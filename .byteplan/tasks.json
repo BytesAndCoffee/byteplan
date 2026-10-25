@@ -719,7 +719,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1687,
+        "line": 1699,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1077,7 +1077,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 247,
+        "line": 243,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E3. BytePlan 1.5 — Graph foundations"
@@ -1992,7 +1992,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 243,
+        "line": 239,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E3. BytePlan 1.5 — Graph foundations"
@@ -2062,6 +2062,85 @@
           "old": {
             "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task."
           }
+        },
+        {
+          "at": "2026-10-24T21:10:04Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "CompatibilityPR45 integrated at3745551 after all15CIjobs passed on182c882. Starting dedicated behavior-preserving APIdecomposition PRB. Product/testtree matches validated1171+3baseline; captured43constructor/publicmethod signatures and13resulttype metadata beforeextraction. Preserve testedlate-boundpatchtargets andsource/archive/snapshot guarantees.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-24T21:30:17Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries.\n\nFirst extraction complete: api3058→725lines; canonical13resulttypes/UNSET preservepublicidentities;8domainoperationmodules+sharedhelpers. Normalized43constructor/publicmethodsignatures and13resultcontracts match integratedbaseline exactly;52extractedmethodbodies+24helpers compareASTequal moduloexplicitcommit/allocator/snapshotfactory wiring anddocindentation.103initialcontract/CLI/compatibility/persistence cases pass. Fullsuite, packaging/platformCI and independentPRBreview pending; no schema/productfeature changes."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries."
+          }
+        },
+        {
+          "at": "2026-10-24T21:44:19Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries.\n\nFirst extraction complete: api3058→725lines; canonical13resulttypes/UNSET preservepublicidentities;8domainoperationmodules+sharedhelpers. Normalized43constructor/publicmethodsignatures and13resultcontracts match integratedbaseline exactly;52extractedmethodbodies+24helpers compareASTequal moduloexplicitcommit/allocator/snapshotfactory wiring anddocindentation.103initialcontract/CLI/compatibility/persistence cases pass. Fullsuite, packaging/platformCI and independentPRBreview pending; no schema/productfeature changes.\n\nIndependentPRBreview:196dispatch/Git/transaction cases,316source/release cases and132archive/evidence cases pass with no extractionbehaviorgap. Publicconstructor annotation namespace regression(Path/Diagnostic) fixed with7additionalcases(all7formerlyresolvable maps match baseline);23contractcasespass. InheritedrestoreP1 reproducedonbaselineandrefactor, allocated50ad66 in separatecompatibilityworktree; blockB integration untilthatfocusedfixismergedandported. Architecture documented docs/api-architecture.md; no schema/feature change."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries.\n\nFirst extraction complete: api3058→725lines; canonical13resulttypes/UNSET preservepublicidentities;8domainoperationmodules+sharedhelpers. Normalized43constructor/publicmethodsignatures and13resultcontracts match integratedbaseline exactly;52extractedmethodbodies+24helpers compareASTequal moduloexplicitcommit/allocator/snapshotfactory wiring anddocindentation.103initialcontract/CLI/compatibility/persistence cases pass. Fullsuite, packaging/platformCI and independentPRBreview pending; no schema/productfeature changes."
+          }
+        },
+        {
+          "at": "2026-10-24T21:46:05Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries.\n\nFirst extraction complete: api3058→725lines; canonical13resulttypes/UNSET preservepublicidentities;8domainoperationmodules+sharedhelpers. Normalized43constructor/publicmethodsignatures and13resultcontracts match integratedbaseline exactly;52extractedmethodbodies+24helpers compareASTequal moduloexplicitcommit/allocator/snapshotfactory wiring anddocindentation.103initialcontract/CLI/compatibility/persistence cases pass. Fullsuite, packaging/platformCI and independentPRBreview pending; no schema/productfeature changes.\n\nIndependentPRBreview:196dispatch/Git/transaction cases,316source/release cases and132archive/evidence cases pass with no extractionbehaviorgap. Publicconstructor annotation namespace regression(Path/Diagnostic) fixed with7additionalcases(all7formerlyresolvable maps match baseline);23contractcasespass. InheritedrestoreP1 reproducedonbaselineandrefactor, allocated50ad66 in separatecompatibilityworktree; blockB integration untilthatfocusedfixismergedandported. Architecture documented docs/api-architecture.md; no schema/feature change.\n\nIndependentfacadereviewP2 corrected: canonicalresultconstructor globals now retainPath/Diagnostic runtimeannotationnames; all7originallysuccessfulget_type_hints maps preserved and23contractcasespass. Initialfullpostextraction1187ordinary+3networkcasespass; sevenadditionalconstructorcasesverifiedseparately. Structuralintegration remainsblockedon separatecompatibility50ad66 restoreintegrity correction, whichalso preservesnewercanonicalverification producedforarchivedtasks."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries.\n\nFirst extraction complete: api3058→725lines; canonical13resulttypes/UNSET preservepublicidentities;8domainoperationmodules+sharedhelpers. Normalized43constructor/publicmethodsignatures and13resultcontracts match integratedbaseline exactly;52extractedmethodbodies+24helpers compareASTequal moduloexplicitcommit/allocator/snapshotfactory wiring anddocindentation.103initialcontract/CLI/compatibility/persistence cases pass. Fullsuite, packaging/platformCI and independentPRBreview pending; no schema/productfeature changes.\n\nIndependentPRBreview:196dispatch/Git/transaction cases,316source/release cases and132archive/evidence cases pass with no extractionbehaviorgap. Publicconstructor annotation namespace regression(Path/Diagnostic) fixed with7additionalcases(all7formerlyresolvable maps match baseline);23contractcasespass. InheritedrestoreP1 reproducedonbaselineandrefactor, allocated50ad66 in separatecompatibilityworktree; blockB integration untilthatfocusedfixismergedandported. Architecture documented docs/api-architecture.md; no schema/feature change."
+          }
+        },
+        {
+          "at": "2026-10-24T22:14:04Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries.\n\nFirst extraction complete: api3058→725lines; canonical13resulttypes/UNSET preservepublicidentities;8domainoperationmodules+sharedhelpers. Normalized43constructor/publicmethodsignatures and13resultcontracts match integratedbaseline exactly;52extractedmethodbodies+24helpers compareASTequal moduloexplicitcommit/allocator/snapshotfactory wiring anddocindentation.103initialcontract/CLI/compatibility/persistence cases pass. Fullsuite, packaging/platformCI and independentPRBreview pending; no schema/productfeature changes.\n\nIndependentPRBreview:196dispatch/Git/transaction cases,316source/release cases and132archive/evidence cases pass with no extractionbehaviorgap. Publicconstructor annotation namespace regression(Path/Diagnostic) fixed with7additionalcases(all7formerlyresolvable maps match baseline);23contractcasespass. InheritedrestoreP1 reproducedonbaselineandrefactor, allocated50ad66 in separatecompatibilityworktree; blockB integration untilthatfocusedfixismergedandported. Architecture documented docs/api-architecture.md; no schema/feature change.\n\nIndependentfacadereviewP2 corrected: canonicalresultconstructor globals now retainPath/Diagnostic runtimeannotationnames; all7originallysuccessfulget_type_hints maps preserved and23contractcasespass. Initialfullpostextraction1187ordinary+3networkcasespass; sevenadditionalconstructorcasesverifiedseparately. Structuralintegration remainsblockedon separatecompatibility50ad66 restoreintegrity correction, whichalso preservesnewercanonicalverification producedforarchivedtasks.\nCompleted structural implementation against integrated PR46 (027578b): api.py3104→725 lines, Project2347→536. Captured43public signatures/13result types/6helper signatures match;52method+24helper bodies match after explicit delegation/alias normalization. Initial focused independent suites316source/196dispatch/132storage/62interfaces passed; constructor namespace regression corrected with7focusedcases. Final affected restore/snapshot review80passed, no blocker/P2 in scope. Full1210ordinary+3network passed;1existingP3xfail; strict110files/format111; wheel/sdist isolated scan/query/check/pickle passed. Fresh23contract+16restore acceptance cases pass. Platform CI required before structural PR integration; final whole-repository reviews and RC1 approval remain separate gates."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries.\n\nFirst extraction complete: api3058→725lines; canonical13resulttypes/UNSET preservepublicidentities;8domainoperationmodules+sharedhelpers. Normalized43constructor/publicmethodsignatures and13resultcontracts match integratedbaseline exactly;52extractedmethodbodies+24helpers compareASTequal moduloexplicitcommit/allocator/snapshotfactory wiring anddocindentation.103initialcontract/CLI/compatibility/persistence cases pass. Fullsuite, packaging/platformCI and independentPRBreview pending; no schema/productfeature changes.\n\nIndependentPRBreview:196dispatch/Git/transaction cases,316source/release cases and132archive/evidence cases pass with no extractionbehaviorgap. Publicconstructor annotation namespace regression(Path/Diagnostic) fixed with7additionalcases(all7formerlyresolvable maps match baseline);23contractcasespass. InheritedrestoreP1 reproducedonbaselineandrefactor, allocated50ad66 in separatecompatibilityworktree; blockB integration untilthatfocusedfixismergedandported. Architecture documented docs/api-architecture.md; no schema/feature change.\n\nIndependentfacadereviewP2 corrected: canonicalresultconstructor globals now retainPath/Diagnostic runtimeannotationnames; all7originallysuccessfulget_type_hints maps preserved and23contractcasespass. Initialfullpostextraction1187ordinary+3networkcasespass; sevenadditionalconstructorcasesverifiedseparately. Structuralintegration remainsblockedon separatecompatibility50ad66 restoreintegrity correction, whichalso preservesnewercanonicalverification producedforarchivedtasks."
+          }
+        },
+        {
+          "at": "2026-10-24T22:14:04Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Complete behavior-preserving facade extraction with fresh acceptance evidence and independent scoped review; retain exact PR46 restore correction. Platform CI remains a required PR merge gate.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-24T22:14:08Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-24T22:14:08Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/spec-addendum-e.md"
+          }
+        },
+        {
+          "at": "2026-10-24T22:14:58Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries.\n\nFirst extraction complete: api3058→725lines; canonical13resulttypes/UNSET preservepublicidentities;8domainoperationmodules+sharedhelpers. Normalized43constructor/publicmethodsignatures and13resultcontracts match integratedbaseline exactly;52extractedmethodbodies+24helpers compareASTequal moduloexplicitcommit/allocator/snapshotfactory wiring anddocindentation.103initialcontract/CLI/compatibility/persistence cases pass. Fullsuite, packaging/platformCI and independentPRBreview pending; no schema/productfeature changes.\n\nIndependentPRBreview:196dispatch/Git/transaction cases,316source/release cases and132archive/evidence cases pass with no extractionbehaviorgap. Publicconstructor annotation namespace regression(Path/Diagnostic) fixed with7additionalcases(all7formerlyresolvable maps match baseline);23contractcasespass. InheritedrestoreP1 reproducedonbaselineandrefactor, allocated50ad66 in separatecompatibilityworktree; blockB integration untilthatfocusedfixismergedandported. Architecture documented docs/api-architecture.md; no schema/feature change.\n\nIndependentfacadereviewP2 corrected: canonicalresultconstructor globals now retainPath/Diagnostic runtimeannotationnames; all7originallysuccessfulget_type_hints maps preserved and23contractcasespass. Initialfullpostextraction1187ordinary+3networkcasespass; sevenadditionalconstructorcasesverifiedseparately. Structuralintegration remainsblockedon separatecompatibility50ad66 restoreintegrity correction, whichalso preservesnewercanonicalverification producedforarchivedtasks.\nCompleted structural implementation against integrated PR #46 (027578b): api.py 3,104 → 725 lines; Project 2,347 → 536 lines. Captured 43 public signatures, 13 result types and six helper signatures match. All 52 extracted method bodies and 24 helper bodies match after explicit delegation/alias normalization.\nIndependent focused suites passed: 316 source-safety, 196 dispatch, 132 storage and 62 interface cases. Constructor annotation namespace regression is corrected with seven focused cases. Final affected restore/snapshot review passed 80 cases with no blocker or P2 finding in scope.\nFinal local validation: 1,210 ordinary tests and three explicit network cases passed; one existing P3 xfail remains. Strict typing passed 111 files and formatting passed 112 files. Wheel/sdist isolated scan, query, check and pickle smoke checks passed. Fresh linked evidence after annotation cleanup covers 23 facade contract cases and all 16 restore regressions.\nPlatform CI remains required before structural PR integration. Final whole-repository reviews and RC1 approval remain separate gates."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries.\n\nFirst extraction complete: api3058→725lines; canonical13resulttypes/UNSET preservepublicidentities;8domainoperationmodules+sharedhelpers. Normalized43constructor/publicmethodsignatures and13resultcontracts match integratedbaseline exactly;52extractedmethodbodies+24helpers compareASTequal moduloexplicitcommit/allocator/snapshotfactory wiring anddocindentation.103initialcontract/CLI/compatibility/persistence cases pass. Fullsuite, packaging/platformCI and independentPRBreview pending; no schema/productfeature changes.\n\nIndependentPRBreview:196dispatch/Git/transaction cases,316source/release cases and132archive/evidence cases pass with no extractionbehaviorgap. Publicconstructor annotation namespace regression(Path/Diagnostic) fixed with7additionalcases(all7formerlyresolvable maps match baseline);23contractcasespass. InheritedrestoreP1 reproducedonbaselineandrefactor, allocated50ad66 in separatecompatibilityworktree; blockB integration untilthatfocusedfixismergedandported. Architecture documented docs/api-architecture.md; no schema/feature change.\n\nIndependentfacadereviewP2 corrected: canonicalresultconstructor globals now retainPath/Diagnostic runtimeannotationnames; all7originallysuccessfulget_type_hints maps preserved and23contractcasespass. Initialfullpostextraction1187ordinary+3networkcasespass; sevenadditionalconstructorcasesverifiedseparately. Structuralintegration remainsblockedon separatecompatibility50ad66 restoreintegrity correction, whichalso preservesnewercanonicalverification producedforarchivedtasks.\nCompleted structural implementation against integrated PR46 (027578b): api.py3104→725 lines, Project2347→536. Captured43public signatures/13result types/6helper signatures match;52method+24helper bodies match after explicit delegation/alias normalization. Initial focused independent suites316source/196dispatch/132storage/62interfaces passed; constructor namespace regression corrected with7focusedcases. Final affected restore/snapshot review80passed, no blocker/P2 in scope. Full1210ordinary+3network passed;1existingP3xfail; strict110files/format111; wheel/sdist isolated scan/query/check/pickle passed. Fresh23contract+16restore acceptance cases pass. Platform CI required before structural PR integration; final whole-repository reviews and RC1 approval remain separate gates."
+          }
         }
       ],
       "id": "3844",
@@ -2071,9 +2150,9 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 required pre-RC1 structural gate. Blocked on integration of compatibility PR A; preserve public and monkey-patching behavior. Dedicated PR B only.\n\nTriage clarification: high scheduling priority because decomposition is an explicit RC1 gate. Coupling/size are P2 maintainability concerns; no demonstrated P1 correctness defect is asserted for this task.\n\nFresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): Still blocked on compatibility integration, dedicated PR B only. Fresh measurement: api.py 2881 lines; Project 2125 lines. Extract cohesive orchestration using existing modules; preserve public imports/signatures/errors and byteplan.api.commit monkey-patch behavior. Capture full before/after validation and document final boundaries.\n\nFirst extraction complete: api3058→725lines; canonical13resulttypes/UNSET preservepublicidentities;8domainoperationmodules+sharedhelpers. Normalized43constructor/publicmethodsignatures and13resultcontracts match integratedbaseline exactly;52extractedmethodbodies+24helpers compareASTequal moduloexplicitcommit/allocator/snapshotfactory wiring anddocindentation.103initialcontract/CLI/compatibility/persistence cases pass. Fullsuite, packaging/platformCI and independentPRBreview pending; no schema/productfeature changes.\n\nIndependentPRBreview:196dispatch/Git/transaction cases,316source/release cases and132archive/evidence cases pass with no extractionbehaviorgap. Publicconstructor annotation namespace regression(Path/Diagnostic) fixed with7additionalcases(all7formerlyresolvable maps match baseline);23contractcasespass. InheritedrestoreP1 reproducedonbaselineandrefactor, allocated50ad66 in separatecompatibilityworktree; blockB integration untilthatfocusedfixismergedandported. Architecture documented docs/api-architecture.md; no schema/feature change.\n\nIndependentfacadereviewP2 corrected: canonicalresultconstructor globals now retainPath/Diagnostic runtimeannotationnames; all7originallysuccessfulget_type_hints maps preserved and23contractcasespass. Initialfullpostextraction1187ordinary+3networkcasespass; sevenadditionalconstructorcasesverifiedseparately. Structuralintegration remainsblockedon separatecompatibility50ad66 restoreintegrity correction, whichalso preservesnewercanonicalverification producedforarchivedtasks.\nCompleted structural implementation against integrated PR #46 (027578b): api.py 3,104 → 725 lines; Project 2,347 → 536 lines. Captured 43 public signatures, 13 result types and six helper signatures match. All 52 extracted method bodies and 24 helper bodies match after explicit delegation/alias normalization.\nIndependent focused suites passed: 316 source-safety, 196 dispatch, 132 storage and 62 interface cases. Constructor annotation namespace regression is corrected with seven focused cases. Final affected restore/snapshot review passed 80 cases with no blocker or P2 finding in scope.\nFinal local validation: 1,210 ordinary tests and three explicit network cases passed; one existing P3 xfail remains. Strict typing passed 111 files and formatting passed 112 files. Wheel/sdist isolated scan, query, check and pickle smoke checks passed. Fresh linked evidence after annotation cleanup covers 23 facade contract cases and all 16 restore regressions.\nPlatform CI remains required before structural PR integration. Final whole-repository reviews and RC1 approval remain separate gates.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "high",
       "scope_state": "in_scope",
       "source": {
@@ -2084,8 +2163,43 @@
         "representation": "comment",
         "symbol": "Track B — Required pre-RC1 API decomposition"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 98,
+            "node": "tests/test_api_facade_contract.py::test_edit_task_preserves_omitted_fields_and_clears_only_explicit_none",
+            "path": "tests/test_api_facade_contract.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 125,
+            "node": "tests/test_api_facade_contract.py::test_registry_edit_keeps_the_facade_commit_patch_target",
+            "path": "tests/test_api_facade_contract.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 79,
+            "node": "tests/test_api_facade_contract.py::test_result_constructor_annotations_remain_resolvable",
+            "path": "tests/test_api_facade_contract.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 49,
+            "node": "tests/test_api_facade_contract.py::test_result_types_retain_public_import_and_pickle_identity",
+            "path": "tests/test_api_facade_contract.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 148,
+            "node": "tests/test_api_facade_contract.py::test_runtime_template_does_not_add_unshipped_facade_decorator_exports",
+            "path": "tests/test_api_facade_contract.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "RC1 behavior-preserving decomposition of the public Project facade",
       "title_override": null
     },
@@ -3012,7 +3126,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 276,
+        "line": 272,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
@@ -3304,7 +3418,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 280,
+        "line": 276,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
@@ -3763,7 +3877,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 268,
+        "line": 264,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
@@ -4095,7 +4209,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1681,
+        "line": 1693,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -4894,7 +5008,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1684,
+        "line": 1696,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -5948,7 +6062,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 399,
+        "line": 395,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "Track G — Release candidate readiness and approval"
@@ -6082,7 +6196,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 222,
+        "line": 218,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E2. Semantic entities and relationships"
@@ -7088,7 +7202,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 367,
+        "line": 363,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "Track F — Final independent whole-repository reviews"
@@ -8110,7 +8224,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 272,
+        "line": 268,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
@@ -8331,7 +8445,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1678,
+        "line": 1690,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -8459,7 +8573,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 239,
+        "line": 235,
         "path": "docs/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E3. BytePlan 1.5 — Graph foundations"
@@ -8591,7 +8705,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1691,
+        "line": 1703,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"

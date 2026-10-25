@@ -61,16 +61,24 @@ isolation (`c35e66`) defects; both are corrected with linked regression evidence
 resolution. Missing-test and MCP diagnostic gaps (`b29c72`, `932b36`) are also resolved.
 First-party scaffold formatting (`67a65c`) remains an explicitly nonblocking P3.
 
-Finish final checks and integrate PR #45 before API decomposition (`3844`) in a dedicated PR.
+PR #45 is integrated after all 15 platform/quality jobs passed on `182c882`. The dedicated API
+decomposition (`3844`) is implemented behind the existing public facade. Its independent review
+also reproduced an inherited archive-restore integrity defect (`50ad66`): concurrent edits could
+be overwritten and cached passing evidence could replace a newer canonical failure. The separate
+compatibility follow-up PR #46 is integrated as `027578b` after all 15 jobs passed on `fea1d3e`.
+The extracted archive operation retains the same correction, confirmed by method-body and
+runtime-binding comparisons plus the restore regressions.
+
 Final whole-repository reviews (`c053`) and the release-readiness/approval report (`a70d`) remain
 later gates. The [compatibility report](rc1-compatibility.md) links acceptance maps, independent
 review evidence, the storage decision and public stability policy. Its earlier pause checkpoint
 retains historical evidence; it does not describe the current execution state.
 
-**Compatibility decisions pending:** A6 inventories CLI, Python API, configuration, decorators,
-MCP, Hatch and extension points before classifying stable versus experimental interfaces. Core
-identity, source safety and authoritative state need coherent 1.0 guarantees. Explain existing
-previews and read-only defaults before adding commands.
+**Compatibility policy:** the completed [interface inventory](compatibility-policy.md) defines
+stable CLI, Python API, configuration, decorators, MCP stdio, Hatch and documented extension
+contracts. Python MCP embedding remains experimental. Core identity, source safety and
+authoritative state share the stable contract. Existing previews and read-only defaults are
+documented without adding commands.
 
 **Post-1.0:** optional historical phases 6c/11/11b, Assignments (12) and Relay (13) are outside
 RC1. Existing Assignment task `15df` remains authoritative; its specification traceability
@@ -155,7 +163,9 @@ src/byteplan/
   persistence.py    lock, staged writes, journal, atomic replace, roll-forward recovery
   diagnostics.py    codes, severity, remediation text, exit-code policy
   reporting.py      text / json / markdown
-  api.py            Project facade: the single programmatic surface used by cli, hook and MCP
+  api.py            stable Project facade, configuration/snapshots and guarded transaction boundaries
+  _api_types.py     canonical public result types and sentinel, re-exported through api.py
+  operations/       internal scan/task/verify/scaffold/release/sync/archive/init orchestration
   cli.py            argparse; stdout = payload, stderr = diagnostics
   hatch_hook.py     BuildHookInterface subclass + hookimpl registration
   snapshot.py       read-only Snapshot sources: working tree, Git index, Git commit
@@ -164,8 +174,10 @@ src/byteplan/
   _verify_plugin.py pytest plugin injected into `verify` runs (pytest-only imports)
 ```
 
-Only `persistence.py` writes to disk. `cli`, `hatch_hook` and `mcp_server` are thin adapters
-over `api.Project`, so all three front ends behave the same.
+Project file writes use `persistence.py`; `cli`, `hatch_hook` and `mcp_server` remain thin
+adapters over `api.Project`. The [facade/operations architecture](api-architecture.md) documents
+the internal boundaries, preserved patch targets and validation. Leaf modules retain their
+existing algorithms; the facade and internal operations share one canonical set of result types.
 
 ## Resolved design decisions
 
