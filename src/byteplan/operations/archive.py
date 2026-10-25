@@ -36,14 +36,27 @@ if TYPE_CHECKING:
     from byteplan.api import Project
 
 
-def archive_index(self: Project) -> archive_store.Index:
-    rel = self.archive_index_rel
-    data = self.snapshot.read(rel) if self.snapshot is not None else _read_bytes(self.root / rel)
+def _load_index(data: bytes | None, rel: str) -> archive_store.Index:
+    if data == b"":
+        msg = f"{rel} is unreadable (archive index is empty); restore valid metadata from Git before retrying"
+        raise ConfigError(msg)
     try:
-        return archive_store.Index.loads(data.decode("utf-8") if data else None)
+        return archive_store.Index.loads(data.decode("utf-8") if data is not None else None)
     except (ValueError, AttributeError, TypeError) as exc:
         msg = f"{rel} is unreadable ({exc}); restore it from Git"
         raise ConfigError(msg) from exc
+
+
+def archive_index(self: Project) -> archive_store.Index:
+    rel = self.archive_index_rel
+    try:
+        data = self.snapshot.read(rel) if self.snapshot is not None else (self.root / rel).read_bytes()
+    except FileNotFoundError:
+        data = None
+    except OSError as exc:
+        msg = f"{rel} is unreadable ({exc}); restore it from Git or repair repository access"
+        raise ConfigError(msg) from exc
+    return _load_index(data, rel)
 
 
 def archived_task(self: Project, task_id: str) -> Task | None:
@@ -83,6 +96,19 @@ def archive(self: Project, *, dry_run: bool = False, older_than: int | None = No
     context = contextlib.nullcontext(()) if dry_run else self._writing()
     with context:
         registry_hash, registry = self._read_registry()
+        index_before = None
+        try:
+            index_before = (
+                self.snapshot.read(self.archive_index_rel)
+                if self.snapshot is not None
+                else (self.root / self.archive_index_rel).read_bytes()
+            )
+        except FileNotFoundError:
+            pass
+        except OSError as exc:
+            msg = f"{self.archive_index_rel} is unreadable ({exc}); restore it from Git"
+            raise ConfigError(msg) from exc
+        index = _load_index(index_before, self.archive_index_rel)
         if self.stripped_release(registry) is not None:
             return ArchiveReport((), dry_run)  # tasks stay put while a release is on record
         now = self.clock()
@@ -134,23 +160,6 @@ def archive(self: Project, *, dry_run: bool = False, older_than: int | None = No
             (chosen if ok else uncommitted).append(task_id)
         if dry_run or not chosen:
             return ArchiveReport(tuple(chosen), dry_run, uncommitted=tuple(uncommitted))
-        index_before = None
-        try:
-            index_before = (
-                self.snapshot.read(self.archive_index_rel)
-                if self.snapshot is not None
-                else (self.root / self.archive_index_rel).read_bytes()
-            )
-        except FileNotFoundError:
-            pass
-        except OSError as exc:
-            msg = f"{self.archive_index_rel} is unreadable ({exc}); restore it from Git"
-            raise ConfigError(msg) from exc
-        try:
-            index = archive_store.Index.loads(index_before.decode("utf-8") if index_before else None)
-        except (ValueError, AttributeError, TypeError) as exc:
-            msg = f"{self.archive_index_rel} is unreadable ({exc}); restore it from Git"
-            raise ConfigError(msg) from exc
         rows = []
         for task_id in chosen:
             task = registry.tasks.pop(task_id)
@@ -268,11 +277,7 @@ def restore_archived(self: Project, task_id: str) -> tuple[str, ...]:
         except OSError as exc:
             msg = f"{self.archive_index_rel} is unreadable ({exc}); restore it from Git"
             raise ConfigError(msg) from exc
-        try:
-            index = archive_store.Index.loads(index_before.decode("utf-8") if index_before else None)
-        except (ValueError, AttributeError, TypeError) as exc:
-            msg = f"{self.archive_index_rel} is unreadable ({exc}); restore it from Git"
-            raise ConfigError(msg) from exc
+        index = _load_index(index_before, self.archive_index_rel)
         task_id = self._resolve_task_id(task_id, registry)
         if task_id in registry.tasks:
             msg = f"task {task_id} is already in the registry"

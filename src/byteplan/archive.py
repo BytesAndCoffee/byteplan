@@ -27,6 +27,7 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import json
+import re
 import sqlite3
 import zlib
 from dataclasses import dataclass, field
@@ -34,6 +35,8 @@ from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from byteplan import jsonio
+from byteplan.ids import is_valid_id
+from byteplan.merge import _ABSENT, _merge_value, _same
 from byteplan.models import Presence
 
 if TYPE_CHECKING:
@@ -45,6 +48,7 @@ if TYPE_CHECKING:
 STORE = "archive.sqlite"
 INDEX = "archive.json"
 INDEX_VERSION = 1
+_ENTRY_FIELDS = frozenset({"archived_at", "closed_at", "kind", "sha256", "status", "title"})
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS tasks (
     id TEXT NOT NULL,
@@ -170,22 +174,54 @@ def _legacy_schema(connection: sqlite3.Connection) -> bool:
 # The committed index -------------------------------------------------------------------------
 
 
-# FIXME[765f23]: Validate archive-index schema and records while preserving supported opaque metadata.
 @dataclass
 class Index:
     """``.byteplan/archive.json``: what's archived, for every clone to reconcile against."""
 
     tasks: dict[str, dict[str, Any]] = field(default_factory=dict)
+    extra: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def loads(cls, text: str | None) -> Index:
         if not text:
             return cls()
         data = jsonio.loads(text)
-        return cls(dict(data.get("tasks", {})))
+        if not isinstance(data, dict):
+            msg = "archive index must be a JSON object; restore valid metadata from Git before retrying"
+            raise TypeError(msg)
+        version = data.get("schema_version")
+        if type(version) is not int or version != INDEX_VERSION:
+            msg = (
+                f"unsupported archive index schema_version {version!r}; upgrade BytePlan or restore "
+                "a supported archive index from Git; do not change its version number by hand"
+            )
+            raise ValueError(msg)
+        tasks = data.get("tasks")
+        if not isinstance(tasks, dict):
+            msg = "archive index tasks must be an object; restore valid metadata from Git before retrying"
+            raise TypeError(msg)
+        for task_id, record in tasks.items():
+            if not is_valid_id(task_id) or not isinstance(record, dict):
+                msg = f"archive index has an invalid task identity or record for {task_id!r}; restore it from Git"
+                raise ValueError(msg)
+            sha = record.get("sha256")
+            if not isinstance(sha, str) or re.fullmatch(r"[0-9a-f]{64}", sha) is None:
+                msg = f"archive index task {task_id} requires a SHA-256 record hash; restore valid metadata from Git"
+                raise ValueError(msg)
+            for key in ("archived_at", "kind", "status", "title"):
+                if key in record and not isinstance(record[key], str):
+                    msg = f"archive index task {task_id} has invalid {key}; restore valid metadata from Git"
+                    raise ValueError(msg)
+            if "closed_at" in record and record["closed_at"] is not None and not isinstance(record["closed_at"], str):
+                msg = f"archive index task {task_id} has invalid closed_at; restore valid metadata from Git"
+                raise ValueError(msg)
+            if "status" in record and record["status"] not in {"resolved", "dismissed"}:
+                msg = f"archive index task {task_id} has a non-closed status; restore valid metadata from Git"
+                raise ValueError(msg)
+        return cls(dict(tasks), {key: value for key, value in data.items() if key not in {"schema_version", "tasks"}})
 
     def dumps(self) -> str:
-        data = {"schema_version": INDEX_VERSION, "tasks": dict(sorted(self.tasks.items()))}
+        data = {**self.extra, "schema_version": INDEX_VERSION, "tasks": dict(sorted(self.tasks.items()))}
         return json.dumps(data, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
 
 
@@ -204,7 +240,8 @@ def merge(base: str | None, ours: str | None, theirs: str | None) -> tuple[str |
     """Three-way merge of two indexes, entry by entry against ``base``: the merged text, or
     None and the conflicting task IDs. Entries are compared by record hash, so two branches
     archiving the same record independently agree."""
-    b, o, t = (Index.loads(text).tasks for text in (base, ours, theirs))
+    indexes = [Index.loads(text) for text in (base, ours, theirs)]
+    b, o, t = (index.tasks for index in indexes)
     merged: dict[str, dict[str, Any]] = {}
     conflicts: list[str] = []
     for task_id in sorted(set(b) | set(o) | set(t)):
@@ -216,11 +253,45 @@ def merge(base: str | None, ours: str | None, theirs: str | None) -> tuple[str |
         else:
             conflicts.append(task_id)
             continue
+        original = b.get(task_id, {})
+        if chosen is None and (kept := o.get(task_id) or t.get(task_id)) is not None:
+            # Restoration may delete the index entry, but must not silently discard
+            # an independent edit to its metadata. Archive timestamps alone are incidental.
+            previous = {key: value for key, value in original.items() if key != "archived_at"}
+            remaining = {key: value for key, value in kept.items() if key != "archived_at"}
+            if not _same(previous, remaining):
+                conflicts.append(f"{task_id} was restored on one side and its index metadata changed on the other")
         if chosen is not None:
+            # The hash selects authoritative task state. Extra index metadata for that
+            # same record still needs an ordinary conservative three-way merge.
+            if mine is not None and theirs_ is not None:
+                our_entry, their_entry = o[task_id], t[task_id]
+                chosen = dict(chosen)
+                excluded = {"sha256", "archived_at"} if mine == theirs_ else _ENTRY_FIELDS
+                for key in sorted({*original, *our_entry, *their_entry} - excluded):
+                    value = _merge_value(
+                        f"{task_id}.{key}",
+                        original.get(key, _ABSENT),
+                        our_entry.get(key, _ABSENT),
+                        their_entry.get(key, _ABSENT),
+                        conflicts,
+                    )
+                    if value is _ABSENT:
+                        chosen.pop(key, None)
+                    else:
+                        chosen[key] = value
             merged[task_id] = chosen
+    extra: dict[str, Any] = {}
+    b_extra, o_extra, t_extra = (index.extra for index in indexes)
+    for key in sorted({*b_extra, *o_extra, *t_extra}):
+        value = _merge_value(
+            key, b_extra.get(key, _ABSENT), o_extra.get(key, _ABSENT), t_extra.get(key, _ABSENT), conflicts
+        )
+        if value is not _ABSENT:
+            extra[key] = value
     if conflicts:
         return None, conflicts
-    return Index(merged).dumps(), []
+    return Index(merged, extra).dumps(), []
 
 
 def _sha(entry: dict[str, Any] | None) -> str | None:

@@ -34,6 +34,7 @@ from byteplan.persistence import (
     staged_dir,
 )
 from byteplan.scanner.source import decode_source, read_source
+from byteplan.writeguard import project_target, valid_hash
 
 if TYPE_CHECKING:
     from byteplan.api import Project
@@ -276,6 +277,61 @@ def default_branch_warning(self: Project) -> Diagnostic | None:
     )
 
 
+def _validate_restore_record(record: object) -> None:
+    """Validate serialized blocks before any source file is read."""
+    if not isinstance(record, dict) or not valid_hash(record.get("sha256")):
+        msg = "invalid serialized release fingerprint"
+        raise ValueError(msg)
+    for kind in ("decorators", "imports"):
+        blocks = record.get(kind)
+        if not isinstance(blocks, list):
+            msg = f"invalid serialized release {kind}"
+            raise TypeError(msg)
+        for block in blocks:
+            if not isinstance(block, dict) or not isinstance(block.get("text"), str):
+                msg = "invalid serialized release block"
+                raise TypeError(msg)
+            for key in ("line", "end_line"):
+                if type(block.get(key)) is not int or block[key] < 1:
+                    msg = "invalid serialized release line"
+                    raise ValueError(msg)
+            if block["end_line"] < block["line"]:
+                msg = "invalid serialized release line range"
+                raise ValueError(msg)
+            if kind == "imports":
+                if "anchor" not in block or (block["anchor"] is not None and not isinstance(block["anchor"], str)):
+                    msg = "invalid serialized release import anchor"
+                    raise ValueError(msg)
+            elif (
+                not isinstance(block.get("kind"), str)
+                or block["kind"] not in {"todo", "verifies"}
+                or not isinstance(block.get("qualname"), str)
+                or not block["qualname"]
+                or type(block.get("index")) is not int
+                or block["index"] < 0
+                or type(block.get("decl_line")) is not int
+                or block["decl_line"] < 1
+                or not isinstance(block.get("task_ids"), list)
+                or any(not isinstance(value, str) for value in block["task_ids"])
+            ):
+                msg = "invalid serialized release decorator"
+                raise ValueError(msg)
+
+
+def _restore_targets(root: Path, files: dict[str, Any]) -> dict[str, Path]:
+    # Validate the complete persisted target set before reading or changing any source.
+    targets = {path: project_target(root, path) for path in files}
+    if len({path.resolve(strict=False) for path in targets.values()}) != len(targets):
+        msg = "duplicate serialized release targets"
+        raise ValueError(msg)
+    for path, record in files.items():
+        if language_for(path) is not Language.PYTHON:
+            msg = "invalid serialized Python release path"
+            raise ValueError(msg)
+        _validate_restore_record(record)
+    return targets
+
+
 def restore(self: Project, *, dry_run: bool = False, partial: bool = False) -> RestoreReport:
     """Put every recorded decorator and import back (see ``release``).
 
@@ -296,8 +352,15 @@ def restore(self: Project, *, dry_run: bool = False, partial: bool = False) -> R
         remaining: dict[str, Any] = {}
         restored_decorators: list[dict[str, Any]] = []
         restored_imports = 0
-        for path, record in sorted(block.get("files", {}).items()):
-            current = _read_bytes(self.root / path)
+        files = block.get("files", {})
+        if not isinstance(files, dict):
+            raise release_lib.ReleaseError(release_lib.CONFLICT, ["invalid serialized release file mapping"])
+        try:
+            targets = _restore_targets(self.root, files)
+        except (ValueError, TypeError, OSError) as exc:
+            raise release_lib.ReleaseError(release_lib.CONFLICT, [f"unsafe serialized release paths: {exc}"]) from exc
+        for path, record in sorted(files.items()):
+            current = _read_bytes(targets[path])
             if current is None:
                 conflicts.append(f"{path} no longer exists")
                 remaining[path] = record

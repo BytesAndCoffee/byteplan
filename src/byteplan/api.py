@@ -129,6 +129,9 @@ class Project:
         # None: the working tree. Otherwise a read-only Git index or commit snapshot.
         self.snapshot = snapshot
         self._notices = list(notices)
+        # Adapters may narrow automatic recovery to their requested write authority.
+        # None preserves ordinary CLI/API recovery; source writers still stay confined.
+        self._recovery_allowed_targets: frozenset[str] | None = None
 
     @classmethod
     def open(cls, start: Path | None = None, clock: Callable[[], str] = utc_now) -> Project:
@@ -294,7 +297,13 @@ class Project:
             if not recover_pending and pending_journal(self.root):
                 msg = "an ordinary transaction is pending; run `byteplan scan` to recover it before collision repair"
                 raise ConfigError(msg)
-            yield tuple(recover(self.root)) if recover_pending else ()
+            recovered: tuple[str, ...] = ()
+            if recover_pending:
+                if self._recovery_allowed_targets is None:
+                    recovered = tuple(recover(self.root))
+                else:
+                    recovered = tuple(recover(self.root, allowed_targets=self._recovery_allowed_targets))
+            yield recovered
 
     def _require_working_tree(self) -> None:
         if self.snapshot is not None:

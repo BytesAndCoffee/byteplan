@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
+import sys
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -239,15 +241,157 @@ def test_uncreatable_directory_fails_before_the_journal(tmp_path: Path) -> None:
     assert commit(tmp_path, writes[:1]) == ["a.txt"]
 
 
-@verifies("62edd5")
-@pytest.mark.xfail(reason="BytePlan 62edd5: acceptance test not implemented", strict=True)
-def test_recover() -> None:
-    """Acceptance test scaffold for BytePlan task 62edd5.
+def recovery_plan(root: Path) -> dict[str, Any]:
+    txn = persistence.journal_path(root).parent
+    txn.mkdir(parents=True)
+    entries = []
+    for number, name in enumerate(("a.py", "b.py")):
+        (root / name).write_bytes(b"old")
+        staged = f"{number}.stage"
+        (txn / staged).write_bytes(b"new")
+        entries.append(
+            {"target": name, "staged": staged, "before": sha256(b"old"), "after": sha256(b"new"), "mode": None}
+        )
+    return {"version": 1, "entries": entries}
 
-    Target: recover (function)
-    Requirement: Confine serialized transaction and restore targets before filesystem side effects.
-    """
-    # GIVEN: TODO - arrange the state this requirement depends on
-    # WHEN: TODO - call recover
-    # THEN: TODO - assert the required result
-    pytest.fail("BytePlan 62edd5: acceptance test not implemented")
+
+@verifies("62edd5")
+@pytest.mark.parametrize(
+    "defect",
+    [
+        "version",
+        "version_bool",
+        "container",
+        "entry",
+        "unknown",
+        "duplicate_target",
+        "duplicate_copy",
+        "absolute",
+        "traversal",
+        "vcs",
+        "transaction",
+        "copy_path",
+        "hash",
+        "mode",
+        "duplicate_key",
+    ],
+)
+def test_recover_rejects_whole_invalid_journal_without_changes(tmp_path: Path, defect: str) -> None:
+    journal = recovery_plan(tmp_path)
+    entry = journal["entries"][1]
+    if defect == "version":
+        journal["version"] = 2
+    elif defect == "version_bool":
+        journal["version"] = True
+    elif defect == "container":
+        journal["entries"] = {}
+    elif defect == "entry":
+        journal["entries"][1] = []
+    elif defect == "unknown":
+        entry["extra"] = True
+    elif defect == "duplicate_target":
+        entry["target"] = "a.py"
+    elif defect == "duplicate_copy":
+        entry["staged"] = "0.stage"
+    elif defect in {"absolute", "traversal", "vcs", "transaction"}:
+        entry["target"] = {
+            "absolute": str(tmp_path / "b.py"),
+            "traversal": "src/../b.py",
+            "vcs": ".git/config",
+            "transaction": ".byteplan/txn/1.stage",
+        }[defect]
+    elif defect == "copy_path":
+        entry["staged"] = "../1.stage"
+    elif defect == "hash":
+        entry["after"] = 2
+    elif defect == "mode":
+        entry["mode"] = True
+    encoded = json.dumps(journal)
+    if defect == "duplicate_key":
+        encoded = encoded.replace('"version": 1', '"version": 1, "version": 1')
+    path = persistence.journal_path(tmp_path)
+    path.write_text(encoded)
+    before = {p.relative_to(tmp_path): p.read_bytes() for p in tmp_path.rglob("*") if p.is_file()}
+    with pytest.raises(JournalConflictError, match="journal"):
+        recover(tmp_path)
+    assert {p.relative_to(tmp_path): p.read_bytes() for p in tmp_path.rglob("*") if p.is_file()} == before
+
+
+@verifies("62edd5")
+def test_recover_checks_all_copies_before_first_write(tmp_path: Path) -> None:
+    journal = recovery_plan(tmp_path)
+    path = persistence.journal_path(tmp_path)
+    path.write_text(json.dumps(journal))
+    (path.parent / "1.stage").write_bytes(b"truncated")
+    before = path.read_bytes()
+    with pytest.raises(JournalConflictError, match="corrupt"):
+        recover(tmp_path)
+    assert (tmp_path / "a.py").read_bytes() == b"old"
+    assert (tmp_path / "b.py").read_bytes() == b"old"
+    assert path.read_bytes() == before
+    assert (path.parent / "0.stage").read_bytes() == b"new"
+
+
+@verifies("62edd5")
+@pytest.mark.parametrize("target", ["/absolute.py", "../escape.py", ".git/config", ".byteplan/txn/journal.json"])
+def test_commit_validates_entire_target_set_first(tmp_path: Path, target: str) -> None:
+    with pytest.raises(JournalConflictError, match="unsafe write plan"):
+        commit(tmp_path, [FileWrite("a.py", None, b"new"), FileWrite(target, None, b"new")])
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_atomic_write_exclusive_collision_preserves_existing_temp(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    target = tmp_path / "a.py"
+    alias = tmp_path / ".a.py.byteplan-collision.tmp"
+    alias.write_bytes(b"keep")
+    tokens = iter(("collision", "fresh"))
+    monkeypatch.setattr("byteplan.persistence.secrets.token_hex", lambda _: next(tokens))
+    assert persistence.atomic_write_bytes(target, b"new")
+    assert target.read_bytes() == b"new"
+    assert alias.read_bytes() == b"keep"
+    assert not (tmp_path / ".a.py.byteplan-fresh.tmp").exists()
+
+
+@verifies("62edd5")
+def test_recover_rejects_symlink_copy_without_cleanup(tmp_path: Path) -> None:
+    journal = recovery_plan(tmp_path)
+    path = persistence.journal_path(tmp_path)
+    path.write_text(json.dumps(journal))
+    copy = path.parent / "1.stage"
+    copy.unlink()
+    copy.symlink_to("0.stage")
+    before = path.read_bytes()
+    with pytest.raises(JournalConflictError, match="non-symlink"):
+        recover(tmp_path)
+    assert path.read_bytes() == before
+    assert copy.is_symlink()
+    assert (tmp_path / "a.py").read_bytes() == b"old"
+    assert (tmp_path / "b.py").read_bytes() == b"old"
+
+
+def test_atomic_write_preserves_umask_permissions_and_binary_bytes(tmp_path: Path) -> None:
+    # Isolate umask in a child; never change the process-wide mask of the test runner.
+    script = """
+import os
+import stat
+import sys
+from pathlib import Path
+from byteplan.persistence import atomic_write_bytes
+root = Path(sys.argv[1])
+os.umask(0o027)
+reference = root / "reference"
+fd = os.open(reference, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o666)
+os.close(fd)
+created = root / "created"
+payload = bytes((0, 10, 13, 26, 255))
+assert atomic_write_bytes(created, payload)
+assert created.read_bytes() == payload
+assert stat.S_IMODE(created.stat().st_mode) == stat.S_IMODE(reference.stat().st_mode)
+created.chmod(0o604)
+mode = stat.S_IMODE(created.stat().st_mode)
+assert atomic_write_bytes(created, payload + b"changed")
+assert stat.S_IMODE(created.stat().st_mode) == mode
+"""
+    subprocess.run([sys.executable, "-B", "-c", script, str(tmp_path)], check=True, capture_output=True)

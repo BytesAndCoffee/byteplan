@@ -41,17 +41,20 @@ from __future__ import annotations
 import contextlib
 import json
 import os
+import re
 import shutil
 import subprocess
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from byteplan import jsonio
 from byteplan.api import Project, utc_now
 from byteplan.diagnostics import EXIT_FINDINGS, EXIT_OK, Code
 from byteplan.errors import ByteplanError, ConfigError
 from byteplan.gitio import git, toplevel
 from byteplan.persistence import atomic_write_bytes, pending_journal, project_lock, sha256, staged_dir
+from byteplan.writeguard import control_directory, copy_path, project_target, relative_path, valid_hash
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
@@ -100,6 +103,12 @@ class StagedJournal:
         return staged_dir(root) / STAGED_JOURNAL
 
     def save(self, root: Path) -> None:
+        _check_staged_directory(root)
+        try:
+            project_target(root, ".byteplan/txn/staged/journal.json", control=True)
+        except (OSError, ValueError) as exc:
+            msg = f"unsafe staged journal path: {exc}"
+            raise RollbackConflictError(msg) from exc
         data = {
             "version": 1,
             "index": self.index,
@@ -111,15 +120,18 @@ class StagedJournal:
     @classmethod
     def load(cls, root: Path) -> StagedJournal | None:
         try:
-            data = json.loads(cls.path(root).read_text(encoding="utf-8"))
+            control_directory(root, ".byteplan/txn/staged")
+            project_target(root, ".byteplan/txn/staged/journal.json", control=True)
+            data = jsonio.loads(cls.path(root).read_text(encoding="utf-8"))
+            return _journal_from_data(root, data)
         except FileNotFoundError:
             return None
         except (OSError, ValueError) as exc:
             msg = f"unreadable {STAGED_JOURNAL}: {exc}; inspect it, then delete it to discard"
             raise RollbackConflictError(msg) from exc
-        return cls(data["index"], data["direction"], [JournalEntry(**e) for e in data["entries"]])
 
     def delete(self, root: Path) -> None:
+        _check_staged_directory(root)
         with contextlib.suppress(FileNotFoundError):
             self.path(root).unlink()
         shutil.rmtree(staged_dir(root), ignore_errors=True)
@@ -127,6 +139,148 @@ class StagedJournal:
 
 def pending(root: Path) -> bool:
     return StagedJournal.path(root).exists()
+
+
+def _check_staged_directory(root: Path) -> Path:
+    try:
+        return control_directory(root, ".byteplan/txn/staged")
+    except (OSError, ValueError) as exc:
+        msg = f"unsafe staged transaction directory: {exc}"
+        raise RollbackConflictError(msg) from exc
+
+
+def _checked_target(root: Path, path: object) -> Path:
+    try:
+        return project_target(root, path)
+    except (OSError, ValueError) as exc:
+        msg = f"unsafe staged recovery target: {exc}"
+        raise RollbackConflictError(msg) from exc
+
+
+def _journal_from_data(root: Path, data: object) -> StagedJournal:
+    if (
+        not isinstance(data, dict)
+        or set(data) != {"version", "index", "direction", "entries"}
+        or type(data["version"]) is not int
+        or data["version"] != 1
+        or (data["index"] is not None and (not isinstance(data["index"], str) or "\x00" in data["index"]))
+        or not isinstance(data["direction"], str)
+        or data["direction"] not in {"forward", "rollback"}
+        or not isinstance(data["entries"], list)
+    ):
+        msg = "unsupported staged journal version or structure; preserve it and use a compatible client"
+        raise ValueError(msg)
+    keys = {
+        "path",
+        "top_path",
+        "mode",
+        "before_oid",
+        "after_oid",
+        "before_hash",
+        "after_hash",
+        "before_copy",
+        "after_copy",
+        "written",
+    }
+    seen_paths: set[Path] = set()
+    seen_top: set[str] = set()
+    seen_copies: set[str] = set()
+    entries: list[JournalEntry] = []
+    directory = _check_staged_directory(root)
+    for raw in data["entries"]:
+        if not isinstance(raw, dict) or set(raw) != keys:
+            msg = "invalid staged journal entry structure"
+            raise ValueError(msg)
+        path = _checked_target(root, raw["path"]).resolve(strict=False)
+        top_path = relative_path(raw["top_path"])
+        if path in seen_paths or top_path in seen_top:
+            msg = "duplicate staged journal target"
+            raise ValueError(msg)
+        if not isinstance(raw["mode"], str) or raw["mode"] not in {"100644", "100755"}:
+            msg = "invalid staged journal file mode"
+            raise ValueError(msg)
+        if not valid_hash(raw["before_hash"], absent=True) or not valid_hash(raw["after_hash"]):
+            msg = "invalid staged journal fingerprint"
+            raise ValueError(msg)
+        for key in ("before_oid", "after_oid"):
+            value = raw[key]
+            if key == "before_oid" and value is None:
+                continue
+            if not isinstance(value, str) or re.fullmatch(r"(?:[0-9a-f]{40}|[0-9a-f]{64})", value) is None:
+                msg = "invalid staged journal Git object identity"
+                raise ValueError(msg)
+        if type(raw["written"]) is not bool:
+            msg = "invalid staged journal completion flag"
+            raise ValueError(msg)
+        # Planning requires a fully staged target: an original index object and
+        # its exact worktree bytes either both existed or were both absent.
+        # In rollback, a missing before_oid means remove the index entry, so it
+        # cannot coexist with a saved original file.
+        if len({raw[key] is None for key in ("before_oid", "before_hash", "before_copy")}) != 1:
+            msg = "staged journal original object/copy/fingerprint presence disagree"
+            raise ValueError(msg)
+        for key, suffix in (("before_copy", "before"), ("after_copy", "after")):
+            name = raw[key]
+            if key == "before_copy" and name is None:
+                continue
+            copy_path(directory, name, suffix)
+            if name in seen_copies:
+                msg = "duplicate staged journal copy"
+                raise ValueError(msg)
+            seen_copies.add(name)
+        seen_paths.add(path)
+        seen_top.add(top_path)
+        entries.append(JournalEntry(**raw))
+    return StagedJournal(data["index"], data["direction"], entries)
+
+
+def _validate_staged_index(root: Path, top: Path, journal: StagedJournal) -> None:
+    """The recorded index is authority only when selected by this Git worktree or caller."""
+    prefix = root.resolve().relative_to(top.resolve()).as_posix()
+    for entry in journal.entries:
+        _checked_target(root, entry.path)
+        expected = entry.path if prefix == "." else f"{prefix}/{entry.path}"
+        if entry.top_path != expected:
+            msg = "staged journal project/index paths disagree; preserve and inspect it"
+            raise RollbackConflictError(msg)
+    if journal.index is None:
+        return
+    index = Path(journal.index)
+    if not index.is_absolute() or index.is_symlink():
+        msg = "staged journal index must be an absolute non-symlink Git index"
+        raise RollbackConflictError(msg)
+    resolved = index.resolve(strict=False)
+    git_dir = Path(git(["rev-parse", "--absolute-git-dir"], top).strip()).resolve()
+    selected = index_path(top).resolve(strict=False)
+    # Git uses index.lock for commit -a/--include. A caller-selected alternate
+    # index is also supported, but a journal cannot nominate an arbitrary existing
+    # index.* file merely because it happens to live beside the real index.
+    # A discarded alternate index needs only worktree rollback, never an index write.
+    supported_index = resolved.parent == git_dir and (
+        resolved.name in {"index", "index.lock"} or (not index.exists() and resolved.name.startswith("index."))
+    )
+    if resolved != selected and not supported_index:
+        msg = "staged journal index is not a supported index for this Git worktree"
+        raise RollbackConflictError(msg)
+    if index.exists() and not index.is_file():
+        msg = "staged journal index is not a regular file"
+        raise RollbackConflictError(msg)
+
+
+def _validated_copies(root: Path, journal: StagedJournal) -> dict[str, bytes]:
+    """Validate the entire copy set before a journal, worktree or Git index is changed."""
+    copies: dict[str, bytes] = {}
+    for entry in journal.entries:
+        _checked_target(root, entry.path)
+        for name, expected in ((entry.before_copy, entry.before_hash), (entry.after_copy, entry.after_hash)):
+            if name is None:
+                continue
+            data = _read_copy(root, name)
+            if sha256(data) != expected:
+                msg = f"staged recovery copy {name} is corrupt; preserve the journal and copies for inspection"
+                raise RollbackConflictError(msg)
+            copies[name] = data
+    return copies
 
 
 @dataclass
@@ -274,31 +428,37 @@ def _worktree_form(top: Path, top_path: str, oid: str) -> bytes:
     return _git_out(top, ["cat-file", "--filters", f"--path={top_path}", oid])
 
 
-# FIXME[dcd417]: Validate all staged recovery copy hashes before forward or rollback side effects.
 def _read_copy(root: Path, name: str) -> bytes:
-    return (staged_dir(root) / name).read_bytes()
+    suffix = "before" if name.endswith(".before") else "after"
+    try:
+        directory = control_directory(root, ".byteplan/txn/staged")
+        return copy_path(directory, name, suffix).read_bytes()
+    except (OSError, ValueError) as exc:
+        msg = f"invalid staged recovery copy; preserve the journal and inspect it: {exc}"
+        raise RollbackConflictError(msg) from exc
 
 
-def _restore_file(root: Path, path: Path, copy: str | None) -> None:
+def _restore_file(path: Path, copy: str | None, copies: Mapping[str, bytes]) -> None:
     if copy is None:
         with contextlib.suppress(FileNotFoundError):
             path.unlink()
     else:
-        atomic_write_bytes(path, _read_copy(root, copy))
+        atomic_write_bytes(path, copies[copy])
 
 
-def _rollback(root: Path, top: Path, journal: StagedJournal) -> None:
+def _rollback(root: Path, top: Path, journal: StagedJournal, copies: Mapping[str, bytes] | None = None) -> None:
     """Undo everything the journal shows as done; never overwrite foreign changes."""
+    copies = _validated_copies(root, journal) if copies is None else copies
     journal.direction = "rollback"
     journal.save(root)
     conflicts = []
     for entry in journal.entries:
         if not entry.written:
             continue
-        path = root / entry.path
+        path = _checked_target(root, entry.path)
         current = _disk_hash(path)
         if current == entry.after_hash:
-            _restore_file(root, path, entry.before_copy)
+            _restore_file(path, entry.before_copy, copies)
         elif current != entry.before_hash:
             conflicts.append(entry.path)
     if journal.index is not None:
@@ -326,15 +486,16 @@ def _before(journal: StagedJournal, top_path: str) -> tuple[str, str] | None:
     return None if entry.before_oid is None else (entry.mode, entry.before_oid)
 
 
-def _write_worktree(root: Path, journal: StagedJournal) -> None:
+def _write_worktree(root: Path, journal: StagedJournal, copies: Mapping[str, bytes] | None = None) -> None:
+    copies = _validated_copies(root, journal) if copies is None else copies
     # Sources first, registry last: a partial run never leaves IDs without registry entries.
     for entry in sorted(journal.entries, key=lambda e: e.path.endswith(".json")):
         if entry.written:
             continue
-        path = root / entry.path
+        path = _checked_target(root, entry.path)
         if _disk_hash(path) != entry.before_hash:
             raise _AbortError(entry.path)
-        atomic_write_bytes(path, _read_copy(root, entry.after_copy))
+        atomic_write_bytes(path, copies[entry.after_copy])
         entry.written = True
         journal.save(root)
 
@@ -350,6 +511,8 @@ def _recover_locked(root: Path) -> list[str]:
     if journal is None:
         return []
     top = toplevel(root)
+    _validate_staged_index(root, top, journal)
+    copies = _validated_copies(root, journal)
     index_gone = journal.index is not None and not Path(journal.index).exists()
     for entry in journal.entries:  # anything already at BytePlan's bytes counts as written
         entry.written = entry.written or _disk_hash(root / entry.path) == entry.after_hash
@@ -361,13 +524,13 @@ def _recover_locked(root: Path) -> list[str]:
             pending_swap = {p: _before(journal, p) for p, v in after.items() if current.get(p) != v}
             if pending_swap:
                 _swap_index(top, index, pending_swap, {p: after[p] for p in pending_swap})
-        _write_worktree(root, journal)
+        _write_worktree(root, journal, copies)
         journal.delete(root)
         return ["byteplan: completed an interrupted staged reconciliation"]
     # Backward. If the recorded index is gone (e.g. the temporary index of an aborted
     # `git commit -a`), the real index never received the change: undoing the working
     # tree is what makes everything consistent again.
-    _rollback(root, top, journal)
+    _rollback(root, top, journal, copies)
     reason = "its index no longer exists" if index_gone else "something changed since"
     return [f"byteplan: undid an interrupted staged reconciliation ({reason})"]
 
@@ -460,7 +623,7 @@ def _plan(
         for number, write in enumerate(changes):
             top_path = f"{snapshot.offset}/{write.path}" if snapshot.offset else write.path
             entry = snapshot.entries.get(top_path)
-            disk_path = root / write.path
+            disk_path = _checked_target(root, write.path)
             on_disk = disk_path.read_bytes() if disk_path.exists() else None
             # "Fully staged" is judged through Git's own normalization (eol conversion, clean
             # filters): a CRLF file with core.autocrlf matches its LF blob.
@@ -512,6 +675,7 @@ def _plan(
         project.close()
 
     for name, data in copies.items():  # exact working-tree bytes, before the journal exists
+        _check_staged_directory(root)
         atomic_write_bytes(staged_dir(root) / name, data)
     journal.save(root)
     return journal, annotated, project.config.git.on_reconcile
@@ -519,6 +683,9 @@ def _plan(
 
 def _apply(root: Path, top: Path, journal: StagedJournal, messages: list[str]) -> StagedOutcome | None:
     """Index swap then working tree; on failure roll everything back. None means success."""
+
+    _validate_staged_index(root, top, journal)
+    copies = _validated_copies(root, journal)
 
     def worktree_unchanged() -> None:
         for entry in journal.entries:
@@ -534,9 +701,9 @@ def _apply(root: Path, top: Path, journal: StagedJournal, messages: list[str]) -
                 {e.top_path: (e.mode, e.after_oid) for e in journal.entries},
                 precheck=worktree_unchanged,
             )
-        _write_worktree(root, journal)
+        _write_worktree(root, journal, copies)
     except _AbortError as exc:
-        _rollback(root, top, journal)
+        _rollback(root, top, journal, copies)
         return StagedOutcome(
             EXIT_FINDINGS,
             [*messages, f"concurrent_modification: {exc} changed while BytePlan was reconciling; nothing was changed"],
@@ -544,7 +711,7 @@ def _apply(root: Path, top: Path, journal: StagedJournal, messages: list[str]) -
     except BaseException:
         if StagedJournal.path(root).exists():
             with contextlib.suppress(Exception):
-                _rollback(root, top, journal)
+                _rollback(root, top, journal, copies)
         raise
     journal.delete(root)
     return None

@@ -418,7 +418,7 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 | `byteplan missing` | active tasks no longer found in source (`--include-closed` adds resolved and dismissed ones) |
 | `byteplan duplicates` | the same ID on more than one annotation |
 | `byteplan report [--format text\|json\|markdown]` | summary by status, presence, kind and priority, plus findings |
-| `byteplan repair --import ID` | register an ID found in source but not in the registry |
+| `byteplan repair --import ID` | register an unregistered source ID; archived IDs require `archive --restore ID` |
 | `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID; use `--dry-run` to preview |
 | `byteplan repair --reassign PATH:LINE --against REV` | preserve/reassign an independently created branch collision before merging; [procedure and limits](docs/rc1-compatibility.md#merge-and-collision-recovery) |
 | `byteplan git install-merge-driver` | merge the registry by task ID in Git merges (per clone) |
@@ -427,6 +427,11 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 | `byteplan merge-registry BASE OURS THEIRS [PATH]` | the merge driver itself; Git runs it, you don't |
 | `byteplan mcp [--allow-registry-write] [--allow-source-write] [--allow-test-execution]` | serve the registry to AI agents over MCP (stdio); needs `byteplan[mcp]` |
 | `byteplan merge-archive BASE OURS THEIRS [PATH]` | the archive index's merge driver (three-way per task ID); Git runs it |
+
+Narrowed paths limit reconciliation and source edits. When allocating a new ID, BytePlan still
+reserves identities across the full configured source scope, including the selected Git view.
+An unreadable, unparseable or malformed in-scope file therefore blocks allocation even outside
+the narrowed paths. Files deliberately excluded from source scope are not allocation inputs.
 
 - **Common options:** `--project PATH` and `--format json` go after the command.
 - **Output streams:** stdout carries only the result (pure JSON with `--format json`); diagnostics

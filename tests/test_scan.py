@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from byteplan._todo import verifies
 from byteplan.api import Project
 from byteplan.diagnostics import EXIT_FINDINGS, EXIT_OK, Code
 from byteplan.errors import ScanError
@@ -119,17 +118,3 @@ def test_scan_never_writes(project: ProjectFactory) -> None:
     before = project.snapshot()
     Project.open(project.root).scan()
     assert project.snapshot() == before
-
-
-@verifies("3d5bb4")
-@pytest.mark.xfail(reason="BytePlan 3d5bb4: acceptance test not implemented", strict=True)
-def test_task_3d5bb4() -> None:
-    """Acceptance test scaffold for BytePlan task 3d5bb4.
-
-    Target: task 3d5bb4 (statement)
-    Requirement: Reserve unregistered embedded IDs outside narrowed targets before allocation.
-    """
-    # GIVEN: TODO - arrange the state this requirement depends on
-    # WHEN: TODO - exercise the code task 3d5bb4 is about
-    # THEN: TODO - assert the required result
-    pytest.fail("BytePlan 3d5bb4: acceptance test not implemented")

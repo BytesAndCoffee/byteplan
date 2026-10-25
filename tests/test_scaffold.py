@@ -34,6 +34,7 @@ from byteplan.scaffold import (
 )
 
 if TYPE_CHECKING:
+    from byteplan.api import ScanReport
     from tests.conftest import ProjectFactory, RunCli
 
 PYPROJECT_DEV = (
@@ -563,15 +564,28 @@ def test_auto_scaffold_normalizes_the_test_directory(project: ProjectFactory, ru
     assert not (project.root / "tests/test_test_existing.py").exists()
 
 
-def test_auto_scaffold_reports_an_undecodable_target(project: ProjectFactory, run_cli: RunCli) -> None:
+def test_auto_scaffold_reports_an_undecodable_target(
+    project: ProjectFactory, run_cli: RunCli, monkeypatch: pytest.MonkeyPatch
+) -> None:
     project.write("pyproject.toml", PYPROJECT_DEV + AUTO, dedent=False)
     project.init()
-    project.write("tests/test_a.py", "# -*- coding: no-such-codec -*-\n")
+    project.write("tests/test_a.py", "# Initially decodable scaffold target.\n")
     project.write("a.py", "def f():\n    # TODO: New work\n    return 1\n")
-    result = run_cli("scan", str(project.root / "a.py"), "--project", project.root)  # narrowed: tests/ isn't scanned
+    # Inject the file change at the real post-scan scaffold boundary.
+    scaffold = Project._auto_scaffold  # noqa: SLF001
+
+    def changed_target(facade: Project, report: ScanReport) -> ScanReport:
+        # An editor can change the target after allocation has checked all source IDs.
+        project.write("tests/test_a.py", "# -*- coding: no-such-codec -*-\n")
+        return scaffold(facade, report)
+
+    monkeypatch.setattr(Project, "_auto_scaffold", changed_target)
+    result = run_cli("scan", str(project.root / "a.py"), "--project", project.root)  # narrowed: tests/ isn't observed
     assert result.code == EXIT_OK, result.err
     assert "couldn't scaffold" in result.out
+    assert "unknown encoding: no-such-codec" in result.out
     assert "TODO[" in (project.root / "a.py").read_text()
+    assert (project.root / "tests/test_a.py").read_text() == "# -*- coding: no-such-codec -*-\n"
 
 
 def test_auto_scaffold_reports_encoding_and_filesystem_failures(project: ProjectFactory, run_cli: RunCli) -> None:

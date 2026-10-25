@@ -208,8 +208,14 @@ def scan_core(
         diagnostics.extend(stub_notes)
     diagnostics.extend(_id_diagnostics(tags, registry, self.archive_index().tasks))
     duplicated = {d.task_id for d in diagnostics if d.code is Code.DUPLICATE_ID}
-    # FIXME[3d5bb4]: Reserve unregistered embedded IDs outside narrowed targets before allocation.
-    proposals = self._plan_allocations(tags, registry) if self.config.auto_annotate else []
+    proposals: list[Proposal] = []
+    if self.config.auto_annotate:
+        also_used = (
+            _allocation_reservations(self, scans, hierarchy)
+            if scope.narrowed and any(tag.task_id is None for tag in tags)
+            else set()
+        )
+        proposals = self._plan_allocations(tags, registry, also_used=also_used)
 
     # Write IDs first (in memory), then observe the edited files: registry
     # positions must describe the source as it will be, or the next scan
@@ -314,6 +320,53 @@ def read_source_view(self: Project, path: str) -> SourceFile:
     if self.snapshot is None:
         return read_source(self.root, path)
     return decode_source(path, self.snapshot.read(path) or b"")
+
+
+def _allocation_reservations(
+    self: Project, selected: Mapping[str, FileScan], hierarchy: ClassHierarchy | None
+) -> set[str]:
+    """Reserve identities outside a narrowed scan without observing or editing their tasks.
+
+    The allocation namespace covers the configured project, including annotations not yet
+    registered. Use the same source view and scanner as the selected files, and refuse an
+    allocation if that namespace cannot be read completely. A narrow scan without new IDs
+    does not need this extra pass.
+    """
+    snapshot = self.snapshot
+    if snapshot is None:
+        everything = collect_files(self.config).files
+    else:
+        everything = scope_from_paths(self.config, list(snapshot.files()), snapshot)[0].files
+    used: set[str] = set()
+    failures: list[SourceError] = []
+    for path in everything:
+        if path in selected:
+            continue
+        try:
+            result = scan_file(
+                self._read(path),
+                self.config.detect,
+                self.config.annotations.runtime_modules,
+                hierarchy,
+                pytest_marker=self.config.tests.pytest_marker,
+            )
+        except SourceError as exc:
+            failures.append(exc)
+            continue
+        malformed = [d.message for d in result.diagnostics if d.code is Code.MALFORMED_ID]
+        if malformed:
+            failures.append(
+                SourceError(
+                    path,
+                    "cannot reserve task identities for a narrowed allocation: "
+                    + "; ".join(malformed)
+                    + "; fix the annotation or run a full scan to review it",
+                )
+            )
+        used.update(tag.task_id for tag in result.tags if tag.task_id is not None)
+    if failures:
+        raise ScanError(failures)
+    return used
 
 
 def hierarchy(self: Project, loaded: dict[str, SourceFile], *, narrowed: bool) -> ClassHierarchy | None:

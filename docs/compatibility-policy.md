@@ -121,6 +121,18 @@ rewrite is part of initialization.
 
 ## Review and change procedure
 
+Pending recovery obeys the same source authority as the requesting MCP operation. Registry
+and execution requests may recover their allowed metadata; source capability alone does not
+authorize source replay during a registry call. A source operation needs its permission and
+explicit meaningful `apply=true`. Read-only previews never recover writes. A denied recovery
+keeps its journal and copies; deliberately complete it through an authorized source operation
+or the documented CLI recovery flow.
+
+Serialized recovery and release-restore paths must stay within the project and avoid protected
+VCS/transaction state. Journals and archive indexes reject unsupported versions or malformed
+records before mutation, retaining material for inspection. Valid current formats need no new
+migration for these guards. Same-version archive-index extension fields remain preserved.
+
 Compatibility changes need an explicit rationale, affected-interface inventory and regression
 evidence. Schema changes need a migration and an older-client failure boundary, preserving
 tasks/history/evidence and documenting recovery. Additive fields must not create conflicting

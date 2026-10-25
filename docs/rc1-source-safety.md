@@ -20,7 +20,10 @@ whole-repository reviews.
    IDs, annotation kinds, locations and titles; JSON gives structured proposals and diagnostics.
    The Python API additionally exposes planned source bytes on `ScanReport.planned`.
 4. Narrow an initial preview with `byteplan scan PATH --dry-run` when useful. Narrowed scans
-   deliberately do not mark unexamined tasks missing. If detected stubs are unwanted, configure
+   deliberately do not mark unexamined tasks missing. New allocations still reserve IDs from
+   the full configured source scope; an unreadable or unparseable in-scope file blocks both
+   preview and writing allocation. This reservation pass does not observe or modify its tasks.
+   If detected stubs are unwanted, configure
    detection/suppression or annotation `mode = "preserve"` before applying. Preserve mode still
    supports IDs on authored task comments; it reports unowned stubs without inserting their
    annotations.
