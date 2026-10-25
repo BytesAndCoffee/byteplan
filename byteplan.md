@@ -2,28 +2,27 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**19 open** · 85 closed (resolved 85)
+**18 open** · 86 closed (resolved 86)
 
 ## Open
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1678`](docs/IMPLEMENTATION_PLAN.md#L1678) | Phase 6c (optional): acceptance criteria and dependencies |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1681`](docs/IMPLEMENTATION_PLAN.md#L1681) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1684`](docs/IMPLEMENTATION_PLAN.md#L1684) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1687`](docs/IMPLEMENTATION_PLAN.md#L1687) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1691`](docs/IMPLEMENTATION_PLAN.md#L1691) | Phase 13 (optional): relay-for-github |
-| `3844` | open | TODO | high | - | [`docs/spec-addendum-e.md:171`](docs/spec-addendum-e.md#L171) | RC1 behavior-preserving decomposition of the public Project facade |
-| `a933` | open | TODO | low | - | [`docs/spec-addendum-e.md:222`](docs/spec-addendum-e.md#L222) | 1.5 semantic graph schema, identity and provenance design |
-| `e4af` | open | TODO | low | - | [`docs/spec-addendum-e.md:239`](docs/spec-addendum-e.md#L239) | 1.5 repository symbol indexing and task-to-symbol associations |
-| `3644` | open | TODO | low | - | [`docs/spec-addendum-e.md:243`](docs/spec-addendum-e.md#L243) | 1.5 deterministic incremental graph cache and invalidation |
-| `1fe7` | open | TODO | low | - | [`docs/spec-addendum-e.md:247`](docs/spec-addendum-e.md#L247) | 1.5 partial-index reliability, uncertainty and bounded queries |
-| `680a` | open | TODO | low | - | [`docs/spec-addendum-e.md:268`](docs/spec-addendum-e.md#L268) | 2.0 cross-module dependency and change-impact analysis |
-| `cdcb` | open | TODO | low | - | [`docs/spec-addendum-e.md:272`](docs/spec-addendum-e.md#L272) | 2.0 verification intelligence with traceable recommendations |
-| `4d69` | open | TODO | low | - | [`docs/spec-addendum-e.md:276`](docs/spec-addendum-e.md#L276) | 2.0 Assignment and specification traceability |
-| `595f` | open | TODO | low | - | [`docs/spec-addendum-e.md:280`](docs/spec-addendum-e.md#L280) | 2.0 bounded MCP graph operations and portable visualization design |
-| `c053` | open | TODO | high | - | [`docs/spec-addendum-e.md:367`](docs/spec-addendum-e.md#L367) | RC1 freeze one integrated revision for two independent whole-repository reviews |
-| `a70d` | open | TODO | high | - | [`docs/spec-addendum-e.md:399`](docs/spec-addendum-e.md#L399) | RC1 approval-ready release report and artifact/platform validation |
+| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1690`](docs/IMPLEMENTATION_PLAN.md#L1690) | Phase 6c (optional): acceptance criteria and dependencies |
+| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1693`](docs/IMPLEMENTATION_PLAN.md#L1693) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1696`](docs/IMPLEMENTATION_PLAN.md#L1696) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1699`](docs/IMPLEMENTATION_PLAN.md#L1699) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1703`](docs/IMPLEMENTATION_PLAN.md#L1703) | Phase 13 (optional): relay-for-github |
+| `a933` | open | TODO | low | - | [`docs/spec-addendum-e.md:218`](docs/spec-addendum-e.md#L218) | 1.5 semantic graph schema, identity and provenance design |
+| `e4af` | open | TODO | low | - | [`docs/spec-addendum-e.md:235`](docs/spec-addendum-e.md#L235) | 1.5 repository symbol indexing and task-to-symbol associations |
+| `3644` | open | TODO | low | - | [`docs/spec-addendum-e.md:239`](docs/spec-addendum-e.md#L239) | 1.5 deterministic incremental graph cache and invalidation |
+| `1fe7` | open | TODO | low | - | [`docs/spec-addendum-e.md:243`](docs/spec-addendum-e.md#L243) | 1.5 partial-index reliability, uncertainty and bounded queries |
+| `680a` | open | TODO | low | - | [`docs/spec-addendum-e.md:264`](docs/spec-addendum-e.md#L264) | 2.0 cross-module dependency and change-impact analysis |
+| `cdcb` | open | TODO | low | - | [`docs/spec-addendum-e.md:268`](docs/spec-addendum-e.md#L268) | 2.0 verification intelligence with traceable recommendations |
+| `4d69` | open | TODO | low | - | [`docs/spec-addendum-e.md:272`](docs/spec-addendum-e.md#L272) | 2.0 Assignment and specification traceability |
+| `595f` | open | TODO | low | - | [`docs/spec-addendum-e.md:276`](docs/spec-addendum-e.md#L276) | 2.0 bounded MCP graph operations and portable visualization design |
+| `c053` | open | TODO | high | - | [`docs/spec-addendum-e.md:363`](docs/spec-addendum-e.md#L363) | RC1 freeze one integrated revision for two independent whole-repository reviews |
+| `a70d` | open | TODO | high | - | [`docs/spec-addendum-e.md:395`](docs/spec-addendum-e.md#L395) | RC1 approval-ready release report and artifact/platform validation |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:309`](src/byteplan/config.py#L309) | Support detect.placeholder_assignments |
 | `67a65c` | open | FIXME | low | - | [`src/byteplan/scaffold.py:333`](src/byteplan/scaffold.py#L333) | Separate first-party runtime imports from pytest in new scaffold files |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
@@ -48,6 +47,7 @@
 | `2887` | resolved | TODO | Phase 6b: test scaffolding |
 | `30c3` | resolved | FIXME | [P3] Locate decorator IDs by their AST value span during duplicate repair |
 | `34da` | resolved | FIXME | Respect enclosing scopes before stripping a decorator |
+| `3844` | resolved | TODO | RC1 behavior-preserving decomposition of the public Project facade |
 | `3b20` | resolved | FIXME | RC1 remove stale unknown-field-loss claim from completed Phase 4d |
 | `3d3a` | resolved | FIXME | the archive index is read from the working tree even when checking a Git snapshot |
 | `3f50` | resolved | FIXME | [P2] Normalize the test directory before excluding test-side tasks |
