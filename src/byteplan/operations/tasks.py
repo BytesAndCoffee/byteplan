@@ -86,6 +86,7 @@ def get_task(self: Project, task_id: str) -> Task:
     return task
 
 
+# FIXME[38e8db]: Refuse import of archived identities and preserve their authoritative lifecycle and evidence.
 def import_task(self: Project, task_id: str) -> RepairResult:
     """Register an ID that is in source but not in the registry (``unregistered_id``)."""
     task_id = task_id.lower()

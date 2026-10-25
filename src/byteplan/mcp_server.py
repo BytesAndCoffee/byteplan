@@ -101,6 +101,7 @@ def _scaffold_payload(result: ScaffoldResult, *, full: bool) -> dict[str, Any]:
     return {**payload, "text": result.text} if full else payload
 
 
+# FIXME[81cc04]: Enforce per-operation source permission and apply authority during transaction recovery.
 def build_server(root: Path, permissions: Permissions = Permissions()) -> MCPServer:  # noqa: B008
     """The MCP server for the project at ``root`` (a fresh ``Project`` per call, so config and
     registry changes made outside the server are always seen)."""

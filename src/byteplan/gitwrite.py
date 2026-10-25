@@ -274,6 +274,7 @@ def _worktree_form(top: Path, top_path: str, oid: str) -> bytes:
     return _git_out(top, ["cat-file", "--filters", f"--path={top_path}", oid])
 
 
+# FIXME[dcd417]: Validate all staged recovery copy hashes before forward or rollback side effects.
 def _read_copy(root: Path, name: str) -> bytes:
     return (staged_dir(root) / name).read_bytes()
 

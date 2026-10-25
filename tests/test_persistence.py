@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from byteplan import persistence
+from byteplan._todo import verifies
 from byteplan.api import Project
 from byteplan.errors import ConcurrentModificationError, JournalConflictError
 from byteplan.persistence import FileWrite, commit, recover, sha256
@@ -236,3 +237,17 @@ def test_uncreatable_directory_fails_before_the_journal(tmp_path: Path) -> None:
     assert not (tmp_path / "a.txt").exists()
     assert recover(tmp_path) == []
     assert commit(tmp_path, writes[:1]) == ["a.txt"]
+
+
+@verifies("62edd5")
+@pytest.mark.xfail(reason="BytePlan 62edd5: acceptance test not implemented", strict=True)
+def test_recover() -> None:
+    """Acceptance test scaffold for BytePlan task 62edd5.
+
+    Target: recover (function)
+    Requirement: Confine serialized transaction and restore targets before filesystem side effects.
+    """
+    # GIVEN: TODO - arrange the state this requirement depends on
+    # WHEN: TODO - call recover
+    # THEN: TODO - assert the required result
+    pytest.fail("BytePlan 62edd5: acceptance test not implemented")

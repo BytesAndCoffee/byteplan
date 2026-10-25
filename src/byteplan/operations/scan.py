@@ -208,6 +208,7 @@ def scan_core(
         diagnostics.extend(stub_notes)
     diagnostics.extend(_id_diagnostics(tags, registry, self.archive_index().tasks))
     duplicated = {d.task_id for d in diagnostics if d.code is Code.DUPLICATE_ID}
+    # FIXME[3d5bb4]: Reserve unregistered embedded IDs outside narrowed targets before allocation.
     proposals = self._plan_allocations(tags, registry) if self.config.auto_annotate else []
 
     # Write IDs first (in memory), then observe the edited files: registry

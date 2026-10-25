@@ -64,3 +64,17 @@ def test_unrelated_tool_errors_keep_existing_messages(exc: Exception, expected: 
     with pytest.raises(ToolError) as result:
         _errors_as_tool_errors(fail)
     assert str(result.value) == expected
+
+
+@verifies("81cc04")
+@pytest.mark.xfail(reason="BytePlan 81cc04: acceptance test not implemented", strict=True)
+def test_build_server() -> None:
+    """Acceptance test scaffold for BytePlan task 81cc04.
+
+    Target: build_server (function)
+    Requirement: Enforce per-operation source permission and apply authority during transaction recovery.
+    """
+    # GIVEN: TODO - arrange the state this requirement depends on
+    # WHEN: TODO - call build_server
+    # THEN: TODO - assert the required result
+    pytest.fail("BytePlan 81cc04: acceptance test not implemented")

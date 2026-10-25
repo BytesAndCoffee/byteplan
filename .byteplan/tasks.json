@@ -20,8 +20,10 @@
     "34da",
     "3644",
     "3844",
+    "38e8db",
     "3b20",
     "3d3a",
+    "3d5bb4",
     "3f50",
     "4518",
     "46b6",
@@ -35,6 +37,7 @@
     "595f",
     "5aae",
     "5ff6",
+    "62edd5",
     "6639",
     "67a65c",
     "67df",
@@ -43,7 +46,9 @@
     "6d434f",
     "71c4",
     "75b4",
+    "765f23",
     "7ff8",
+    "81cc04",
     "82b3",
     "86e1",
     "8756",
@@ -88,6 +93,7 @@
     "cdcb",
     "ce72",
     "d45d",
+    "dcd417",
     "de66",
     "def0",
     "e4af",
@@ -2203,6 +2209,101 @@
       "title": "RC1 behavior-preserving decomposition of the public Project facade",
       "title_override": null
     },
+    "38e8db": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 89,
+            "path": "src/byteplan/operations/tasks.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_tasks.py::test_import_task",
+            "path": "tests/test_tasks.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: review A3 demonstrates repair import recreating an archived permanent identity as open with only created history, masking authored notes/assignee/lifecycle/evidence. Refuse import of archived IDs and direct to the existing guarded archive restore; preserve cache/index/canonical evidence byte-for-byte, including a fresh clone with missing local cache."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        }
+      ],
+      "id": "38e8db",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T03:20:35Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: review A3 demonstrates repair import recreating an archived permanent identity as open with only created history, masking authored notes/assignee/lifecycle/evidence. Refuse import of archived IDs and direct to the existing guarded archive restore; preserve cache/index/canonical evidence byte-for-byte, including a fresh clone with missing local cache.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 90,
+        "line": 89,
+        "path": "src/byteplan/operations/tasks.py",
+        "representation": "comment",
+        "symbol": "import_task"
+      },
+      "status": "in_progress",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 5,
+            "node": "tests/test_tasks.py::test_import_task",
+            "path": "tests/test_tasks.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Refuse import of archived identities and preserve their authoritative lifecycle and evidence.",
+      "title_override": null
+    },
     "3b20": {
       "assignee": null,
       "description": "Independent PR C review confirmed the completed row contradicts registry preservation\nand the corrected migration discussion. Verify the corrected row against registry.py.",
@@ -2377,6 +2478,99 @@
         ]
       },
       "title": "the archive index is read from the working tree even when checking a Git snapshot",
+      "title_override": null
+    },
+    "3d5bb4": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 211,
+            "path": "src/byteplan/operations/scan.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_scan.py::test_task_3d5bb4",
+            "path": "tests/test_scan.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: independent reviews A5/B2-4 confirm narrowed scans allocate an ID already embedded but unregistered outside selected targets; the next full scan blocks on duplicates. Reserve full configured-scope source identities for allocation without reconciling or marking unselected tasks missing. Cover working tree and selected Git snapshots, and preserve source-editing/missing-detection semantics."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        }
+      ],
+      "id": "3d5bb4",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T03:20:35Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: independent reviews A5/B2-4 confirm narrowed scans allocate an ID already embedded but unregistered outside selected targets; the next full scan blocks on duplicates. Reserve full configured-scope source identities for allocation without reconciling or marking unselected tasks missing. Cover working tree and selected Git snapshots, and preserve source-editing/missing-detection semantics.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 116,
+        "line": 211,
+        "path": "src/byteplan/operations/scan.py",
+        "representation": "comment",
+        "symbol": "scan_core"
+      },
+      "status": "in_progress",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 124,
+            "node": "tests/test_scan.py::test_task_3d5bb4",
+            "path": "tests/test_scan.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Reserve unregistered embedded IDs outside narrowed targets before allocation.",
       "title_override": null
     },
     "3f50": {
@@ -3594,6 +3788,101 @@
       "title": "[P2] Report scaffold encoding and filesystem failures per task",
       "title_override": null
     },
+    "62edd5": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 234,
+            "path": "src/byteplan/persistence.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_persistence.py::test_recover",
+            "path": "tests/test_persistence.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        }
+      ],
+      "id": "62edd5",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T03:20:35Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 235,
+        "line": 234,
+        "path": "src/byteplan/persistence.py",
+        "representation": "comment",
+        "symbol": "recover"
+      },
+      "status": "in_progress",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 242,
+            "node": "tests/test_persistence.py::test_recover",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Confine serialized transaction and restore targets before filesystem side effects.",
+      "title_override": null
+    },
     "6639": {
       "assignee": null,
       "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185449\nA name listed in __all__ is used by importers even with no local reference.",
@@ -4219,6 +4508,99 @@
       "title": "Phase 11 (optional): spec section 14 phase 5 items",
       "title_override": null
     },
+    "765f23": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 173,
+            "path": "src/byteplan/archive.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: reviews A6/B2-3 confirm archive index loading ignores unsupported schemas/shapes and dumps version 1 while dropping top-level metadata. Enforce a coherent supported schema/record boundary and domain errors, preserve supported opaque fields, and reject future/malformed formats without writes in checks, mutations and merge driver. No layout redesign or new schema feature."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_archive_index_integrity.py::test_index",
+            "path": "tests/test_archive_index_integrity.py",
+            "policy": "xfail"
+          },
+          "old": null
+        }
+      ],
+      "id": "765f23",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T03:20:35Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: reviews A6/B2-3 confirm archive index loading ignores unsupported schemas/shapes and dumps version 1 while dropping top-level metadata. Enforce a coherent supported schema/record boundary and domain errors, preserve supported opaque fields, and reject future/malformed formats without writes in checks, mutations and merge driver. No layout redesign or new schema feature.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "class",
+        "decl_line": 175,
+        "line": 173,
+        "path": "src/byteplan/archive.py",
+        "representation": "comment",
+        "symbol": "Index"
+      },
+      "status": "in_progress",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 5,
+            "node": "tests/test_archive_index_integrity.py::test_index",
+            "path": "tests/test_archive_index_integrity.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Validate archive-index schema and records while preserving supported opaque metadata.",
+      "title_override": null
+    },
     "7ff8": {
       "assignee": null,
       "description": "https://github.com/BytesAndCoffee/byteplan/pull/37#discussion_r4354839056",
@@ -4295,6 +4677,101 @@
         ]
       },
       "title": "resolve(sync_source=true) removes the annotation without apply=true",
+      "title_override": null
+    },
+    "81cc04": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 104,
+            "path": "src/byteplan/mcp_server.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_mcp_server.py::test_build_server",
+            "path": "tests/test_mcp_server.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A2/B2-2 confirm legitimate pending source writes replay during registry-only MCP lifecycle edits, without source permission or apply authority. Enforce an operation recovery policy while holding the project lock, including registry tools and verification completion. Read-only previews must stay read-only; valid source recovery needs explicit authority. A preflight outside the lock is insufficient."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        }
+      ],
+      "id": "81cc04",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T03:20:35Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A2/B2-2 confirm legitimate pending source writes replay during registry-only MCP lifecycle edits, without source permission or apply authority. Enforce an operation recovery policy while holding the project lock, including registry tools and verification completion. Read-only previews must stay read-only; valid source recovery needs explicit authority. A preflight outside the lock is insufficient.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 105,
+        "line": 104,
+        "path": "src/byteplan/mcp_server.py",
+        "representation": "comment",
+        "symbol": "build_server"
+      },
+      "status": "in_progress",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 69,
+            "node": "tests/test_mcp_server.py::test_build_server",
+            "path": "tests/test_mcp_server.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Enforce per-operation source permission and apply authority during transaction recovery.",
       "title_override": null
     },
     "82b3": {
@@ -8409,6 +8886,99 @@
         "managed": []
       },
       "title": "Return only the scaffolded test, not the whole target file",
+      "title_override": null
+    },
+    "dcd417": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T03:20:35Z",
+      "history": [
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "created",
+          "new": {
+            "line": 277,
+            "path": "src/byteplan/gitwrite.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:35Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_gitwrite.py::test_read_copy",
+            "path": "tests/test_gitwrite.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-25T03:20:36Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement bounded compatibility correction with regressions and independent review before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T03:21:26Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
+          }
+        }
+      ],
+      "id": "dcd417",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T03:20:35Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 278,
+        "line": 277,
+        "path": "src/byteplan/gitwrite.py",
+        "representation": "comment",
+        "symbol": "_read_copy"
+      },
+      "status": "in_progress",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 5,
+            "node": "tests/test_gitwrite.py::test_read_copy",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Validate all staged recovery copy hashes before forward or rollback side effects.",
       "title_override": null
     },
     "de66": {

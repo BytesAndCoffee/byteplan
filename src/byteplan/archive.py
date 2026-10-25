@@ -170,6 +170,7 @@ def _legacy_schema(connection: sqlite3.Connection) -> bool:
 # The committed index -------------------------------------------------------------------------
 
 
+# FIXME[765f23]: Validate archive-index schema and records while preserving supported opaque metadata.
 @dataclass
 class Index:
     """``.byteplan/archive.json``: what's archived, for every clone to reconcile against."""

@@ -231,6 +231,7 @@ def commit(root: Path, writes: Sequence[FileWrite]) -> list[str]:
     return [write.path for write in changed]
 
 
+# FIXME[62edd5]: Confine serialized transaction and restore targets before filesystem side effects.
 def recover(root: Path) -> list[str]:
     """Roll forward an interrupted transaction. Returns the paths it completed."""
     path = journal_path(root)
