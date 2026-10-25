@@ -8,11 +8,12 @@
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1690`](docs/IMPLEMENTATION_PLAN.md#L1690) | Phase 6c (optional): acceptance criteria and dependencies |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1693`](docs/IMPLEMENTATION_PLAN.md#L1693) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1696`](docs/IMPLEMENTATION_PLAN.md#L1696) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1699`](docs/IMPLEMENTATION_PLAN.md#L1699) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1703`](docs/IMPLEMENTATION_PLAN.md#L1703) | Phase 13 (optional): relay-for-github |
+| `a70d` | in_progress | TODO | high | - | [`docs/spec-addendum-e.md:395`](docs/spec-addendum-e.md#L395) | RC1 approval-ready release report and artifact/platform validation |
+| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1692`](docs/IMPLEMENTATION_PLAN.md#L1692) | Phase 6c (optional): acceptance criteria and dependencies |
+| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1695`](docs/IMPLEMENTATION_PLAN.md#L1695) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1698`](docs/IMPLEMENTATION_PLAN.md#L1698) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1701`](docs/IMPLEMENTATION_PLAN.md#L1701) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1705`](docs/IMPLEMENTATION_PLAN.md#L1705) | Phase 13 (optional): relay-for-github |
 | `a933` | open | TODO | low | - | [`docs/spec-addendum-e.md:218`](docs/spec-addendum-e.md#L218) | 1.5 semantic graph schema, identity and provenance design |
 | `e4af` | open | TODO | low | - | [`docs/spec-addendum-e.md:235`](docs/spec-addendum-e.md#L235) | 1.5 repository symbol indexing and task-to-symbol associations |
 | `3644` | open | TODO | low | - | [`docs/spec-addendum-e.md:239`](docs/spec-addendum-e.md#L239) | 1.5 deterministic incremental graph cache and invalidation |
@@ -22,7 +23,6 @@
 | `4d69` | open | TODO | low | - | [`docs/spec-addendum-e.md:272`](docs/spec-addendum-e.md#L272) | 2.0 Assignment and specification traceability |
 | `595f` | open | TODO | low | - | [`docs/spec-addendum-e.md:276`](docs/spec-addendum-e.md#L276) | 2.0 bounded MCP graph operations and portable visualization design |
 | `c053` | open | TODO | high | - | [`docs/spec-addendum-e.md:363`](docs/spec-addendum-e.md#L363) | RC1 freeze one integrated revision for two independent whole-repository reviews |
-| `a70d` | open | TODO | high | - | [`docs/spec-addendum-e.md:395`](docs/spec-addendum-e.md#L395) | RC1 approval-ready release report and artifact/platform validation |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:309`](src/byteplan/config.py#L309) | Support detect.placeholder_assignments |
 | `67a65c` | open | FIXME | low | - | [`src/byteplan/scaffold.py:333`](src/byteplan/scaffold.py#L333) | Separate first-party runtime imports from pytest in new scaffold files |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
