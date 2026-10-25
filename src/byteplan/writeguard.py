@@ -33,6 +33,18 @@ def relative_path(value: object) -> str:
     return value
 
 
+def _check_control_component(path: Path, rel: str) -> None:
+    """Control paths must retain their lexical identity, including junctions."""
+    try:
+        aliased = path.is_symlink() or path.resolve(strict=False) != path
+    except (OSError, RuntimeError) as exc:
+        msg = f"transaction control path {rel!r} cannot be resolved safely: {exc}"
+        raise ValueError(msg) from exc
+    if aliased:
+        msg = f"transaction control path {rel!r} contains a symlink or filesystem alias"
+        raise ValueError(msg)
+
+
 def project_target(root: Path, value: object, *, control: bool = False) -> Path:
     """Validate before reading a target or creating its parents.
 
@@ -45,8 +57,8 @@ def project_target(root: Path, value: object, *, control: bool = False) -> Path:
     path = base / rel
     try:
         resolved = path.resolve(strict=False)
-    except RuntimeError as exc:
-        msg = f"target {rel!r} contains a symlink loop"
+    except (OSError, RuntimeError) as exc:
+        msg = f"target {rel!r} cannot be resolved safely: {exc}"
         raise ValueError(msg) from exc
     if not resolved.is_relative_to(base) or resolved == base:
         msg = f"target {rel!r} escapes the project"
@@ -70,9 +82,7 @@ def project_target(root: Path, value: object, *, control: bool = False) -> Path:
         current = base
         for part in lexical:
             current /= part
-            if current.is_symlink():
-                msg = f"transaction control path {rel!r} contains a symlink"
-                raise ValueError(msg)
+            _check_control_component(current, rel)
     try:
         mode = path.lstat().st_mode
     except (FileNotFoundError, NotADirectoryError):
@@ -90,9 +100,7 @@ def control_directory(root: Path, rel: str) -> Path:
     current = base
     for part in PurePosixPath(rel).parts:
         current /= part
-        if current.is_symlink():
-            msg = f"transaction directory {rel!r} contains a symlink"
-            raise ValueError(msg)
+        _check_control_component(current, rel)
         if current.exists() and not current.is_dir():
             msg = f"transaction directory {rel!r} is not a directory"
             raise ValueError(msg)

@@ -69,7 +69,7 @@ def archived_task(self: Project, task_id: str) -> Task | None:
     entry = self.archive_index().tasks.get(task_id)
     if entry is None:
         return None
-    store = archive_store.Store(self.root / STATE_DIR)
+    store = archive_store.Store(self.root / STATE_DIR, project_root=self.root)
     payload = store.get(task_id, entry["sha256"])
     if payload is None or archive_store.record_hash(payload["task"]) != entry["sha256"]:
         self.reconcile_archive()  # a row from another archive of this task counts as a miss
@@ -169,7 +169,7 @@ def archive(self: Project, *, dry_run: bool = False, older_than: int | None = No
             rows.append((task_id, {"task": record, "evidence": kept, "run": run}, now))
             index.tasks[task_id] = archive_store.entry(task, record, now)
         # The local store first: if the JSON writes are interrupted, it just holds extra rows.
-        archive_store.Store(self.root / STATE_DIR).put(rows)
+        archive_store.Store(self.root / STATE_DIR, project_root=self.root).put(rows)
         self._ignore_archive_store()
         before = None if index_before is None else sha256(index_before)
         writes = [FileWrite(self.archive_index_rel, before, index.dumps().encode())]
@@ -183,7 +183,11 @@ def archive(self: Project, *, dry_run: bool = False, older_than: int | None = No
 def archived_evidence(self: Project, task_id: str) -> verification.Evidence:
     """The evidence (and its run) archived with a task, as an ``Evidence`` of its own."""
     entry = self.archive_index().tasks.get(task_id)
-    payload = (archive_store.Store(self.root / STATE_DIR).get(task_id, entry["sha256"]) if entry else None) or {}
+    payload = (
+        archive_store.Store(self.root / STATE_DIR, project_root=self.root).get(task_id, entry["sha256"])
+        if entry
+        else None
+    ) or {}
     kept, run = payload.get("evidence"), payload.get("run")
     if kept is None:
         return verification.Evidence()
@@ -289,7 +293,7 @@ def restore_archived(self: Project, task_id: str) -> tuple[str, ...]:
         entry = index.tasks.get(task_id)
         if entry is None:
             raise ConcurrentModificationError([self.archive_index_rel])
-        payload = archive_store.Store(self.root / STATE_DIR).get(task_id, entry["sha256"])
+        payload = archive_store.Store(self.root / STATE_DIR, project_root=self.root).get(task_id, entry["sha256"])
         if payload is None or archive_store.record_hash(payload["task"]) != entry["sha256"]:
             raise ConcurrentModificationError([self.archive_index_rel])
         # Lazy reconciliation may have consulted a newer index. The restored task
@@ -344,7 +348,7 @@ def reconcile_archive(self: Project) -> ReconcileReport:
     automatically recovered by this traversal; reconciled records come without them."""
     self._require_working_tree()
     index = self.archive_index()
-    store = archive_store.Store(self.root / STATE_DIR)
+    store = archive_store.Store(self.root / STATE_DIR, project_root=self.root)
     have = store.hashes()
     wanted = {t: e["sha256"] for t, e in index.tasks.items() if (t, e["sha256"]) not in have}
     if not wanted:

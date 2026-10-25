@@ -133,6 +133,13 @@ VCS/transaction state. Journals and archive indexes reject unsupported versions 
 records before mutation, retaining material for inspection. Valid current formats need no new
 migration for these guards. Same-version archive-index extension fields remain preserved.
 
+Transaction control paths must retain their lexical identity, including Windows junctions;
+ordinary confined source-parent aliases remain supported. Project archive stores bind their
+SQLite cache to the actual project root and validate the database and known SQLite sidecars
+before opening. Aliases, nonregular files and shared hardlinked cache files are rejected while
+preserving existing material. This write boundary does not define a general read sandbox for
+every raw Python metadata reader, or a guarantee against adversarial concurrent path replacement.
+
 Compatibility changes need an explicit rationale, affected-interface inventory and regression
 evidence. Schema changes need a migration and an older-client failure boundary, preserving
 tasks/history/evidence and documenting recovery. Additive fields must not create conflicting

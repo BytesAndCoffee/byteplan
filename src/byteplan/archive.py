@@ -34,7 +34,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
-from byteplan import jsonio
+from byteplan import jsonio, writeguard
+from byteplan.errors import ConfigError
 from byteplan.ids import is_valid_id
 from byteplan.merge import _ABSENT, _merge_value, _same
 from byteplan.models import Presence
@@ -95,18 +96,54 @@ def _parse(stamp: str) -> datetime:
 # The local store -------------------------------------------------------------------------------
 
 
-class Store:
-    """``.byteplan/archive.sqlite``: full records, compressed."""
+def _check_sqlite_links(path: Path) -> None:
+    try:
+        links = path.lstat().st_nlink
+    except FileNotFoundError:
+        return
+    if links > 1:
+        msg = f"SQLite file {path.name!r} has multiple hard links"
+        raise ValueError(msg)
 
-    def __init__(self, state_dir: Path) -> None:
-        self.path = state_dir / STORE
+
+class Store:
+    """Compressed records in an explicitly selected state directory.
+
+    Project callers bind ``project_root`` to their actual project. Standalone callers
+    authorize the selected directory under its parent; the directory itself and all
+    SQLite files must retain their lexical identity and have no other hard links.
+    """
+
+    def __init__(self, state_dir: Path, *, project_root: Path | None = None) -> None:
+        directory = state_dir.absolute()
+        self._root = (directory.parent if project_root is None else project_root).resolve()
+        # A standalone caller explicitly selects the parent, including its spelling
+        # through an alias. Project callers must instead retain the real root boundary.
+        self.path = (self._root / directory.name if project_root is None else directory) / STORE
+
+    def _checked_path(self) -> Path:
+        try:
+            directory = self.path.parent.relative_to(self._root).as_posix()
+            writeguard.control_directory(self._root, directory)
+            for suffix in ("", "-journal", "-wal", "-shm"):
+                path = writeguard.project_target(self._root, f"{directory}/{STORE}{suffix}", control=True)
+                _check_sqlite_links(path)
+        except (OSError, RuntimeError, ValueError) as exc:
+            msg = (
+                f"archive cache {self.path} cannot be used safely ({exc}); preserve existing files and "
+                "repair the cache directory, file or SQLite sidecar aliases/shared files before retrying"
+            )
+            raise ConfigError(msg) from exc
+        return self.path
 
     @contextlib.contextmanager
     def _connect(self) -> Iterator[sqlite3.Connection]:
         """A connection that commits on success and is always closed (sqlite3's own context
         manager only commits)."""
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with contextlib.closing(sqlite3.connect(self.path)) as connection, connection:
+        path = self._checked_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path = self._checked_path()
+        with contextlib.closing(sqlite3.connect(path)) as connection, connection:
             connection.execute(_SCHEMA)
             if _legacy_schema(connection):
                 # DDL must share the copy's transaction: interruption keeps the old store intact.
@@ -144,7 +181,7 @@ class Store:
                 )
 
     def get(self, task_id: str, sha: str | None = None) -> dict[str, Any] | None:
-        if not self.path.exists():
+        if not self._checked_path().exists():
             return None
         with self._connect() as connection:
             if sha is None:
@@ -161,7 +198,7 @@ class Store:
         return payload
 
     def hashes(self) -> set[tuple[str, str]]:
-        if not self.path.exists():
+        if not self._checked_path().exists():
             return set()
         with self._connect() as connection:
             return set(connection.execute("SELECT id, sha256 FROM tasks").fetchall())

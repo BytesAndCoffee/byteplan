@@ -90,6 +90,7 @@
     "c978",
     "c993",
     "cc54",
+    "cda4d1",
     "cdcb",
     "ce72",
     "d45d",
@@ -3999,6 +4000,61 @@
           "old": {
             "path": "src/byteplan/persistence.py"
           }
+        },
+        {
+          "at": "2026-10-25T16:56:12Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Reopen after independent follow-up demonstrated control-directory alias cleanup can delete unrelated in-project files under junction-like Windows path behavior. Do not merge until guarded and reverified.",
+          "old": "resolved"
+        },
+        {
+          "at": "2026-10-25T16:56:12Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.\nIndependent follow-up at b1d11c4 models a Windows directory junction (is_symlink=False while resolve follows the alias). Both control_directory and project_target(control=True) accept an in-project transaction alias; no-journal recovery clears unrelated target files. The fixture is entirely inside one temporary project and does not claim native Windows execution. Reopened this existing confinement obligation to enforce resolved-component identity for all control paths, preserve ordinary confined source-parent aliases, add complete-state no-journal regressions and native Windows coverage where supported. Prior explicit resolution remains historical; current task is in progress."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication."
+          }
+        },
+        {
+          "at": "2026-10-25T16:56:18Z",
+          "event": "reappeared",
+          "new": "present",
+          "old": "missing"
+        },
+        {
+          "at": "2026-10-25T17:24:14Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.\nIndependent follow-up at b1d11c4 models a Windows directory junction (is_symlink=False while resolve follows the alias). Both control_directory and project_target(control=True) accept an in-project transaction alias; no-journal recovery clears unrelated target files. The fixture is entirely inside one temporary project and does not claim native Windows execution. Reopened this existing confinement obligation to enforce resolved-component identity for all control paths, preserve ordinary confined source-parent aliases, add complete-state no-journal regressions and native Windows coverage where supported. Prior explicit resolution remains historical; current task is in progress.\nControl-alias amendment is complete and independently verified: resolved component identity now rejects junction-like control paths in both guards before cleanup; ordinary confined source-parent aliases remain supported. Author combined run: 193 passed, 1 native-Windows skip; independent portable fixture confirms exact preservation. Local canonical evidence accurately leaves the native Windows node skipped and derived readiness needs_review. Explicit manual resolution records implemented, independently verified code; it DOES NOT claim native execution. Dedicated Windows3.12 CI step must actually PASS on the new head before PR49 merge, with its result recorded as external platform evidence. No skipped outcome is rewritten as passing."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.\nIndependent follow-up at b1d11c4 models a Windows directory junction (is_symlink=False while resolve follows the alias). Both control_directory and project_target(control=True) accept an in-project transaction alias; no-journal recovery clears unrelated target files. The fixture is entirely inside one temporary project and does not claim native Windows execution. Reopened this existing confinement obligation to enforce resolved-component identity for all control paths, preserve ordinary confined source-parent aliases, add complete-state no-journal regressions and native Windows coverage where supported. Prior explicit resolution remains historical; current task is in progress."
+          }
+        },
+        {
+          "at": "2026-10-25T17:24:14Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicitly complete independently verified confinement implementation. Preserve honest local platform-specific skip; native Windows CI and full release gates remain mandatory before merge/approval.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-25T17:24:25Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-25T17:24:25Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/persistence.py"
+          }
         }
       ],
       "id": "62edd5",
@@ -4007,8 +4063,8 @@
         "release:1.0",
         "final-review"
       ],
-      "last_seen": "2026-10-25T03:20:35Z",
-      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.",
+      "last_seen": "2026-10-25T16:56:18Z",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP1: independent reviews A1/B2-1 confirm that ordinary/staged journals and serialized release restoration accept unconfined targets; ordinary recovery can write a sibling file. Validate commit and recovery targets, complete journal schemas/copy names/index identity, symlinks and protected metadata before any side effect. Preserve invalid recovery material and use actionable domain errors. Cover normal supported Git index modes and release restoration without changing public signatures.\nIndependent correction review P2-I1 found inconsistent staged before_oid/before_hash/before_copy nullness could remove a tracked index entry on rollback. The whole-journal parser now requires all three present or all absent. Twelve real produced-plan regressions cover both recovery directions and all six inconsistent combinations, preserving index/worktree/journal/copies on rejection. Author corrected-source focused run: 62 passed; independent 12-case recheck and original reproduction confirm safe rejection. This is completion of this registered validation obligation, not a new schema or public API. Prior 177-case and initial full runs are explicitly interim relative to this amendment.\nImplementation and linked acceptance cases are complete. Independent combined correction review found no confirmed unresolved P0/P1/P2 after P2-I1 was corrected and rechecked; narrowed allocation also passed independent scope-boundary review. The full scaffold/allocation selection passed 67 with one existing P3 xfail, and its old decoder-fixture assertions were retained and strengthened. Full typing (117 files), formatting (118 files) and builds passed. Explicit resolution records implementation completion; the fresh post-cleanup full suite, platform CI and two new common-SHA whole-repository reviews remain required release gates. No RC1 approval, tag or publication.\nIndependent follow-up at b1d11c4 models a Windows directory junction (is_symlink=False while resolve follows the alias). Both control_directory and project_target(control=True) accept an in-project transaction alias; no-journal recovery clears unrelated target files. The fixture is entirely inside one temporary project and does not claim native Windows execution. Reopened this existing confinement obligation to enforce resolved-component identity for all control paths, preserve ordinary confined source-parent aliases, add complete-state no-journal regressions and native Windows coverage where supported. Prior explicit resolution remains historical; current task is in progress.\nControl-alias amendment is complete and independently verified: resolved component identity now rejects junction-like control paths in both guards before cleanup; ordinary confined source-parent aliases remain supported. Author combined run: 193 passed, 1 native-Windows skip; independent portable fixture confirms exact preservation. Local canonical evidence accurately leaves the native Windows node skipped and derived readiness needs_review. Explicit manual resolution records implemented, independently verified code; it DOES NOT claim native execution. Dedicated Windows3.12 CI step must actually PASS on the new head before PR49 merge, with its result recorded as external platform evidence. No skipped outcome is rewritten as passing.",
       "origin": "comment",
       "presence": "missing",
       "priority": "high",
@@ -4062,25 +4118,49 @@
             "provenance": "verifies"
           },
           {
-            "line": 335,
+            "line": 339,
             "node": "tests/test_persistence.py::test_commit_validates_entire_target_set_first",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 320,
+            "line": 438,
+            "node": "tests/test_persistence.py::test_control_guards_reject_resolved_aliases_without_symlink_flag",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 484,
+            "node": "tests/test_persistence.py::test_native_windows_control_junction_is_rejected_before_cleanup",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 455,
+            "node": "tests/test_persistence.py::test_no_journal_recovery_rejects_control_alias_before_cleanup",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 470,
+            "node": "tests/test_persistence.py::test_ordinary_confined_source_parent_alias_remains_supported",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 324,
             "node": "tests/test_persistence.py::test_recover_checks_all_copies_before_first_write",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 357,
+            "line": 361,
             "node": "tests/test_persistence.py::test_recover_rejects_symlink_copy_without_cleanup",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 258,
+            "line": 262,
             "node": "tests/test_persistence.py::test_recover_rejects_whole_invalid_journal_without_changes",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
@@ -9073,6 +9153,165 @@
         ]
       },
       "title": "Detect a runtime module imported through its parent package",
+      "title_override": null
+    },
+    "cda4d1": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-25T17:07:49Z",
+      "history": [
+        {
+          "at": "2026-10-25T17:07:49Z",
+          "event": "created",
+          "new": {
+            "line": 104,
+            "path": "src/byteplan/archive.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T17:07:49Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "P1 confirmed by independent follow-up at b1d11c4: a fresh archived-task lookup follows a cache-file symlink to an unrelated sibling SQLite DB outside the selected project, and Store._connect creates/migrates its tasks table before the lookup fails. Private fixture observes outside DB bytes/schema changed while sentinel row remains; no real external files. Guard cache parent/file and engine sidecar write paths before mkdir/connect/DDL, including read-side cache population. Preserve supported direct Store(state_dir) usage and legacy store migration; project operations must enforce the actual project root. No storage redesign or new product functionality. Record benign regressions and independent recheck before explicit resolution.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-25T17:07:49Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implement confirmed archive cache write-boundary correction before RC1; keep PR49 draft.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-25T17:07:49Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_archive_cache_safety.py::test_store_connect",
+            "path": "tests/test_archive_cache_safety.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-25T17:24:14Z",
+          "event": "edited",
+          "new": {
+            "notes": "P1 confirmed by independent follow-up at b1d11c4: a fresh archived-task lookup follows a cache-file symlink to an unrelated sibling SQLite DB outside the selected project, and Store._connect creates/migrates its tasks table before the lookup fails. Private fixture observes outside DB bytes/schema changed while sentinel row remains; no real external files. Guard cache parent/file and engine sidecar write paths before mkdir/connect/DDL, including read-side cache population. Preserve supported direct Store(state_dir) usage and legacy store migration; project operations must enforce the actual project root. No storage redesign or new product functionality. Record benign regressions and independent recheck before explicit resolution.\nImplemented and independently verified: all five Project Store callers bind actual Project.root; main DB and -journal/-wal/-shm paths are checked before directory/SQLite access, including missing-cache early returns; multiply linked files rejected. Normal standalone/bound custom stores, WAL and legacy migration preserved. Author focused44 and broader116 passed; independent original fixture safely rejects with foreign DB/schema/sentinel/alias unchanged, new module43 plus legacy1 passed. Full updated source checks/platform CI and new whole-repository review freeze remain release gates."
+          },
+          "old": {
+            "notes": "P1 confirmed by independent follow-up at b1d11c4: a fresh archived-task lookup follows a cache-file symlink to an unrelated sibling SQLite DB outside the selected project, and Store._connect creates/migrates its tasks table before the lookup fails. Private fixture observes outside DB bytes/schema changed while sentinel row remains; no real external files. Guard cache parent/file and engine sidecar write paths before mkdir/connect/DDL, including read-side cache population. Preserve supported direct Store(state_dir) usage and legacy store migration; project operations must enforce the actual project root. No storage redesign or new product functionality. Record benign regressions and independent recheck before explicit resolution."
+          }
+        },
+        {
+          "at": "2026-10-25T17:24:14Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicitly complete independently verified confinement implementation. Preserve honest local platform-specific skip; native Windows CI and full release gates remain mandatory before merge/approval.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-25T17:24:25Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-25T17:24:25Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/archive.py"
+          }
+        }
+      ],
+      "id": "cda4d1",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-25T17:07:49Z",
+      "notes": "P1 confirmed by independent follow-up at b1d11c4: a fresh archived-task lookup follows a cache-file symlink to an unrelated sibling SQLite DB outside the selected project, and Store._connect creates/migrates its tasks table before the lookup fails. Private fixture observes outside DB bytes/schema changed while sentinel row remains; no real external files. Guard cache parent/file and engine sidecar write paths before mkdir/connect/DDL, including read-side cache population. Preserve supported direct Store(state_dir) usage and legacy store migration; project operations must enforce the actual project root. No storage redesign or new product functionality. Record benign regressions and independent recheck before explicit resolution.\nImplemented and independently verified: all five Project Store callers bind actual Project.root; main DB and -journal/-wal/-shm paths are checked before directory/SQLite access, including missing-cache early returns; multiply linked files rejected. Normal standalone/bound custom stores, WAL and legacy migration preserved. Author focused44 and broader116 passed; independent original fixture safely rejects with foreign DB/schema/sentinel/alias unchanged, new module43 plus legacy1 passed. Full updated source checks/platform CI and new whole-repository review freeze remain release gates.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "method",
+        "decl_line": 141,
+        "line": 139,
+        "path": "src/byteplan/archive.py",
+        "representation": "comment",
+        "symbol": "Store._connect"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 197,
+            "node": "tests/test_archive_cache_safety.py::test_archiving_rejects_aliases_without_changing_registry_index_or_foreign_database",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 161,
+            "node": "tests/test_archive_cache_safety.py::test_dangling_and_nonregular_sqlite_paths_fail_without_creating_cache",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 120,
+            "node": "tests/test_archive_cache_safety.py::test_every_store_entrypoint_validates_cache_and_sidecars_before_connect",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 185,
+            "node": "tests/test_archive_cache_safety.py::test_explicit_project_root_rejects_an_external_state_directory_without_mkdir",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 53,
+            "node": "tests/test_archive_cache_safety.py::test_fresh_archived_lookup_rejects_cache_alias_before_mutating_foreign_database",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 215,
+            "node": "tests/test_archive_cache_safety.py::test_legitimate_custom_store_creation_and_versioned_roundtrip",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 237,
+            "node": "tests/test_archive_cache_safety.py::test_legitimate_wal_cache_sidecars_remain_supported",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 90,
+            "node": "tests/test_archive_cache_safety.py::test_project_cache_parent_alias_keeps_actual_project_root_authority",
+            "path": "tests/test_archive_cache_safety.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Confine archive cache and SQLite sidecar paths before implicit writes.",
       "title_override": null
     },
     "cdcb": {

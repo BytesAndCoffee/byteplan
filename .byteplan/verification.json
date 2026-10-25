@@ -244,6 +244,22 @@
       "python": "3.12.14",
       "timed_out": false
     },
+    "8cdcbf6303c14cafb9cb8f7b44395c13": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-25T17:24:30Z",
+      "dirty": true,
+      "head": "b1d11c41ad6bc1a6db61413febdf76a953d68a1f",
+      "python": "3.12.14",
+      "timed_out": false
+    },
     "925deaf35320": {
       "argv": [
         "hatch",
@@ -1046,35 +1062,51 @@
       }
     },
     "62edd5": {
-      "fingerprint": "00ac14bdf3c0bd706f2b78caaffd5df1399a7f113e3c6ee183916d99b97aa862",
-      "run": "6610ce35b262476ca07a760bf9bfbdc4",
+      "fingerprint": "a631266729b26ca7a24e4bd95e0a1a102f69e65c291f2f39383595cadcc5e605",
+      "run": "8cdcbf6303c14cafb9cb8f7b44395c13",
       "tests": {
         "tests/test_gitwrite.py::test_linked_worktree_uses_its_own_git_index": {
-          "duration_ms": 262,
+          "duration_ms": 373,
           "outcome": "passed"
         },
         "tests/test_gitwrite.py::test_recovery_rejects_inconsistent_original_presence_before_any_side_effect": {
-          "duration_ms": 2771,
+          "duration_ms": 8449,
           "outcome": "passed"
         },
         "tests/test_gitwrite.py::test_saved_index_cannot_select_existing_sibling_by_prefix": {
-          "duration_ms": 226,
+          "duration_ms": 405,
           "outcome": "passed"
         },
         "tests/test_gitwrite.py::test_staged_recovery_rejects_symlink_copy": {
-          "duration_ms": 156,
+          "duration_ms": 307,
           "outcome": "passed"
         },
         "tests/test_gitwrite.py::test_staged_recovery_rejects_whole_invalid_journal": {
-          "duration_ms": 2678,
+          "duration_ms": 13929,
           "outcome": "passed"
         },
         "tests/test_gitwrite.py::test_supported_index_modes_recover": {
-          "duration_ms": 660,
+          "duration_ms": 1397,
           "outcome": "passed"
         },
         "tests/test_persistence.py::test_commit_validates_entire_target_set_first": {
           "duration_ms": 6,
+          "outcome": "passed"
+        },
+        "tests/test_persistence.py::test_control_guards_reject_resolved_aliases_without_symlink_flag": {
+          "duration_ms": 4,
+          "outcome": "passed"
+        },
+        "tests/test_persistence.py::test_native_windows_control_junction_is_rejected_before_cleanup": {
+          "duration_ms": 0,
+          "outcome": "skipped"
+        },
+        "tests/test_persistence.py::test_no_journal_recovery_rejects_control_alias_before_cleanup": {
+          "duration_ms": 3,
+          "outcome": "passed"
+        },
+        "tests/test_persistence.py::test_ordinary_confined_source_parent_alias_remains_supported": {
+          "duration_ms": 3,
           "outcome": "passed"
         },
         "tests/test_persistence.py::test_recover_checks_all_copies_before_first_write": {
@@ -1086,15 +1118,15 @@
           "outcome": "passed"
         },
         "tests/test_persistence.py::test_recover_rejects_whole_invalid_journal_without_changes": {
-          "duration_ms": 52,
-          "outcome": "passed"
-        },
-        "tests/test_restore_path_safety.py::test_restore_validates_all_records_before_source_reads": {
           "duration_ms": 63,
           "outcome": "passed"
         },
+        "tests/test_restore_path_safety.py::test_restore_validates_all_records_before_source_reads": {
+          "duration_ms": 57,
+          "outcome": "passed"
+        },
         "tests/test_restore_path_safety.py::test_source_parent_replaced_by_symlink_fails_safely": {
-          "duration_ms": 11,
+          "duration_ms": 10,
           "outcome": "passed"
         }
       }
@@ -1949,6 +1981,44 @@
       "tests": {
         "tests/test_release.py::test_runtime_module_imported_through_its_parent_refuses_the_release": {
           "duration_ms": 631,
+          "outcome": "passed"
+        }
+      }
+    },
+    "cda4d1": {
+      "fingerprint": "94f4d6c57606d613642ed08c469124c5c93824660cb32a76bb471f67da239685",
+      "run": "8cdcbf6303c14cafb9cb8f7b44395c13",
+      "tests": {
+        "tests/test_archive_cache_safety.py::test_archiving_rejects_aliases_without_changing_registry_index_or_foreign_database": {
+          "duration_ms": 1092,
+          "outcome": "passed"
+        },
+        "tests/test_archive_cache_safety.py::test_dangling_and_nonregular_sqlite_paths_fail_without_creating_cache": {
+          "duration_ms": 58,
+          "outcome": "passed"
+        },
+        "tests/test_archive_cache_safety.py::test_every_store_entrypoint_validates_cache_and_sidecars_before_connect": {
+          "duration_ms": 273,
+          "outcome": "passed"
+        },
+        "tests/test_archive_cache_safety.py::test_explicit_project_root_rejects_an_external_state_directory_without_mkdir": {
+          "duration_ms": 4,
+          "outcome": "passed"
+        },
+        "tests/test_archive_cache_safety.py::test_fresh_archived_lookup_rejects_cache_alias_before_mutating_foreign_database": {
+          "duration_ms": 904,
+          "outcome": "passed"
+        },
+        "tests/test_archive_cache_safety.py::test_legitimate_custom_store_creation_and_versioned_roundtrip": {
+          "duration_ms": 164,
+          "outcome": "passed"
+        },
+        "tests/test_archive_cache_safety.py::test_legitimate_wal_cache_sidecars_remain_supported": {
+          "duration_ms": 22,
+          "outcome": "passed"
+        },
+        "tests/test_archive_cache_safety.py::test_project_cache_parent_alias_keeps_actual_project_root_authority": {
+          "duration_ms": 57,
           "outcome": "passed"
         }
       }

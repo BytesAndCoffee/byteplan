@@ -12,20 +12,26 @@ inspection and ordinary regression tests.
 
 | BytePlan task | Severity | Independent findings | Required correction | Disposition |
 |---|---|---|---|---|
-| `62edd5` | P1 | A1, B2-1 | Confine commit, ordinary/staged recovery and serialized release-restore targets; validate journal schema, copy names and supported index identity before side effects. Retain invalid recovery material. | Implemented; explicitly resolved with fresh linked evidence. |
+| `62edd5` | P1 | A1, B2-1; control-alias follow-up | Confine commit, ordinary/staged recovery and serialized release-restore targets; validate journal schema, copy names and supported index identity before side effects. Reject control-directory aliases including junctions. Retain invalid recovery material. | Implementation explicitly resolved; portable evidence passes, native Windows CI remains a merge gate. |
 | `81cc04` | P1 | A2, B2-2 | Enforce operation-specific MCP recovery authority under the project lock. Source recovery requires source permission and an explicit meaningful apply; metadata-only recovery may retain its supported scope. | Implemented; explicitly resolved with fresh linked evidence. |
 | `38e8db` | P1 | A3 | Reject repair import of an archived identity and direct to guarded archive restore, preserving lifecycle, managed history and evidence. | Implemented; explicitly resolved with fresh linked evidence. |
 | `dcd417` | P2 | A4, B2-5 | Validate every required forward/rollback staged copy hash before any worktree/index or direction changes; preserve damaged material on rejection. | Implemented; explicitly resolved with fresh linked evidence. |
 | `3d5bb4` | P2 | A5, B2-4 | Reserve embedded identities across the full configured scope during narrowed allocation, without reconciling outside-target tasks or changing missing detection. | Implemented; explicitly resolved with fresh linked evidence. |
 | `765f23` | P2 | A6, B2-3 | Validate archive-index version and record shape, reject unsupported formats safely and preserve supported same-version opaque metadata through serialization and merge. | Implemented; explicitly resolved with fresh linked evidence. |
+| `cda4d1` | P1 | Independent cache-boundary follow-up | Bind Project archive stores to the actual project root; validate the SQLite database, directory and implicit sidecars before opening, including hardlink rejection. | Implemented; explicitly resolved with fresh linked evidence. |
 
-All six identities were allocated by BytePlan from appropriate source FIXMEs and registered
+All seven identities were allocated by BytePlan from appropriate source FIXMEs and registered
 through supported APIs, with `release:1.0` labels and explicit in-progress lifecycle events.
 The initial acceptance placeholders were replaced by real linked regressions. After passing
 evidence and independent correction review, each task was explicitly resolved and its source
-FIXME removed through BytePlan cleanup. A fresh verification run after cleanup reports all six
-`ready_for_review`. This implementation disposition does not approve RC1: the post-cleanup full
-suite, exact-head platform CI and two new whole-repository reviews remain release gates.
+FIXME removed through BytePlan cleanup. The original six-task checkpoint had fresh passing
+evidence; `62edd5` was subsequently reopened for the control-alias follow-up and explicitly
+resolved after correction and independent portable verification. Its new automated record
+honestly remains `needs_review` because the native Windows case is skipped on Linux. A separate
+Windows CI step must execute that case and report a pass before merge; a successful skipped
+step is insufficient. `cda4d1` has fresh passing linked evidence. This implementation disposition
+does not approve RC1: the post-cleanup full suite, exact-head platform CI and two new
+whole-repository reviews remain release gates.
 
 ## Evidence limits and release gates
 
@@ -50,6 +56,22 @@ source-safety check was removed to obtain that result.
 
 ## Compatibility and recovery procedure
 
+The control-directory follow-up demonstrated that an in-project alias reporting
+`is_symlink=False` could redirect no-journal cleanup into unrelated project files. Both control
+guards now require lexical and resolved identity for every component. Portable regressions and
+an independent real-filesystem fixture model that junction distinction and preserve the entire
+tree on rejection. Ordinary confined source-parent aliases remain supported. Native Windows
+execution is a separate CI gate, not a claimed local result.
+
+The cache follow-up demonstrated that a fresh archived-task lookup could open an aliased
+SQLite database and create BytePlan tables in an unrelated database; a hardlink fixture also
+demonstrated mutation. Project-owned stores now retain the actual project root. The state
+directory, database and rollback-journal/WAL/SHM paths are checked before directory creation,
+connection or DDL. Aliases, nonregular paths and multiply linked SQLite files fail with an
+actionable configuration error. Legitimate standalone stores, legacy migration and live WAL
+remain covered by passing regressions. These checks establish the boundary before opening;
+they do not promise descriptor-based protection against concurrent adversarial path replacement.
+
 Well-formed task registries, archive indexes and journals retain their existing versions:
 task schema 2, archive-index schema 1, and ordinary/staged journal version 1. Existing legacy
 IDs and valid minimal archive entries remain supported. No storage migration is introduced.
@@ -63,7 +85,7 @@ discarded legacy alternate index takes the established worktree rollback path wi
 opening or recreating that missing index. Unrecognized existing index aliases are refused.
 
 Source targets must be canonical project-relative paths. Escaping or protected paths and
-nonregular targets are rejected; transaction controls cannot use symlink aliases. Atomic
+nonregular targets are rejected; transaction controls cannot use filesystem aliases. Atomic
 replacement retains file modes, ordinary creation umask and Windows binary bytes while
 allocating an exclusive random temporary file. Deliberate Git index/worktree differences
 remain possible; these guards do not automatically stage a user's later worktree edits.

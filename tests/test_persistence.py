@@ -5,10 +5,13 @@
 
 from __future__ import annotations
 
+import importlib
 import json
 import os
+import stat
 import subprocess
 import sys
+from functools import partial
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -18,6 +21,7 @@ from byteplan._todo import verifies
 from byteplan.api import Project
 from byteplan.errors import ConcurrentModificationError, JournalConflictError
 from byteplan.persistence import FileWrite, commit, recover, sha256
+from byteplan.writeguard import control_directory, project_target
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -395,3 +399,115 @@ assert atomic_write_bytes(created, payload + b"changed")
 assert stat.S_IMODE(created.stat().st_mode) == mode
 """
     subprocess.run([sys.executable, "-B", "-c", script, str(tmp_path)], check=True, capture_output=True)
+
+
+def control_tree_state(root: Path) -> dict[str, tuple[int, bytes | str | None]]:
+    """Include empty directories, alias identities and file bytes, excluding no paths."""
+    state: dict[str, tuple[int, bytes | str | None]] = {}
+    for path in [root, *root.rglob("*")]:
+        info = path.lstat()
+        mode = info.st_mode
+        contents: bytes | str | None = None
+        if stat.S_ISLNK(mode) or getattr(info, "st_reparse_tag", False):
+            contents = os.readlink(path)
+        elif stat.S_ISREG(mode):
+            contents = path.read_bytes()
+        state[path.relative_to(root).as_posix()] = (mode, contents)
+    return state
+
+
+def modeled_control_alias(root: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Path, Path]:
+    target = root / "ordinary"
+    target.mkdir()
+    (target / "keep.txt").write_bytes(b"ordinary project data\n")
+    (root / ".byteplan").mkdir()
+    alias = root / ".byteplan/txn"
+    alias.symlink_to(target, target_is_directory=True)
+    original = type(alias).is_symlink
+
+    def junction_like(path: Path) -> bool:
+        # Model a Windows junction: only this alias is not identified as a symlink.
+        return False if path == alias else original(path)
+
+    monkeypatch.setattr(type(alias), "is_symlink", junction_like)
+    assert not alias.is_symlink()
+    assert alias.resolve() == target
+    return alias, target
+
+
+@verifies("62edd5")
+@pytest.mark.parametrize("guard", ["directory", "file"])
+def test_control_guards_reject_resolved_aliases_without_symlink_flag(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, guard: str
+) -> None:
+    modeled_control_alias(tmp_path, monkeypatch)
+    before = control_tree_state(tmp_path)
+    check = (
+        partial(control_directory, tmp_path, ".byteplan/txn")
+        if guard == "directory"
+        else partial(project_target, tmp_path, ".byteplan/txn/journal.json", control=True)
+    )
+    with pytest.raises(ValueError, match="alias"):
+        check()
+    assert control_tree_state(tmp_path) == before
+
+
+@verifies("62edd5")
+def test_no_journal_recovery_rejects_control_alias_before_cleanup(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    modeled_control_alias(tmp_path, monkeypatch)
+    before = control_tree_state(tmp_path)
+    assert not persistence.journal_path(tmp_path).exists()
+    with persistence.project_lock(tmp_path):
+        locked = control_tree_state(tmp_path)
+        with pytest.raises(JournalConflictError, match="alias"):
+            recover(tmp_path)
+        assert control_tree_state(tmp_path) == locked
+    assert control_tree_state(tmp_path) == before
+
+
+@verifies("62edd5")
+def test_ordinary_confined_source_parent_alias_remains_supported(tmp_path: Path) -> None:
+    target = tmp_path / "ordinary"
+    target.mkdir()
+    source = target / "a.py"
+    source.write_bytes(b"old\n")
+    alias = tmp_path / "source-alias"
+    alias.symlink_to(target, target_is_directory=True)
+    assert project_target(tmp_path, "source-alias/a.py") == alias / "a.py"
+    assert commit(tmp_path, [FileWrite("source-alias/a.py", sha256(b"old\n"), b"new\n")]) == ["source-alias/a.py"]
+    assert source.read_bytes() == b"new\n"
+    assert alias.is_symlink()
+
+
+@verifies("62edd5")
+@pytest.mark.skipif(sys.platform != "win32", reason="native Windows junction capability regression")
+def test_native_windows_control_junction_is_rejected_before_cleanup(tmp_path: Path) -> None:
+    winapi = importlib.import_module("_winapi")
+    create_junction = getattr(winapi, "CreateJunction", None)
+    if not callable(create_junction):
+        pytest.skip("this Windows interpreter has no _winapi.CreateJunction capability")
+    target = tmp_path / "ordinary"
+    target.mkdir()
+    (target / "keep.txt").write_bytes(b"ordinary project data\n")
+    (tmp_path / ".byteplan").mkdir()
+    alias = tmp_path / ".byteplan/txn"
+    create_junction(str(target), str(alias))
+    try:
+        assert not alias.is_symlink()
+        assert alias.resolve() == target.resolve()
+        before = control_tree_state(tmp_path)
+        with pytest.raises(ValueError, match="alias"):
+            control_directory(tmp_path, ".byteplan/txn")
+        with pytest.raises(ValueError, match="alias"):
+            project_target(tmp_path, ".byteplan/txn/journal.json", control=True)
+        with persistence.project_lock(tmp_path):
+            locked = control_tree_state(tmp_path)
+            with pytest.raises(JournalConflictError, match="alias"):
+                recover(tmp_path)
+            assert control_tree_state(tmp_path) == locked
+        assert control_tree_state(tmp_path) == before
+    finally:
+        # Remove the junction itself, preserving the target directory and its files.
+        alias.rmdir()
