@@ -8943,6 +8943,16 @@
           "old": {
             "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized."
           }
+        },
+        {
+          "at": "2026-10-25T03:25:40Z",
+          "event": "edited",
+          "new": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5.\nReplacement reviewer B2 independently confirmed the staged copy-integrity gap in its completed initial report. Both completed whole-repository reviews block RC1; all six accepted findings remain in progress until real regressions, verification and explicit resolution."
+          },
+          "old": {
+            "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5."
+          }
         }
       ],
       "id": "dcd417",
@@ -8952,7 +8962,7 @@
         "final-review"
       ],
       "last_seen": "2026-10-25T03:20:35Z",
-      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5.",
+      "notes": "Confirmed against frozen e7e526e43c888dcdf6821dd755de3969dd308fa1 during independent whole-repository review. Initial review reports and code validation establish the issue; real regression evidence is required before resolution. No graph or new product functionality is authorized.\nP2, accepted for RC1: review A4 demonstrates staged forward recovery writes a damaged after copy and deletes recovery material. Check all required forward/rollback copy hashes before any worktree/index or journal-direction mutation; preserve damaged copies and journal. Coordinate with serialized-path validation task 62edd5.\nReplacement reviewer B2 independently confirmed the staged copy-integrity gap in its completed initial report. Both completed whole-repository reviews block RC1; all six accepted findings remain in progress until real regressions, verification and explicit resolution.",
       "origin": "comment",
       "presence": "present",
       "priority": "normal",
