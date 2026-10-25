@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**18 open** · 86 closed (resolved 86)
+**18 open** · 93 closed (resolved 93)
 
 ## Open
 
@@ -48,8 +48,10 @@
 | `30c3` | resolved | FIXME | [P3] Locate decorator IDs by their AST value span during duplicate repair |
 | `34da` | resolved | FIXME | Respect enclosing scopes before stripping a decorator |
 | `3844` | resolved | TODO | RC1 behavior-preserving decomposition of the public Project facade |
+| `38e8db` | resolved | FIXME | Refuse import of archived identities and preserve their authoritative lifecycle and evidence. |
 | `3b20` | resolved | FIXME | RC1 remove stale unknown-field-loss claim from completed Phase 4d |
 | `3d3a` | resolved | FIXME | the archive index is read from the working tree even when checking a Git snapshot |
+| `3d5bb4` | resolved | FIXME | Reserve unregistered embedded IDs outside narrowed targets before allocation. |
 | `3f50` | resolved | FIXME | [P2] Normalize the test directory before excluding test-side tasks |
 | `4518` | resolved | FIXME | An escaping package exposes every submodule imported under it |
 | `478d` | resolved | FIXME | Resolve relative imports before deciding whether they import the runtime |
@@ -60,12 +62,15 @@
 | `50ad66` | resolved | FIXME | Preserve external evidence and archive-index edits during archived task restoration |
 | `5aae` | resolved | FIXME | [P2] Collect occupied test names inside module-level control-flow blocks |
 | `5ff6` | resolved | FIXME | [P2] Report scaffold encoding and filesystem failures per task |
+| `62edd5` | resolved | FIXME | Confine serialized transaction and restore targets before filesystem side effects. |
 | `6639` | resolved | FIXME | Keep runtime imports that __all__ re-exports |
 | `67df` | resolved | FIXME | [P2] Keep inserted imports after all future imports |
 | `6b83` | resolved | FIXME | Keep sync's top-level JSON fields when only cleanup runs |
 | `6d434f` | resolved | FIXME | Preserve opaque evidence metadata across ordinary verification and archive writes. |
 | `71c4` | resolved | FIXME | the evidence's run metadata isn't archived, so a restore loses it |
+| `765f23` | resolved | FIXME | Validate archive-index schema and records while preserving supported opaque metadata. |
 | `7ff8` | resolved | FIXME | resolve(sync_source=true) removes the annotation without apply=true |
+| `81cc04` | resolved | FIXME | Enforce per-operation source permission and apply authority during transaction recovery. |
 | `82b3` | resolved | TODO | Phase 5: runtime and normalization |
 | `86e1` | resolved | FIXME | a cached row isn't checked against the index's sha256, so a stale record is returned |
 | `8756` | resolved | TODO | RC1 schema boundary and transactional migration for expanded persistent IDs |
@@ -102,8 +107,10 @@
 | `c978` | resolved | FIXME | RC1 persistent identity compatibility: remove four-character-only assumptions |
 | `c993` | resolved | FIXME | Retry report generation when main advances before the push |
 | `cc54` | resolved | FIXME | Detect a runtime module imported through its parent package |
+| `cda4d1` | resolved | FIXME | Confine archive cache and SQLite sidecar paths before implicit writes. |
 | `ce72` | resolved | TODO | Summarize scan results by default instead of listing every annotation |
 | `d45d` | resolved | TODO | Return only the scaffolded test, not the whole target file |
+| `dcd417` | resolved | FIXME | Validate all staged recovery copy hashes before forward or rollback side effects. |
 | `def0` | resolved | FIXME | scan paths resolve against the server's cwd, not the served project's root |
 | `e7d9` | resolved | FIXME | ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side |
 | `ecf4` | resolved | FIXME | [P2] Preserve runtime imports consumed by other project modules during cleanup |
