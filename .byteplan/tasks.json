@@ -719,7 +719,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1699,
+        "line": 1701,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -4209,7 +4209,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1693,
+        "line": 1695,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -5008,7 +5008,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1696,
+        "line": 1698,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -6045,6 +6045,23 @@
           "old": {
             "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication."
           }
+        },
+        {
+          "at": "2026-10-24T22:16:41Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Prepare candidate 1.0.0rc1 metadata, release notes and readiness report separately from API decomposition; no tagging or publication.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-24T22:16:41Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned."
+          }
         }
       ],
       "id": "a70d",
@@ -6054,7 +6071,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -6067,7 +6084,7 @@
         "representation": "comment",
         "symbol": "Track G — Release candidate readiness and approval"
       },
-      "status": "open",
+      "status": "in_progress",
       "stub": null,
       "title": "RC1 approval-ready release report and artifact/platform validation",
       "title_override": null
@@ -8445,7 +8462,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1690,
+        "line": 1692,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -8705,7 +8722,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1703,
+        "line": 1705,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"

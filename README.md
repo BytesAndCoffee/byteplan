@@ -15,7 +15,8 @@ or leave a function unfinished, and BytePlan does the rest:
 It never decides that work is done. If a TODO disappears, its task is marked **missing**, not
 resolved. Only you resolve tasks.
 
-> **Status: alpha, in active development.** Everything described here works today:
+> **Status: preparing 1.0.0rc1 (beta).** Final release validation and approval remain pending.
+> The current implementation includes:
 > - the CLI, scanner and registry, for Python, Markdown and JSON
 > - Git integration: IDs added at commit time, staged and CI checks, and the merge drivers
 > - acceptance tests: linking, scaffolding and `byteplan verify` with recorded evidence
