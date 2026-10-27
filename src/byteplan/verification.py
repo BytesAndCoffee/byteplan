@@ -55,6 +55,9 @@ PLUGIN_MODULE = "_byteplan_verify_plugin"
 # Most severe first: a node covering several items takes the worst.
 OUTCOMES = ("error", "failed", "timeout", "not_found", "not_run", "xpassed", "skipped", "xfailed", "passed")
 _FAILING = frozenset({"failed", "error", "timeout"})
+# After a timeout kill, how long to keep reading output. A descendant that escaped the kill
+# can hold the pipe open indefinitely; verification must still end.
+_KILL_GRACE = 5.0
 
 
 class VerifyError(ByteplanError):
@@ -198,7 +201,17 @@ def run_tests(
         except subprocess.TimeoutExpired:
             timed_out = True
             _kill(proc)
-            output, _ = proc.communicate()
+            try:
+                output, _ = proc.communicate(timeout=_KILL_GRACE)
+            except subprocess.TimeoutExpired:
+                # Something the runner started still holds the output pipe. Stop reading:
+                # the runner itself is gone, and its results file is what counts.
+                output = b""
+                if proc.stdout is not None:
+                    with contextlib.suppress(OSError):
+                        proc.stdout.close()
+                with contextlib.suppress(subprocess.TimeoutExpired):
+                    proc.wait(timeout=_KILL_GRACE)
         records = _read_records(out)
     text = (output or b"").decode("utf-8", "replace")
     results.update(_aggregate(pending, records, timed_out=timed_out, returncode=proc.returncode))
@@ -206,10 +219,19 @@ def run_tests(
 
 
 def _kill(proc: subprocess.Popen[bytes]) -> None:
-    """Kill the runner and everything it started (its process group on POSIX)."""
+    """Kill the runner and everything it started: its process group on POSIX, its process
+    tree on Windows (a wrapper such as Hatch runs pytest as a child)."""
     if sys.platform != "win32":
         with contextlib.suppress(OSError):
             os.killpg(proc.pid, signal.SIGKILL)
+    else:
+        with contextlib.suppress(OSError, subprocess.SubprocessError):
+            subprocess.run(
+                ["taskkill", "/F", "/T", "/PID", str(proc.pid)],  # noqa: S607 - a Windows system tool
+                capture_output=True,
+                timeout=_KILL_GRACE,
+                check=False,
+            )
     with contextlib.suppress(OSError):
         proc.kill()
 

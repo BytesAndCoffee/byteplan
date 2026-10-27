@@ -10,19 +10,28 @@ pytest subprocesses against small projects.
 
 from __future__ import annotations
 
+import contextlib
 import json
+import os
 import shutil
+import signal
 import sys
+import time
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from byteplan import verification
+from byteplan._todo import verifies
 from byteplan.api import Project
 from byteplan.cli import EXIT_FINDINGS, EXIT_OK
 from byteplan.verification import _aggregate, _item_result
 from tests.gitutil import git
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from tests.conftest import ProjectFactory, RunCli
 
 CODE = """\
@@ -450,3 +459,38 @@ def test_missing_annotation_drops_its_old_file_from_freshness(project: ProjectFa
     assert state() == "ready_for_review"
     project.write("tests/test_feature.py", "def test_pass():\n    assert 1\n")
     assert state() == "needs_review"  # the linked test still counts
+
+
+# A wrapper runner (like Hatch) whose pytest child inherits the output pipe.
+WRAPPER = """\
+import subprocess, sys, time
+child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
+with open(sys.argv[1], "w") as handle:
+    handle.write(str(child.pid))
+time.sleep(60)
+"""
+
+
+@verifies("6698e7")
+def test_timeout_cleanup_ends_even_if_a_descendant_keeps_the_pipe(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (tmp_path / "test_x.py").write_text("def test_a():\n    pass\n")
+    (tmp_path / "wrapper.py").write_text(WRAPPER)
+    pid_file = tmp_path / "child.pid"
+    if sys.platform != "win32":
+        # Take the Windows branch: no process group, so the descendant survives the kill.
+        monkeypatch.setattr(verification, "sys", SimpleNamespace(platform="win32"))
+    monkeypatch.setattr(verification, "_KILL_GRACE", 1.0)
+    runner = [sys.executable, str(tmp_path / "wrapper.py"), str(pid_file)]
+    started = time.monotonic()
+    try:
+        out = verification.run_tests(tmp_path, ["test_x.py::test_a"], runner, timeout=3.0)
+    finally:
+        if pid_file.exists():
+            with contextlib.suppress(OSError, ValueError):
+                os.kill(int(pid_file.read_text()), getattr(signal, "SIGKILL", signal.SIGTERM))
+    assert pid_file.exists()  # the descendant really was running when the timeout hit
+    assert time.monotonic() - started < 20  # not the descendant's 60 seconds
+    assert out.timed_out
+    assert out.results["test_x.py::test_a"].outcome == "timeout"
