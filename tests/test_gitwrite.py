@@ -507,7 +507,6 @@ def test_failed_index_publication_preserves_original_and_recovery(
 
 
 @verifies("6944ec")
-@pytest.mark.xfail(reason="BytePlan 6944ec: the index scratch path follows a planted symlink", strict=True)
 def test_index_swap_never_writes_through_a_planted_scratch_link(
     repo: ProjectFactory, tmp_path_factory: pytest.TempPathFactory
 ) -> None:
@@ -528,3 +527,4 @@ def test_index_swap_never_writes_through_a_planted_scratch_link(
         {e.top_path: (e.mode, e.after_oid) for e in journal.entries},
     )
     assert victim.read_bytes() == b"important unrelated content\n"
+    assert not [p for p in index.parent.iterdir() if p.name.endswith(".scratch")]  # its own copy is removed

@@ -45,6 +45,7 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -377,7 +378,7 @@ def _swap_index(
     #   planted link in the Git directory makes every staged reconciliation overwrite its target
     #   with index bytes. Create a unique file with O_EXCL (e.g. tempfile.mkstemp in the index's
     #   directory), write through that descriptor and remove only that file. (ChatGPT BP-IND-01)
-    scratch = index.with_name(index.name + ".byteplan-scratch")
+    scratch: Path | None = None
     committed = False
     try:
         current = _index_entries(top, index, list(expected))
@@ -386,7 +387,14 @@ def _swap_index(
                 raise _AbortError(path)
         if precheck is not None:
             precheck()
-        shutil.copyfile(index, scratch)
+        # A fresh, exclusively created file: a fixed name could be a planted symlink, and
+        # copying through it would overwrite whatever it points to.
+        scratch_fd, scratch_name = tempfile.mkstemp(
+            prefix=f"{index.name}.byteplan-", suffix=".scratch", dir=index.parent
+        )
+        scratch = Path(scratch_name)
+        with os.fdopen(scratch_fd, "wb") as handle:
+            handle.write(index.read_bytes())
         # Ask the repository, not the selected index: alternate indexes and linked
         # worktrees use the same object format as their object database.
         object_format = git(["rev-parse", "--show-object-format=storage"], top).strip()
@@ -437,8 +445,9 @@ def _swap_index(
         if not committed:
             with contextlib.suppress(FileNotFoundError):
                 lock.unlink()
-        with contextlib.suppress(FileNotFoundError):
-            scratch.unlink()
+        if scratch is not None:
+            with contextlib.suppress(FileNotFoundError):
+                scratch.unlink()
 
 
 # Working tree ----------------------------------------------------------------------------------------
