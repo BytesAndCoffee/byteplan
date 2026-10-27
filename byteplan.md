@@ -2,23 +2,19 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**22 open** · 104 closed (resolved 104)
+**18 open** · 108 closed (resolved 108)
 
 ## Open
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
 | `a70d` | in_progress | TODO | high | - | [`docs/spec-addendum-e.md:395`](docs/spec-addendum-e.md#L395) | RC1 approval-ready release report and artifact/platform validation |
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1692`](docs/IMPLEMENTATION_PLAN.md#L1692) | Phase 6c (optional): acceptance criteria and dependencies |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1695`](docs/IMPLEMENTATION_PLAN.md#L1695) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1698`](docs/IMPLEMENTATION_PLAN.md#L1698) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1701`](docs/IMPLEMENTATION_PLAN.md#L1701) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1705`](docs/IMPLEMENTATION_PLAN.md#L1705) | Phase 13 (optional): relay-for-github |
+| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1697`](docs/IMPLEMENTATION_PLAN.md#L1697) | Phase 6c (optional): acceptance criteria and dependencies |
+| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1700`](docs/IMPLEMENTATION_PLAN.md#L1700) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1703`](docs/IMPLEMENTATION_PLAN.md#L1703) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1706`](docs/IMPLEMENTATION_PLAN.md#L1706) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1710`](docs/IMPLEMENTATION_PLAN.md#L1710) | Phase 13 (optional): relay-for-github |
 | `fd02a3` | open | FIXME | normal | - | [`docs/rc1-readiness.md:3`](docs/rc1-readiness.md#L3) | Record the frozen tag commit before approval |
-| `c6bc7c` | open | FIXME | high | - | [`docs/reviews/rc1-d29ac93-codex.md:9`](docs/reviews/rc1-d29ac93-codex.md#L9) | Prevent competing stale-lock reclaimers from deleting a live writer's lock. |
-| `e86b8e` | open | FIXME | high | - | [`docs/reviews/rc1-d29ac93-codex.md:32`](docs/reviews/rc1-d29ac93-codex.md#L32) | Preflight all merge-driver installation destinations before changing attributes or Git configuration. |
-| `9e4d1c` | open | FIXME | normal | - | [`docs/reviews/rc1-d29ac93-codex.md:44`](docs/reviews/rc1-d29ac93-codex.md#L44) | Encode literal configured filenames correctly in generated Git attributes rules. |
-| `668a6c` | open | FIXME | normal | - | [`docs/reviews/rc1-d29ac93-codex.md:60`](docs/reviews/rc1-d29ac93-codex.md#L60) | Report malformed task-ID bracket syntax instead of silently ignoring the annotation. |
 | `a933` | open | TODO | low | - | [`docs/spec-addendum-e.md:218`](docs/spec-addendum-e.md#L218) | 1.5 semantic graph schema, identity and provenance design |
 | `e4af` | open | TODO | low | - | [`docs/spec-addendum-e.md:235`](docs/spec-addendum-e.md#L235) | 1.5 repository symbol indexing and task-to-symbol associations |
 | `3644` | open | TODO | low | - | [`docs/spec-addendum-e.md:239`](docs/spec-addendum-e.md#L239) | 1.5 deterministic incremental graph cache and invalidation |
@@ -74,6 +70,7 @@
 | `62edd5` | resolved | FIXME | Confine serialized transaction and restore targets before filesystem side effects. |
 | `631761` | resolved | FIXME | Reject or safely reuse annotations already present during anchored release restoration. |
 | `6639` | resolved | FIXME | Keep runtime imports that __all__ re-exports |
+| `668a6c` | resolved | FIXME | Report malformed task-ID bracket syntax instead of silently ignoring the annotation. |
 | `67a65c` | resolved | FIXME | Separate first-party runtime imports from pytest in new scaffold files |
 | `67df` | resolved | FIXME | [P2] Keep inserted imports after all future imports |
 | `6b83` | resolved | FIXME | Keep sync's top-level JSON fields when only cleanup runs |
@@ -95,6 +92,7 @@
 | `98d6` | resolved | FIXME | [P2] Include teardown skips and xfails in the verification outcome |
 | `9b40` | resolved | TODO | Phase 6a: acceptance tests |
 | `9c60` | resolved | TODO | List only active missing tasks by default |
+| `9e4d1c` | resolved | FIXME | Encode literal configured filenames correctly in generated Git attributes rules. |
 | `9f8d` | resolved | FIXME | Check the current source even when a stripped release is on record |
 | `a067` | resolved | FIXME | top-level native extension modules (.so/.pyd) are left out of smoke imports |
 | `a4bf` | resolved | FIXME | [P2] Report source-decoding failures without aborting the scan |
@@ -117,6 +115,7 @@
 | `c26d29` | resolved | FIXME | Detach disposable Git metadata without deleting Windows read-only object files |
 | `c35e66` | resolved | FIXME | Keep snapshot queries bound to their selected data and reject mutation before side effects |
 | `c449` | resolved | FIXME | Treat __all__ mutations the export collector can't resolve as exporting everything |
+| `c6bc7c` | resolved | FIXME | Prevent competing stale-lock reclaimers from deleting a live writer's lock. |
 | `c8db` | resolved | FIXME | Keep runtime imports that other modules consume through re-exports |
 | `c978` | resolved | FIXME | RC1 persistent identity compatibility: remove four-character-only assumptions |
 | `c993` | resolved | FIXME | Retry report generation when main advances before the push |
@@ -128,6 +127,7 @@
 | `dcd417` | resolved | FIXME | Validate all staged recovery copy hashes before forward or rollback side effects. |
 | `def0` | resolved | FIXME | scan paths resolve against the server's cwd, not the served project's root |
 | `e7d9` | resolved | FIXME | ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side |
+| `e86b8e` | resolved | FIXME | Preflight all merge-driver installation destinations before changing attributes or Git configuration. |
 | `ecf4` | resolved | FIXME | [P2] Preserve runtime imports consumed by other project modules during cleanup |
 | `ed2b` | resolved | FIXME | [P2] Refuse staged writes while an ordinary transaction journal is pending |
 | `edc2` | resolved | FIXME | RC1 plain-Git merge and conflicting-evidence validation |
