@@ -96,6 +96,10 @@ with actionable diagnostics and retains the journal. Preserve it and the competi
 while resolving that conflict. Staged reconciliation has a separate journal and can roll
 forward or backward according to its recorded index/worktree state; ordinary writes refuse
 to operate over a pending staged reconciliation.
+Either journal is replayed only in the checkout that wrote it: each records the identity of its
+`.byteplan/txn/` directory, and a journal supplied by repository content (a clone or an unpacked
+archive) is refused before any write and kept for inspection. Project locks are never removed
+automatically; a writer releases only the lock it acquired.
 
 These guarantees are not a filesystem-wide atomic transaction or distributed lock. A narrow
 race between checking a file's hash and replacing it remains because portable filesystem

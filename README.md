@@ -41,6 +41,12 @@ resolved. Only you resolve tasks.
 - [Configuration](#configuration)
 - [1.0 compatibility boundary](#10-compatibility-boundary)
 - [Hatch integration](#hatch-integration)
+- [IDs at commit time](#ids-at-commit-time)
+- [Git hooks and CI](#git-hooks-and-ci)
+- [Releasing without the runtime](#releasing-without-the-runtime)
+- [A committed task list: `report_file`](#a-committed-task-list-report_file)
+- [Merging the registry in Git](#merging-the-registry-in-git)
+- [Linters](#linters)
 - [MCP server for AI agents](#mcp-server-for-ai-agents)
 - [Safety guarantees and tradeoffs](#safety-guarantees-and-tradeoffs)
 - [License](#license)
@@ -57,8 +63,8 @@ dependencies) provides the `@todo` and `@verifies` decorators. It's only needed 
 
 ## Quick start
 
-New tasks receive six-character IDs. Four-character IDs in existing projects and the examples
-below remain fully supported. Existing projects must [migrate their registry](docs/rc1-compatibility.md#migration-and-recovery)
+New tasks receive six-character IDs; four-character IDs from existing projects remain fully
+supported. Existing projects must [migrate their registry](docs/rc1-compatibility.md#migration-and-recovery)
 before allocating new IDs with this version.
 
 ```console
@@ -93,33 +99,33 @@ registry. With the commit hook (`byteplan git install-hooks`), committing does t
 ```console
 $ byteplan scan
 Annotated:
-  + [9333] TODO  src/rip/routes.py:2  Advertise routes through a dead neighbour as unreachable
+  + [9333c1] TODO  src/rip/routes.py:2  Advertise routes through a dead neighbour as unreachable
 ```
 
 **2. Scaffold its acceptance test.** It fails on purpose, so it can't be mistaken for evidence.
 With `[tool.byteplan.tests.scaffold] auto = true`, step 1's scan does this too.
 
 ```console
-$ byteplan tests scaffold 9333
-byteplan: [9333] scaffolded tests/test_routes.py::test_poison (new file)
+$ byteplan tests scaffold 9333c1
+byteplan: [9333c1] scaffolded tests/test_routes.py::test_poison (new file)
 ```
 
 ```python
-@verifies("9333")
-def test_poison():
-    """Acceptance test scaffold for BytePlan task 9333. ..."""
+@verifies("9333c1")
+def test_poison() -> None:
+    """Acceptance test scaffold for BytePlan task 9333c1. ..."""
     # GIVEN: TODO - arrange the state this requirement depends on
     # WHEN: TODO - call poison
     # THEN: TODO - assert the required result
-    pytest.fail("BytePlan 9333: acceptance test not implemented")
+    pytest.fail("BytePlan 9333c1: acceptance test not implemented")
 ```
 
-**3. Implement it, and replace the placeholder with the real test.** Keep the `TODO[9333]`
+**3. Implement it, and replace the placeholder with the real test.** Keep the `TODO[9333c1]`
 comment until the task is resolved.
 
 ```python
-@verifies("9333")
-def test_poison():
+@verifies("9333c1")
+def test_poison() -> None:
     routes = {"10.0.0.0/8": (2, "r1"), "10.1.0.0/16": (1, "r2")}
     assert poison(routes, dead="r1") == {"10.0.0.0/8": (INFINITY, "r1"), "10.1.0.0/16": (1, "r2")}
 ```
@@ -128,9 +134,9 @@ def test_poison():
 `.byteplan/verification.json`.
 
 ```console
-$ byteplan verify 9333
+$ byteplan verify 9333c1
 BytePlan verify: 1 test result(s) for 1 task(s) · 1 passed
-  [9333] ready_for_review Advertise routes through a dead neighbour as unreachable
+  [9333c1] ready_for_review Advertise routes through a dead neighbour as unreachable
       passed    tests/test_routes.py::test_poison
 Readiness never changes a task's status; resolve tasks yourself.
 ```
@@ -139,10 +145,10 @@ Readiness never changes a task's status; resolve tasks yourself.
 In decorator mode, `byteplan sync --remove-resolved` does the same for every closed task.
 
 ```console
-$ byteplan resolve 9333 --sync-source --note "poisoned reverse, verified"
-byteplan: [9333] resolved
+$ byteplan resolve 9333c1 --sync-source --note "poisoned reverse, verified"
+byteplan: [9333c1] resolved
 BytePlan cleanup: 1 annotation(s) removed · 0 suppressed
-  - [9333] src/rip/routes.py
+  - [9333c1] src/rip/routes.py
 ```
 
 The task stays in the registry with its history and evidence. A week after it's closed, a scan
@@ -151,9 +157,9 @@ moves it to the archive (see [Status, presence and resolution](#status-presence-
 **Where BytePlan notices, but never closes work:**
 - **A deleted TODO** makes its task `missing`, still `open`:
   ```console
-  ! [76ea] MISSING           src/rip/routes.py
-      task 76ea is no longer in source (previously line 9); its status is still open
-      hint: if the work is done, run `byteplan resolve 76ea`; if the annotation was removed by mistake, restore it
+  ! [76ea0b] MISSING           src/rip/routes.py
+      task 76ea0b is no longer in source (previously line 9); its status is still open
+      hint: if the work is done, run `byteplan resolve 76ea0b`; if the annotation was removed by mistake, restore it
   ```
 - **Passing tests** make a task `ready_for_review`, as in step 4. Its status doesn't change.
 - **An implemented stub** is reported once as `implementation_changed`, or as
@@ -268,7 +274,7 @@ auto_decorate_stubs = true         # unowned stubs get @todo("Implement <name>",
 $ byteplan scan                     # IDs first
 $ byteplan sync                     # preview
   ~ [a83f] FIXME src/routes.py:9  comment -> @todo: Withdraw routes on link loss
-  + [65ea] TODO  src/routes.py:14  @todo on stub Router.advertise: Implement Router.advertise
+  + [65ea21] TODO  src/routes.py:14  @todo on stub Router.advertise: Implement Router.advertise
 $ byteplan sync --apply             # write (journaled), update the registry
 ```
 
@@ -324,6 +330,31 @@ and BytePlan tracks tags there too, with the same IDs, registry and Git integrat
 
 ## Status, presence and resolution
 
+Every task has two independent dimensions:
+
+| | Values | Changed by |
+|---|---|---|
+| **status** | `open`, `in_progress`, `blocked`, `resolved`, `dismissed` | only you: `status`, `resolve` |
+| **presence** | `present`, `missing`, `unknown`, `stripped` | scans; `release` and `restore` |
+
+- **Missing:** when the annotation disappears, the task becomes `missing` and keeps its status and
+  history.
+- **Reappeared:** if the annotation comes back (same ID), the task becomes `present` again.
+- **Stripped:** `byteplan release` removed the annotation for a release; the location stays on
+  record until `byteplan restore` (see [Releasing without the runtime](#releasing-without-the-runtime)).
+- **Stale annotation:** a resolved task whose annotation is still in source is reported, never
+  removed for you.
+- **`implementation_changed`:** when a tracked stub gets a real body, BytePlan reports it once. It
+  doesn't resolve the task.
+
+IDs never change and are never reused. Line numbers, file paths and function names are only
+metadata, so moving or renaming code keeps the same task.
+
+Persistent IDs are lowercase hexadecimal strings of at least four characters; new allocations
+use six. Commands accept an exact ID first, then an unambiguous prefix. An exact legacy ID
+wins even when a longer ID starts with it. Ambiguous prefixes report candidates and change
+nothing. Store full IDs in annotations, verification references and external mappings.
+
 **Cleaning up after yourself.** Resolving never edits source on its own. When you want the
 finished TODOs gone, ask BytePlan to remove them rather than deleting them by hand:
 
@@ -348,29 +379,6 @@ $ byteplan sync --remove-resolved --apply
   next scan doesn't just rediscover it. Implement it, or use `--suppress-stubs` to leave a
   visible `# byteplan: ignore` on its `def` line.
 - **Automatically:** set `remove_resolved = true` and plain `byteplan sync --apply` does it.
-
-Every task has two independent dimensions:
-
-| | Values | Changed by |
-|---|---|---|
-| **status** | `open`, `in_progress`, `blocked`, `resolved`, `dismissed` | only you: `status`, `resolve` |
-| **presence** | `present`, `missing`, `unknown` | scans |
-
-- **Missing:** when the annotation disappears, the task becomes `missing` and keeps its status and
-  history.
-- **Reappeared:** if the annotation comes back (same ID), the task becomes `present` again.
-- **Stale annotation:** a resolved task whose annotation is still in source is reported, never
-  removed for you.
-- **`implementation_changed`:** when a tracked stub gets a real body, BytePlan reports it once. It
-  doesn't resolve the task.
-
-IDs never change and are never reused. Line numbers, file paths and function names are only
-metadata, so moving or renaming code keeps the same task.
-
-Persistent IDs are lowercase hexadecimal strings of at least four characters; new allocations
-use six. Commands accept an exact ID first, then an unambiguous prefix. An exact legacy ID
-wins even when a longer ID starts with it. Ambiguous prefixes report candidates and change
-nothing. Store full IDs in annotations, verification references and external mappings.
 
 **Archiving.** Closed tasks don't stay in `tasks.json` forever. Once a task has been resolved or
 dismissed for a week (`[tool.byteplan.archive] after_days`) and its annotation is gone from
@@ -397,40 +405,48 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 
 | Command | What it does |
 |---|---|
+| **Setup** | |
 | `byteplan init [--runtime-shim PATH]` | add configuration and an empty registry (safe to re-run); optionally write an inert runtime shim |
-| `byteplan verify [ID...]` | run linked tests with pytest, record evidence, show readiness (`--ready` lists tasks ready for review; runs nothing) |
+| `byteplan migrate [--dry-run]` | explicitly upgrade registry metadata through the recovery journal without editing source; required before expanded-ID allocation in older repositories |
+| **Scanning and checking** | |
+| `byteplan scan [PATHS] [--dry-run] [--staged]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing. `--staged --dry-run` previews against the Git index |
+| `byteplan scan --staged --apply` | add IDs to the staged commit (index and working tree) before it's finalized; what the pre-commit hook runs |
+| `byteplan check [--staged \| --commit REV]` | read-only validation, with policy-based exit code. `--staged` checks exactly what's staged (pre-commit); `--commit HEAD` checks a commit (CI) |
+| `byteplan list [--status S] [--presence P] [--kind K]` | list tasks |
+| `byteplan list --archived [--kind K]` | list archived tasks |
+| `byteplan show ID` | details, location and history (archived tasks too) |
+| `byteplan missing` | active tasks no longer found in source (`--include-closed` adds resolved and dismissed ones) |
+| `byteplan duplicates` | the same ID on more than one annotation |
+| `byteplan report [--format text\|json\|markdown]` | summary by status, presence, kind and priority, plus findings |
+| **Lifecycle and managed fields** | |
+| `byteplan status ID STATUS [--note]` | change lifecycle status |
+| `byteplan resolve ID [--note]` | mark resolved (never edits source) |
+| `byteplan resolve ID --sync-source` | resolve, and remove the task's annotation in the same step |
+| `byteplan edit ID [--priority] [--assignee/--unassign] [--label] [--remove-label] [--notes/--add-note] [--title/--clear-title]` | managed fields; scans never overwrite them |
+| **Acceptance tests** | |
 | `byteplan tests scaffold ID [--path] [--name] [--policy] [--link] [--force-new] [--dry-run]` | write a deliberately failing acceptance test for a task and link it |
 | `byteplan tests list [ID]` | linked acceptance tests and where each link comes from |
 | `byteplan tests add ID NODE...` / `tests remove ID NODE...` | link or unlink pytest node IDs by hand |
+| `byteplan verify [ID...]` | run linked tests with pytest, record evidence, show readiness (`--ready` lists tasks ready for review; runs nothing) |
+| **Source rewrites** | |
 | `byteplan sync [--apply] [--only ID]` | decorator mode: rewrite attached comments and unowned stubs to `@todo(...)` (preview by default) |
 | `byteplan sync --remove-resolved [--apply] [--only ID] [--suppress-stubs]` | remove the source annotations of resolved and dismissed tasks |
 | `byteplan release [--version V] [--dry-run] [--allow-dirty] [--smoke-test [--offline]]` | strip `@todo`/`@verifies` and runtime imports in place for a release, recording each one (no git or build) |
 | `byteplan restore [--dry-run] [--partial]` | put back what `release` stripped (byte-identical when the files haven't changed) |
-| `byteplan resolve ID --sync-source` | resolve, and remove the task's annotation in the same step |
-| `byteplan scan [PATHS] [--dry-run] [--staged]` | discover, add IDs, reconcile, report. With paths, the scan is narrowed and never marks anything missing. `--staged --dry-run` previews against the Git index |
-| `byteplan scan --staged --apply` | add IDs to the staged commit (index and working tree) before it's finalized; what the pre-commit hook runs |
-| `byteplan migrate [--dry-run]` | explicitly upgrade registry metadata through the recovery journal without editing source; required before expanded-ID allocation in older repositories |
-| `byteplan check [--staged \| --commit REV]` | read-only validation, with policy-based exit code. `--staged` checks exactly what's staged (pre-commit); `--commit HEAD` checks a commit (CI) |
-| `byteplan list [--status S] [--presence P] [--kind K]` | list tasks |
-| `byteplan show ID` | details, location and history (archived tasks too) |
-| `byteplan list --archived [--kind K]` | list archived tasks |
+| **Archive** | |
 | `byteplan archive [--dry-run] [--older-than DAYS]` | move long-closed tasks whose annotation is gone into the archive (scans do this automatically) |
 | `byteplan archive --reconcile` / `archive --restore ID` | fill the local archive store from Git history / put an archived task back in the registry |
-| `byteplan status ID STATUS [--note]` | change lifecycle status |
-| `byteplan resolve ID [--note]` | mark resolved (never edits source) |
-| `byteplan edit ID [--priority] [--assignee/--unassign] [--label] [--remove-label] [--notes/--add-note] [--title/--clear-title]` | managed fields; scans never overwrite them |
-| `byteplan missing` | active tasks no longer found in source (`--include-closed` adds resolved and dismissed ones) |
-| `byteplan duplicates` | the same ID on more than one annotation |
-| `byteplan report [--format text\|json\|markdown]` | summary by status, presence, kind and priority, plus findings |
+| **Repair** | |
 | `byteplan repair --import ID` | register an unregistered source ID; archived IDs require `archive --restore ID` |
 | `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID; use `--dry-run` to preview |
 | `byteplan repair --reassign PATH:LINE --against REV` | preserve/reassign an independently created branch collision before merging; [procedure and limits](docs/rc1-compatibility.md#merge-and-collision-recovery) |
-| `byteplan git install-merge-driver` | merge the registry by task ID in Git merges (per clone) |
+| **Git and agents** | |
 | `byteplan git install-hooks [--mode reconcile\|check\|scan]` | direct pre-commit hook (default `reconcile`: IDs at commit time); never replaces a hook it didn't write |
+| `byteplan git install-merge-driver` | merge the registry by task ID in Git merges (per clone) |
 | `byteplan git hooks-status` | show the pre-commit framework hook, direct hook and merge driver |
 | `byteplan merge-registry BASE OURS THEIRS [PATH]` | the merge driver itself; Git runs it, you don't |
-| `byteplan mcp [--allow-registry-write] [--allow-source-write] [--allow-test-execution]` | serve the registry to AI agents over MCP (stdio); needs `byteplan[mcp]` |
 | `byteplan merge-archive BASE OURS THEIRS [PATH]` | the archive index's merge driver (three-way per task ID); Git runs it |
+| `byteplan mcp [--allow-registry-write] [--allow-source-write] [--allow-test-execution]` | serve the registry to AI agents over MCP (stdio); needs `byteplan[mcp]` |
 
 Narrowed paths limit reconciliation and source edits. When allocating a new ID, BytePlan still
 reserves identities across the full configured source scope, including the selected Git view.
@@ -612,9 +628,9 @@ $ byteplan git install-hooks
 $ echo '# FIXME: Handle withdrawn routes' >> src/rip.py
 $ git add . && git commit -m "Document route withdrawal bug"
 byteplan: annotated 2 staged file(s)
-  [a83f] FIXME src/rip.py:42  Handle withdrawn routes
+  [a83f2c] FIXME src/rip.py:42  Handle withdrawn routes
 $ git show HEAD:src/rip.py | tail -1
-# FIXME[a83f]: Handle withdrawn routes
+# FIXME[a83f2c]: Handle withdrawn routes
 ```
 
 **What it writes.** Only BytePlan's own annotations (`[id]`, `id="…"`, stub comments) and
