@@ -360,10 +360,6 @@ evidence that their acceptance criteria have passed.
 
 ## Track F — Final independent whole-repository reviews
 
-<!-- TODO[c053]: RC1 freeze one integrated revision for two independent whole-repository reviews
-     After A, B and C integration, record a common SHA, keep initial conclusions independent,
-     register confirmed findings and repeat reviews when corrections invalidate conclusions. -->
-
 After the preceding work is integrated, freeze a single Git SHA. Two independent reviewers must
 review that exact revision repository-wide, rather than only the latest diff. Do not share one
 reviewer's conclusions with the other before their initial review. Each examines:
@@ -391,10 +387,6 @@ repeat both independent reviews against a new common SHA. Agreement means neithe
 an unresolved blocker, not identical wording or the absence of nonblocking issues.
 
 ## Track G — Release candidate readiness and approval
-
-<!-- TODO[a70d]: RC1 approval-ready release report and artifact/platform validation
-     Assemble the reviewed SHA, integrated PRs, contracts, migration and storage decisions,
-     validation and independent dispositions; do not tag or publish without explicit approval. -->
 
 Prepare a report containing the exact reviewed SHA, merged PRs, compatibility/migration decisions,
 final module boundaries, registry/ID guarantees, test results and platform coverage, formatting,

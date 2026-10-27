@@ -1,12 +1,7 @@
 # BytePlan 1.0.0rc1 readiness report
 
-<!-- FIXME[fd02a3]: Record the frozen tag commit before approval
-  The evidence below is from b551870 plus the follow-up PRs. Once the tag commit is chosen,
-  record its exact-head CI run, rebuild the wheel/sdist there and record their hashes and install
-  smoke, and update README's "Status: preparing 1.0.0rc1" line when the tag is approved. -->
-
-**Status: gate review corrections are integrated; exact-commit readiness evidence and explicit
-approval remain open.** No RC1 tag or package has been published.
+**Status: ready for explicit approval.** The frozen code has its full release evidence below.
+No RC1 tag or package has been published.
 
 The [`a5de5c8` gate](gate-check.md) was reviewed independently by Codex and Claude, with a
 focused third review by ChatGPT. None approved it. Together they confirmed one P1 (`53c751`, a
@@ -26,6 +21,8 @@ triaged for RC2 or 1.0.
 
 | Item | Current evidence |
 |---|---|
+| Release evidence | `c4b812015d151f508113329b7e7fd1d9113b3ae3` (`main` after the docs review, PR #56), code-identical to the freeze. CI run `40587846922` passed all 15 jobs. From a fresh clone: 1,776 tests passed, two skipped, no expected failures; three network tests passed; formatting (124 files), strict typing (123 files) and `byteplan check` clean; a dry-run scan found nothing to change; the tree stayed clean. Its artifacts (wheel `d145f0a6f5bd536544c2e6e4490eca6d53b166a4ae2003a02b7fe47308a1ccf3`, sdist `a547a9d84ad9e469b709f1788895afc463ff90b9228ea004925affb2499b4c62`; runtime wheel `ea09ff29…bb1c94` and sdist `19de333d…f8d22b`, byte-identical to every earlier build) passed clean-install smoke tests: CLI `init`, preview, `scan`, `check` and `list`; MCP stdio (12 read-only tools, `scan(apply=true)` refused without permission); a PEP 517 build with the Hatch hook; and an sdist install. |
+| Documentation after the evidence | Documentation only: `docs/` split into `guide/` and `development/` (the sdist now excludes `docs/development`), README review, and this report. The sdist ships these documents, so the tag commit's artifact hashes differ from the ones above; they are recorded in the RC1 tag message and release notes, since no file can hold the hash of an sdist that contains it. |
 | Current code freeze | `0964bb4b333843b43409a58f5fbe7e73e3d610d5`, the PR #55 merge. Its code is identical to PR head `b8d130c`, whose CI run `40568261164` passed all 15 jobs. Local suite at that head: 1,776 passed, two skipped, no expected failures. |
 | Gate review (`a5de5c8`) | Not approved. Codex and Claude reviewed the whole repository independently; ChatGPT reviewed focused paths. Findings: P1 `53c751`; P2 `e3d6bd`, `6944ec`, `515d45`, `6698e7`, `26756c`; P3 `aaf7d7`, `bbe04c`, `7140aa`, `971b9d`, `e8bd84`. All are resolved in PR #55, as are Codex's follow-up P2s `4308bf`, `e56005` and `8df831`. Gate artifacts (wheel `f708b6e8…db95`, sdist `92815239…4eec`) identify the rejected gate only. |
 | Latest compatibility correction | PR #54 merged as `013f71b0f88824001fdf2e3d0dcdb30425b6e77d`; CI run `40541039783` passed all 15 jobs at head `b8cdbc5f6f17632c05118716d48756f39ef483ac`. Local suite: 1,742 passed, two skipped; network: three passed; typing: 123 files; formatting: 124 files. Clean installed artifacts/MCP/Hatch/runtime passed. The reference artifacts identify that pre-integration head, not the new gate. |
@@ -121,16 +118,15 @@ No semantic graph implementation belongs in RC1.
 
 ## Approval decision
 
-**Pending exact-commit evidence and explicit approval.** Every finding from the `a5de5c8` gate
-reviews is corrected with regression tests, recorded evidence and explicit resolution, and the
-corrected code passes the full platform matrix. By the owner decision above, no further AI review
-pair is required. Before the tag:
+**Ready for explicit approval.** Every finding from the `a5de5c8` gate reviews is corrected with
+regression tests, recorded evidence and explicit resolution; the frozen code passes the full
+platform matrix, the local gates and clean-install smoke tests. By the owner decision above, no
+further AI review pair is required. To tag:
 
-1. Choose the tag commit: `main` after the documentation review merges, with code unchanged
-   from `0964bb4`.
-2. Record that commit's platform CI run, rebuild the wheel and sdist there, and record their
-   SHA-256 hashes and a clean-install smoke of the CLI, MCP stdio and Hatch hook.
-3. Update this report with that evidence and present it for explicit approval.
+1. Finish documentation changes. The last documentation commit on `main` is the tag commit.
+2. Confirm its platform CI passes, rebuild the wheel and sdist from a fresh clone of it, and put
+   their SHA-256 hashes in the tag message and the release notes.
+3. The owner approves and tags. Nothing is tagged or published automatically.
 
-Tag only after approval; nothing is tagged or published automatically. After the tag, invite
-independent human review of RC1.
+After the tag, independent human review of RC1 is invited; its findings are triaged for RC2 or
+1.0.

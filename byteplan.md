@@ -2,20 +2,17 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**18 open** · 122 closed (resolved 122)
+**15 open** · 125 closed (resolved 125)
 
 ## Open
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `c053` | in_progress | TODO | high | - | [`docs/development/spec-addendum-e.md:363`](docs/development/spec-addendum-e.md#L363) | RC1 freeze one integrated revision for two independent whole-repository reviews |
-| `a70d` | in_progress | TODO | high | - | [`docs/development/spec-addendum-e.md:395`](docs/development/spec-addendum-e.md#L395) | RC1 approval-ready release report and artifact/platform validation |
 | `de66` | open | TODO | low | - | [`docs/development/IMPLEMENTATION_PLAN.md:1699`](docs/development/IMPLEMENTATION_PLAN.md#L1699) | Phase 6c (optional): acceptance criteria and dependencies |
 | `75b4` | open | TODO | low | - | [`docs/development/IMPLEMENTATION_PLAN.md:1702`](docs/development/IMPLEMENTATION_PLAN.md#L1702) | Phase 11 (optional): spec section 14 phase 5 items |
 | `9054` | open | TODO | low | - | [`docs/development/IMPLEMENTATION_PLAN.md:1705`](docs/development/IMPLEMENTATION_PLAN.md#L1705) | Phase 11b (optional): Git reporting |
 | `15df` | open | TODO | normal | - | [`docs/development/IMPLEMENTATION_PLAN.md:1708`](docs/development/IMPLEMENTATION_PLAN.md#L1708) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
 | `ec99` | open | TODO | low | - | [`docs/development/IMPLEMENTATION_PLAN.md:1712`](docs/development/IMPLEMENTATION_PLAN.md#L1712) | Phase 13 (optional): relay-for-github |
-| `fd02a3` | open | FIXME | normal | - | [`docs/development/rc1/readiness.md:3`](docs/development/rc1/readiness.md#L3) | Record the frozen tag commit before approval |
 | `a933` | open | TODO | low | - | [`docs/development/spec-addendum-e.md:218`](docs/development/spec-addendum-e.md#L218) | 1.5 semantic graph schema, identity and provenance design |
 | `e4af` | open | TODO | low | - | [`docs/development/spec-addendum-e.md:235`](docs/development/spec-addendum-e.md#L235) | 1.5 repository symbol indexing and task-to-symbol associations |
 | `3644` | open | TODO | low | - | [`docs/development/spec-addendum-e.md:239`](docs/development/spec-addendum-e.md#L239) | 1.5 deterministic incremental graph cache and invalidation |
@@ -106,6 +103,7 @@
 | `a067` | resolved | FIXME | top-level native extension modules (.so/.pyd) are left out of smoke imports |
 | `a4bf` | resolved | FIXME | [P2] Report source-decoding failures without aborting the scan |
 | `a703` | resolved | FIXME | Refuse wildcard runtime imports, whose bindings can't be proven unused |
+| `a70d` | resolved | TODO | RC1 approval-ready release report and artifact/platform validation |
 | `a740` | resolved | FIXME | [P2] Require regular files before selecting sources for scanning |
 | `a899de` | resolved | FIXME | Say that "files" freshness covers only the annotated file and linked tests |
 | `aaf7d7` | resolved | FIXME | Release only the lock this process created |
@@ -122,6 +120,7 @@
 | `bbff04` | resolved | FIXME | Keep internal review notes out of the sdist |
 | `be8e` | resolved | FIXME | Annotate scaffolded tests with -> None |
 | `bf67e6` | resolved | FIXME | Drop the PyPy classifier or add PyPy to CI |
+| `c053` | resolved | TODO | RC1 freeze one integrated revision for two independent whole-repository reviews |
 | `c242` | resolved | FIXME | Check the current binding before restoring a decorator |
 | `c26d29` | resolved | FIXME | Detach disposable Git metadata without deleting Windows read-only object files |
 | `c35e66` | resolved | FIXME | Keep snapshot queries bound to their selected data and reject mutation before side effects |
@@ -149,6 +148,7 @@
 | `f853` | resolved | TODO | Phase 9: MCP server |
 | `fb23` | resolved | FIXME | Keep a restored runtime import above every use of its names |
 | `fb9c` | resolved | FIXME | Track escapes of dotted module expressions like `alias = pkg.reexport` |
+| `fd02a3` | resolved | FIXME | Record the frozen tag commit before approval |
 | `fd44` | resolved | FIXME | Keep anchored imports below a __future__ import added since the release |
 | `ff20` | resolved | FIXME | [P2] Retain archived payloads by task ID and record hash |
 | `ff3a` | resolved | FIXME | @verifies links to archived tasks are reported as unknown task references |
