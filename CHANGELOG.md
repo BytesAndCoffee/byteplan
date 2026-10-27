@@ -3,7 +3,26 @@
 All notable changes to `byteplan`. The runtime decorators ship separately as
 [`byteplan-runtime`](https://pypi.org/project/byteplan-runtime/), with their own versions.
 
-## Unreleased
+## 1.0.0rc1 — candidate preparation
+
+This candidate is being prepared for review; it is not approved or published by these notes.
+The final integrated revision still requires the independent whole-repository reviews,
+artifact/platform validation and explicit approval described in
+[Addendum E](docs/spec-addendum-e.md#track-g--release-candidate-readiness-and-approval).
+`byteplan-runtime` remains separately versioned; this is the devtool's release candidate.
+
+### Upgrade and compatibility
+- Upgrade participating clients, preview and run `byteplan migrate`, then stage or commit
+  the schema-v2 registry before allocating expanded IDs. Migration preserves task identities,
+  history, verification evidence and extension metadata, is idempotent, and uses the existing
+  transaction journal for recovery. Do not downgrade by changing `schema_version` alone.
+- Existing four-character IDs remain valid and unchanged. New tasks receive six-character IDs;
+  longer lowercase hexadecimal identities remain supported. Exact identities take precedence
+  over unambiguous UI prefixes; persisted links retain complete identities.
+- Actual published 0.1.0/0.2.0 clients reject schema v2 for the tested ordinary commands.
+  Their schema-v1 scanners can otherwise warn about expanded IDs yet exit successfully with
+  no tracked tasks. Historical 0.2.0 `init --runtime-shim` can add a new inert shim before
+  rejection; see the [compatibility matrix and recovery procedure](docs/rc1-compatibility.md).
 
 ### Security
 - **Journals that came with the repository are never replayed:** a `.byteplan/txn/` journal
@@ -28,6 +47,25 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
   `verifies` to anything but the import BytePlan adds (an assignment, a definition, an aliased or
   conditional import) fails with `scaffold_name_conflict` and is left unchanged (515d45).
 
+### Added
+- Explicit `byteplan migrate [--dry-run]` upgrades registry metadata to schema v2 through the
+  existing recovery journal before expanded task identities can be written. New repositories
+  use v2; released incompatible clients reject that version boundary.
+- New tasks receive six-character IDs. Legacy four-character and longer hexadecimal IDs are
+  supported, with exact-ID lookup before unambiguous user-interface prefixes.
+
+### Architecture and public interfaces
+- `byteplan.api.Project` is a concise facade over cohesive internal scan, task, verification,
+  scaffold, source-sync, release, archive and initialization operations. Supported signatures,
+  public result identities, exceptions, sentinel behavior and tested patch targets are retained.
+  Result constructors retain their previously supported runtime annotation introspection.
+- The [1.0 compatibility policy](docs/compatibility-policy.md) covers the documented CLI,
+  Python API, configuration, decorators, MCP protocol and Hatch/Git integrations. SDK-specific
+  Python MCP embedding is explicitly experimental; source safety and authoritative state
+  guarantees still apply. Advanced shipped commands are included in the compatibility boundary.
+- Addendum E documents future graph foundations for 1.5 and graph intelligence/Assignment
+  traceability for 2.0. These capabilities are tracked and excluded from RC1 implementation.
+
 ### Fixed
 - **Python line breaks only:** cleanup, `release`/`restore` and scaffolding split lines with
   `str.splitlines`, which also breaks at form feeds and U+2028. `resolve --sync-source` could delete
@@ -51,56 +89,6 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 - **New scaffold files pass isort:** when `@verifies` comes from a project shim rather than
   `byteplan_runtime`, a newly created test file now puts the shim import in its own section
   below `import pytest`, as ruff's isort expects.
-
-### Packaging
-- The PyPy classifier is gone; CI tests CPython only. The sdist no longer ships internal review
-  notes (`docs/reviews/`, `docs/rc1-next-steps.md`).
-
-### Documentation
-- The README lists every diagnostic code (e8bd84), and the spec and implementation plan describe
-  the current tag case rule (971b9d).
-
-## 1.0.0rc1 — candidate preparation
-
-This candidate is being prepared for review; it is not approved or published by these notes.
-The final integrated revision still requires the independent whole-repository reviews,
-artifact/platform validation and explicit approval described in
-[Addendum E](docs/spec-addendum-e.md#track-g--release-candidate-readiness-and-approval).
-`byteplan-runtime` remains separately versioned; this is the devtool's release candidate.
-
-### Upgrade and compatibility
-- Upgrade participating clients, preview and run `byteplan migrate`, then stage or commit
-  the schema-v2 registry before allocating expanded IDs. Migration preserves task identities,
-  history, verification evidence and extension metadata, is idempotent, and uses the existing
-  transaction journal for recovery. Do not downgrade by changing `schema_version` alone.
-- Existing four-character IDs remain valid and unchanged. New tasks receive six-character IDs;
-  longer lowercase hexadecimal identities remain supported. Exact identities take precedence
-  over unambiguous UI prefixes; persisted links retain complete identities.
-- Actual published 0.1.0/0.2.0 clients reject schema v2 for the tested ordinary commands.
-  Their schema-v1 scanners can otherwise warn about expanded IDs yet exit successfully with
-  no tracked tasks. Historical 0.2.0 `init --runtime-shim` can add a new inert shim before
-  rejection; see the [compatibility matrix and recovery procedure](docs/rc1-compatibility.md).
-
-### Added
-- Explicit `byteplan migrate [--dry-run]` upgrades registry metadata to schema v2 through the
-  existing recovery journal before expanded task identities can be written. New repositories
-  use v2; released incompatible clients reject that version boundary.
-- New tasks receive six-character IDs. Legacy four-character and longer hexadecimal IDs are
-  supported, with exact-ID lookup before unambiguous user-interface prefixes.
-
-### Architecture and public interfaces
-- `byteplan.api.Project` is a concise facade over cohesive internal scan, task, verification,
-  scaffold, source-sync, release, archive and initialization operations. Supported signatures,
-  public result identities, exceptions, sentinel behavior and tested patch targets are retained.
-  Result constructors retain their previously supported runtime annotation introspection.
-- The [1.0 compatibility policy](docs/compatibility-policy.md) covers the documented CLI,
-  Python API, configuration, decorators, MCP protocol and Hatch/Git integrations. SDK-specific
-  Python MCP embedding is explicitly experimental; source safety and authoritative state
-  guarantees still apply. Advanced shipped commands are included in the compatibility boundary.
-- Addendum E documents future graph foundations for 1.5 and graph intelligence/Assignment
-  traceability for 2.0. These capabilities are tracked and excluded from RC1 implementation.
-
-### Fixed
 - Original-branch collision recovery (`repair --reassign PATH:LINE --against REV [--dry-run]`)
   preserves the complete task record, supported exact source references and historical evidence.
   Repair reserves both identities and requires new verification; uncertain references, inherited
@@ -132,9 +120,9 @@ artifact/platform validation and explicit approval described in
   switches. Existing SQLite archives migrate transactionally without discarding records.
 - Staged reconciliation refuses pending ordinary transactions; source collection skips
   nonregular files and honors nested Git ignore exceptions.
-- Verification handles ancestor pytest roots, linked symlink paths, and skipped/xfail teardown. The release guard
-  rejects runtime decorators with dynamic arguments, and duplicate repair accepts valid
-  whitespace, multiline IDs, and escaped string literals.
+- Verification handles ancestor pytest roots, linked symlink paths, and skipped/xfail teardown.
+  The release guard rejects runtime decorators with dynamic arguments, and duplicate repair
+  accepts valid whitespace, multiline IDs, and escaped string literals.
 - **Windows:** the commit hook's staged reconciliation (`scan --staged --apply`) corrupted the Git
   index: the new index was written through a text-mode file descriptor, turning `\n` bytes into
   `\r\n`. Git then failed with `unknown index entry format`. Found by the new Windows CI.
@@ -142,6 +130,14 @@ artifact/platform validation and explicit approval described in
   journal is written. It used to leave a journal that every later write tried, and failed, to
   complete.
 - Git's output is decoded as UTF-8 rather than with the locale's encoding (cp1252 on Windows).
+
+### Packaging
+- The PyPy classifier is gone; CI tests CPython only. The sdist no longer ships internal review
+  notes (`docs/reviews/`, `docs/rc1-next-steps.md`).
+
+### Documentation
+- The README lists every diagnostic code (e8bd84), and the spec and implementation plan describe
+  the current tag case rule (971b9d).
 
 ### Integration (Phase 10)
 - CI runs the test suite on ubuntu, macOS and Windows (Python 3.11–3.14).
@@ -156,8 +152,7 @@ artifact/platform validation and explicit approval described in
   with `policy = "xfail"`.
 - **Scaffold typing and existing-file imports:** tests are annotated `-> None` (mypy
   `--strict`), and imports added to an existing file go into its import sections in isort order
-  (ruff `I001`). New files using a first-party runtime shim get it in its own import section
-  (see Unreleased).
+  (ruff `I001`). New files using a first-party runtime shim get it in its own import section.
 
 ### Compact MCP results
 - **`scan`** returns counts and what changed; `detail=true` lists every annotation.
