@@ -31,6 +31,7 @@
     "3d5bb4",
     "3f50",
     "415a0f",
+    "4308bf",
     "4518",
     "46b6",
     "478d",
@@ -3520,6 +3521,76 @@
         "managed": []
       },
       "title": "[P2] Don't treat prose comments that start with a tag word as tasks",
+      "title_override": null
+    },
+    "4308bf": {
+      "assignee": null,
+      "description": "_check_generated_names compares whole import statements, so `from byteplan_runtime import todo,\nverifies` or `import pytest, os` is refused with scaffold_name_conflict although it binds the\nname exactly as the generated import would. Compare the binding (module and imported name) per\nalias, and let _present count such a binding so no duplicate import is added. (Codex, PR #55)",
+      "first_seen": "2026-10-27T18:55:59Z",
+      "history": [
+        {
+          "at": "2026-10-27T18:55:59Z",
+          "event": "created",
+          "new": {
+            "line": 230,
+            "path": "src/byteplan/scaffold.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T18:59:56Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 (Codex review 5672548097)",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:59:59Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:59:59Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/scaffold.py"
+          }
+        }
+      ],
+      "id": "4308bf",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-27T18:55:59Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 235,
+        "line": 230,
+        "path": "src/byteplan/scaffold.py",
+        "representation": "comment",
+        "symbol": "_check_generated_names"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 738,
+            "node": "tests/test_scaffold.py::test_scaffold_accepts_equivalent_bindings_in_grouped_imports",
+            "path": "tests/test_scaffold.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Accept an equivalent binding inside a grouped import statement",
       "title_override": null
     },
     "4518": {

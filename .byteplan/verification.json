@@ -486,6 +486,22 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "f9824d50c708439d8e583a60e11e584d": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-27T18:59:56Z",
+      "dirty": true,
+      "head": "abeeec2c648f2cd7667a8a45f63ce3035b64e4c7",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "fe2e057a7e69": {
       "argv": [
         "hatch",
@@ -1069,6 +1085,16 @@
         }
       }
     },
+    "4308bf": {
+      "fingerprint": "34b264251842c39889e8031931b71b2bb4b7afdc95a2da6395777c19da24550c",
+      "run": "f9824d50c708439d8e583a60e11e584d",
+      "tests": {
+        "tests/test_scaffold.py::test_scaffold_accepts_equivalent_bindings_in_grouped_imports": {
+          "duration_ms": 36,
+          "outcome": "passed"
+        }
+      }
+    },
     "4518": {
       "fingerprint": "722e360c9f2f5fc6063f73840ccdd5d2cb27deba62c0b15b5849515917d8928d",
       "run": "7d4f28e5d140",
@@ -1246,15 +1272,15 @@
       }
     },
     "515d45": {
-      "fingerprint": "736754cf96b047ca7ccfb744c4784d5f01bb61e44be8d20b53180e85848909c2",
-      "run": "e460561e75a04ab1a492ddf96a83e5c5",
+      "fingerprint": "3ea18145baa69dab4ff230c91a06d74e8c598d786c813677c4f89368bee9d4b0",
+      "run": "f9824d50c708439d8e583a60e11e584d",
       "tests": {
         "tests/test_scaffold.py::test_scaffold_refuses_a_module_that_shadows_generated_names": {
-          "duration_ms": 102,
+          "duration_ms": 97,
           "outcome": "passed"
         },
         "tests/test_scaffold.py::test_scaffold_still_extends_a_module_with_the_same_imports": {
-          "duration_ms": 18,
+          "duration_ms": 19,
           "outcome": "passed"
         }
       }

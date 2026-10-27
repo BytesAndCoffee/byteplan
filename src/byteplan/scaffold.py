@@ -235,11 +235,11 @@ def _check_generated_names(path: str, tree: ast.Module, imports: Sequence[str]) 
     for statement in imports:
         node = ast.parse(statement).body[0]
         for name in bound_names(node):
-            expected[name] = (statement, ast.dump(node))
+            expected[name] = (statement, _binding(node, name))
     for node in module_statements(tree.body):
         for name in sorted(bound_names(node) & expected.keys()):
-            statement, dump = expected[name]
-            if ast.dump(node) != dump:
+            statement, binding = expected[name]
+            if _binding(node, name) != binding:
                 raise ScaffoldError(
                     NAME_CONFLICT,
                     f"{path}:{node.lineno} binds {name!r} to something other than `{statement}`, "
@@ -248,9 +248,28 @@ def _check_generated_names(path: str, tree: ast.Module, imports: Sequence[str]) 
                 )
 
 
+def _binding(node: ast.stmt, name: str) -> tuple[str, str] | None:
+    """What an import statement binds ``name`` to, alias by alias, so ``import os, pytest`` and
+    ``from runtime import todo, verifies`` count as the generated imports. None otherwise."""
+    if isinstance(node, ast.Import):
+        for alias in reversed(node.names):  # the last alias binding the name wins
+            if alias.asname == name:
+                return ("module", alias.name)
+            if alias.asname is None and alias.name.split(".")[0] == name:
+                return ("module", name)
+    elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+        for alias in reversed(node.names):
+            if (alias.asname or alias.name) == name:
+                return ("from", f"{node.module}:{alias.name}")
+    return None
+
+
 def _present(tree: ast.Module, statement: str) -> bool:
-    wanted = ast.dump(ast.parse(statement).body[0])
-    return any(ast.dump(node) == wanted for node in tree.body)
+    """Whether an unconditional top-level import already binds every name ``statement`` would."""
+    wanted = ast.parse(statement).body[0]
+    return all(
+        any(_binding(node, name) == _binding(wanted, name) for node in tree.body) for name in bound_names(wanted)
+    )
 
 
 def _import_offset(tree: ast.Module, lines: Sequence[str]) -> int:
