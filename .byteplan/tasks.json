@@ -53,6 +53,7 @@
     "67a65c",
     "67df",
     "680a",
+    "6944ec",
     "6b83",
     "6d434f",
     "7140aa",
@@ -96,6 +97,7 @@
     "b68c",
     "b865",
     "baeb",
+    "bbe04c",
     "bbff04",
     "be8e",
     "bf67e6",
@@ -5807,6 +5809,82 @@
       "title": "2.0 cross-module dependency and change-impact analysis",
       "title_override": null
     },
+    "6944ec": {
+      "assignee": null,
+      "description": "`<index>.byteplan-scratch` is predictable and `shutil.copyfile` follows a symlink there, so a\nplanted link in the Git directory makes every staged reconciliation overwrite its target\nwith index bytes. Create a unique file with O_EXCL (e.g. tempfile.mkstemp in the index's\ndirectory), write through that descriptor and remove only that file. (ChatGPT BP-IND-01)",
+      "first_seen": "2026-10-27T18:00:00Z",
+      "history": [
+        {
+          "at": "2026-10-27T18:00:00Z",
+          "event": "created",
+          "new": {
+            "line": 362,
+            "path": "src/byteplan/gitwrite.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T18:00:00Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_gitwrite.py::test_task_6944ec",
+            "path": "tests/test_gitwrite.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T18:00:22Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:chatgpt-gate"
+            ],
+            "priority": "P2"
+          },
+          "old": {
+            "labels": [],
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "6944ec",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:chatgpt-gate"
+      ],
+      "last_seen": "2026-10-27T18:00:00Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "P2",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 343,
+        "line": 362,
+        "path": "src/byteplan/gitwrite.py",
+        "representation": "comment",
+        "symbol": "_swap_index"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 509,
+            "node": "tests/test_gitwrite.py::test_index_swap_never_writes_through_a_planted_scratch_link",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Create the index scratch copy exclusively instead of at a fixed, followed path",
+      "title_override": null
+    },
     "6b83": {
       "assignee": null,
       "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185466\nWith remove_resolved in comment mode the output lost dry_run, rewrites, written, ...",
@@ -9853,6 +9931,72 @@
         ]
       },
       "title": "Count every __all__ assignment form as an export",
+      "title_override": null
+    },
+    "bbe04c": {
+      "assignee": null,
+      "description": "`STORE in current.split()` is satisfied by a comment such as `# archive.sqlite is a local\ncache`, so the rule is never added and `git add .` stages the local SQLite archive. Match whole\nrule lines (or ask `git check-ignore`) instead. (ChatGPT BP-IND-02)",
+      "first_seen": "2026-10-27T18:00:00Z",
+      "history": [
+        {
+          "at": "2026-10-27T18:00:00Z",
+          "event": "created",
+          "new": {
+            "line": 268,
+            "path": "src/byteplan/operations/archive.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T18:00:22Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:chatgpt-gate"
+            ],
+            "priority": "P3"
+          },
+          "old": {
+            "labels": [],
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "bbe04c",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:chatgpt-gate"
+      ],
+      "last_seen": "2026-10-27T18:00:00Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "P3",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 265,
+        "line": 268,
+        "path": "src/byteplan/operations/archive.py",
+        "representation": "comment",
+        "symbol": "ignore_archive_store"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 362,
+            "node": "tests/test_archive.py::test_a_comment_naming_the_archive_store_is_not_an_ignore_rule",
+            "path": "tests/test_archive.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Recognize only a real ignore rule for the archive store, not any mention of its name",
       "title_override": null
     },
     "bbff04": {

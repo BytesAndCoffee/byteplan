@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING
 import pytest
 
 from byteplan import archive
+from byteplan._todo import verifies
+from byteplan.api import Project
 from byteplan.cli import EXIT_FINDINGS, EXIT_OK
 from byteplan.config import parse_config
 from byteplan.errors import ConfigError
@@ -355,3 +357,15 @@ def test_index_merge_is_three_way_per_entry(tmp_path: Path) -> None:
     # Both changed the same entry differently: a conflict, left to the user.
     assert run(index(aaaa="1"), index(aaaa="8"), index(aaaa="9"))[0] == 1
     assert run(index(aaaa="1"), index(), index(aaaa="9"))[0] == 1
+
+
+@verifies("bbe04c")
+@pytest.mark.xfail(reason="BytePlan bbe04c: a comment naming the archive store counts as its ignore rule", strict=True)
+def test_a_comment_naming_the_archive_store_is_not_an_ignore_rule(project: ProjectFactory) -> None:
+    project.init()
+    git(project.root, "init", "-q")
+    project.write(".byteplan/.gitignore", "txn/\nscan.lock\n# archive.sqlite is a local cache\n", dedent=False)
+    Project.open(project.root)._ignore_archive_store()  # noqa: SLF001
+    (project.root / ".byteplan" / "archive.sqlite").write_bytes(b"")
+    ignored = git(project.root, "check-ignore", "-q", ".byteplan/archive.sqlite", check=False)
+    assert ignored.returncode == 0

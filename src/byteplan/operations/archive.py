@@ -265,6 +265,10 @@ def committed_evidence(self: Project) -> verification.Evidence:
 def ignore_archive_store(self: Project) -> None:
     gitignore = self.root / STATE_DIR / ".gitignore"
     current = (_read_bytes(gitignore) or b"").decode()
+    # FIXME[bbe04c]: Recognize only a real ignore rule for the archive store, not any mention of its name
+    #   `STORE in current.split()` is satisfied by a comment such as `# archive.sqlite is a local
+    #   cache`, so the rule is never added and `git add .` stages the local SQLite archive. Match whole
+    #   rule lines (or ask `git check-ignore`) instead. (ChatGPT BP-IND-02)
     if archive_store.STORE not in current.split():
         atomic_write_bytes(gitignore, (current.rstrip("\n") + f"\n{archive_store.STORE}\n").lstrip("\n").encode())
 

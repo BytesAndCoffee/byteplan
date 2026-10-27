@@ -504,3 +504,27 @@ def test_failed_index_publication_preserves_original_and_recovery(
     assert git(top, "show", ":proj/user.txt").stdout == "user staged bytes\n"
     assert (repo.root / "user.txt").read_text() == "user unstaged bytes\n"
     assert not StagedJournal.path(repo.root).exists()
+
+
+@verifies("6944ec")
+@pytest.mark.xfail(reason="BytePlan 6944ec: the index scratch path follows a planted symlink", strict=True)
+def test_index_swap_never_writes_through_a_planted_scratch_link(
+    repo: ProjectFactory, tmp_path_factory: pytest.TempPathFactory
+) -> None:
+    journal = staged_plan(repo)
+    top = repo.root.parent
+    assert journal.index is not None
+    index = Path(journal.index)
+    victim = tmp_path_factory.mktemp("outside") / "unrelated.txt"
+    victim.write_bytes(b"important unrelated content\n")
+    try:
+        index.with_name(index.name + ".byteplan-scratch").symlink_to(victim)
+    except OSError:
+        pytest.skip("symlinks are not available")
+    gitwrite._swap_index(  # noqa: SLF001
+        top,
+        index,
+        {e.top_path: None if e.before_oid is None else (e.mode, e.before_oid) for e in journal.entries},
+        {e.top_path: (e.mode, e.after_oid) for e in journal.entries},
+    )
+    assert victim.read_bytes() == b"important unrelated content\n"
