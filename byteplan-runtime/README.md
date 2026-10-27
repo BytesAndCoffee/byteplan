@@ -37,7 +37,8 @@ def test_route_poisoning():
 This package is complete for its purpose. The `byteplan` CLI discovers these decorators,
 allocates `id=` values, links tests and can strip the decorators from release builds. The
 decorators themselves remain harmless markers. New allocations use six-character hexadecimal
-IDs; existing four-character IDs such as the examples above remain supported. See the
+IDs; existing four-character IDs such as the examples above remain supported. From 1.0.0rc1 this
+package is versioned in lockstep with `byteplan`, though it still supports Python 3.8+. See the
 [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/development/IMPLEMENTATION_PLAN.md).
 
 ## Installation

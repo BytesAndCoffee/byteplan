@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from typing import Callable, Optional, Sequence, TypeVar
 
-__version__ = "0.1.0"
+__version__ = "1.0.0rc1"  # always the same as byteplan's (tests/test_versions.py)
 __all__ = ["todo", "verifies"]
 
 _T = TypeVar("_T")
