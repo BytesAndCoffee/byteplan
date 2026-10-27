@@ -110,3 +110,105 @@ with a later green claim. The final readiness report remains pending.
 No graph, Assignment, storage redesign or unrelated product feature is authorized by this
 hardening increment. The existing scaffold-formatting P3 `67a65c` remains a separately tracked
 nonblocking issue.
+
+## Second independent whole-repository review: 378e722
+
+Both new independent initial assessments reviewed exactly
+`378e722797d57b0bae257ca0f7fd2ad8d746547d`, after PR #49 integration and generated-report
+settlement. Their complete original reports are preserved as
+[review A](reviews/rc1-378e722-review-a.md) and
+[review B](reviews/rc1-378e722-review-b.md). This revision is **not ready for RC1 approval**.
+
+| BytePlan task | Severity | Independent findings | Accepted correction | Disposition |
+|---|---|---|---|---|
+| `12ce1c` | P1 | B1 | Preflight initialization targets before any side effects; reject external state-directory aliases and unsafe configuration/registry/shim targets. | Implemented; explicitly resolved after independent correction review and full combined validation. |
+| `17f1f0` | P1 | A1 | Complete and validate index-lock bytes before publishing a staged Git index; preserve unrelated staged entries and recovery authority on failure. | Implemented; explicitly resolved after independent correction review and full combined validation. |
+| `631761` | P2 | A2 | Reuse matching already-restored annotations/imports or retain an explicit recoverable conflict; never introduce duplicate task IDs during restore. | Accepted before RC1; implemented and explicitly resolved after independent correction review and full combined validation. |
+| `d78b89` | P2 | A3, B2 | Reject duplicate identity evidence before narrowed task relocation or allocation writes, preserving configured scope and narrowed absence/parse behavior. | Accepted before RC1; implemented and explicitly resolved after independent correction review and full combined validation. |
+| `28e56f` | P2 | A4 | Use the actual Git repository object format for null deletion IDs, including SHA-256 rollback and recovery. | Accepted before RC1; implemented and explicitly resolved after independent correction review and full combined validation. |
+
+All five identities were allocated through supported BytePlan scanning from appropriate source
+FIXMEs, labelled `release:1.0` and explicitly placed in progress. No task is complete merely
+because a regression passes. Implementation, linked verification, explicit resolution,
+independent correction review and final platform/artifact gates remain separate.
+
+The initialization evidence demonstrates constrained fixed-file creation outside the selected
+root, not arbitrary overwrite. That still violates the write-authority guarantee and is a P1
+release blocker. Initial root triage based on its limited extent is preserved in task history;
+the accepted severity is P1. The staged-index finding uses legal short-write fault injection
+in a private fixture and demonstrates loss of an unrelated staged entry; it does not claim a
+real disk-exhaustion event. SHA-256 recovery retains its journal and unchanged source but cannot
+complete. The restore and narrowed-identity fixtures retain authored lifecycle/history; their
+bounded correctness impact warrants P2 and explicit pre-RC acceptance.
+
+Review A's redundant broad attempt was explicitly interrupted after 786 passes, three network
+deselections and one xfail. Review B's interrupted attempt reported 275 passes, three network
+deselections and one xfail. Neither is a full-suite pass. Their complete code assessments and
+bounded proofs establish the findings; successful focused checks and root's earlier completed
+full/platform runs remain distinct evidence. Review A transparently records incidental shared
+process-argument metadata exposure; it used no peer report or conclusions for its findings.
+Neither reviewer's conclusions were supplied to the other before its initial report.
+
+Clean `378e722` artifacts passed independent installed wheel/sdist, CLI/API, MCP, isolated Hatch
+and runtime checks. Those results do not disprove the defects and do not validate later source.
+The corrections require the complete post-correction suite, exact-head platform CI, independent
+review and a new integrated freeze with appropriate review/artifact evidence before approval.
+
+The initialization, narrowed-identity and Git-index implementations now have clear independent
+correction checks. Initialization also rejects descendants of the reserved `scan.lock` path;
+the independent recheck covers complete fixture preservation and valid lookalike paths.
+The restored-annotation correction includes a further literal-preservation regression: moving
+a declaration must not change multiline string values inside its decorators. The final
+token-aware transform has an AST postcondition and a recoverable-conflict path. Its independent
+recheck passes both original fixtures, sixteen literal-move cases, encoding and retry cases.
+
+The compatibility boundaries are deliberate. Narrowed scans without allocation retain
+unrelated-parse tolerance and validate prior canonical ownership, rather than claiming global
+uniqueness. Allocation already requires the complete configured identity namespace and now
+diagnoses duplicates in that view. Restoring task identities checks configured sources for
+copies; unrelated unreadable or unparseable sources yield explicit `restore_conflict` and
+retain restoration authority. Valid existing imports/decorators are reused without duplication;
+competing blocks or transformations that change annotation semantics retain a conflict.
+
+These checks require no registry schema or storage migration. Existing valid schema-2 data,
+four-character and expanded identities, SHA-1 indexes and supported index selections remain
+supported. SHA-256 index deletion/recovery now uses the actual repository object format.
+The complete combined validation and exact-head platform CI remain pending; implementation
+and independent correction evidence are not an RC1 approval.
+
+Final combined checks passed on the frozen correction: **1,632 passed**, one native-Windows
+skip on Linux, three network deselections and the existing P3 scaffold xfail. All three
+explicit network cases passed separately. Core strict typing passed 120 files and lint/format
+passed 121 files. Runtime passed ten tests, typing and formatting; both distributions build.
+Production, test, script and configuration hashes were unchanged during the final run.
+An earlier interrupted run predates the last one-line warning-wrapper correction and remains
+explicitly interim, including its interruption/teardown output; it is not a green final run.
+
+Independent correction reports are retained for [initialization/narrowing](reviews/rc1-review3-init-correction.md),
+[Git indexes](reviews/rc1-review3-git-correction.md) and
+[restore semantics](reviews/rc1-review3-restore-correction.md). The five implementations were
+explicitly resolved before source cleanup. Fresh linked verification after cleanup passes for all five new corrections and affected
+existing tasks. The existing `62edd5` Linux record retains its native-Windows skip honestly;
+actual execution of that case in new exact-head Windows CI remains mandatory. No release is
+approved or published.
+
+### Windows verification follow-up
+
+PR #50's initial head `4cf857b` passed Linux/macOS but failed new Windows test fixtures.
+The Git helper decoded command output in universal-newline text mode, then compared re-encoded
+LF data with a real CRLF source file. Independent portable reproduction with `core.autocrlf=true`
+produced the same fourteen failures. The corrected tests read raw Git blob bytes with an
+explicit selected index and verify exact per-view bytes under both LF and CRLF attributes,
+retaining unrelated staged/unstaged data, modes and rollback assertions.
+
+Ten restore assertions also decoded UTF-8 fixtures using Windows' default cp1252. Portable
+emulation reproduced all ten failures; explicit UTF-8 assertion reads preserve all original
+AST, literal, description and source assertions. Latin-1/CRLF byte coverage remains intact.
+A module-local fixture now exercises the Windows decoding default on every host, with teardown
+and explicit-encoding forwarding independently checked. No production decoding or Git-write
+regression was demonstrated, and no production code was changed for this follow-up.
+
+The [independent fixture review](reviews/rc1-review3-windows-fixtures.md) passed 139 complete
+corrected cases and reproduced both original failure sets. The failed Windows run and earlier
+successful source checks remain separate evidence. Fresh linked verification and all fifteen
+new-head platform checks, including actual native Windows junction execution, are required.

@@ -511,3 +511,26 @@ def test_native_windows_control_junction_is_rejected_before_cleanup(tmp_path: Pa
     finally:
         # Remove the junction itself, preserving the target directory and its files.
         alias.rmdir()
+
+
+@verifies("12ce1c")
+@pytest.mark.parametrize("path_kind", ["direct", "resolved_alias", "lexical_alias"])
+def test_commit_rejects_lock_descendant_before_any_side_effect(tmp_path: Path, path_kind: str) -> None:
+    state = tmp_path / ".byteplan"
+    state.mkdir()
+    (state / "keep.txt").write_bytes(b"retained state\x00\xff")
+    target = ".byteplan/scan.lock/tasks.json"
+    if path_kind == "resolved_alias":
+        (tmp_path / "metadata").symlink_to(state, target_is_directory=True)
+        target = "metadata/scan.lock/tasks.json"
+    elif path_kind == "lexical_alias":
+        ordinary = tmp_path / "ordinary"
+        ordinary.mkdir()
+        (ordinary / "keep.txt").write_bytes(b"retained ordinary data\r\n")
+        (state / "scan.lock").symlink_to(ordinary, target_is_directory=True)
+    before = control_tree_state(tmp_path)
+
+    with pytest.raises(JournalConflictError, match="transaction or lock state"):
+        commit(tmp_path, [FileWrite("a.py", None, b"new source\n"), FileWrite(target, None, b"{}\n")])
+
+    assert control_tree_state(tmp_path) == before

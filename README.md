@@ -824,7 +824,11 @@ isn't offered at all:
 - **Only `.gitignore` files are honoured.** `.git/info/exclude` and global Git excludes aren't read.
 - **Stub detection is a heuristic.** It reports candidates; `# byteplan: ignore` and the
   `[tool.byteplan.detect]` switches are there for intentional no-ops.
-- **Duplicate IDs block all writes** until you resolve them, so nothing ambiguous is ever rewritten.
+- **Observed duplicate IDs block scan writes** until you resolve them. Full scans and narrowed
+  allocation inspect the configured identity namespace. A narrowed scan without allocation
+  checks selected identities against their prior canonical source before moving a task; it
+  tolerates unrelated parse errors and does not prove whole-project uniqueness. Run a full
+  `byteplan check` to validate the entire configured scope.
 
 ## License
 

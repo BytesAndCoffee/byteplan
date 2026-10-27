@@ -206,15 +206,33 @@ def scan_core(
     if self.config.annotations.mode != "comment":
         tags, stub_notes = _stubs_reported_only(tags, self.config.annotations)
         diagnostics.extend(stub_notes)
-    diagnostics.extend(_id_diagnostics(tags, registry, self.archive_index().tasks))
+    allocating = self.config.auto_annotate and any(tag.task_id is None for tag in tags)
+    outside_tags: list[Annotation] = []
+    if scope.narrowed:
+        prior_paths = {
+            task.source.path
+            for tag in tags
+            if tag.task_id is not None
+            and (task := registry.get(tag.task_id)) is not None
+            and task.source is not None
+            and task.source.path != tag.path
+        }
+        if allocating or prior_paths:
+            outside_tags = _outside_identity_tags(
+                self, scans, hierarchy, prior_paths=None if allocating else prior_paths
+            )
+    selected_ids = {tag.task_id for tag in tags if tag.task_id is not None}
+    diagnostics.extend(
+        diagnostic
+        for diagnostic in _id_diagnostics(
+            sorted([*tags, *outside_tags], key=lambda tag: (tag.path, tag.line)), registry, self.archive_index().tasks
+        )
+        if diagnostic.code is Code.DUPLICATE_ID or diagnostic.task_id in selected_ids
+    )
     duplicated = {d.task_id for d in diagnostics if d.code is Code.DUPLICATE_ID}
     proposals: list[Proposal] = []
-    if self.config.auto_annotate:
-        also_used = (
-            _allocation_reservations(self, scans, hierarchy)
-            if scope.narrowed and any(tag.task_id is None for tag in tags)
-            else set()
-        )
+    if allocating and not duplicated:
+        also_used = {tag.task_id for tag in outside_tags if tag.task_id is not None}
         proposals = self._plan_allocations(tags, registry, also_used=also_used)
 
     # Write IDs first (in memory), then observe the edited files: registry
@@ -322,25 +340,30 @@ def read_source_view(self: Project, path: str) -> SourceFile:
     return decode_source(path, self.snapshot.read(path) or b"")
 
 
-def _allocation_reservations(
-    self: Project, selected: Mapping[str, FileScan], hierarchy: ClassHierarchy | None
-) -> set[str]:
-    """Reserve identities outside a narrowed scan without observing or editing their tasks.
+def _outside_identity_tags(
+    self: Project,
+    selected: Mapping[str, FileScan],
+    hierarchy: ClassHierarchy | None,
+    *,
+    prior_paths: Collection[str] | None,
+) -> list[Annotation]:
+    """Validate identities outside a narrowed observation without reconciling their tasks.
 
-    The allocation namespace covers the configured project, including annotations not yet
-    registered. Use the same source view and scanner as the selected files, and refuse an
-    allocation if that namespace cannot be read completely. A narrow scan without new IDs
-    does not need this extra pass.
+    Allocation requires the complete configured namespace, including unregistered IDs.
+    Without allocation, inspect only prior canonical paths for selected identities that
+    appear to move: an unrelated unparseable file must not prevent a narrowed scan.
+    Both checks use the selected source view and respect configured scope and exclusions.
     """
     snapshot = self.snapshot
     if snapshot is None:
         everything = collect_files(self.config).files
     else:
         everything = scope_from_paths(self.config, list(snapshot.files()), snapshot)[0].files
-    used: set[str] = set()
+    selected_ids = {tag.task_id for result in selected.values() for tag in result.tags if tag.task_id is not None}
+    tags: list[Annotation] = []
     failures: list[SourceError] = []
     for path in everything:
-        if path in selected:
+        if path in selected or (prior_paths is not None and path not in prior_paths):
             continue
         try:
             result = scan_file(
@@ -358,15 +381,19 @@ def _allocation_reservations(
             failures.append(
                 SourceError(
                     path,
-                    "cannot reserve task identities for a narrowed allocation: "
+                    "cannot validate task identities outside a narrowed scan: "
                     + "; ".join(malformed)
                     + "; fix the annotation or run a full scan to review it",
                 )
             )
-        used.update(tag.task_id for tag in result.tags if tag.task_id is not None)
+        tags.extend(
+            tag
+            for tag in result.tags
+            if tag.task_id is not None and (prior_paths is None or tag.task_id in selected_ids)
+        )
     if failures:
         raise ScanError(failures)
-    return used
+    return tags
 
 
 def hierarchy(self: Project, loaded: dict[str, SourceFile], *, narrowed: bool) -> ClassHierarchy | None:

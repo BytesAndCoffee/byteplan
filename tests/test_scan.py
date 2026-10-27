@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from byteplan._todo import verifies
 from byteplan.api import Project
 from byteplan.diagnostics import EXIT_FINDINGS, EXIT_OK, Code
 from byteplan.errors import ScanError
@@ -117,4 +118,37 @@ def test_scan_never_writes(project: ProjectFactory) -> None:
     project.write("a.py", "# TODO: x\n")
     before = project.snapshot()
     Project.open(project.root).scan()
+    assert project.snapshot() == before
+
+
+@verifies("d78b89")
+@pytest.mark.parametrize("dry_run", [True, False])
+@pytest.mark.parametrize("allocate", [True, False])
+def test_narrowed_duplicate_preserves_canonical_task(project: ProjectFactory, *, dry_run: bool, allocate: bool) -> None:
+    project.init()
+    project.write("src/a.py", "# TODO: original obligation\n")
+    facade = Project.open(project.root)
+    facade.scan(dry_run=False)
+    (task,) = facade.list_tasks()
+    facade.edit_task(task.id, priority="high", assignee="owner", notes="retained history and metadata")
+    original = facade.get_task(task.id)
+    project.write("src/b.py", f"# TODO[{task.id}]: different obligation\n")
+    targets = ["src/b.py"]
+    if allocate:
+        project.write("src/c.py", "# TODO: new obligation\n")
+        targets.append("src/c.py")
+    before = project.snapshot()
+
+    report = facade.scan(targets, cwd=project.root, dry_run=dry_run)
+
+    assert report.blocked
+    assert report.written == ()
+    assert report.proposals == ()
+    assert report.summary.relocated == []
+    assert report.summary.text_changed == []
+    assert {tag.path for tag in report.tags} == set(targets)
+    (duplicate,) = [d for d in report.diagnostics if d.code is Code.DUPLICATE_ID]
+    assert duplicate.task_id == task.id
+    assert [str(loc) for loc in duplicate.locations] == ["src/a.py:1", "src/b.py:1"]
+    assert facade.get_task(task.id) == original
     assert project.snapshot() == before

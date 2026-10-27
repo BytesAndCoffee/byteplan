@@ -60,7 +60,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
 
 STAGED_JOURNAL = "journal.json"  # in persistence.staged_dir()
-ZERO_OID = "0" * 40
 NEW_FILE_MODE = "100644"
 
 
@@ -352,7 +351,11 @@ def _swap_index(
     lock = index.with_name(index.name + ".lock")
     try:
         # O_BINARY: on Windows a raw fd is text mode, which would turn the index's \n bytes into \r\n.
-        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0), 0o644)
+        fd = os.open(
+            lock,
+            os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_BINARY", 0),
+            0o644,
+        )
     except FileExistsError:
         msg = f"{lock} exists: another Git process is using the index; try again when it finishes"
         raise IndexLockedError(msg) from None
@@ -366,9 +369,16 @@ def _swap_index(
         if precheck is not None:
             precheck()
         shutil.copyfile(index, scratch)
+        # Ask the repository, not the selected index: alternate indexes and linked
+        # worktrees use the same object format as their object database.
+        object_format = git(["rev-parse", "--show-object-format=storage"], top).strip()
+        oid_width = {"sha1": 40, "sha256": 64}.get(object_format)
+        if oid_width is None:
+            msg = f"unsupported Git object format: {object_format}"
+            raise ConfigError(msg)
         lines = []
         for path, entry in wanted.items():
-            mode, oid = entry if entry is not None else ("0", ZERO_OID)
+            mode, oid = entry if entry is not None else ("0", "0" * oid_width)
             lines.append(f"{mode} {oid}\t{path}\0")
         env = {**os.environ, "GIT_INDEX_FILE": str(scratch)}
         subprocess.run(
@@ -382,10 +392,25 @@ def _swap_index(
         if {p: _index_entries(top, scratch, [p]).get(p) for p in wanted} != wanted:
             msg = "index verification"
             raise _AbortError(msg)
-        os.write(fd, scratch.read_bytes())
+        data = scratch.read_bytes()
+        remaining = memoryview(data)
+        while remaining:
+            try:
+                written = os.write(fd, remaining)
+            except InterruptedError:
+                continue
+            if written <= 0:
+                msg = "index lock write made no progress"
+                raise OSError(msg)
+            remaining = remaining[written:]
         os.fsync(fd)
         os.close(fd)
         fd = -1
+        # Publish only an exact copy of the Git-generated, verified scratch
+        # index. This also covers entries unrelated to the reconciliation.
+        if lock.read_bytes() != data:
+            msg = "index lock verification failed"
+            raise OSError(msg)
         os.replace(lock, index)
         committed = True
     finally:

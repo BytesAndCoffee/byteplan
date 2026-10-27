@@ -73,8 +73,8 @@ def project_target(root: Path, value: object, *, control: bool = False) -> Path:
     if not control and (
         normalized[:2] == (".byteplan", "txn")
         or normalized_actual[:2] == (".byteplan", "txn")
-        or normalized == (".byteplan", "scan.lock")
-        or normalized_actual == (".byteplan", "scan.lock")
+        or normalized[:2] == (".byteplan", "scan.lock")
+        or normalized_actual[:2] == (".byteplan", "scan.lock")
     ):
         msg = f"target {rel!r} selects transaction or lock state"
         raise ValueError(msg)

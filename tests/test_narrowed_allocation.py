@@ -211,3 +211,167 @@ def test_reservation_scope_honors_excluded_files(project: ProjectFactory) -> Non
     project.write("excluded.py", f"# TODO[{candidate}]: excluded from the configured scope\n")
     report = Project.open(project.root).scan(["selected.py"], cwd=project.root)
     assert report.proposals[0].task_id == candidate
+
+
+@verifies("d78b89")
+@pytest.mark.parametrize("dry_run", [True, False])
+def test_narrowed_allocation_blocks_duplicates_outside_selection(project: ProjectFactory, *, dry_run: bool) -> None:
+    project.init()
+    project.write("selected.py", "# TODO: new obligation\n")
+    project.write("a.py", "# TODO[beef]: original\n")
+    project.write("b.py", "# TODO[beef]: copy\n")
+    before = project.snapshot()
+
+    report = Project.open(project.root).scan(["selected.py"], cwd=project.root, dry_run=dry_run)
+
+    assert report.blocked
+    assert report.proposals == ()
+    assert report.written == ()
+    assert report.scope.files == ("selected.py",)
+    assert {tag.path for tag in report.tags} == {"selected.py"}
+    assert [(d.task_id, [str(loc) for loc in d.locations]) for d in report.diagnostics] == [
+        ("beef", ["a.py:1", "b.py:1"])
+    ]
+    assert project.snapshot() == before
+
+
+@verifies("d78b89")
+@pytest.mark.parametrize("dry_run", [True, False])
+@pytest.mark.parametrize("delete_source", [True, False])
+def test_narrowed_registered_task_can_move_after_old_annotation_is_gone(
+    project: ProjectFactory, *, dry_run: bool, delete_source: bool
+) -> None:
+    project.init()
+    old = project.write("old.py", "# TODO: original\n")
+    project.write("retained.py", "# TODO: outside observation\n")
+    facade = Project.open(project.root)
+    facade.scan(dry_run=False)
+    task = next(t for t in facade.list_tasks() if t.title == "original")
+    retained = next(t for t in facade.list_tasks() if t.title == "outside observation")
+    if delete_source:
+        old.unlink()
+    else:
+        old.write_text("# the annotation moved\n")
+    (project.root / "retained.py").unlink()
+    project.write("new.py", f"# TODO[{task.id}]: original\n")
+    project.write("unrelated.py", "def broken(:\n")
+    before = project.snapshot()
+
+    report = facade.scan(["new.py"], cwd=project.root, dry_run=dry_run)
+
+    assert not report.blocked
+    assert report.summary.relocated == [task.id]
+    assert report.summary.missing == []
+    assert facade.get_task(retained.id) == retained
+    if dry_run:
+        assert project.snapshot() == before
+        assert facade.get_task(task.id) == task
+    else:
+        moved = facade.get_task(task.id)
+        assert moved.source is not None
+        assert moved.source.path == "new.py"
+        assert moved.history[-1].event == "moved"
+
+
+@verifies("d78b89")
+@pytest.mark.parametrize("failure", ["syntax", "encoding", "malformed-id", "unreadable"])
+def test_narrowed_registered_move_refuses_unverifiable_prior_source(
+    project: ProjectFactory, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    project.init()
+    project.write("old.py", "# TODO: original\n")
+    facade = Project.open(project.root)
+    facade.scan(dry_run=False)
+    (task,) = facade.list_tasks()
+    project.write("new.py", f"# TODO[{task.id}]: potential move\n")
+    content = {
+        "syntax": b"def broken(:\n",
+        "encoding": b"value = '\xff'\n",
+        "malformed-id": b"# TODO[invalid-id]: original\n",
+        "unreadable": b"# original source\n",
+    }
+    project.write("old.py", content[failure])
+    if failure == "unreadable":
+
+        def unreadable(path: str) -> SourceFile:
+            if path == "old.py":
+                raise SourceError(path, "cannot read: permission denied")
+            return read_source(project.root, path)
+
+        monkeypatch.setattr(facade, "_read", unreadable)
+    before = project.snapshot()
+
+    with pytest.raises(ScanError) as raised:
+        facade.scan(["new.py"], cwd=project.root, dry_run=False)
+
+    assert [error.path for error in raised.value.failures] == ["old.py"]
+    assert facade.get_task(task.id) == task
+    assert project.snapshot() == before
+
+
+@verifies("d78b89")
+@pytest.mark.parametrize("scope_rule", ["include", "exclude", "gitignore"])
+def test_narrowed_prior_source_validation_respects_configured_scope(project: ProjectFactory, scope_rule: str) -> None:
+    project.init()
+    project.write("old.py", "# TODO: original\n")
+    facade = Project.open(project.root)
+    facade.scan(dry_run=False)
+    (task,) = facade.list_tasks()
+    project.write("new.py", f"# TODO[{task.id}]: moved into configured scope\n")
+    if scope_rule == "gitignore":
+        project.write(".gitignore", "old.py\n")
+    else:
+        config = project.root / "pyproject.toml"
+        original = config.read_text()
+        replacement = (
+            'include = ["new.py"]' if scope_rule == "include" else 'include = ["**/*.py"]\nexclude = ["old.py"]'
+        )
+        config.write_text(original.replace('include = ["**/*.py"]', replacement))
+    before = project.snapshot()
+
+    report = Project.open(project.root).scan(["new.py"], cwd=project.root)
+
+    assert not report.blocked
+    assert report.summary.relocated == [task.id]
+    assert project.snapshot() == before
+
+
+@verifies("d78b89")
+@pytest.mark.parametrize("view", ["index", "commit"])
+@pytest.mark.parametrize("duplicate", [True, False])
+@pytest.mark.parametrize("allocate_new", [True, False])
+def test_narrowed_identity_validation_uses_selected_snapshot(
+    repo: ProjectFactory, view: str, *, duplicate: bool, allocate_new: bool
+) -> None:
+    facade = Project.open(repo.root)
+    task = next(t for t in facade.list_tasks() if t.title == "first task")
+    original = (repo.root / "src/a.py").read_bytes()
+    if not duplicate:
+        repo.write("src/a.py", "# annotation moved\n")
+    repo.write("src/c.py", f"# TODO[{task.id}]: selected obligation\n" + ("# TODO: new task\n" if allocate_new else ""))
+    git(repo.root, "add", "src/a.py", "src/c.py")
+    if view == "commit":
+        git(repo.root, "commit", "-qm", "selected identity view")
+    # The alternative source view has the opposite answer about the prior annotation.
+    repo.write("src/a.py", b"# annotation gone in alternative view\n" if duplicate else original)
+    if view == "commit":
+        git(repo.root, "add", "src/a.py")
+    repo.write("src/c.py", "def broken(:\n")
+    before = frozen(repo)
+    selected = Project.open_snapshot(repo.root, None if view == "index" else "HEAD")
+    try:
+        report = selected.scan(["src/c.py"], cwd=repo.root)
+        assert report.blocked is duplicate
+        assert len(report.proposals) == int(allocate_new and not duplicate)
+        assert report.scope.files == ("src/c.py",)
+        assert {tag.path for tag in report.tags} == {"src/c.py"}
+        assert selected.get_task(task.id) == task
+        duplicates = [d for d in report.diagnostics if d.code is Code.DUPLICATE_ID]
+        if duplicate:
+            assert [str(loc) for loc in duplicates[0].locations] == ["src/a.py:2", "src/c.py:1"]
+        else:
+            assert not duplicates
+            assert report.summary.relocated == [task.id]
+    finally:
+        selected.close()
+    assert frozen(repo) == before
