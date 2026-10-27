@@ -17,6 +17,7 @@
     "237cb5",
     "2533",
     "2650ec",
+    "26756c",
     "279e27",
     "2887",
     "28e56f",
@@ -39,6 +40,7 @@
     "4d69",
     "4fb5",
     "50ad66",
+    "515d45",
     "595f",
     "5aae",
     "5ff6",
@@ -46,6 +48,7 @@
     "631761",
     "6639",
     "668a6c",
+    "6698e7",
     "67a65c",
     "67df",
     "680a",
@@ -1915,6 +1918,73 @@
         "managed": []
       },
       "title": "Verify merge preservation across Git checkout newline conversion.",
+      "title_override": null
+    },
+    "26756c": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T17:13:52Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:52Z",
+          "event": "created",
+          "new": {
+            "line": 72,
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:56Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:codex-gate"
+            ],
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required.",
+            "priority": "P2"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:15:10Z",
+          "event": "edited",
+          "new": {
+            "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: real Git/API reproduction leaves HEAD/index identical; an unstaged report symlink changes both selected-view checks from exit1/new_unregistered to exit0 by excluding the real source task. Evidence: codex-a5de5c8/interfaces/repro_snapshot_report_alias.py and .log, plus parent confirmation. P2, open pending snapshot identity correction and regression verification."
+          },
+          "old": {
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required."
+          }
+        }
+      ],
+      "id": "26756c",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:codex-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:52Z",
+      "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: real Git/API reproduction leaves HEAD/index identical; an unstaged report symlink changes both selected-view checks from exit1/new_unregistered to exit0 by excluding the real source task. Evidence: codex-a5de5c8/interfaces/repro_snapshot_report_alias.py and .log, plus parent confirmation. P2, open pending snapshot identity correction and regression verification.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "P2",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 72,
+        "path": "docs/reviews/rc1-a5de5c8-codex.md",
+        "representation": "comment",
+        "symbol": "P2 — Live filesystem aliases can change a staged or committed snapshot check"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Resolve snapshot registry and generated-report identities from selected Git paths so unstaged filesystem aliases cannot hide staged or committed tasks.",
       "title_override": null
     },
     "279e27": {
@@ -4316,6 +4386,73 @@
       "title": "Preserve external evidence and archive-index edits during archived task restoration",
       "title_override": null
     },
+    "515d45": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T17:13:52Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:52Z",
+          "event": "created",
+          "new": {
+            "line": 19,
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:54Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:codex-gate"
+            ],
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required.",
+            "priority": "P2"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:15:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: real supported API scaffolding writes and actual pytest before/after prove collection failure with existing pytest value/helper bindings. Evidence: codex-a5de5c8/source/REPORT.md and two reproduction scripts/logs. P2, open pending correction and regression verification."
+          },
+          "old": {
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required."
+          }
+        }
+      ],
+      "id": "515d45",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:codex-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:52Z",
+      "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: real supported API scaffolding writes and actual pytest before/after prove collection failure with existing pytest value/helper bindings. Evidence: codex-a5de5c8/source/REPORT.md and two reproduction scripts/logs. P2, open pending correction and regression verification.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "P2",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 19,
+        "path": "docs/reviews/rc1-a5de5c8-codex.md",
+        "representation": "comment",
+        "symbol": "P2 — Scaffold generated imports can collide with existing module bindings"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Refuse or safely alias scaffold-generated pytest/runtime bindings when existing test-module bindings make generated code unsafe.",
+      "title_override": null
+    },
     "595f": {
       "assignee": null,
       "description": "Design structured queries and CLI/IDE/optional visual representations; candidate names\nare not public commitments and no graphical interface is required.",
@@ -5249,6 +5386,73 @@
         "managed": []
       },
       "title": "Report malformed task-ID bracket syntax instead of silently ignoring the annotation.",
+      "title_override": null
+    },
+    "6698e7": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T17:13:52Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:52Z",
+          "event": "created",
+          "new": {
+            "line": 44,
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:55Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:codex-gate"
+            ],
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required.",
+            "priority": "P2"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:15:09Z",
+          "event": "edited",
+          "new": {
+            "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: actual subprocess/pipe reproduction isolates Windows launch/kill branch on Linux. 0.2s configured timeout, 3.361s waiting after wrapper kill. This is not a native Windows run. Evidence: codex-a5de5c8/windows-timeout-isolated.log and repro_windows_timeout.py; native Windows launcher/descendant regression required. P2, open pending correction."
+          },
+          "old": {
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required."
+          }
+        }
+      ],
+      "id": "6698e7",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:codex-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:52Z",
+      "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: actual subprocess/pipe reproduction isolates Windows launch/kill branch on Linux. 0.2s configured timeout, 3.361s waiting after wrapper kill. This is not a native Windows run. Evidence: codex-a5de5c8/windows-timeout-isolated.log and repro_windows_timeout.py; native Windows launcher/descendant regression required. P2, open pending correction.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "P2",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 44,
+        "path": "docs/reviews/rc1-a5de5c8-codex.md",
+        "representation": "comment",
+        "symbol": "P2 — Windows verification timeout can wait indefinitely for a wrapper's descendant"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Bound verification timeout cleanup and terminate supported Windows runner descendants so inherited output pipes cannot keep verify blocked.",
       "title_override": null
     },
     "67a65c": {
@@ -9542,6 +9746,16 @@
           "old": {
             "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication."
           }
+        },
+        {
+          "at": "2026-10-27T17:15:10Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.\n\nCodex initial independent whole-repository gate findings captured against a5de5c861382a61cf2ca38c093e8268f401f82c3 without reading Claude current review. Three new P2 findings: 515d45, 6698e7, 26756c; no confirmed P0/P1. Review evidence is still completing. Keep common-review task in progress; this is not the independent pair or RC1 approval."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target."
+          }
         }
       ],
       "id": "c053",
@@ -9551,7 +9765,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.\n\nCodex initial independent whole-repository gate findings captured against a5de5c861382a61cf2ca38c093e8268f401f82c3 without reading Claude current review. Three new P2 findings: 515d45, 6698e7, 26756c; no confirmed P0/P1. Review evidence is still completing. Keep common-review task in progress; this is not the independent pair or RC1 approval.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
