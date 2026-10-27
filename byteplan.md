@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**18 open** · 104 closed (resolved 104)
+**22 open** · 104 closed (resolved 104)
 
 ## Open
 
@@ -15,6 +15,10 @@
 | `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1701`](docs/IMPLEMENTATION_PLAN.md#L1701) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
 | `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1705`](docs/IMPLEMENTATION_PLAN.md#L1705) | Phase 13 (optional): relay-for-github |
 | `fd02a3` | open | FIXME | normal | - | [`docs/rc1-readiness.md:3`](docs/rc1-readiness.md#L3) | Record the frozen tag commit before approval |
+| `c6bc7c` | open | FIXME | high | - | [`docs/reviews/rc1-d29ac93-codex.md:9`](docs/reviews/rc1-d29ac93-codex.md#L9) | Prevent competing stale-lock reclaimers from deleting a live writer's lock. |
+| `e86b8e` | open | FIXME | high | - | [`docs/reviews/rc1-d29ac93-codex.md:32`](docs/reviews/rc1-d29ac93-codex.md#L32) | Preflight all merge-driver installation destinations before changing attributes or Git configuration. |
+| `9e4d1c` | open | FIXME | normal | - | [`docs/reviews/rc1-d29ac93-codex.md:44`](docs/reviews/rc1-d29ac93-codex.md#L44) | Encode literal configured filenames correctly in generated Git attributes rules. |
+| `668a6c` | open | FIXME | normal | - | [`docs/reviews/rc1-d29ac93-codex.md:60`](docs/reviews/rc1-d29ac93-codex.md#L60) | Report malformed task-ID bracket syntax instead of silently ignoring the annotation. |
 | `a933` | open | TODO | low | - | [`docs/spec-addendum-e.md:218`](docs/spec-addendum-e.md#L218) | 1.5 semantic graph schema, identity and provenance design |
 | `e4af` | open | TODO | low | - | [`docs/spec-addendum-e.md:235`](docs/spec-addendum-e.md#L235) | 1.5 repository symbol indexing and task-to-symbol associations |
 | `3644` | open | TODO | low | - | [`docs/spec-addendum-e.md:239`](docs/spec-addendum-e.md#L239) | 1.5 deterministic incremental graph cache and invalidation |
