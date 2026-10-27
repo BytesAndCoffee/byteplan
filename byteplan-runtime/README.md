@@ -38,7 +38,7 @@ This package is complete for its purpose. The `byteplan` CLI discovers these dec
 allocates `id=` values, links tests and can strip the decorators from release builds. The
 decorators themselves remain harmless markers. New allocations use six-character hexadecimal
 IDs; existing four-character IDs such as the examples above remain supported. See the
-[implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md).
+[implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/development/IMPLEMENTATION_PLAN.md).
 
 ## Installation
 

@@ -8,22 +8,22 @@
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
-| `c053` | in_progress | TODO | high | - | [`docs/spec-addendum-e.md:363`](docs/spec-addendum-e.md#L363) | RC1 freeze one integrated revision for two independent whole-repository reviews |
-| `a70d` | in_progress | TODO | high | - | [`docs/spec-addendum-e.md:395`](docs/spec-addendum-e.md#L395) | RC1 approval-ready release report and artifact/platform validation |
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1699`](docs/IMPLEMENTATION_PLAN.md#L1699) | Phase 6c (optional): acceptance criteria and dependencies |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1702`](docs/IMPLEMENTATION_PLAN.md#L1702) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1705`](docs/IMPLEMENTATION_PLAN.md#L1705) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1708`](docs/IMPLEMENTATION_PLAN.md#L1708) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1712`](docs/IMPLEMENTATION_PLAN.md#L1712) | Phase 13 (optional): relay-for-github |
-| `fd02a3` | open | FIXME | normal | - | [`docs/rc1-readiness.md:3`](docs/rc1-readiness.md#L3) | Record the frozen tag commit before approval |
-| `a933` | open | TODO | low | - | [`docs/spec-addendum-e.md:218`](docs/spec-addendum-e.md#L218) | 1.5 semantic graph schema, identity and provenance design |
-| `e4af` | open | TODO | low | - | [`docs/spec-addendum-e.md:235`](docs/spec-addendum-e.md#L235) | 1.5 repository symbol indexing and task-to-symbol associations |
-| `3644` | open | TODO | low | - | [`docs/spec-addendum-e.md:239`](docs/spec-addendum-e.md#L239) | 1.5 deterministic incremental graph cache and invalidation |
-| `1fe7` | open | TODO | low | - | [`docs/spec-addendum-e.md:243`](docs/spec-addendum-e.md#L243) | 1.5 partial-index reliability, uncertainty and bounded queries |
-| `680a` | open | TODO | low | - | [`docs/spec-addendum-e.md:264`](docs/spec-addendum-e.md#L264) | 2.0 cross-module dependency and change-impact analysis |
-| `cdcb` | open | TODO | low | - | [`docs/spec-addendum-e.md:268`](docs/spec-addendum-e.md#L268) | 2.0 verification intelligence with traceable recommendations |
-| `4d69` | open | TODO | low | - | [`docs/spec-addendum-e.md:272`](docs/spec-addendum-e.md#L272) | 2.0 Assignment and specification traceability |
-| `595f` | open | TODO | low | - | [`docs/spec-addendum-e.md:276`](docs/spec-addendum-e.md#L276) | 2.0 bounded MCP graph operations and portable visualization design |
+| `c053` | in_progress | TODO | high | - | [`docs/development/spec-addendum-e.md:363`](docs/development/spec-addendum-e.md#L363) | RC1 freeze one integrated revision for two independent whole-repository reviews |
+| `a70d` | in_progress | TODO | high | - | [`docs/development/spec-addendum-e.md:395`](docs/development/spec-addendum-e.md#L395) | RC1 approval-ready release report and artifact/platform validation |
+| `de66` | open | TODO | low | - | [`docs/development/IMPLEMENTATION_PLAN.md:1699`](docs/development/IMPLEMENTATION_PLAN.md#L1699) | Phase 6c (optional): acceptance criteria and dependencies |
+| `75b4` | open | TODO | low | - | [`docs/development/IMPLEMENTATION_PLAN.md:1702`](docs/development/IMPLEMENTATION_PLAN.md#L1702) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/development/IMPLEMENTATION_PLAN.md:1705`](docs/development/IMPLEMENTATION_PLAN.md#L1705) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/development/IMPLEMENTATION_PLAN.md:1708`](docs/development/IMPLEMENTATION_PLAN.md#L1708) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/development/IMPLEMENTATION_PLAN.md:1712`](docs/development/IMPLEMENTATION_PLAN.md#L1712) | Phase 13 (optional): relay-for-github |
+| `fd02a3` | open | FIXME | normal | - | [`docs/development/rc1/readiness.md:3`](docs/development/rc1/readiness.md#L3) | Record the frozen tag commit before approval |
+| `a933` | open | TODO | low | - | [`docs/development/spec-addendum-e.md:218`](docs/development/spec-addendum-e.md#L218) | 1.5 semantic graph schema, identity and provenance design |
+| `e4af` | open | TODO | low | - | [`docs/development/spec-addendum-e.md:235`](docs/development/spec-addendum-e.md#L235) | 1.5 repository symbol indexing and task-to-symbol associations |
+| `3644` | open | TODO | low | - | [`docs/development/spec-addendum-e.md:239`](docs/development/spec-addendum-e.md#L239) | 1.5 deterministic incremental graph cache and invalidation |
+| `1fe7` | open | TODO | low | - | [`docs/development/spec-addendum-e.md:243`](docs/development/spec-addendum-e.md#L243) | 1.5 partial-index reliability, uncertainty and bounded queries |
+| `680a` | open | TODO | low | - | [`docs/development/spec-addendum-e.md:264`](docs/development/spec-addendum-e.md#L264) | 2.0 cross-module dependency and change-impact analysis |
+| `cdcb` | open | TODO | low | - | [`docs/development/spec-addendum-e.md:268`](docs/development/spec-addendum-e.md#L268) | 2.0 verification intelligence with traceable recommendations |
+| `4d69` | open | TODO | low | - | [`docs/development/spec-addendum-e.md:272`](docs/development/spec-addendum-e.md#L272) | 2.0 Assignment and specification traceability |
+| `595f` | open | TODO | low | - | [`docs/development/spec-addendum-e.md:276`](docs/development/spec-addendum-e.md#L276) | 2.0 bounded MCP graph operations and portable visualization design |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:328`](src/byteplan/config.py#L328) | Support detect.placeholder_assignments |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:71`](src/byteplan/scanner/comments.py#L71) | Recognize Google-style `TODO(owner): ...` tags |
 

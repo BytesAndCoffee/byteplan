@@ -51,7 +51,7 @@ Reassess the integrated state before A or B. The records on the base branch inte
 remain open until the corresponding implementation and evidence are integrated.
 
 For the first implementation increment after PRs #43/#44 integration, see the
-[RC1 compatibility triage and migration report](rc1-compatibility.md). The measurements above
+[RC1 compatibility triage and migration report](../guide/migration.md). The measurements above
 remain the historical documentation-assessment baseline, not the current completion state.
 
 ## Track A — Pre-1.0 compatibility and reliability

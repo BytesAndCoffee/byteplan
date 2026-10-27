@@ -25,8 +25,8 @@ resolved. Only you resolve tasks.
 > - an MCP server for AI agents
 >
 > Assignments (linking tasks to issues, commits and PRs) are planned. See the
-> [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/IMPLEMENTATION_PLAN.md)
-> and [Addendum E](docs/spec-addendum-e.md) for RC1 hardening and the proposed 1.5/2.0 semantic
+> [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/development/IMPLEMENTATION_PLAN.md)
+> and [Addendum E](docs/development/spec-addendum-e.md) for RC1 hardening and the proposed 1.5/2.0 semantic
 > graph roadmap. Graph implementation is deferred until after 1.0 stable. Shipped changes are
 > recorded in the [changelog](https://github.com/BytesAndCoffee/byteplan/blob/main/CHANGELOG.md).
 
@@ -64,7 +64,7 @@ dependencies) provides the `@todo` and `@verifies` decorators. It's only needed 
 ## Quick start
 
 New tasks receive six-character IDs; four-character IDs from existing projects remain fully
-supported. Existing projects must [migrate their registry](docs/rc1-compatibility.md#migration-and-recovery)
+supported. Existing projects must [migrate their registry](docs/guide/migration.md#migration-and-recovery)
 before allocating new IDs with this version.
 
 ```console
@@ -397,7 +397,7 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
   its evidence and referenced run must be committed before archival removes them from shared
   JSON. Staging alone is insufficient. Unrelated evidence edits do not block a task's archival.
 - **Outside Git:** the SQLite store may be the only archived copy; back it up. See the
-  [storage contract and recovery limits](docs/rc1-storage.md).
+  [storage contract and recovery limits](docs/guide/storage.md).
 - **What stays:** the ID stays in `reserved_ids`, so it's never reused. If it turns up in source
   again, `check` says it's archived; `byteplan archive --restore ID` brings it back.
 
@@ -439,7 +439,7 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 | **Repair** | |
 | `byteplan repair --import ID` | register an unregistered source ID; archived IDs require `archive --restore ID` |
 | `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID; use `--dry-run` to preview |
-| `byteplan repair --reassign PATH:LINE --against REV` | preserve/reassign an independently created branch collision before merging; [procedure and limits](docs/rc1-compatibility.md#merge-and-collision-recovery) |
+| `byteplan repair --reassign PATH:LINE --against REV` | preserve/reassign an independently created branch collision before merging; [procedure and limits](docs/guide/migration.md#merge-and-collision-recovery) |
 | **Git and agents** | |
 | `byteplan git install-hooks [--mode reconcile\|check\|scan]` | direct pre-commit hook (default `reconcile`: IDs at commit time); never replaces a hook it didn't write |
 | `byteplan git install-merge-driver` | merge the registry by task ID in Git merges (per clone) |
@@ -580,7 +580,7 @@ find_links = []                    # extra package sources for --offline install
 
 ## 1.0 compatibility boundary
 
-The [1.0 compatibility policy](docs/compatibility-policy.md) covers task identities and registry
+The [1.0 compatibility policy](docs/guide/compatibility-policy.md) covers task identities and registry
 semantics, source safety, the documented CLI and Python API, configuration, runtime decorators,
 MCP tools and Hatch/Git integrations. Advanced shipped commands share these guarantees.
 Python MCP embedding is explicitly experimental; the documented stdio protocol is included in
@@ -683,7 +683,7 @@ $ byteplan scan --staged --dry-run # preview what the staged snapshot still need
 **Setup:**
 - **pre-commit framework:** use the hook `byteplan-check` from this repository.
 - **Direct hook:** `byteplan git install-hooks`.
-- **CI recipe:** see [docs/ci.md](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/ci.md).
+- **CI recipe:** see [the CI guide](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/guide/ci.md).
 
 The hooks are a convenience and can be skipped with `--no-verify`; CI is where to enforce.
 
@@ -745,7 +745,7 @@ GitHub visitors see without installing anything.
   conflict on the report there. Set `report_branch = "main"` and only `main` writes or checks
   it: other branches (and the detached checkouts CI uses for PRs) leave the committed copy
   alone. After a merge, `byteplan report --write` regenerates it on any branch, so a CI job on
-  `main` can catch it up (see [docs/ci.md](docs/ci.md#keeping-the-report-current-on-main)).
+  `main` can catch it up (see [the CI guide](docs/guide/ci.md#keeping-the-report-current-on-main)).
 - **Generated, not scanned:** the report file is never scanned for TODOs. Don't edit it by hand.
 
 ## Merging the registry in Git

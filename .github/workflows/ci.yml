@@ -62,7 +62,7 @@ jobs:
 
   byteplan:
     # Dogfooding: BytePlan checks that this commit's code and .byteplan/tasks.json agree,
-    # with the same command the docs recommend (docs/ci.md). Read-only; never writes.
+    # with the same command the docs recommend (docs/guide/ci.md). Read-only; never writes.
     name: BytePlan consistency
     runs-on: ubuntu-latest
     steps:

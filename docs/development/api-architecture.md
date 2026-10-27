@@ -74,7 +74,7 @@ dispatch instead of introducing subclass-dependent construction.
 - The facade's inert `RUNTIME_SHIM` remains a template. Runtime decorators live in the runtime
   package/generated shim; `api.todo` and `api.verifies` are not introduced.
 
-See the [public compatibility policy](compatibility-policy.md) for the supported interface
+See the [public compatibility policy](../guide/compatibility-policy.md) for the supported interface
 boundary. Internal module layout and arbitrary imported implementation names are not extension
 APIs. Existing tested patch targets are preserved by this extraction even where they are private.
 

@@ -7,10 +7,10 @@ explicit release approval remain required.
 
 ## Compatibility acceptance completion
 
-The approved [execution plan](rc1-next-steps.md) extends the earlier pause checkpoint with
+The approved [execution plan](../development/rc1/next-steps.md) extends the earlier pause checkpoint with
 real-Git mixed-schema acceptance, source-safety and storage audits, interface policy and narrow
-diagnostic fixes. See the [A4 acceptance map](rc1-merge-acceptance.md),
-[source-safety report](rc1-source-safety.md), [storage decision](rc1-storage.md) and
+diagnostic fixes. See the [A4 acceptance map](../development/rc1/merge-acceptance.md),
+[source-safety report](source-safety.md), [storage decision](storage.md) and
 [1.0 compatibility policy](compatibility-policy.md) for current contracts and evidence.
 The prior checkpoint below remains historical validation of its increment.
 

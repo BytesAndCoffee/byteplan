@@ -1,7 +1,7 @@
 # RC1 independent whole-repository review gate
 
 **Outcome:** this gate (`a5de5c8`) was not approved. Its findings are corrected in PR #55; see
-the [readiness report](rc1-readiness.md). The owner waived a repeat AI review pair for RC1 in
+the [readiness report](readiness.md). The owner waived a repeat AI review pair for RC1 in
 favour of independent human review of the tagged candidate. The protocol below still applies to
 future gates.
 
@@ -79,7 +79,7 @@ independent release verdict. Run the gate's CI and rebuild/install artifacts fro
 revision before final readiness approval. Preserve the recorded Linux native-Windows skip;
 actual Windows results are separate platform evidence. See the
 [correction record](reviews/rc1-review4-corrections.md),
-[compatibility policy](compatibility-policy.md) and [Addendum E](spec-addendum-e.md).
+[compatibility policy](../../guide/compatibility-policy.md) and [Addendum E](../spec-addendum-e.md).
 
 Agreement requires neither reviewer to identify an unresolved release blocker. Register and
 fix confirmed blockers with regression evidence, repeat affected reviews and replace the

@@ -8,7 +8,7 @@
 **Status: gate review corrections are integrated; exact-commit readiness evidence and explicit
 approval remain open.** No RC1 tag or package has been published.
 
-The [`a5de5c8` gate](rc1-gate-check.md) was reviewed independently by Codex and Claude, with a
+The [`a5de5c8` gate](gate-check.md) was reviewed independently by Codex and Claude, with a
 focused third review by ChatGPT. None approved it. Together they confirmed one P1 (`53c751`, a
 journal supplied by repository content was replayed into arbitrary paths), five P2s and five P3s
 ([Claude](reviews/rc1-a5de5c8-claude.md), [Codex](reviews/rc1-a5de5c8-codex.md),
@@ -36,7 +36,7 @@ triaged for RC2 or 1.0.
 | Restore integrity follow-up | PR #46 merged as `027578b75f2657fa54c8eff49ccb6e1bcbc561c7`; all 15 jobs passed on `fea1d3eb769a2f7d20f27c2d4227bfa660ade32f`. |
 | API decomposition | PR #47 at `4e0256b1346aedd351419e09785cc8765bcd85df`; local validation and independent focused reviews passed; integrated and covered by the 15-job CI run on `d5b7af9`. |
 | Candidate version | Core `1.0.0rc1` prepared separately from structural work; runtime remains separately versioned `0.1.0`. |
-| Independent reviews | Two whole-repository reviews at `e7e526e` and two at `378e722`, with review-3 corrections (see [the findings](rc1-review-findings.md)). At `b551870`, one code and documentation review: one P2 (415a0f, fixed in PR #51) and five P3 documentation findings (fixed in PR #52). The subsequent independent Codex whole-repository review freezes `d29ac93bbbf57e9216a2c10694b307409399c734` and requires changes for two P1 and two P2 findings. Every PR also received an automated Codex review. No final pair has approved one common SHA after these corrections. Addendum E requires that pair; it is not replaced by PR reviews or green CI. |
+| Independent reviews | Two whole-repository reviews at `e7e526e` and two at `378e722`, with review-3 corrections (see [the findings](review-findings.md)). At `b551870`, one code and documentation review: one P2 (415a0f, fixed in PR #51) and five P3 documentation findings (fixed in PR #52). The subsequent independent Codex whole-repository review freezes `d29ac93bbbf57e9216a2c10694b307409399c734` and requires changes for two P1 and two P2 findings. Every PR also received an automated Codex review. No final pair has approved one common SHA after these corrections. Addendum E requires that pair; it is not replaced by PR reviews or green CI. |
 | Reference artifacts | Built at `b551870`; these identify that revision only, not the tag. `byteplan-1.0.0rc1-py3-none-any.whl` `0da0391c7b51af27995bf9087f083b5d8c53a09288d0ccf63d7fc9a811e793ae`; `byteplan-1.0.0rc1.tar.gz` `18ff92142fdd6119b60dfae805b19ef7d4bd96e3c48d1c584a71d05f29add35f`; `byteplan_runtime-0.1.0-py3-none-any.whl` `ea09ff29453e3ddf99bcdb294f800be5cb4bc5d0276941dab213fdb33ebb1c94`; `byteplan_runtime-0.1.0.tar.gz` `19de333d1e04862f449e7055a60ef635484bd8f718246b46efc9a94a19f8d22b`. A clean virtual environment installed the wheel and its CLI ran. |
 
 ## Compatibility, migration and authoritative state
@@ -54,7 +54,7 @@ history, evidence and extension fields. Published 0.1.0/0.2.0 clients visibly re
 in the tested ordinary commands; schema-v1 scans can otherwise warn yet report no tasks with
 a successful exit. Do not downgrade by editing the schema number. Historical 0.2.0
 `init --runtime-shim` can create a new inert shim before rejection. Recovery and the measured
-matrix are in [the compatibility report](rc1-compatibility.md).
+matrix are in [the compatibility report](../../guide/migration.md).
 
 The JSON registry remains authoritative; no major layout migration was justified by size.
 Historical evidence, external mappings and rebuildable indexes remain conceptually distinct.
@@ -66,7 +66,7 @@ In Git, archival requires the current task/evidence/run to have a committed copy
 bytes guard planned writes; restore preserves existing canonical evidence even when stale or
 failing. Other clones can recover task records from available history, but current traversal
 does not automatically import their historical verification payload. Shallow/rewritten history
-and local SQLite backup limits are documented in [the storage decision](rc1-storage.md).
+and local SQLite backup limits are documented in [the storage decision](../../guide/storage.md).
 
 ## Final module and interface boundaries
 
@@ -75,14 +75,14 @@ scan, task, verification, scaffold, release, sync, archive and initialization op
 internal modules. Existing algorithm modules keep their responsibilities. The 13 public result
 types retain their `byteplan.api` identities, pickle lookup and supported constructor annotation
 namespaces. Public signatures, exception semantics, sentinel behavior, late-bound tested patch
-targets and transactional ownership remain intact. See [the module map](api-architecture.md).
+targets and transactional ownership remain intact. See [the module map](../api-architecture.md).
 
-The [compatibility policy](compatibility-policy.md) covers the documented CLI, Python API,
+The [compatibility policy](../../guide/compatibility-policy.md) covers the documented CLI, Python API,
 configuration, decorators, MCP stdio, Hatch/Git integrations and extension points. Python MCP
 embedding is experimental. Stable identity, source safety and authoritative task/evidence
 semantics apply throughout. Source mutation and execution reject read-only snapshots before
 side effects; selected-view queries use selected data, and index HEAD freshness is uncertain.
-Preview and first-run behavior are documented in [the source-safety map](rc1-source-safety.md).
+Preview and first-run behavior are documented in [the source-safety map](../../guide/source-safety.md).
 
 ## Validation
 

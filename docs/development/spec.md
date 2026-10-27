@@ -102,7 +102,7 @@ Suggested schema (evolve with `schema_version` and migrations):
 New repositories use schema v2. Existing schema-v1 repositories retain their version until an
 explicit, journaled `byteplan migrate`. Incompatible annotation writes require completed
 migration first. Migration preserves source, task/history metadata and verification evidence;
-see [the compatibility and recovery procedure](rc1-compatibility.md#migration-and-recovery).
+see [the compatibility and recovery procedure](../guide/migration.md#migration-and-recovery).
 
 ```json
 {

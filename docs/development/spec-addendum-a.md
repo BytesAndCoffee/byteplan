@@ -8,7 +8,7 @@
 
 **Compatibility update:** The four-character allocation assumptions in this historical addendum
 are superseded by [Addendum E](spec-addendum-e.md#track-a--pre-10-compatibility-and-reliability)
-and the [1.0 compatibility policy](compatibility-policy.md). Legacy identities remain valid;
+and the [1.0 compatibility policy](../guide/compatibility-policy.md). Legacy identities remain valid;
 new allocation uses six characters, with supported longer identities and explicit migration.
 
 ## 1. Purpose and compatibility

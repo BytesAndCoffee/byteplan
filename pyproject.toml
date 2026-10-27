@@ -86,10 +86,8 @@ path = "src/byteplan/__about__.py"
 [tool.hatch.build.targets.sdist]
 exclude = [
   ".byteplan",
-  "docs/spec*.md",
-  # Internal review and planning notes, with paths from the reviewers' machines.
-  "docs/reviews",
-  "docs/rc1-next-steps.md",
+  # Design, planning and release records for contributors; they stay on GitHub.
+  "docs/development",
   # A separate distribution that lives in this repository; see its own pyproject.toml.
   "byteplan-runtime",
 ]

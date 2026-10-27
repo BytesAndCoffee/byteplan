@@ -35,7 +35,7 @@ roles separate allows later Assignment and graph work without forcing a storage 
 
 The semantic driver remains recommended, not a prerequisite for correctness. Plain Git may
 require explicit conflicts for independently created tasks or competing histories/evidence.
-See the [compatibility report](rc1-compatibility.md#merge-and-collision-recovery) and the
+See the [compatibility report](migration.md#merge-and-collision-recovery) and the
 real-Git acceptance matrix in `tests/test_merge_integrity.py` and
 `tests/test_collision_recovery.py`. A smaller file would not make a silently selected lifecycle
 state safe; merge validation matters independently of layout.

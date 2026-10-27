@@ -31,7 +31,7 @@ What's in scope is `[tool.byteplan]` in `pyproject.toml`: both packages' sources
 `tests/` and Markdown.
 
 1. **Write the TODO or FIXME** where the work is. Phases still to build are HTML-comment TODOs at
-   the end of [the implementation plan](docs/IMPLEMENTATION_PLAN.md).
+   the end of [the implementation plan](docs/development/IMPLEMENTATION_PLAN.md).
 2. **`hatch run byteplan scan`** (or commit) gives it an ID. In Python files outside `tests/`,
    the scan also scaffolds an acceptance test (`[tool.byteplan.tests.scaffold] auto = true`): a strict-xfail
    placeholder linked with `@verifies("ID")`, so CI stays green until the work is done.

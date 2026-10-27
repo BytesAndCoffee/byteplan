@@ -21,7 +21,7 @@ passing test never resolves a task. Only an explicit `status`/`resolve` does.
 ## Active release plan — Addendum E
 
 **Target: `v1.0.0rc1`. Core feature freeze remains in effect.**
-The [release-readiness report](rc1-readiness.md) records candidate preparation evidence and
+The [release-readiness report](rc1/readiness.md) records candidate preparation evidence and
 pending integration/review/artifact gates. It is not yet an approval declaration.
 The [verified starting-point assessment](spec-addendum-e.md#operating-instructions-and-verified-starting-point)
 records main revision `e0b66318574ef72e23c80b529fb28a825b6d12ec`, current limitations,
@@ -52,11 +52,11 @@ six-character IDs, supports longer identities, prefers exact lookup before unamb
 and persists full identities. A2 establishes schema v2 where required before incompatible
 annotation writes, superseding the older reservation for Assignments below. The active
 compatibility increment and original-branch collision recovery procedure are recorded in the
-[RC1 compatibility report](rc1-compatibility.md). The historical completion table does not
+[RC1 compatibility report](../guide/migration.md). The historical completion table does not
 complete these new release gates.
 
 **Compatibility execution checkpoint (24 October 2026):** the approved
-[next-steps assessment](rc1-next-steps.md) has been executed through the remaining Track A
+[next-steps assessment](rc1/next-steps.md) has been executed through the remaining Track A
 acceptance work: merge (`edc2`), source safety (`1b81`), storage (`4842`) and interface policy
 (`8aeb`). Independent review additionally confirmed archive durability (`af82fd`) and snapshot
 isolation (`c35e66`) defects; both are corrected with linked regression evidence and explicit
@@ -72,11 +72,11 @@ The extracted archive operation retains the same correction, confirmed by method
 runtime-binding comparisons plus the restore regressions.
 
 Final whole-repository reviews (`c053`) and the release-readiness/approval report (`a70d`) remain
-later gates. The [compatibility report](rc1-compatibility.md) links acceptance maps, independent
+later gates. The [compatibility report](../guide/migration.md) links acceptance maps, independent
 review evidence, the storage decision and public stability policy. Its earlier pause checkpoint
 retains historical evidence; it does not describe the current execution state.
 
-**Compatibility policy:** the completed [interface inventory](compatibility-policy.md) defines
+**Compatibility policy:** the completed [interface inventory](../guide/compatibility-policy.md) defines
 stable CLI, Python API, configuration, decorators, MCP stdio, Hatch and documented extension
 contracts. Python MCP embedding remains experimental. Core identity, source safety and
 authoritative state share the stable contract. Existing previews and read-only defaults are
@@ -112,7 +112,7 @@ itself.
 | Phase 4c ✅ | BytePlan's own new TODOs get their IDs automatically when committed (`hatch run byteplan git install-hooks`, once per clone). |
 | Phases 6a–6b | Its own tasks link to acceptance tests, and regression tests are scaffolded with `tests scaffold`. |
 | Phase 9 | Coding agents developing BytePlan query it over MCP for outstanding work, record evidence, and hand the next session an authoritative state snapshot. |
-| Phase 10 ✅ | A documented, fully integrated self-managed workflow ([CONTRIBUTING.md](../CONTRIBUTING.md)): commit hooks and merge drivers, auto-scaffolded `@verifies` placeholders, evidence before `resolve --sync-source`, `byteplan.md` regenerated on `main`, MCP for agents. CI on ubuntu, macOS and Windows. |
+| Phase 10 ✅ | A documented, fully integrated self-managed workflow ([CONTRIBUTING.md](../../CONTRIBUTING.md)): commit hooks and merge drivers, auto-scaffolded `@verifies` placeholders, evidence before `resolve --sync-source`, `byteplan.md` regenerated on `main`, MCP for agents. CI on ubuntu, macOS and Windows. |
 | Phase 12 | Assignments link the commits, PRs and evidence produced by BytePlan's own development. |
 | Phase 13 | Relay for GitHub runs BytePlan's own issue-to-PR lifecycle, as the reference demonstration. |
 
@@ -1312,7 +1312,7 @@ local SQLite use foreseen above, and the registry stays authoritative for every 
 
 **Conflicts fall back to `git merge-file` markers, with an explanation.** These include the same
 field changed differently on both sides, an ID allocated on both branches for different work
-(return to an original branch and use the [explicit pre-merge repair procedure](rc1-compatibility.md#merge-and-collision-recovery)),
+(return to an original branch and use the [explicit pre-merge repair procedure](../guide/migration.md#merge-and-collision-recovery)),
 removed versus changed, and a schema mismatch. Nothing is
 chosen silently.
 

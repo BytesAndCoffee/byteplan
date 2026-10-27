@@ -1,7 +1,7 @@
 # Independent whole-repository RC1 review: Claude
 
 Reviewed revision: **a5de5c861382a61cf2ca38c093e8268f401f82c3**: the commit that first adds
-[the gate instructions](../rc1-gate-check.md). Its parent is the baseline
+[the gate instructions](../gate-check.md). Its parent is the baseline
 `2c2b1ae2e38271097d9943155819055e2bf8db82`.
 
 I reviewed a detached clone of that SHA and never modified it. I wrote this report and registered

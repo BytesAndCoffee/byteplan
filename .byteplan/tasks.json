@@ -1005,6 +1005,18 @@
             ],
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/IMPLEMENTATION_PLAN.md",
+            "symbol": "Phases"
+          },
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md",
+            "symbol": "Phases"
+          }
         }
       ],
       "id": "15df",
@@ -1013,7 +1025,7 @@
         "phase",
         "release:2.0"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "Addendum E: outside RC1; graph-assisted Assignment/specification traceability is on the 2.0 roadmap. Preserve this identity. The original schema-v2 reservation is superseded by the RC1 identity compatibility boundary; choose the future Assignment migration version after integration.",
       "origin": "comment",
       "presence": "present",
@@ -1023,7 +1035,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 1708,
-        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "path": "docs/development/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
@@ -1496,6 +1508,18 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/spec-addendum-e.md",
+            "symbol": "E3. BytePlan 1.5 — Graph foundations"
+          },
+          "old": {
+            "path": "docs/spec-addendum-e.md",
+            "symbol": "E3. BytePlan 1.5 — Graph foundations"
+          }
         }
       ],
       "id": "1fe7",
@@ -1504,7 +1528,7 @@
         "release:1.5",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
       "origin": "comment",
       "presence": "present",
@@ -1514,7 +1538,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 243,
-        "path": "docs/spec-addendum-e.md",
+        "path": "docs/development/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E3. BytePlan 1.5 — Graph foundations"
       },
@@ -2638,6 +2662,18 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/spec-addendum-e.md",
+            "symbol": "E3. BytePlan 1.5 — Graph foundations"
+          },
+          "old": {
+            "path": "docs/spec-addendum-e.md",
+            "symbol": "E3. BytePlan 1.5 — Graph foundations"
+          }
         }
       ],
       "id": "3644",
@@ -2646,7 +2682,7 @@
         "release:1.5",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
       "origin": "comment",
       "presence": "present",
@@ -2656,7 +2692,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 239,
-        "path": "docs/spec-addendum-e.md",
+        "path": "docs/development/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E3. BytePlan 1.5 — Graph foundations"
       },
@@ -4238,6 +4274,18 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/spec-addendum-e.md",
+            "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+          },
+          "old": {
+            "path": "docs/spec-addendum-e.md",
+            "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+          }
         }
       ],
       "id": "4d69",
@@ -4246,7 +4294,7 @@
         "release:2.0",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
       "origin": "comment",
       "presence": "present",
@@ -4256,7 +4304,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 272,
-        "path": "docs/spec-addendum-e.md",
+        "path": "docs/development/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
       },
@@ -4786,6 +4834,18 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/spec-addendum-e.md",
+            "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+          },
+          "old": {
+            "path": "docs/spec-addendum-e.md",
+            "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+          }
         }
       ],
       "id": "595f",
@@ -4794,7 +4854,7 @@
         "release:2.0",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
       "origin": "comment",
       "presence": "present",
@@ -4804,7 +4864,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 276,
-        "path": "docs/spec-addendum-e.md",
+        "path": "docs/development/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
       },
@@ -6008,6 +6068,18 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/spec-addendum-e.md",
+            "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+          },
+          "old": {
+            "path": "docs/spec-addendum-e.md",
+            "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+          }
         }
       ],
       "id": "680a",
@@ -6016,7 +6088,7 @@
         "release:2.0",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
       "origin": "comment",
       "presence": "present",
@@ -6026,7 +6098,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 264,
-        "path": "docs/spec-addendum-e.md",
+        "path": "docs/development/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
       },
@@ -6562,6 +6634,18 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/IMPLEMENTATION_PLAN.md",
+            "symbol": "Phases"
+          },
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md",
+            "symbol": "Phases"
+          }
         }
       ],
       "id": "75b4",
@@ -6569,7 +6653,7 @@
       "labels": [
         "phase"
       ],
-      "last_seen": "2026-10-22T03:53:56Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
@@ -6579,7 +6663,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 1702,
-        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "path": "docs/development/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
@@ -7819,6 +7903,18 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/IMPLEMENTATION_PLAN.md",
+            "symbol": "Phases"
+          },
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md",
+            "symbol": "Phases"
+          }
         }
       ],
       "id": "9054",
@@ -7826,7 +7922,7 @@
       "labels": [
         "phase"
       ],
-      "last_seen": "2026-10-22T03:53:56Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
@@ -7836,7 +7932,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 1705,
-        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "path": "docs/development/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
@@ -9181,6 +9277,18 @@
           "old": {
             "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nPR54 integrated (013f71b0f88824001fdf2e3d0dcdb30425b6e77d), settledbaseline2c2b1ae2e38271097d9943155819055e2bf8db82. Headb8cdbc5f6f17632c05118716d48756f39ef483ac passed full local1742/2skip+3network, stricttypes123/Ruff124, all15CI40541039783 and cleaninstalledwheel/sdist/MCP/Hatch/runtime. These are prior-head evidence; newgate exact-SHA CI/artifacts, independent reviews and final readiness approval remain pending. No tag/publication.\n\nExact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: all15 CI jobs succeeded in run40546275232 (Linux/macOS/Windows CPython3.11–3.14, actual released clients, quality/runtime and consistency). Fresh exact-gate artifact builds/installations, CLI/API, actual MCP stdio, isolated Hatch default/write and separate runtime passed; manifest artifacts-gate-a5de5c8/manifest.json completed=true/source_unchanged=true. WheelSHA f708b6e840a928d8ead8c91430ca2f35188f0880f7237fa6fef5558c240edb95; sdistSHA928152390a52a01786abf1919db829193b645380609fb9233c7b9b405be54eec. Native Windows3.12 both explicit junction regressions passed; separate from Linux skips. Three new Codex P2 issues remain open; no final pair or RC1 approval claimed.\n\nCodex local exact-gate full run completed EXIT1:1741passed,1failed,2skipped,3networkdeselected1230.29s. The lone symlink-plugin passed-directory-False case child pytest hit existing30s timeout with empty output. Exact isolated rerun passed3.22s and all8related cases passed38.40s without test/source/timeout changes. Original full-suite failure retained; precise cause uncertain. Separate exact-gate CI all15jobs passed. See codex-a5de5c8/full-suite.log and symlink rerun logs. This does not count local full run as passing and is separate from the Windows wrapper defect."
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/spec-addendum-e.md",
+            "symbol": "Track G — Release candidate readiness and approval"
+          },
+          "old": {
+            "path": "docs/spec-addendum-e.md",
+            "symbol": "Track G — Release candidate readiness and approval"
+          }
         }
       ],
       "id": "a70d",
@@ -9189,7 +9297,7 @@
         "release:1.0",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nPR54 integrated (013f71b0f88824001fdf2e3d0dcdb30425b6e77d), settledbaseline2c2b1ae2e38271097d9943155819055e2bf8db82. Headb8cdbc5f6f17632c05118716d48756f39ef483ac passed full local1742/2skip+3network, stricttypes123/Ruff124, all15CI40541039783 and cleaninstalledwheel/sdist/MCP/Hatch/runtime. These are prior-head evidence; newgate exact-SHA CI/artifacts, independent reviews and final readiness approval remain pending. No tag/publication.\n\nExact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: all15 CI jobs succeeded in run40546275232 (Linux/macOS/Windows CPython3.11–3.14, actual released clients, quality/runtime and consistency). Fresh exact-gate artifact builds/installations, CLI/API, actual MCP stdio, isolated Hatch default/write and separate runtime passed; manifest artifacts-gate-a5de5c8/manifest.json completed=true/source_unchanged=true. WheelSHA f708b6e840a928d8ead8c91430ca2f35188f0880f7237fa6fef5558c240edb95; sdistSHA928152390a52a01786abf1919db829193b645380609fb9233c7b9b405be54eec. Native Windows3.12 both explicit junction regressions passed; separate from Linux skips. Three new Codex P2 issues remain open; no final pair or RC1 approval claimed.\n\nCodex local exact-gate full run completed EXIT1:1741passed,1failed,2skipped,3networkdeselected1230.29s. The lone symlink-plugin passed-directory-False case child pytest hit existing30s timeout with empty output. Exact isolated rerun passed3.22s and all8related cases passed38.40s without test/source/timeout changes. Original full-suite failure retained; precise cause uncertain. Separate exact-gate CI all15jobs passed. See codex-a5de5c8/full-suite.log and symlink rerun logs. This does not count local full run as passing and is separate from the Windows wrapper defect.\n\nPost-review reconciliation complete: Codex accepts Claude P1 53c751 (fresh ordinary+staged clone proof), new P2 e3d6bd/6944ec, existing Codex3P2, and5P3. Combined11open findings:1P1/5P2/5P3. Gatea5de5c8 rejected for RC1. Initial reports retained; no blockers resolved, no release approval. See appended reconciliation in docs/reviews/rc1-a5de5c8-codex.md.",
       "origin": "comment",
       "presence": "present",
@@ -9199,7 +9307,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 395,
-        "path": "docs/spec-addendum-e.md",
+        "path": "docs/development/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "Track G — Release candidate readiness and approval"
       },
@@ -9373,6 +9481,18 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/spec-addendum-e.md",
+            "symbol": "E2. Semantic entities and relationships"
+          },
+          "old": {
+            "path": "docs/spec-addendum-e.md",
+            "symbol": "E2. Semantic entities and relationships"
+          }
         }
       ],
       "id": "a933",
@@ -9381,7 +9501,7 @@
         "release:1.5",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
       "origin": "comment",
       "presence": "present",
@@ -9391,7 +9511,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 218,
-        "path": "docs/spec-addendum-e.md",
+        "path": "docs/development/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E2. Semantic entities and relationships"
       },
@@ -10800,6 +10920,18 @@
           "old": {
             "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.\n\nCodex initial independent whole-repository gate findings captured against a5de5c861382a61cf2ca38c093e8268f401f82c3 without reading Claude current review. Three new P2 findings: 515d45, 6698e7, 26756c; no confirmed P0/P1. Review evidence is still completing. Keep common-review task in progress; this is not the independent pair or RC1 approval.\n\nCodex initial whole-repository review complete at exact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: no confirmed P0/P1,3openP2 (515d45,6698e7,26756c). Exact-gate CI15jobs/artifact installs passed; local full-suite EXIT1 preserved with isolated1case+all8related reruns passing, cause uncertain. Initial conclusions committed separately as7b93596 before any current Claude conclusions were consulted. Keep common-review task in progress pending independent peer report and explicit dispositions; no RC1 approval."
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/spec-addendum-e.md",
+            "symbol": "Track F — Final independent whole-repository reviews"
+          },
+          "old": {
+            "path": "docs/spec-addendum-e.md",
+            "symbol": "Track F — Final independent whole-repository reviews"
+          }
         }
       ],
       "id": "c053",
@@ -10808,7 +10940,7 @@
         "release:1.0",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.\n\nCodex initial independent whole-repository gate findings captured against a5de5c861382a61cf2ca38c093e8268f401f82c3 without reading Claude current review. Three new P2 findings: 515d45, 6698e7, 26756c; no confirmed P0/P1. Review evidence is still completing. Keep common-review task in progress; this is not the independent pair or RC1 approval.\n\nCodex initial whole-repository review complete at exact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: no confirmed P0/P1,3openP2 (515d45,6698e7,26756c). Exact-gate CI15jobs/artifact installs passed; local full-suite EXIT1 preserved with isolated1case+all8related reruns passing, cause uncertain. Initial conclusions committed separately as7b93596 before any current Claude conclusions were consulted. Keep common-review task in progress pending independent peer report and explicit dispositions; no RC1 approval.\n\nPost-review reconciliation complete: Codex accepts Claude P1 53c751 (fresh ordinary+staged clone proof), new P2 e3d6bd/6944ec, existing Codex3P2, and5P3. Combined11open findings:1P1/5P2/5P3. Gatea5de5c8 rejected for RC1. Initial reports retained; no blockers resolved, no release approval. See appended reconciliation in docs/reviews/rc1-a5de5c8-codex.md.",
       "origin": "comment",
       "presence": "present",
@@ -10818,7 +10950,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 363,
-        "path": "docs/spec-addendum-e.md",
+        "path": "docs/development/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "Track F — Final independent whole-repository reviews"
       },
@@ -12148,6 +12280,18 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/spec-addendum-e.md",
+            "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+          },
+          "old": {
+            "path": "docs/spec-addendum-e.md",
+            "symbol": "E4. BytePlan 2.0 — Graph intelligence"
+          }
         }
       ],
       "id": "cdcb",
@@ -12156,7 +12300,7 @@
         "release:2.0",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "Addendum E plan registration only. Release 2.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
       "origin": "comment",
       "presence": "present",
@@ -12166,7 +12310,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 268,
-        "path": "docs/spec-addendum-e.md",
+        "path": "docs/development/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E4. BytePlan 2.0 — Graph intelligence"
       },
@@ -12652,6 +12796,18 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/IMPLEMENTATION_PLAN.md",
+            "symbol": "Phases"
+          },
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md",
+            "symbol": "Phases"
+          }
         }
       ],
       "id": "de66",
@@ -12659,7 +12815,7 @@
       "labels": [
         "phase"
       ],
-      "last_seen": "2026-10-22T03:53:56Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
@@ -12669,7 +12825,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 1699,
-        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "path": "docs/development/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
@@ -12909,6 +13065,18 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/spec-addendum-e.md",
+            "symbol": "E3. BytePlan 1.5 — Graph foundations"
+          },
+          "old": {
+            "path": "docs/spec-addendum-e.md",
+            "symbol": "E3. BytePlan 1.5 — Graph foundations"
+          }
         }
       ],
       "id": "e4af",
@@ -12917,7 +13085,7 @@
         "release:1.5",
         "addendum:e"
       ],
-      "last_seen": "2026-10-23T21:03:42Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "Addendum E plan registration only. Release 1.5; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.",
       "origin": "comment",
       "presence": "present",
@@ -12927,7 +13095,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 235,
-        "path": "docs/spec-addendum-e.md",
+        "path": "docs/development/spec-addendum-e.md",
         "representation": "comment",
         "symbol": "E3. BytePlan 1.5 — Graph foundations"
       },
@@ -13400,6 +13568,18 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/IMPLEMENTATION_PLAN.md",
+            "symbol": "Phases"
+          },
+          "old": {
+            "path": "docs/IMPLEMENTATION_PLAN.md",
+            "symbol": "Phases"
+          }
         }
       ],
       "id": "ec99",
@@ -13407,7 +13587,7 @@
       "labels": [
         "phase"
       ],
-      "last_seen": "2026-10-22T03:53:56Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
@@ -13417,7 +13597,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 1712,
-        "path": "docs/IMPLEMENTATION_PLAN.md",
+        "path": "docs/development/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
       },
@@ -14330,12 +14510,24 @@
             "description": "It still says the whole-repository reviews and artifact checks are pending. Record the reviewed\nSHA (b551870; CI 40450659828 passed 15/15 on d5b7af9), the review rounds and dispositions, the\nnative Windows junction pass, artifact hashes and install smoke results, and update README's\n\"Status: preparing 1.0.0rc1\" line when the tag is approved.",
             "title": "Reconcile this report with the final frozen revision before approval"
           }
+        },
+        {
+          "at": "2026-10-27T21:56:33Z",
+          "event": "moved",
+          "new": {
+            "path": "docs/development/rc1/readiness.md",
+            "symbol": "BytePlan 1.0.0rc1 readiness report"
+          },
+          "old": {
+            "path": "docs/rc1-readiness.md",
+            "symbol": "BytePlan 1.0.0rc1 readiness report"
+          }
         }
       ],
       "id": "fd02a3",
       "kind": "FIXME",
       "labels": [],
-      "last_seen": "2026-10-27T14:49:21Z",
+      "last_seen": "2026-10-27T21:56:33Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
@@ -14345,7 +14537,7 @@
         "attachment_kind": "module",
         "decl_line": null,
         "line": 3,
-        "path": "docs/rc1-readiness.md",
+        "path": "docs/development/rc1/readiness.md",
         "representation": "comment",
         "symbol": "BytePlan 1.0.0rc1 readiness report"
       },

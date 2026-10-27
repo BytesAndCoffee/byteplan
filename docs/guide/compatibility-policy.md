@@ -2,7 +2,7 @@
 
 This document defines the compatibility boundary for the 1.0 release and its release
 candidates. It does not declare a release candidate or an unreviewed checkout ready for
-production. [Addendum E](spec-addendum-e.md) retains the RC1 acceptance and approval gates.
+production. [Addendum E](../development/spec-addendum-e.md) retains the RC1 acceptance and approval gates.
 
 Within 1.x, supported public interfaces keep their existing names, accepted arguments,
 return meanings and safety defaults. New optional arguments, configuration options, diagnostic
@@ -17,12 +17,12 @@ they must explain recovery and preserve valid authoritative work.
 |---|---|---|
 | Source annotations and task identity | Python task comments and supported stub discovery, Markdown task comments, JSON/JSONC annotations, configured tags, suppressions, `@todo` and `@verifies`. Existing four-character lowercase hexadecimal IDs remain valid; new allocations have six characters; longer supported IDs remain valid. Persisted references use the complete identity. Exact lookup wins before unambiguous UI prefixes. | IDs are project-local, not globally unique. Collisions require explicit reconciliation. Static discovery does not import the project; uncertain dynamic decorators and unsafe edits produce diagnostics. Stub detection remains a documented heuristic. |
 | Authoritative task lifecycle | Managed status, labels, assignee, priority, notes and history; permanent reservations; explicit resolution; source presence distinct from lifecycle; verification and evidence freshness rules. Unknown supported extension fields round-trip. | Removing an annotation or passing a test does not resolve a task. A recorded historical pass is not fresh evidence after relevant changes. Missing archived evidence cannot be reconstructed as a passing result. |
-| Registry and migration | Versioned registry/evidence validation, deterministic serialization, explicit journaled migration, source-editing guards and recoverable writes. Existing valid tasks, history and evidence survive supported migrations. Unsupported future schemas fail visibly. | Compatibility does not mean every older binary can read newer schemas. Upgrade clients before migration and incompatible annotations. Physical indexes/caches are distinct from authoritative task records; see the [storage decision](rc1-compatibility.md#intended-authoritative-storage-contract). |
-| CLI | The documented command names, flags, defaults and exit meanings in the [command reference](../README.md#commands), including advanced scan/sync/scaffold/verify, repair, migration, archive and release/restore operations. `--format json` preserves existing field names/types/meanings; diagnostics remain on stderr. | Text/table/Markdown layout, generated test names and exact diagnostic wording can improve. Parse structured fields and exit codes instead. New JSON fields and findings may appear. |
+| Registry and migration | Versioned registry/evidence validation, deterministic serialization, explicit journaled migration, source-editing guards and recoverable writes. Existing valid tasks, history and evidence survive supported migrations. Unsupported future schemas fail visibly. | Compatibility does not mean every older binary can read newer schemas. Upgrade clients before migration and incompatible annotations. Physical indexes/caches are distinct from authoritative task records; see the [storage decision](migration.md#intended-authoritative-storage-contract). |
+| CLI | The documented command names, flags, defaults and exit meanings in the [command reference](../../README.md#commands), including advanced scan/sync/scaffold/verify, repair, migration, archive and release/restore operations. `--format json` preserves existing field names/types/meanings; diagnostics remain on stderr. | Text/table/Markdown layout, generated test names and exact diagnostic wording can improve. Parse structured fields and exit codes instead. New JSON fields and findings may appear. |
 | Python API | `byteplan.api.Project`, its existing public methods/properties and supported signatures, result types and exception semantics; details below. | Private methods, implementation dependencies and arbitrary imported names are not extension APIs. The RC1 decomposition (PR #47) preserved existing behavior and tested patch targets even where they are internal. |
 | Configuration | Documented `[tool.byteplan]` sections and options, defaults, accepted values, project-relative path rules and strict unknown-key rejection. `byteplan.config.Config`, its section dataclasses, and `load_config` support programmatic configuration and the documented custom Hatch integration. | A future optional feature may require new configuration. Unknown options still fail rather than silently doing nothing. No interface promises that unsupported settings such as `placeholder_assignments=true` will work. |
 | Runtime decorators | `byteplan_runtime.todo(title, /, *, id=None, kind="TODO", description="", test=None, tests=())` and `verifies(*ids)` retain their parameters and inert identity behavior. Generated runtime shims provide the same decorators. | Runtime markers do not validate or register tasks. Scanner acceptance is static and separately checked. `byteplan-runtime` remains a separately versioned distribution with its own supported Python versions. `byteplan.api` does not export runtime decorators. |
-| MCP protocol | The documented stdio entry points, existing tool names/arguments, resources, structured result fields and permissions in the [MCP reference](../README.md#mcp-server-for-ai-agents). Source-writing tools preview unless `apply=true`; source writes and project-code execution require their documented permissions. | Additional tools/result fields may be introduced. Protocol consumers must negotiate capabilities and handle unavailable tools. Restart/reconnect long-running servers after upgrading or checking out code they need to load. A restart cannot add unsupported schema support to an old installation. |
+| MCP protocol | The documented stdio entry points, existing tool names/arguments, resources, structured result fields and permissions in the [MCP reference](../../README.md#mcp-server-for-ai-agents). Source-writing tools preview unless `apply=true`; source writes and project-code execution require their documented permissions. | Additional tools/result fields may be introduced. Protocol consumers must negotiate capabilities and handle unavailable tools. Restart/reconnect long-running servers after upgrading or checking out code they need to load. A restart cannot add unsupported schema support to an old installation. |
 | Hatch and Git integration | Hatchling `byteplan` build-hook entry point and documented hook settings; supported custom-hook example; published pre-commit hook IDs, direct-hook modes, staged snapshot semantics and merge-driver command contracts. | Hatch builds check without source writes by default. Installing hooks/drivers changes per-clone configuration explicitly. Ordinary Git may produce explicit conflicts; no merge driver can choose competing authoritative states on a user's behalf. Reinstall a driver after recreating its Python environment. |
 | Documented extension points | Custom runtime modules via `annotations.runtime_modules`, manual pytest node links, configured pytest runner and scaffold options, release smoke commands, `report_file`/`report_branch`, and the custom Hatch integration. | These are configuration/integration contracts, not a general scanner, storage or lifecycle plugin API. User-provided runners and smoke commands execute project code only when their execution is requested. |
 
@@ -93,8 +93,8 @@ contract. Correcting a heuristic may change which candidates are reported; it mu
 resolve or discard their existing task records.
 
 Assignments, Relay and the repository-wide semantic graph are proposed future architecture,
-not shipped experimental commands. [Addendum D](spec-addendum-d.md) and
-[Addendum E](spec-addendum-e.md) contain design candidates, not present public interfaces or
+not shipped experimental commands. [Addendum D](../development/spec-addendum-d.md) and
+[Addendum E](../development/spec-addendum-e.md) contain design candidates, not present public interfaces or
 committed graph query names. Graph foundations target 1.5; graph intelligence and relevant
 Assignment traceability target 2.0. None is required to write a TODO or included in RC1.
 
@@ -103,7 +103,7 @@ Assignment traceability target 2.0. None is required to write a TODO or included
 Start with comments, `init`, `scan --dry-run`, a reviewed writing `scan` and the committed
 registry. `check` is read-only. Existing schema-1 repositories must explicitly migrate before
 new expanded identities are written. Stage or commit the migration boundary before staged
-allocation. The [migration procedure and released-client matrix](rc1-compatibility.md)
+allocation. The [migration procedure and released-client matrix](migration.md)
 describe upgrade and recovery limits.
 
 Adopt decorators, acceptance links, scaffolding, hooks, MCP and release stripping as needed.
@@ -116,7 +116,7 @@ or preview workflows. Read the [hook guide](ci.md) before enabling writes in exi
 
 Ruff/Hatch's TD004 rule expects a colon immediately after `TODO`, so `TODO[id]:` needs the
 documented `lint.extend-ignore = ["TD004"]` setting. This does not require changing annotations
-or disabling other lint rules. See [Linters](../README.md#linters). No automatic linter-config
+or disabling other lint rules. See [Linters](../../README.md#linters). No automatic linter-config
 rewrite is part of initialization.
 
 ## Review and change procedure
@@ -156,7 +156,7 @@ deprecation guidance should precede removal where feasible.
 
 The RC1 API extraction is behavior-preserving: capture imports, signatures, result shapes,
 exceptions, patch targets and CLI/MCP/Hatch/Git behavior before extraction, then compare after
-it. See the [facade and internal operations architecture](api-architecture.md) for the module
+it. See the [facade and internal operations architecture](../development/api-architecture.md) for the module
 boundaries and preserved constructor annotation/pickle identities. Final whole-repository
 reviews and the readiness report must assess this policy against the same frozen revision. A
 policy document and passing individual tests do not substitute for those release gates.

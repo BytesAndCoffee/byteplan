@@ -9,7 +9,7 @@
 **Release boundary update:** [Addendum E](spec-addendum-e.md) defers Assignment/Relay and graph
 implementation beyond 1.0. Its persistent-ID/schema compatibility requirements supersede the
 four-character and schema-v2 assumptions below; schema v2 now protects expanded task IDs.
-See the [1.0 compatibility policy](compatibility-policy.md) for current public guarantees.
+See the [1.0 compatibility policy](../guide/compatibility-policy.md) for current public guarantees.
 
 ---
 

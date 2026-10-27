@@ -8,7 +8,7 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 This candidate is being prepared for review; it is not approved or published by these notes.
 The final integrated revision still requires the independent whole-repository reviews,
 artifact/platform validation and explicit approval described in
-[Addendum E](docs/spec-addendum-e.md#track-g--release-candidate-readiness-and-approval).
+[Addendum E](docs/development/spec-addendum-e.md#track-g--release-candidate-readiness-and-approval).
 `byteplan-runtime` remains separately versioned; this is the devtool's release candidate.
 
 ### Upgrade and compatibility
@@ -22,7 +22,7 @@ artifact/platform validation and explicit approval described in
 - Actual published 0.1.0/0.2.0 clients reject schema v2 for the tested ordinary commands.
   Their schema-v1 scanners can otherwise warn about expanded IDs yet exit successfully with
   no tracked tasks. Historical 0.2.0 `init --runtime-shim` can add a new inert shim before
-  rejection; see the [compatibility matrix and recovery procedure](docs/rc1-compatibility.md).
+  rejection; see the [compatibility matrix and recovery procedure](docs/guide/migration.md).
 
 ### Security
 - **Journals that came with the repository are never replayed:** a `.byteplan/txn/` journal
@@ -59,7 +59,7 @@ artifact/platform validation and explicit approval described in
   scaffold, source-sync, release, archive and initialization operations. Supported signatures,
   public result identities, exceptions, sentinel behavior and tested patch targets are retained.
   Result constructors retain their previously supported runtime annotation introspection.
-- The [1.0 compatibility policy](docs/compatibility-policy.md) covers the documented CLI,
+- The [1.0 compatibility policy](docs/guide/compatibility-policy.md) covers the documented CLI,
   Python API, configuration, decorators, MCP protocol and Hatch/Git integrations. SDK-specific
   Python MCP embedding is explicitly experimental; source safety and authoritative state
   guarantees still apply. Advanced shipped commands are included in the compatibility boundary.
@@ -133,7 +133,7 @@ artifact/platform validation and explicit approval described in
 
 ### Packaging
 - The PyPy classifier is gone; CI tests CPython only. The sdist no longer ships internal review
-  notes (`docs/reviews/`, `docs/rc1-next-steps.md`).
+  notes; development docs now live under `docs/development/`, which the sdist excludes.
 
 ### Documentation
 - The README lists every diagnostic code (e8bd84), and the spec and implementation plan describe
@@ -165,7 +165,7 @@ artifact/platform validation and explicit approval described in
 - **`[tool.byteplan] report_branch`** (e.g. `"main"`): only that branch writes and checks
   `report_file`, so pull requests no longer conflict on it on GitHub, which doesn't run merge
   drivers. `byteplan report --write` regenerates it on any branch, for a post-merge CI job
-  (see docs/ci.md). BytePlan's own repo now does this.
+  (see [the CI guide](docs/guide/ci.md#keeping-the-report-current-on-main)). BytePlan's own repo now does this.
 
 ### MCP server (Phase 9)
 - **`byteplan mcp`** (and the `byteplan-mcp` script) serves the registry over MCP's stdio
