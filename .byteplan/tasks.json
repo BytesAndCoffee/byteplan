@@ -1008,7 +1008,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1701,
+        "line": 1706,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -5137,6 +5137,45 @@
             "labels": [],
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-27T15:56:08Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implementing confirmed independent-review finding with focused regression, preserving baseline reproduction. No completion or passing evidence claimed yet.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T16:13:22Z",
+          "event": "edited",
+          "new": {
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 malformed identity diagnostic correction. Python, Markdown and JSONC unclosed ID bracket annotations produce zero tags/diagnostics; initialized project check exits 0. Evidence: codex-d29ac93/probe_unclosed_id.py and probe_unclosed_id-final.log. First uninitialized fixture failure retained separately. No inferred IDs or lifecycle resolution allowed. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.\n\nCorrection code c0e1cb6 (focused commits322fd6c,0821cb2,c0e1cb6). Shared unclosed-bracket diagnostics in comments and JSON strings with no identity inference or source writes;40newcases, baseline15fails25passes;167focusedscannerpasses; independent confirmation preserves exclusions, open lifecycle/history/reservations, BOM/CRLF. Actual supported Project.verify recorded all linked outcomes passed. Evidence /workspace/byteplan-rc1-evidence/review4-fixes/. Full local suite and new PR platform CI are release/integration gates, not claimed complete by this lifecycle disposition."
+          },
+          "old": {
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 malformed identity diagnostic correction. Python, Markdown and JSONC unclosed ID bracket annotations produce zero tags/diagnostics; initialized project check exits 0. Evidence: codex-d29ac93/probe_unclosed_id.py and probe_unclosed_id-final.log. First uninitialized fixture failure retained separately. No inferred IDs or lifecycle resolution allowed. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed."
+          }
+        },
+        {
+          "at": "2026-10-27T16:13:22Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicit resolution after fresh linked verification and independent affected-area review. No automatic resolution from annotation disappearance. Global release review/approval gates remain open.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-27T16:13:39Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T16:13:39Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/reviews/rc1-d29ac93-codex.md"
+          }
         }
       ],
       "id": "668a6c",
@@ -5147,9 +5186,9 @@
         "P2"
       ],
       "last_seen": "2026-10-27T15:41:06Z",
-      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 malformed identity diagnostic correction. Python, Markdown and JSONC unclosed ID bracket annotations produce zero tags/diagnostics; initialized project check exits 0. Evidence: codex-d29ac93/probe_unclosed_id.py and probe_unclosed_id-final.log. First uninitialized fixture failure retained separately. No inferred IDs or lifecycle resolution allowed. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.",
+      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 malformed identity diagnostic correction. Python, Markdown and JSONC unclosed ID bracket annotations produce zero tags/diagnostics; initialized project check exits 0. Evidence: codex-d29ac93/probe_unclosed_id.py and probe_unclosed_id-final.log. First uninitialized fixture failure retained separately. No inferred IDs or lifecycle resolution allowed. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.\n\nCorrection code c0e1cb6 (focused commits322fd6c,0821cb2,c0e1cb6). Shared unclosed-bracket diagnostics in comments and JSON strings with no identity inference or source writes;40newcases, baseline15fails25passes;167focusedscannerpasses; independent confirmation preserves exclusions, open lifecycle/history/reservations, BOM/CRLF. Actual supported Project.verify recorded all linked outcomes passed. Evidence /workspace/byteplan-rc1-evidence/review4-fixes/. Full local suite and new PR platform CI are release/integration gates, not claimed complete by this lifecycle disposition.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -5160,8 +5199,55 @@
         "representation": "comment",
         "symbol": "R4 — P2: unclosed persistent-ID brackets silently hide intended task annotations"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 98,
+            "node": "tests/test_malformed_annotation_ids.py::test_json_string_suppression_still_applies",
+            "path": "tests/test_malformed_annotation_ids.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 107,
+            "node": "tests/test_malformed_annotation_ids.py::test_malformed_tag_does_not_hide_in_previous_task_description",
+            "path": "tests/test_malformed_annotation_ids.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 74,
+            "node": "tests/test_malformed_annotation_ids.py::test_non_annotations_and_suppressions_remain_excluded",
+            "path": "tests/test_malformed_annotation_ids.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 116,
+            "node": "tests/test_malformed_annotation_ids.py::test_project_scan_reports_malformed_identity_without_source_edits",
+            "path": "tests/test_malformed_annotation_ids.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 137,
+            "node": "tests/test_malformed_annotation_ids.py::test_registered_task_with_broken_bracket_keeps_identity_and_open_status",
+            "path": "tests/test_malformed_annotation_ids.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 56,
+            "node": "tests/test_malformed_annotation_ids.py::test_supported_identity_grammar_is_unchanged",
+            "path": "tests/test_malformed_annotation_ids.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 24,
+            "node": "tests/test_malformed_annotation_ids.py::test_unclosed_id_bracket_is_diagnosed",
+            "path": "tests/test_malformed_annotation_ids.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "Report malformed task-ID bracket syntax instead of silently ignoring the annotation.",
       "title_override": null
     },
@@ -5731,7 +5817,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1695,
+        "line": 1700,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -6902,7 +6988,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1698,
+        "line": 1703,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -7581,6 +7667,45 @@
             "labels": [],
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-27T15:56:06Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implementing confirmed independent-review finding with focused regression, preserving baseline reproduction. No completion or passing evidence claimed yet.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T16:13:21Z",
+          "event": "edited",
+          "new": {
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 supported-path correction. Actual git check-attr reports merge unspecified after successful installation for spaced registry/report filenames. Evidence: codex-d29ac93/probe_merge_install_space.py and root-merge-space-confirmation.log. Plain Git conflicts remain available; no data loss demonstrated. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.\n\nCorrection code c0e1cb6 (focused commits322fd6c,0821cb2,c0e1cb6). Literal Git patterns with C quoting and glob escaping; actual check-attr for spaces/control/glob names, preservation/idempotence and divergent spaced-registry/report merge; independent core.autocrlf=true merge also passed. Actual supported Project.verify recorded all linked outcomes passed. Evidence /workspace/byteplan-rc1-evidence/review4-fixes/. Full local suite and new PR platform CI are release/integration gates, not claimed complete by this lifecycle disposition."
+          },
+          "old": {
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 supported-path correction. Actual git check-attr reports merge unspecified after successful installation for spaced registry/report filenames. Evidence: codex-d29ac93/probe_merge_install_space.py and root-merge-space-confirmation.log. Plain Git conflicts remain available; no data loss demonstrated. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed."
+          }
+        },
+        {
+          "at": "2026-10-27T16:13:21Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicit resolution after fresh linked verification and independent affected-area review. No automatic resolution from annotation disappearance. Global release review/approval gates remain open.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-27T16:13:39Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T16:13:39Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/reviews/rc1-d29ac93-codex.md"
+          }
         }
       ],
       "id": "9e4d1c",
@@ -7591,9 +7716,9 @@
         "P2"
       ],
       "last_seen": "2026-10-27T15:41:06Z",
-      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 supported-path correction. Actual git check-attr reports merge unspecified after successful installation for spaced registry/report filenames. Evidence: codex-d29ac93/probe_merge_install_space.py and root-merge-space-confirmation.log. Plain Git conflicts remain available; no data loss demonstrated. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.",
+      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 supported-path correction. Actual git check-attr reports merge unspecified after successful installation for spaced registry/report filenames. Evidence: codex-d29ac93/probe_merge_install_space.py and root-merge-space-confirmation.log. Plain Git conflicts remain available; no data loss demonstrated. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.\n\nCorrection code c0e1cb6 (focused commits322fd6c,0821cb2,c0e1cb6). Literal Git patterns with C quoting and glob escaping; actual check-attr for spaces/control/glob names, preservation/idempotence and divergent spaced-registry/report merge; independent core.autocrlf=true merge also passed. Actual supported Project.verify recorded all linked outcomes passed. Evidence /workspace/byteplan-rc1-evidence/review4-fixes/. Full local suite and new PR platform CI are release/integration gates, not claimed complete by this lifecycle disposition.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -7604,8 +7729,31 @@
         "representation": "comment",
         "symbol": "R3 — P2: supported filenames containing spaces receive no merge-driver association"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 174,
+            "node": "tests/test_merge_install_safety.py::test_actual_git_patterns_match_only_literal_configured_names",
+            "path": "tests/test_merge_install_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 158,
+            "node": "tests/test_merge_install_safety.py::test_confined_ordinary_parent_alias_combines_rules_for_the_same_attributes_file",
+            "path": "tests/test_merge_install_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 225,
+            "node": "tests/test_merge_install_safety.py::test_spaced_registry_and_report_use_their_drivers_in_a_real_divergent_merge",
+            "path": "tests/test_merge_install_safety.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "Encode literal configured filenames correctly in generated Git attributes rules.",
       "title_override": null
     },
@@ -9812,6 +9960,52 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-27T15:56:05Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implementing confirmed independent-review finding with focused regression, preserving baseline reproduction. No completion or passing evidence claimed yet.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T16:13:20Z",
+          "event": "edited",
+          "new": {
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root independently reproduced POSIX stale-lock reclaimer overlap and two successful persistence.commit calls losing task bbbb with no pending journal. Evidence: codex-d29ac93/probe_stale_lock_commit.py and root-stale-lock-confirmation.log. Fix must restore exclusive writer authority; regression must preserve updates or fail explicitly. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.\n\nCorrection code c0e1cb6 (focused commits322fd6c,0821cb2,c0e1cb6). Fail-closed existing locks; deterministic competing stale-owner reads and real commits; real subprocess exclusion plus successful sequential preservation; journal preserved and recovered after deliberate cleanup. Baseline2fails, focused10passes, independent-lock-review clear. Actual supported Project.verify recorded all linked outcomes passed. Evidence /workspace/byteplan-rc1-evidence/review4-fixes/. Full local suite and new PR platform CI are release/integration gates, not claimed complete by this lifecycle disposition."
+          },
+          "old": {
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root independently reproduced POSIX stale-lock reclaimer overlap and two successful persistence.commit calls losing task bbbb with no pending journal. Evidence: codex-d29ac93/probe_stale_lock_commit.py and root-stale-lock-confirmation.log. Fix must restore exclusive writer authority; regression must preserve updates or fail explicitly. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed."
+          }
+        },
+        {
+          "at": "2026-10-27T16:13:20Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicit resolution after fresh linked verification and independent affected-area review. No automatic resolution from annotation disappearance. Global release review/approval gates remain open.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-27T16:13:39Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T16:13:39Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/reviews/rc1-d29ac93-codex.md"
+          }
+        },
+        {
+          "at": "2026-10-27T16:17:47Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Reopened explicitly after post-cleanup verification recorded a real subprocess regression failure; investigating full traceback. Failure evidence retained, not overwritten or relabelled as passing.",
+          "old": "resolved"
         }
       ],
       "id": "c6bc7c",
@@ -9822,9 +10016,9 @@
         "P1"
       ],
       "last_seen": "2026-10-27T15:41:06Z",
-      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root independently reproduced POSIX stale-lock reclaimer overlap and two successful persistence.commit calls losing task bbbb with no pending journal. Evidence: codex-d29ac93/probe_stale_lock_commit.py and root-stale-lock-confirmation.log. Fix must restore exclusive writer authority; regression must preserve updates or fail explicitly. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.",
+      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root independently reproduced POSIX stale-lock reclaimer overlap and two successful persistence.commit calls losing task bbbb with no pending journal. Evidence: codex-d29ac93/probe_stale_lock_commit.py and root-stale-lock-confirmation.log. Fix must restore exclusive writer authority; regression must preserve updates or fail explicitly. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.\n\nCorrection code c0e1cb6 (focused commits322fd6c,0821cb2,c0e1cb6). Fail-closed existing locks; deterministic competing stale-owner reads and real commits; real subprocess exclusion plus successful sequential preservation; journal preserved and recovered after deliberate cleanup. Baseline2fails, focused10passes, independent-lock-review clear. Actual supported Project.verify recorded all linked outcomes passed. Evidence /workspace/byteplan-rc1-evidence/review4-fixes/. Full local suite and new PR platform CI are release/integration gates, not claimed complete by this lifecycle disposition.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "high",
       "scope_state": "in_scope",
       "source": {
@@ -9835,8 +10029,43 @@
         "representation": "comment",
         "symbol": "R1 — P1: stale-lock reclamation permits successful competing writes to lose a task"
       },
-      "status": "open",
+      "status": "in_progress",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 44,
+            "node": "tests/test_project_lock_integrity.py::test_competing_stale_lock_checks_cannot_publish_losing_transactions",
+            "path": "tests/test_project_lock_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 31,
+            "node": "tests/test_project_lock_integrity.py::test_existing_lock_never_authorizes_automatic_removal",
+            "path": "tests/test_project_lock_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 119,
+            "node": "tests/test_project_lock_integrity.py::test_manual_stale_lock_cleanup_retains_and_recovers_the_journal",
+            "path": "tests/test_project_lock_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 176,
+            "node": "tests/test_project_lock_integrity.py::test_real_process_writer_is_excluded_then_preserves_prior_successful_work",
+            "path": "tests/test_project_lock_integrity.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 427,
+            "node": "tests/test_write.py::test_stale_lock_requires_deliberate_cleanup",
+            "path": "tests/test_write.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "Prevent competing stale-lock reclaimers from deleting a live writer's lock.",
       "title_override": null
     },
@@ -11107,7 +11336,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1692,
+        "line": 1697,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -11347,6 +11576,45 @@
             "notes": "",
             "priority": "normal"
           }
+        },
+        {
+          "at": "2026-10-27T15:56:05Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Implementing confirmed independent-review finding with focused regression, preserving baseline reproduction. No completion or passing evidence claimed yet.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T16:13:21Z",
+          "event": "edited",
+          "new": {
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root reproduced public install-merge-driver writing outside .gitattributes via .byteplan symlink with custom registry, exit 0 and partial local/config mutations. Evidence: codex-d29ac93/probe_merge_install_alias.py and root-merge-install-confirmation.log. Preflight all destinations before first mutation. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.\n\nCorrection code c0e1cb6 (focused commits322fd6c,0821cb2,c0e1cb6). Complete preflight of control identity, attributes targets/parents and metadata-file authority overlaps before installation mutations. External aliases and known-unsafe plans leave all fixture/config bytes unchanged. Git focused86passes1nativeWindows skip; independent affected review clear. Native CI remains a separate platform gate. Actual supported Project.verify recorded all linked outcomes passed. Evidence /workspace/byteplan-rc1-evidence/review4-fixes/. Full local suite and new PR platform CI are release/integration gates, not claimed complete by this lifecycle disposition."
+          },
+          "old": {
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root reproduced public install-merge-driver writing outside .gitattributes via .byteplan symlink with custom registry, exit 0 and partial local/config mutations. Evidence: codex-d29ac93/probe_merge_install_alias.py and root-merge-install-confirmation.log. Preflight all destinations before first mutation. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed."
+          }
+        },
+        {
+          "at": "2026-10-27T16:13:21Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicit resolution after fresh linked verification and independent affected-area review. No automatic resolution from annotation disappearance. Global release review/approval gates remain open.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-27T16:13:39Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T16:13:39Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/reviews/rc1-d29ac93-codex.md"
+          }
         }
       ],
       "id": "e86b8e",
@@ -11357,9 +11625,9 @@
         "P1"
       ],
       "last_seen": "2026-10-27T15:41:06Z",
-      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root reproduced public install-merge-driver writing outside .gitattributes via .byteplan symlink with custom registry, exit 0 and partial local/config mutations. Evidence: codex-d29ac93/probe_merge_install_alias.py and root-merge-install-confirmation.log. Preflight all destinations before first mutation. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.",
+      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root reproduced public install-merge-driver writing outside .gitattributes via .byteplan symlink with custom registry, exit 0 and partial local/config mutations. Evidence: codex-d29ac93/probe_merge_install_alias.py and root-merge-install-confirmation.log. Preflight all destinations before first mutation. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.\n\nCorrection code c0e1cb6 (focused commits322fd6c,0821cb2,c0e1cb6). Complete preflight of control identity, attributes targets/parents and metadata-file authority overlaps before installation mutations. External aliases and known-unsafe plans leave all fixture/config bytes unchanged. Git focused86passes1nativeWindows skip; independent affected review clear. Native CI remains a separate platform gate. Actual supported Project.verify recorded all linked outcomes passed. Evidence /workspace/byteplan-rc1-evidence/review4-fixes/. Full local suite and new PR platform CI are release/integration gates, not claimed complete by this lifecycle disposition.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "high",
       "scope_state": "in_scope",
       "source": {
@@ -11370,8 +11638,43 @@
         "representation": "comment",
         "symbol": "R2 — P1: merge-driver installation writes outside the project through a state-directory alias"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 158,
+            "node": "tests/test_merge_install_safety.py::test_confined_ordinary_parent_alias_combines_rules_for_the_same_attributes_file",
+            "path": "tests/test_merge_install_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 94,
+            "node": "tests/test_merge_install_safety.py::test_every_attributes_destination_is_preflighted_before_the_first_mutation",
+            "path": "tests/test_merge_install_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 138,
+            "node": "tests/test_merge_install_safety.py::test_installation_cannot_turn_metadata_file_destinations_into_parents",
+            "path": "tests/test_merge_install_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 122,
+            "node": "tests/test_merge_install_safety.py::test_protected_installation_destinations_fail_without_side_effects",
+            "path": "tests/test_merge_install_safety.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 77,
+            "node": "tests/test_merge_install_safety.py::test_state_directory_alias_refused_before_any_installation_write",
+            "path": "tests/test_merge_install_safety.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "Preflight all merge-driver installation destinations before changing attributes or Git configuration.",
       "title_override": null
     },
@@ -11426,7 +11729,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1705,
+        "line": 1710,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
