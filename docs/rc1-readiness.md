@@ -5,9 +5,12 @@
   record its exact-head CI run, rebuild the wheel/sdist there and record their hashes and install
   smoke, and update README's "Status: preparing 1.0.0rc1" line when the tag is approved. -->
 
-**Status: technical checks complete; release approval is pending.** No RC1 tag or package has
-been published by this work. The readiness check at `b551870` found no technical blockers; the
-remaining steps are recording the frozen tag commit and the approval decision itself.
+**Status: release blocked by the independent Codex review at `d29ac93`.** No RC1 tag or package
+has been published by this work. The [new whole-repository review](reviews/rc1-d29ac93-codex.md)
+demonstrates successful task loss through stale-lock reclamation (`c6bc7c`, P1) and an external
+attributes-file write during merge-driver installation (`e86b8e`, P1). Two P2 findings
+(`9e4d1c`, `668a6c`) are also accepted for bounded pre-RC1 correction. All remain open.
+The earlier `b551870` checks below are historical evidence, not final approval of this revision.
 
 ## Revision and integration gates
 
@@ -20,7 +23,7 @@ remaining steps are recording the frozen tag commit and the approval decision it
 | Restore integrity follow-up | PR #46 merged as `027578b75f2657fa54c8eff49ccb6e1bcbc561c7`; all 15 jobs passed on `fea1d3eb769a2f7d20f27c2d4227bfa660ade32f`. |
 | API decomposition | PR #47 at `4e0256b1346aedd351419e09785cc8765bcd85df`; local validation and independent focused reviews passed; integrated and covered by the 15-job CI run on `d5b7af9`. |
 | Candidate version | Core `1.0.0rc1` prepared separately from structural work; runtime remains separately versioned `0.1.0`. |
-| Independent reviews | Two whole-repository reviews at `e7e526e` and two at `378e722`, with review-3 corrections (see [the findings](rc1-review-findings.md)). At `b551870`, one code and documentation review: one P2 (415a0f, fixed in PR #51) and five P3 documentation findings (fixed in the follow-up PR). Every PR also received an automated Codex review. No pair of independent whole-repository reviews ran at one common SHA after `378e722`; whether that is required before tagging is part of the approval decision. |
+| Independent reviews | Two whole-repository reviews at `e7e526e` and two at `378e722`, with review-3 corrections (see [the findings](rc1-review-findings.md)). At `b551870`, one code and documentation review: one P2 (415a0f, fixed in PR #51) and five P3 documentation findings (fixed in PR #52). The subsequent independent Codex whole-repository review freezes `d29ac93bbbf57e9216a2c10694b307409399c734` and requires changes for two P1 and two P2 findings. Every PR also received an automated Codex review. No final pair has approved one common SHA after these corrections. Addendum E requires that pair; it is not replaced by PR reviews or green CI. |
 | Reference artifacts | Built at `b551870`; these identify that revision only, not the tag. `byteplan-1.0.0rc1-py3-none-any.whl` `0da0391c7b51af27995bf9087f083b5d8c53a09288d0ccf63d7fc9a811e793ae`; `byteplan-1.0.0rc1.tar.gz` `18ff92142fdd6119b60dfae805b19ef7d4bd96e3c48d1c584a71d05f29add35f`; `byteplan_runtime-0.1.0-py3-none-any.whl` `ea09ff29453e3ddf99bcdb294f800be5cb4bc5d0276941dab213fdb33ebb1c94`; `byteplan_runtime-0.1.0.tar.gz` `19de333d1e04862f449e7055a60ef635484bd8f718246b46efc9a94a19f8d22b`. A clean virtual environment installed the wheel and its CLI ran. |
 
 ## Compatibility, migration and authoritative state
@@ -54,7 +57,7 @@ and local SQLite backup limits are documented in [the storage decision](rc1-stor
 
 ## Final module and interface boundaries
 
-`byteplan.api.Project` remains the supported facade. Its 725-line module delegates cohesive
+`byteplan.api.Project` remains the supported facade. Its 734-line module delegates cohesive
 scan, task, verification, scaffold, release, sync, archive and initialization operations to
 internal modules. Existing algorithm modules keep their responsibilities. The 13 public result
 types retain their `byteplan.api` identities, pickle lookup and supported constructor annotation
@@ -105,6 +108,9 @@ No semantic graph implementation belongs in RC1.
 
 ## Approval decision
 
-**Pending.** No confirmed release blockers remain open. Before explicit approval: choose the
-tag commit, record its CI run and rebuilt artifacts, and decide whether a further pair of
-independent whole-repository reviews is required. Do not tag or publish automatically.
+**Blocked.** Resolve the confirmed P1 findings and accepted P2 corrections with real regression
+tests and recorded evidence. The writer-lock correction affects repository-wide integrity:
+freeze a new common SHA and complete two independent whole-repository reviews under Addendum E,
+then record its platform CI and freshly rebuilt/installed artifacts. Update this report with
+the exact evidence and dispositions before presenting it for explicit approval. Do not tag
+or publish automatically.

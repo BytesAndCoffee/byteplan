@@ -45,6 +45,7 @@
     "62edd5",
     "631761",
     "6639",
+    "668a6c",
     "67a65c",
     "67df",
     "680a",
@@ -69,6 +70,7 @@
     "98d6",
     "9b40",
     "9c60",
+    "9e4d1c",
     "9f8d",
     "a067",
     "a4bf",
@@ -95,6 +97,7 @@
     "c26d29",
     "c35e66",
     "c449",
+    "c6bc7c",
     "c8db",
     "c978",
     "c993",
@@ -109,6 +112,7 @@
     "def0",
     "e4af",
     "e7d9",
+    "e86b8e",
     "ec99",
     "ecf4",
     "ed2b",
@@ -5104,6 +5108,63 @@
       "title": "Keep runtime imports that __all__ re-exports",
       "title_override": null
     },
+    "668a6c": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T15:41:06Z",
+      "history": [
+        {
+          "at": "2026-10-27T15:41:06Z",
+          "event": "created",
+          "new": {
+            "line": 60,
+            "path": "docs/reviews/rc1-d29ac93-codex.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T15:42:13Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "independent-review",
+              "P2"
+            ],
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 malformed identity diagnostic correction. Python, Markdown and JSONC unclosed ID bracket annotations produce zero tags/diagnostics; initialized project check exits 0. Evidence: codex-d29ac93/probe_unclosed_id.py and probe_unclosed_id-final.log. First uninitialized fixture failure retained separately. No inferred IDs or lifecycle resolution allowed. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        }
+      ],
+      "id": "668a6c",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "independent-review",
+        "P2"
+      ],
+      "last_seen": "2026-10-27T15:41:06Z",
+      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 malformed identity diagnostic correction. Python, Markdown and JSONC unclosed ID bracket annotations produce zero tags/diagnostics; initialized project check exits 0. Evidence: codex-d29ac93/probe_unclosed_id.py and probe_unclosed_id-final.log. First uninitialized fixture failure retained separately. No inferred IDs or lifecycle resolution allowed. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 60,
+        "path": "docs/reviews/rc1-d29ac93-codex.md",
+        "representation": "comment",
+        "symbol": "R4 — P2: unclosed persistent-ID brackets silently hide intended task annotations"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Report malformed task-ID bracket syntax instead of silently ignoring the annotation.",
+      "title_override": null
+    },
     "67a65c": {
       "assignee": null,
       "description": "A new file gets `import pytest` and `from <runtime> import verifies` in one block. When the\nruntime is a first-party shim (BytePlan's own `byteplan._todo`), ruff's isort wants a blank\nline between them (I001), so `hatch fmt --check` fails until the file is formatted.",
@@ -7491,6 +7552,63 @@
       "title": "List only active missing tasks by default",
       "title_override": null
     },
+    "9e4d1c": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T15:41:06Z",
+      "history": [
+        {
+          "at": "2026-10-27T15:41:06Z",
+          "event": "created",
+          "new": {
+            "line": 44,
+            "path": "docs/reviews/rc1-d29ac93-codex.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T15:42:13Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "independent-review",
+              "P2"
+            ],
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 supported-path correction. Actual git check-attr reports merge unspecified after successful installation for spaced registry/report filenames. Evidence: codex-d29ac93/probe_merge_install_space.py and root-merge-space-confirmation.log. Plain Git conflicts remain available; no data loss demonstrated. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed."
+          },
+          "old": {
+            "labels": [],
+            "notes": ""
+          }
+        }
+      ],
+      "id": "9e4d1c",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "independent-review",
+        "P2"
+      ],
+      "last_seen": "2026-10-27T15:41:06Z",
+      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Accepted pre-RC1 supported-path correction. Actual git check-attr reports merge unspecified after successful installation for spaced registry/report filenames. Evidence: codex-d29ac93/probe_merge_install_space.py and root-merge-space-confirmation.log. Plain Git conflicts remain available; no data loss demonstrated. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 44,
+        "path": "docs/reviews/rc1-d29ac93-codex.md",
+        "representation": "comment",
+        "symbol": "R3 — P2: supported filenames containing spaces receive no merge-driver association"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Encode literal configured filenames correctly in generated Git attributes rules.",
+      "title_override": null
+    },
     "9f8d": {
       "assignee": null,
       "description": "Codex review of #34: https://github.com/BytesAndCoffee/byteplan/pull/34#discussion_r4354123872\nA hotfix that brings decorators back after `release` slipped past the guard.",
@@ -7895,6 +8013,16 @@
           "old": {
             "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned."
           }
+        },
+        {
+          "at": "2026-10-27T15:45:58Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish."
+          }
         }
       ],
       "id": "a70d",
@@ -7904,7 +8032,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -9209,6 +9337,16 @@
           "old": {
             "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews."
           }
+        },
+        {
+          "at": "2026-10-27T15:45:57Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned."
+          }
         }
       ],
       "id": "c053",
@@ -9218,7 +9356,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -9641,6 +9779,65 @@
         ]
       },
       "title": "Treat __all__ mutations the export collector can't resolve as exporting everything",
+      "title_override": null
+    },
+    "c6bc7c": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T15:41:06Z",
+      "history": [
+        {
+          "at": "2026-10-27T15:41:06Z",
+          "event": "created",
+          "new": {
+            "line": 9,
+            "path": "docs/reviews/rc1-d29ac93-codex.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T15:42:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "independent-review",
+              "P1"
+            ],
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root independently reproduced POSIX stale-lock reclaimer overlap and two successful persistence.commit calls losing task bbbb with no pending journal. Evidence: codex-d29ac93/probe_stale_lock_commit.py and root-stale-lock-confirmation.log. Fix must restore exclusive writer authority; regression must preserve updates or fail explicitly. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "c6bc7c",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "independent-review",
+        "P1"
+      ],
+      "last_seen": "2026-10-27T15:41:06Z",
+      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root independently reproduced POSIX stale-lock reclaimer overlap and two successful persistence.commit calls losing task bbbb with no pending journal. Evidence: codex-d29ac93/probe_stale_lock_commit.py and root-stale-lock-confirmation.log. Fix must restore exclusive writer authority; regression must preserve updates or fail explicitly. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 9,
+        "path": "docs/reviews/rc1-d29ac93-codex.md",
+        "representation": "comment",
+        "symbol": "R1 — P1: stale-lock reclamation permits successful competing writes to lose a task"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Prevent competing stale-lock reclaimers from deleting a live writer's lock.",
       "title_override": null
     },
     "c8db": {
@@ -11117,6 +11314,65 @@
         ]
       },
       "title": "ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side",
+      "title_override": null
+    },
+    "e86b8e": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T15:41:06Z",
+      "history": [
+        {
+          "at": "2026-10-27T15:41:06Z",
+          "event": "created",
+          "new": {
+            "line": 32,
+            "path": "docs/reviews/rc1-d29ac93-codex.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T15:42:12Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "independent-review",
+              "P1"
+            ],
+            "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root reproduced public install-merge-driver writing outside .gitattributes via .byteplan symlink with custom registry, exit 0 and partial local/config mutations. Evidence: codex-d29ac93/probe_merge_install_alias.py and root-merge-install-confirmation.log. Preflight all destinations before first mutation. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        }
+      ],
+      "id": "e86b8e",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "independent-review",
+        "P1"
+      ],
+      "last_seen": "2026-10-27T15:41:06Z",
+      "notes": "Review SHA d29ac93bbbf57e9216a2c10694b307409399c734. Release blocker. Root reproduced public install-merge-driver writing outside .gitattributes via .byteplan symlink with custom registry, exit 0 and partial local/config mutations. Evidence: codex-d29ac93/probe_merge_install_alias.py and root-merge-install-confirmation.log. Preflight all destinations before first mutation. Reproduction evidence root: /workspace/byteplan-rc1-evidence/. Open, no fix or passing acceptance verification claimed.",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 32,
+        "path": "docs/reviews/rc1-d29ac93-codex.md",
+        "representation": "comment",
+        "symbol": "R2 — P1: merge-driver installation writes outside the project through a state-directory alias"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Preflight all merge-driver installation destinations before changing attributes or Git configuration.",
       "title_override": null
     },
     "ec99": {
