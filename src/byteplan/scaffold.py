@@ -48,6 +48,7 @@ NEEDS_PATH = "scaffold_needs_path"
 RUNTIME_UNAVAILABLE = "runtime_unavailable"
 INVALID_NAME = "invalid_test_name"
 MARKER_NOT_ENABLED = "marker_not_enabled"
+NAME_CONFLICT = "scaffold_name_conflict"
 
 
 class ScaffoldError(ByteplanError):
@@ -226,6 +227,27 @@ def _parse(path: str, text: str) -> ast.Module:
         raise ScaffoldError(NEEDS_PATH, f"{path} doesn't parse ({exc})", "fix it or pass --path") from exc
 
 
+def _check_generated_names(path: str, tree: ast.Module, imports: Sequence[str]) -> None:
+    """Refuse a file whose module namespace binds a name the scaffold uses (``pytest``,
+    ``verifies``) to anything but the import BytePlan would add: an assignment, a definition,
+    an aliased or conditional import or a ``del`` would shadow it when the test runs."""
+    expected = {}
+    for statement in imports:
+        node = ast.parse(statement).body[0]
+        for name in bound_names(node):
+            expected[name] = (statement, ast.dump(node))
+    for node in module_statements(tree.body):
+        for name in sorted(bound_names(node) & expected.keys()):
+            statement, dump = expected[name]
+            if ast.dump(node) != dump:
+                raise ScaffoldError(
+                    NAME_CONFLICT,
+                    f"{path}:{node.lineno} binds {name!r} to something other than `{statement}`, "
+                    "which the scaffolded test relies on; nothing was written",
+                    "rename that binding, or scaffold into another file with --path",
+                )
+
+
 def _present(tree: ast.Module, statement: str) -> bool:
     wanted = ast.dump(ast.parse(statement).body[0])
     return any(ast.dump(node) == wanted for node in tree.body)
@@ -339,6 +361,7 @@ def plan(
         )
 
     tree = _parse(path, existing)
+    _check_generated_names(path, tree, imports)
     taken = defined_names(tree)
     if name is not None:
         _check_name(name, taken)
