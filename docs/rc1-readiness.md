@@ -1,5 +1,19 @@
 # BytePlan 1.0.0rc1 readiness report
 
+<!-- FIXME[fd02a3]: Reconcile this report with the final frozen revision before approval
+  It still says the whole-repository reviews and artifact checks are pending. Record the reviewed
+  SHA (b551870; CI 40450659828 passed 15/15 on d5b7af9), the review rounds and dispositions, the
+  native Windows junction pass, artifact hashes and install smoke results, and update README's
+  "Status: preparing 1.0.0rc1" line when the tag is approved. -->
+
+<!-- FIXME[bf67e6]: Drop the PyPy classifier or add PyPy to CI
+  pyproject.toml declares `Implementation :: PyPy`, but no CI job runs PyPy, and this report says
+  untested platforms must not be described as supported. -->
+
+<!-- FIXME[bbff04]: Keep internal review notes out of the sdist
+  docs/reviews/ and rc1-next-steps.md ship in the sdist with internal /workspace/... paths and
+  process detail. Exclude them in [tool.hatch.build.targets.sdist] or move them out of docs/. -->
+
 **Status: preparation in progress; release approval is pending.** No RC1 tag or package has
 been published by this work. This report must be completed against the final integrated
 revision before it can support an approval decision.

@@ -244,6 +244,10 @@ def advertise_routes(self):
     `not_run` or `timeout`. Only `passed` counts as evidence.
   - Readiness: each task is `unverified`, `failing`, `needs_review` (skips, stale results, or
     a declaration that's still a stub) or `ready_for_review`.
+<!-- FIXME[a899de]: Say that "files" freshness covers only the annotated file and linked tests
+  With the default stale_on = "files", editing the implementation in another module leaves
+  evidence fresh. "the task's source" reads like "the code the task is about"; name the limit
+  and point to stale_on = "head" for stricter freshness. -->
   - Results go stale when the task's source or test files change (or, with
     `stale_on = "head"`, when HEAD moves).
   - Readiness is advice: no task is ever resolved automatically.

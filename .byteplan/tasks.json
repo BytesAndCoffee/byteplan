@@ -5,6 +5,7 @@
     "0b12",
     "0c28",
     "12ce1c",
+    "14c4fe",
     "14ff",
     "15df",
     "17f1f0",
@@ -28,6 +29,7 @@
     "3d3a",
     "3d5bb4",
     "3f50",
+    "415a0f",
     "4518",
     "46b6",
     "478d",
@@ -74,6 +76,7 @@
     "a703",
     "a70d",
     "a740",
+    "a899de",
     "a933",
     "ac9d",
     "ae7a",
@@ -84,7 +87,9 @@
     "b68c",
     "b865",
     "baeb",
+    "bbff04",
     "be8e",
+    "bf67e6",
     "c053",
     "c242",
     "c26d29",
@@ -112,6 +117,7 @@
     "f853",
     "fb23",
     "fb9c",
+    "fd02a3",
     "fd44",
     "ff20",
     "ff3a",
@@ -729,6 +735,43 @@
         "managed": []
       },
       "title": "Validate initialization write targets before any filesystem side effects.",
+      "title_override": null
+    },
+    "14c4fe": {
+      "assignee": null,
+      "description": "It calls the current release \"alpha\" (the package is 1.0.0rc1, Beta) and describes the API\ndecomposition and its monkey-patching inspection as future work; PR #47 completed it.",
+      "first_seen": "2026-10-27T04:58:00Z",
+      "history": [
+        {
+          "at": "2026-10-27T04:58:00Z",
+          "event": "created",
+          "new": {
+            "line": 3,
+            "path": "docs/compatibility-policy.md"
+          },
+          "old": null
+        }
+      ],
+      "id": "14c4fe",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-27T04:58:00Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 3,
+        "path": "docs/compatibility-policy.md",
+        "representation": "comment",
+        "symbol": "BytePlan 1.0 public compatibility policy"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Update stale tense in the compatibility policy",
       "title_override": null
     },
     "14ff": {
@@ -3245,6 +3288,80 @@
         ]
       },
       "title": "[P2] Normalize the test directory before excluding test-side tasks",
+      "title_override": null
+    },
+    "415a0f": {
+      "assignee": null,
+      "description": "Matching is case-insensitive and only needs whitespace after the tag, so prose comments\nreading \"Todo list model\" or \"hack around the parser\" become tasks, and the first writing\nscan (or the default reconcile commit hook) inserts an ID into them. Markdown already\npromises \"a TODO list\" is not a task. E.g. require `:` or `[id]` after a non-uppercase tag.",
+      "first_seen": "2026-10-27T04:58:00Z",
+      "history": [
+        {
+          "at": "2026-10-27T04:58:00Z",
+          "event": "created",
+          "new": {
+            "line": 80,
+            "path": "src/byteplan/scanner/comments.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T04:58:00Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_comments.py::test_task_415a0f",
+            "path": "tests/test_comments.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T04:58:47Z",
+          "event": "text_changed",
+          "new": {
+            "description": "Matching is case-insensitive and only needs whitespace after the tag, so prose comments\nreading \"Todo list model\" or \"hack around the parser\" become tasks, and the first writing\nscan (or the default reconcile commit hook) inserts an ID into them. Markdown already\npromises \"a TODO list\" is not a task. E.g. require `:` or `[id]` after a non-uppercase tag."
+          },
+          "old": {
+            "description": "Matching is case-insensitive and only needs whitespace after the tag, so `# Todo list model`\nand `# hack around the parser` become tasks, and the first writing scan (or the default\nreconcile commit hook) edits them to `# Todo[id] list model`. Markdown already promises\n\"a TODO list\" is not a task. E.g. require `:` or `[id]` after a non-uppercase spelling."
+          }
+        }
+      ],
+      "id": "415a0f",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-27T04:58:47Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 78,
+        "line": 80,
+        "path": "src/byteplan/scanner/comments.py",
+        "representation": "comment",
+        "symbol": "tag_pattern"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 214,
+            "node": "tests/test_comments.py::test_explicit_tag_spellings_stay_tasks",
+            "path": "tests/test_comments.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 204,
+            "node": "tests/test_comments.py::test_prose_comments_that_start_with_a_tag_word_are_not_tasks",
+            "path": "tests/test_comments.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "[P2] Don't treat prose comments that start with a tag word as tasks",
       "title_override": null
     },
     "4518": {
@@ -7818,6 +7935,43 @@
       "title": "[P2] Require regular files before selecting sources for scanning",
       "title_override": null
     },
+    "a899de": {
+      "assignee": null,
+      "description": "With the default stale_on = \"files\", editing the implementation in another module leaves\nevidence fresh. \"the task's source\" reads like \"the code the task is about\"; name the limit\nand point to stale_on = \"head\" for stricter freshness.",
+      "first_seen": "2026-10-27T04:58:00Z",
+      "history": [
+        {
+          "at": "2026-10-27T04:58:00Z",
+          "event": "created",
+          "new": {
+            "line": 247,
+            "path": "README.md"
+          },
+          "old": null
+        }
+      ],
+      "id": "a899de",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-27T04:58:00Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 247,
+        "path": "README.md",
+        "representation": "comment",
+        "symbol": "What BytePlan tracks"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Say that \"files\" freshness covers only the annotated file and linked tests",
+      "title_override": null
+    },
     "a933": {
       "assignee": null,
       "description": "Specify meaningful entities, relationship classifications, reproducible identity and\nrename/move behavior; keep the graph rebuildable and independent of task authority.",
@@ -8724,6 +8878,43 @@
       "title": "Count every __all__ assignment form as an export",
       "title_override": null
     },
+    "bbff04": {
+      "assignee": null,
+      "description": "docs/reviews/ and rc1-next-steps.md ship in the sdist with internal /workspace/... paths and\nprocess detail. Exclude them in [tool.hatch.build.targets.sdist] or move them out of docs/.",
+      "first_seen": "2026-10-27T04:58:00Z",
+      "history": [
+        {
+          "at": "2026-10-27T04:58:00Z",
+          "event": "created",
+          "new": {
+            "line": 13,
+            "path": "docs/rc1-readiness.md"
+          },
+          "old": null
+        }
+      ],
+      "id": "bbff04",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-27T04:58:00Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 13,
+        "path": "docs/rc1-readiness.md",
+        "representation": "comment",
+        "symbol": "BytePlan 1.0.0rc1 readiness report"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Keep internal review notes out of the sdist",
+      "title_override": null
+    },
     "be8e": {
       "assignee": null,
       "description": "Placeholders are `def test_x():`, which mypy --strict rejects (no-untyped-def), so a\nproject type-checking its tests fails CI on every scaffold until it's annotated by hand.",
@@ -8802,6 +8993,43 @@
         "managed": []
       },
       "title": "Annotate scaffolded tests with -> None",
+      "title_override": null
+    },
+    "bf67e6": {
+      "assignee": null,
+      "description": "pyproject.toml declares `Implementation :: PyPy`, but no CI job runs PyPy, and this report says\nuntested platforms must not be described as supported.",
+      "first_seen": "2026-10-27T04:58:00Z",
+      "history": [
+        {
+          "at": "2026-10-27T04:58:00Z",
+          "event": "created",
+          "new": {
+            "line": 9,
+            "path": "docs/rc1-readiness.md"
+          },
+          "old": null
+        }
+      ],
+      "id": "bf67e6",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-27T04:58:00Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 9,
+        "path": "docs/rc1-readiness.md",
+        "representation": "comment",
+        "symbol": "BytePlan 1.0.0rc1 readiness report"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Drop the PyPy classifier or add PyPy to CI",
       "title_override": null
     },
     "c053": {
@@ -11702,6 +11930,43 @@
         ]
       },
       "title": "Track escapes of dotted module expressions like `alias = pkg.reexport`",
+      "title_override": null
+    },
+    "fd02a3": {
+      "assignee": null,
+      "description": "It still says the whole-repository reviews and artifact checks are pending. Record the reviewed\nSHA (b551870; CI 40450659828 passed 15/15 on d5b7af9), the review rounds and dispositions, the\nnative Windows junction pass, artifact hashes and install smoke results, and update README's\n\"Status: preparing 1.0.0rc1\" line when the tag is approved.",
+      "first_seen": "2026-10-27T04:58:00Z",
+      "history": [
+        {
+          "at": "2026-10-27T04:58:00Z",
+          "event": "created",
+          "new": {
+            "line": 3,
+            "path": "docs/rc1-readiness.md"
+          },
+          "old": null
+        }
+      ],
+      "id": "fd02a3",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-27T04:58:00Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 3,
+        "path": "docs/rc1-readiness.md",
+        "representation": "comment",
+        "symbol": "BytePlan 1.0.0rc1 readiness report"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Reconcile this report with the final frozen revision before approval",
       "title_override": null
     },
     "fd44": {

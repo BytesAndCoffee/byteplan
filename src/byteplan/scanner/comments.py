@@ -77,6 +77,11 @@ class Comment:
 )
 def tag_pattern(tags: Sequence[str], opener: str = "#") -> re.Pattern[str]:
     """The tag grammar after a comment opener (a regex: ``#``, ``<!--``, ``//``, ``/\\*``)."""
+    # FIXME[415a0f]: [P2] Don't treat prose comments that start with a tag word as tasks
+    #   Matching is case-insensitive and only needs whitespace after the tag, so prose comments
+    #   reading "Todo list model" or "hack around the parser" become tasks, and the first writing
+    #   scan (or the default reconcile commit hook) inserts an ID into them. Markdown already
+    #   promises "a TODO list" is not a task. E.g. require `:` or `[id]` after a non-uppercase tag.
     alternatives = "|".join(re.escape(tag) for tag in sorted(tags, key=len, reverse=True))
     return re.compile(
         rf"{opener}\s*(?P<tag>{alternatives})(?:\[(?P<id>[^\]]*)\])?(?P<rest>(?:[:\s].*)?)",
