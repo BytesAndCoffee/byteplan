@@ -2,23 +2,19 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**23 open** · 99 closed (resolved 99)
+**18 open** · 104 closed (resolved 104)
 
 ## Open
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
 | `a70d` | in_progress | TODO | high | - | [`docs/spec-addendum-e.md:395`](docs/spec-addendum-e.md#L395) | RC1 approval-ready release report and artifact/platform validation |
-| `a899de` | open | FIXME | normal | - | [`README.md:250`](README.md#L250) | Say that "files" freshness covers only the annotated file and linked tests |
 | `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1692`](docs/IMPLEMENTATION_PLAN.md#L1692) | Phase 6c (optional): acceptance criteria and dependencies |
 | `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1695`](docs/IMPLEMENTATION_PLAN.md#L1695) | Phase 11 (optional): spec section 14 phase 5 items |
 | `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1698`](docs/IMPLEMENTATION_PLAN.md#L1698) | Phase 11b (optional): Git reporting |
 | `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1701`](docs/IMPLEMENTATION_PLAN.md#L1701) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
 | `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1705`](docs/IMPLEMENTATION_PLAN.md#L1705) | Phase 13 (optional): relay-for-github |
-| `14c4fe` | open | FIXME | normal | - | [`docs/compatibility-policy.md:3`](docs/compatibility-policy.md#L3) | Update stale tense in the compatibility policy |
-| `fd02a3` | open | FIXME | normal | - | [`docs/rc1-readiness.md:3`](docs/rc1-readiness.md#L3) | Reconcile this report with the final frozen revision before approval |
-| `bf67e6` | open | FIXME | normal | - | [`docs/rc1-readiness.md:9`](docs/rc1-readiness.md#L9) | Drop the PyPy classifier or add PyPy to CI |
-| `bbff04` | open | FIXME | normal | - | [`docs/rc1-readiness.md:13`](docs/rc1-readiness.md#L13) | Keep internal review notes out of the sdist |
+| `fd02a3` | open | FIXME | normal | - | [`docs/rc1-readiness.md:3`](docs/rc1-readiness.md#L3) | Record the frozen tag commit before approval |
 | `a933` | open | TODO | low | - | [`docs/spec-addendum-e.md:218`](docs/spec-addendum-e.md#L218) | 1.5 semantic graph schema, identity and provenance design |
 | `e4af` | open | TODO | low | - | [`docs/spec-addendum-e.md:235`](docs/spec-addendum-e.md#L235) | 1.5 repository symbol indexing and task-to-symbol associations |
 | `3644` | open | TODO | low | - | [`docs/spec-addendum-e.md:239`](docs/spec-addendum-e.md#L239) | 1.5 deterministic incremental graph cache and invalidation |
@@ -29,7 +25,6 @@
 | `595f` | open | TODO | low | - | [`docs/spec-addendum-e.md:276`](docs/spec-addendum-e.md#L276) | 2.0 bounded MCP graph operations and portable visualization design |
 | `c053` | open | TODO | high | - | [`docs/spec-addendum-e.md:363`](docs/spec-addendum-e.md#L363) | RC1 freeze one integrated revision for two independent whole-repository reviews |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:309`](src/byteplan/config.py#L309) | Support detect.placeholder_assignments |
-| `67a65c` | open | FIXME | low | - | [`src/byteplan/scaffold.py:333`](src/byteplan/scaffold.py#L333) | Separate first-party runtime imports from pytest in new scaffold files |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:71`](src/byteplan/scanner/comments.py#L71) | Recognize Google-style `TODO(owner): ...` tags |
 
 ## Closed
@@ -41,6 +36,7 @@
 | `0b12` | resolved | FIXME | relative find_links paths resolve against the scratch dir, not the project root |
 | `0c28` | resolved | FIXME | Don't count @pytest.mark.byteplan links as decorators that need stripping |
 | `12ce1c` | resolved | FIXME | Validate initialization write targets before any filesystem side effects. |
+| `14c4fe` | resolved | FIXME | Update stale tense in the compatibility policy |
 | `14ff` | resolved | TODO | Phase 7: cleanup |
 | `17f1f0` | resolved | FIXME | Complete and validate index-lock writes before publishing the index. |
 | `181f` | resolved | FIXME | history simplification skips merged branches' intermediate registry records |
@@ -74,6 +70,7 @@
 | `62edd5` | resolved | FIXME | Confine serialized transaction and restore targets before filesystem side effects. |
 | `631761` | resolved | FIXME | Reject or safely reuse annotations already present during anchored release restoration. |
 | `6639` | resolved | FIXME | Keep runtime imports that __all__ re-exports |
+| `67a65c` | resolved | FIXME | Separate first-party runtime imports from pytest in new scaffold files |
 | `67df` | resolved | FIXME | [P2] Keep inserted imports after all future imports |
 | `6b83` | resolved | FIXME | Keep sync's top-level JSON fields when only cleanup runs |
 | `6d434f` | resolved | FIXME | Preserve opaque evidence metadata across ordinary verification and archive writes. |
@@ -99,6 +96,7 @@
 | `a4bf` | resolved | FIXME | [P2] Report source-decoding failures without aborting the scan |
 | `a703` | resolved | FIXME | Refuse wildcard runtime imports, whose bindings can't be proven unused |
 | `a740` | resolved | FIXME | [P2] Require regular files before selecting sources for scanning |
+| `a899de` | resolved | FIXME | Say that "files" freshness covers only the annotated file and linked tests |
 | `ac9d` | resolved | FIXME | [P2] Compare collected node IDs relative to the BytePlan project root |
 | `ae7a` | resolved | FIXME | [P2] Apply nested gitignore negations with Git's precedence rules |
 | `aedf` | resolved | FIXME | Check every runtime import, not just decorator bindings, before skipping a file |
@@ -108,7 +106,9 @@
 | `b68c` | resolved | FIXME | Restore an unanchored import below the current docstring and __future__ imports |
 | `b865` | resolved | FIXME | an archived task's readiness ignores the evidence archived with it |
 | `baeb` | resolved | FIXME | Count every __all__ assignment form as an export |
+| `bbff04` | resolved | FIXME | Keep internal review notes out of the sdist |
 | `be8e` | resolved | FIXME | Annotate scaffolded tests with -> None |
+| `bf67e6` | resolved | FIXME | Drop the PyPy classifier or add PyPy to CI |
 | `c242` | resolved | FIXME | Check the current binding before restoring a decorator |
 | `c26d29` | resolved | FIXME | Detach disposable Git metadata without deleting Windows read-only object files |
 | `c35e66` | resolved | FIXME | Keep snapshot queries bound to their selected data and reject mutation before side effects |
