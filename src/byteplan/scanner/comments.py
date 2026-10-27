@@ -83,7 +83,9 @@ def tag_pattern(tags: Sequence[str], opener: str = "#") -> re.Pattern[str]:
     # followed by `:` or `[id]`, so prose such as "Todo list model" is never a task.
     tag = rf"(?:(?:{alternatives})(?=[\[:\s]|\Z)|(?i:{alternatives})(?=[\[:]))"
     return re.compile(
-        rf"{opener}\s*(?P<tag>{tag})(?:\[(?P<id>[^\]]*)\])?(?P<rest>(?:[:\s].*)?)",
+        # Keep an unclosed bracket recognizable, but never turn it into an ID slot.
+        # All comment formats use tag_annotation's diagnostic for this branch.
+        rf"{opener}\s*(?P<tag>{tag})(?:\[(?P<id>[^\]]*)\]|\[(?P<unclosed>[^\]]*))?(?P<rest>(?:[:\s].*)?)",
         re.DOTALL,
     )
 
@@ -107,6 +109,17 @@ def tag_annotation(
     ``slot_col`` is where an ``[id]`` goes (right after the tag); ``title`` is the text
     after the tag and ID, from which a leading ``:`` is removed.
     """
+    if match.groupdict().get("unclosed") is not None:
+        return Diagnostic(
+            Code.MALFORMED_ID,
+            Severity.WARNING,
+            "task ID has an opening '[' without a closing ']'; the tag is not tracked",
+            locations=(Location(source.path, line),),
+            hint=(
+                "add the missing ']' after a valid registered ID, or remove the malformed bracket text "
+                "before allocating a new ID"
+            ),
+        )
     raw_id = match.group("id")
     if raw_id is not None and not is_valid_id(raw_id):
         return Diagnostic(
