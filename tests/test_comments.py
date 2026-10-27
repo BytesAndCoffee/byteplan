@@ -52,7 +52,7 @@ def test_all_default_kinds(kind: str) -> None:
 
 
 def test_case_insensitive_with_canonical_kind() -> None:
-    tag = only("#todo  lower case works\n")
+    tag = only("#todo:  lower case works\n")
     assert (tag.kind, tag.tag_text, tag.title) == ("TODO", "todo", "lower case works")
 
 
@@ -202,7 +202,6 @@ def test_unparseable_file_raises() -> None:
 
 
 @verifies("415a0f")
-@pytest.mark.xfail(reason="BytePlan 415a0f: prose comments starting with a tag word are still tracked", strict=True)
 @pytest.mark.parametrize(
     "comment",
     ["# Todo list model and helpers", "# hack around the vendored parser", "# Fixme handling lives in the CLI"],

@@ -164,8 +164,8 @@ moves it to the archive (see [Status, presence and resolution](#status-presence-
 
 ## What BytePlan tracks
 
-**Tagged comments.** `TODO`, `FIXME`, `HACK` and `XXX` (case-insensitive, configurable) at the
-start of a comment. An indented comment line directly below becomes the description:
+**Tagged comments.** `TODO`, `FIXME`, `HACK` and `XXX` (configurable) at the start of a comment.
+An indented comment line directly below becomes the description:
 
 ```python
 # TODO: Implement route poisoning
@@ -178,6 +178,9 @@ start of a comment. An indented comment line directly below becomes the descript
 - **Ignored on purpose:** comments are found with `tokenize`, so strings, docstrings and
   commented-out code such as `# x = f()  # TODO` are never tasks.
 - **Trailing comments:** `x = 1  # TODO: ...` counts too.
+- **Other spellings:** `# todo: ...` or `# Fixme[7fa2]: ...` count when a `:` or `[id]` follows the
+  tag. Without one, only the configured spelling does, so prose like `# Todo list model` is left
+  alone.
 
 **Unfinished implementations (stubs).** These are found with `ast`:
 - functions and methods whose body is `pass`, `...`, only a docstring, or

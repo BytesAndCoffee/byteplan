@@ -3336,8 +3336,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 78,
-        "line": 80,
+        "decl_line": 79,
+        "line": 81,
         "path": "src/byteplan/scanner/comments.py",
         "representation": "comment",
         "symbol": "tag_pattern"
@@ -3347,7 +3347,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 214,
+            "line": 213,
             "node": "tests/test_comments.py::test_explicit_tag_spellings_stay_tasks",
             "path": "tests/test_comments.py",
             "provenance": "verifies"
@@ -3461,8 +3461,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 78,
-        "line": 70,
+        "decl_line": 79,
+        "line": 71,
         "path": "src/byteplan/scanner/comments.py",
         "representation": "decorator",
         "symbol": "tag_pattern"
@@ -7962,7 +7962,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 247,
+        "line": 250,
         "path": "README.md",
         "representation": "comment",
         "symbol": "What BytePlan tracks"
