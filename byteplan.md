@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**18 open** · 93 closed (resolved 93)
+**18 open** · 98 closed (resolved 98)
 
 ## Open
 
@@ -35,7 +35,9 @@
 | `0591` | resolved | FIXME | Refuse decorator arguments whose evaluation stripping would skip |
 | `0b12` | resolved | FIXME | relative find_links paths resolve against the scratch dir, not the project root |
 | `0c28` | resolved | FIXME | Don't count @pytest.mark.byteplan links as decorators that need stripping |
+| `12ce1c` | resolved | FIXME | Validate initialization write targets before any filesystem side effects. |
 | `14ff` | resolved | TODO | Phase 7: cleanup |
+| `17f1f0` | resolved | FIXME | Complete and validate index-lock writes before publishing the index. |
 | `181f` | resolved | FIXME | history simplification skips merged branches' intermediate registry records |
 | `1b81` | resolved | TODO | RC1 source-safety and first-run preview audit |
 | `1e7f` | resolved | FIXME | [P2] Enforce require_stripped for runtime decorators with dynamic arguments |
@@ -45,6 +47,7 @@
 | `2650ec` | resolved | FIXME | Verify merge preservation across Git checkout newline conversion. |
 | `279e27` | resolved | FIXME | Reject positive verification claims without complete provenance and matching file fingerprints. |
 | `2887` | resolved | TODO | Phase 6b: test scaffolding |
+| `28e56f` | resolved | FIXME | Use the repository object format when removing staged entries during recovery. |
 | `30c3` | resolved | FIXME | [P3] Locate decorator IDs by their AST value span during duplicate repair |
 | `34da` | resolved | FIXME | Respect enclosing scopes before stripping a decorator |
 | `3844` | resolved | TODO | RC1 behavior-preserving decomposition of the public Project facade |
@@ -63,6 +66,7 @@
 | `5aae` | resolved | FIXME | [P2] Collect occupied test names inside module-level control-flow blocks |
 | `5ff6` | resolved | FIXME | [P2] Report scaffold encoding and filesystem failures per task |
 | `62edd5` | resolved | FIXME | Confine serialized transaction and restore targets before filesystem side effects. |
+| `631761` | resolved | FIXME | Reject or safely reuse annotations already present during anchored release restoration. |
 | `6639` | resolved | FIXME | Keep runtime imports that __all__ re-exports |
 | `67df` | resolved | FIXME | [P2] Keep inserted imports after all future imports |
 | `6b83` | resolved | FIXME | Keep sync's top-level JSON fields when only cleanup runs |
@@ -110,6 +114,7 @@
 | `cda4d1` | resolved | FIXME | Confine archive cache and SQLite sidecar paths before implicit writes. |
 | `ce72` | resolved | TODO | Summarize scan results by default instead of listing every annotation |
 | `d45d` | resolved | TODO | Return only the scaffolded test, not the whole target file |
+| `d78b89` | resolved | FIXME | Reject cross-scope duplicate identities before narrowed task reconciliation writes. |
 | `dcd417` | resolved | FIXME | Validate all staged recovery copy hashes before forward or rollback side effects. |
 | `def0` | resolved | FIXME | scan paths resolve against the server's cwd, not the served project's root |
 | `e7d9` | resolved | FIXME | ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side |
