@@ -16,8 +16,6 @@ independent review, not release approval or a claim of agreement with Claude.
 
 ### P2 — Scaffold generated imports can collide with existing module bindings
 
-<!-- FIXME[515d45]: Refuse or safely alias scaffold-generated pytest/runtime bindings when existing test-module bindings make generated code unsafe. -->
-
 Location: `src/byteplan/scaffold.py:341-357`, generated imports at `required_imports`
 and decorators/body at `render`.
 
@@ -40,8 +38,6 @@ definitions, aliases and relevant conditional/shadowed imports without executing
 code. Preserve existing bindings, tests, encodings, newlines and transactional behavior.
 
 ### P2 — Windows verification timeout can wait indefinitely for a wrapper's descendant
-
-<!-- FIXME[6698e7]: Bound verification timeout cleanup and terminate supported Windows runner descendants so inherited output pipes cannot keep verify blocked. -->
 
 Location: `src/byteplan/verification.py:197-214`.
 
@@ -68,8 +64,6 @@ a descendant retains a pipe. Preserve completed outcomes, classify unfinished re
 as timeout and avoid orphan test processes. Test both direct pytest and wrapper runners.
 
 ### P2 — Live filesystem aliases can change a staged or committed snapshot check
-
-<!-- FIXME[26756c]: Resolve snapshot registry and generated-report identities from selected Git paths so unstaged filesystem aliases cannot hide staged or committed tasks. -->
 
 Location: `src/byteplan/api.py:178`, `src/byteplan/files.py:136-138` and
 configuration path validation in `config.py`.

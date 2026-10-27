@@ -373,11 +373,6 @@ def _swap_index(
     except FileExistsError:
         msg = f"{lock} exists: another Git process is using the index; try again when it finishes"
         raise IndexLockedError(msg) from None
-    # FIXME[6944ec]: Create the index scratch copy exclusively instead of at a fixed, followed path
-    #   `<index>.byteplan-scratch` is predictable and `shutil.copyfile` follows a symlink there, so a
-    #   planted link in the Git directory makes every staged reconciliation overwrite its target
-    #   with index bytes. Create a unique file with O_EXCL (e.g. tempfile.mkstemp in the index's
-    #   directory), write through that descriptor and remove only that file. (ChatGPT BP-IND-01)
     scratch: Path | None = None
     committed = False
     try:

@@ -247,13 +247,6 @@ def _drop_unused_runtime_imports(
     used |= {_root(node) for node in ast.walk(tree) if isinstance(node, ast.Attribute)}
     used |= _exported(tree)
     used |= consumers
-    # FIXME[e3d6bd]: Index physical lines with edits.physical_lines, not str.splitlines
-    #   splitlines also breaks at \f, \v, \x1c-\x1e, \x85, U+2028 and U+2029, so ast line numbers
-    #   point at the wrong entry. `resolve --sync-source` then deletes user text: with `# a<U+2028>b`
-    #   above the runtime import it removes "b" and moves the import into the comment; with a form-feed
-    #   line it removes a newline, keeps the import, and still reports "unused runtime import" removed.
-    #   release.py's `_lines` (strip/restore: false "shares its line" refusals) and scaffold.plan's
-    #   import insertion share the pattern.
     lines = physical_lines(text)
     removed: list[str] = []
     for stmt in sorted(tree.body, key=lambda s: s.lineno, reverse=True):

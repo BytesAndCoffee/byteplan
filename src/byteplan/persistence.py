@@ -163,11 +163,6 @@ def project_lock(root: Path) -> Iterator[None]:
     try:
         yield
     finally:
-        # FIXME[aaf7d7]: Release only the lock this process created
-        #   The finally block unlinks whatever `scan.lock` is there. If the lock was deleted by hand
-        #   while this writer still ran (the guidance invites manual cleanup) and a second writer took
-        #   it, this exit removes the second writer's lock and a third can start alongside it. Compare
-        #   the file's identity (st_dev/st_ino) or a per-acquisition token before unlinking.
         # Remove only the file this process created: if it was deleted by hand meanwhile and
         # another writer took the lock, that writer's lock must stay.
         with contextlib.suppress(FileNotFoundError):
@@ -298,14 +293,6 @@ def commit(root: Path, writes: Sequence[FileWrite]) -> list[str]:
     return [write.path for write in changed]
 
 
-# FIXME[53c751]: Refuse to recover a transaction journal that came from the repository
-#   A cloned repository can commit `.byteplan/txn/journal.json` and a staged copy (force-added past
-#   `.byteplan/.gitignore`). The next ordinary write command (`byteplan scan`, `resolve`, a hook with
-#   write_source) then "completes" it and creates any absent file under the root, including ignored
-#   paths: `.venv/lib/python3.X/site-packages/sitecustomize.py` runs on the venv's next start. That
-#   breaks "scanning never executes project code". gitwrite's staged journal (index null, forward)
-#   has the same shape. Recover only journals this clone wrote (e.g. a hash recorded under the Git
-#   dir), refuse tracked/committed control files, and limit targets to paths BytePlan plans writes to.
 def recover(root: Path, *, allowed_targets: Collection[str] | None = None) -> list[str]:
     """Roll forward an interrupted transaction. Returns the paths it completed."""
     path = journal_path(root)

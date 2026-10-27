@@ -440,10 +440,6 @@ the narrowed paths. Files deliberately excluded from source scope are not alloca
 - **Common options:** `--project PATH` and `--format json` go after the command.
 - **Output streams:** stdout carries only the result (pure JSON with `--format json`); diagnostics
   go to stderr.
-<!-- FIXME[e8bd84]: Document every diagnostic code the CLI and MCP can emit
-  The compatibility policy treats diagnostic codes as machine-readable API, but 15 codes in
-  byteplan.diagnostics.Code appear nowhere in the README, including malformed_id, unregistered_id,
-  pending_journal, release_stripped and scaffold_placeholder. Add a reference table. -->
 - **Exit codes:** `0` OK, `1` findings that fail your `[tool.byteplan.check]` policy (duplicate IDs
   by default), `2` errors (bad config, unreadable registry, a file that won't parse).
 

@@ -368,22 +368,6 @@
       "python": "3.11.0",
       "timed_out": false
     },
-    "bd9e52a867974f3b8a0976078fa0f732": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-m",
-        "network or not network",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-27T18:25:02Z",
-      "dirty": true,
-      "head": "c3a8a94e7a2c6c768d9f5de9e65416fb42f3caa1",
-      "python": "3.11.0",
-      "timed_out": false
-    },
     "c4b99806d441": {
       "argv": [
         "hatch",
@@ -454,6 +438,22 @@
       "dirty": true,
       "head": "8e829805d2e950d31c1e2a6c746aa215ea143dc6",
       "python": "3.12.14",
+      "timed_out": false
+    },
+    "e460561e75a04ab1a492ddf96a83e5c5": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-27T18:37:40Z",
+      "dirty": true,
+      "head": "2e77a19c9fb6f41cc0a6e0fc6d28b0cef844c4ff",
+      "python": "3.11.0",
       "timed_out": false
     },
     "f9371bbb192a": {
@@ -799,6 +799,16 @@
       "tests": {
         "tests/test_collision_recovery.py::test_premerge_rekey_preserves_both_original_records": {
           "duration_ms": 6251,
+          "outcome": "passed"
+        }
+      }
+    },
+    "26756c": {
+      "fingerprint": "998253378f30a0e322fd1006adf02d92fb40e1826a1c37759cb8fedfa146dbee",
+      "run": "e460561e75a04ab1a492ddf96a83e5c5",
+      "tests": {
+        "tests/test_git_snapshot.py::test_an_unstaged_report_alias_cannot_hide_a_selected_task": {
+          "duration_ms": 203,
           "outcome": "passed"
         }
       }
@@ -1219,12 +1229,26 @@
         }
       }
     },
+    "515d45": {
+      "fingerprint": "736754cf96b047ca7ccfb744c4784d5f01bb61e44be8d20b53180e85848909c2",
+      "run": "e460561e75a04ab1a492ddf96a83e5c5",
+      "tests": {
+        "tests/test_scaffold.py::test_scaffold_refuses_a_module_that_shadows_generated_names": {
+          "duration_ms": 102,
+          "outcome": "passed"
+        },
+        "tests/test_scaffold.py::test_scaffold_still_extends_a_module_with_the_same_imports": {
+          "duration_ms": 18,
+          "outcome": "passed"
+        }
+      }
+    },
     "53c751": {
-      "fingerprint": "efece1a53110b052ec281400649dca9788aca03b321a077ebde15011f42d1896",
-      "run": "bd9e52a867974f3b8a0976078fa0f732",
+      "fingerprint": "616a7002a08c0ea8777dfe2f0a038a98c4e8d1df8b49e0f09e6fcf303d778224",
+      "run": "e460561e75a04ab1a492ddf96a83e5c5",
       "tests": {
         "tests/test_persistence.py::test_a_journal_from_the_repository_is_never_recovered": {
-          "duration_ms": 239,
+          "duration_ms": 276,
           "outcome": "passed"
         },
         "tests/test_persistence.py::test_a_journal_written_here_is_still_recovered": {
@@ -1437,6 +1461,16 @@
         }
       }
     },
+    "6698e7": {
+      "fingerprint": "6b261c27badd62cd0e5d612ce5efbf68e3e898b5190c60509ad0193cfc3d7094",
+      "run": "e460561e75a04ab1a492ddf96a83e5c5",
+      "tests": {
+        "tests/test_verify.py::test_timeout_cleanup_ends_even_if_a_descendant_keeps_the_pipe": {
+          "duration_ms": 4018,
+          "outcome": "passed"
+        }
+      }
+    },
     "67a65c": {
       "fingerprint": "dd83a8ada46223b7be303c7a6910a170d7e288677e6a553c598645e56db09174",
       "run": "0fc877eb3c4a4aa5a1e88d7957a8f201",
@@ -1453,6 +1487,16 @@
       "tests": {
         "tests/test_scaffold.py::test_scaffold_imports_stay_below_future_imports": {
           "duration_ms": 17,
+          "outcome": "passed"
+        }
+      }
+    },
+    "6944ec": {
+      "fingerprint": "0283177bb84070a1973ccb06e69ece7e4532599d8990ee0c518eb80e1aa25236",
+      "run": "e460561e75a04ab1a492ddf96a83e5c5",
+      "tests": {
+        "tests/test_gitwrite.py::test_index_swap_never_writes_through_a_planted_scratch_link": {
+          "duration_ms": 179,
           "outcome": "passed"
         }
       }
@@ -1901,6 +1945,16 @@
         }
       }
     },
+    "aaf7d7": {
+      "fingerprint": "616a7002a08c0ea8777dfe2f0a038a98c4e8d1df8b49e0f09e6fcf303d778224",
+      "run": "e460561e75a04ab1a492ddf96a83e5c5",
+      "tests": {
+        "tests/test_persistence.py::test_lock_release_leaves_a_later_writers_lock": {
+          "duration_ms": 4,
+          "outcome": "passed"
+        }
+      }
+    },
     "ac9d": {
       "fingerprint": "0539c21a2fdb74509bb17adb8afbfb5332c7fc31e5121b2b1699795d1ba94cde",
       "run": "65696368d337",
@@ -2055,6 +2109,20 @@
       "tests": {
         "tests/test_release.py::test_runtime_names_exported_by_any_all_form_refuse_the_release": {
           "duration_ms": 272,
+          "outcome": "passed"
+        }
+      }
+    },
+    "bbe04c": {
+      "fingerprint": "fb4b476ef1ad749874aa4affeda7d8b07a66c483060e3fdea161086c78d34eba",
+      "run": "e460561e75a04ab1a492ddf96a83e5c5",
+      "tests": {
+        "tests/test_archive.py::test_a_comment_naming_the_archive_store_is_not_an_ignore_rule": {
+          "duration_ms": 34,
+          "outcome": "passed"
+        },
+        "tests/test_archive.py::test_an_existing_archive_ignore_rule_is_not_duplicated": {
+          "duration_ms": 3,
           "outcome": "passed"
         }
       }
@@ -2439,6 +2507,20 @@
       "tests": {
         "tests/test_mcp.py::test_scan_paths_are_relative_to_the_served_project": {
           "duration_ms": 21,
+          "outcome": "passed"
+        }
+      }
+    },
+    "e3d6bd": {
+      "fingerprint": "8668097df94f94afdf323ea13d3a5385108736de4de466c40a79de52ade88dd4",
+      "run": "e460561e75a04ab1a492ddf96a83e5c5",
+      "tests": {
+        "tests/test_cleanup.py::test_cleanup_removes_the_runtime_import_with_python_line_breaks": {
+          "duration_ms": 52,
+          "outcome": "passed"
+        },
+        "tests/test_release.py::test_release_then_restore_is_byte_identical": {
+          "duration_ms": 2778,
           "outcome": "passed"
         }
       }

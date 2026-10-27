@@ -1019,7 +1019,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1706,
+        "line": 1708,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1968,6 +1968,28 @@
           "old": {
             "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required."
           }
+        },
+        {
+          "at": "2026-10-27T18:38:10Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:12Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:12Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          }
         }
       ],
       "id": "26756c",
@@ -1979,19 +2001,30 @@
       "last_seen": "2026-10-27T17:13:52Z",
       "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: real Git/API reproduction leaves HEAD/index identical; an unstaged report symlink changes both selected-view checks from exit1/new_unregistered to exit0 by excluding the real source task. Evidence: codex-a5de5c8/interfaces/repro_snapshot_report_alias.py and .log, plus parent confirmation. P2, open pending snapshot identity correction and regression verification.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "P2",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 72,
+        "line": 68,
         "path": "docs/reviews/rc1-a5de5c8-codex.md",
         "representation": "comment",
         "symbol": "P2 — Live filesystem aliases can change a staged or committed snapshot check"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 387,
+            "node": "tests/test_git_snapshot.py::test_an_unstaged_report_alias_cannot_hide_a_selected_task",
+            "path": "tests/test_git_snapshot.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "Resolve snapshot registry and generated-report identities from selected Git paths so unstaged filesystem aliases cannot hide staged or committed tasks.",
       "title_override": null
     },
@@ -4434,6 +4467,28 @@
           "old": {
             "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required."
           }
+        },
+        {
+          "at": "2026-10-27T18:38:05Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:07Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:07Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          }
         }
       ],
       "id": "515d45",
@@ -4445,7 +4500,7 @@
       "last_seen": "2026-10-27T17:13:52Z",
       "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: real supported API scaffolding writes and actual pytest before/after prove collection failure with existing pytest value/helper bindings. Evidence: codex-a5de5c8/source/REPORT.md and two reproduction scripts/logs. P2, open pending correction and regression verification.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "P2",
       "scope_state": "in_scope",
       "source": {
@@ -4456,8 +4511,25 @@
         "representation": "comment",
         "symbol": "P2 — Scaffold generated imports can collide with existing module bindings"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 704,
+            "node": "tests/test_scaffold.py::test_scaffold_refuses_a_module_that_shadows_generated_names",
+            "path": "tests/test_scaffold.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 730,
+            "node": "tests/test_scaffold.py::test_scaffold_still_extends_a_module_with_the_same_imports",
+            "path": "tests/test_scaffold.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "Refuse or safely alias scaffold-generated pytest/runtime bindings when existing test-module bindings make generated code unsafe.",
       "title_override": null
     },
@@ -4545,6 +4617,28 @@
           "old": {
             "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed."
           }
+        },
+        {
+          "at": "2026-10-27T18:37:58Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:00Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:00Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/persistence.py"
+          }
         }
       ],
       "id": "53c751",
@@ -4556,29 +4650,29 @@
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed.\n\nAdditional exact-gate proof: actual fresh ordinary/staged clones both accept committed journals and write benign absent ignored .venv/planted.py via ordinary scan / scan --staged --apply, exit0. No payload executed. Corroborates both paths; Codex accepts P1 missed by its initial review. Fix provenance/authorization before replay while retaining legitimate recovery. clone-journals.log/repro_clone_journals.py retained.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "P1",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 304,
-        "line": 296,
+        "decl_line": 309,
+        "line": 301,
         "path": "src/byteplan/persistence.py",
         "representation": "comment",
         "symbol": "recover"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
           {
-            "line": 585,
+            "line": 584,
             "node": "tests/test_persistence.py::test_a_journal_from_the_repository_is_never_recovered",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 615,
+            "line": 614,
             "node": "tests/test_persistence.py::test_a_journal_written_here_is_still_recovered",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
@@ -5564,6 +5658,28 @@
           "old": {
             "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required."
           }
+        },
+        {
+          "at": "2026-10-27T18:38:07Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:09Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:09Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          }
         }
       ],
       "id": "6698e7",
@@ -5575,19 +5691,30 @@
       "last_seen": "2026-10-27T17:13:52Z",
       "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: actual subprocess/pipe reproduction isolates Windows launch/kill branch on Linux. 0.2s configured timeout, 3.361s waiting after wrapper kill. This is not a native Windows run. Evidence: codex-a5de5c8/windows-timeout-isolated.log and repro_windows_timeout.py; native Windows launcher/descendant regression required. P2, open pending correction.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "P2",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 44,
+        "line": 42,
         "path": "docs/reviews/rc1-a5de5c8-codex.md",
         "representation": "comment",
         "symbol": "P2 — Windows verification timeout can wait indefinitely for a wrapper's descendant"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 474,
+            "node": "tests/test_verify.py::test_timeout_cleanup_ends_even_if_a_descendant_keeps_the_pipe",
+            "path": "tests/test_verify.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
       "title": "Bound verification timeout cleanup and terminate supported Windows runner descendants so inherited output pipes cannot keep verify blocked.",
       "title_override": null
     },
@@ -5883,6 +6010,28 @@
           "old": {
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-27T18:38:03Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:05Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:05Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/gitwrite.py"
+          }
         }
       ],
       "id": "6944ec",
@@ -5894,18 +6043,18 @@
       "last_seen": "2026-10-27T18:00:00Z",
       "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "P2",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 356,
-        "line": 375,
+        "decl_line": 357,
+        "line": 376,
         "path": "src/byteplan/gitwrite.py",
         "representation": "comment",
         "symbol": "_swap_index"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
@@ -6185,6 +6334,28 @@
           "old": {
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-27T18:38:18Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:20Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:20Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "CHANGELOG.md"
+          }
         }
       ],
       "id": "7140aa",
@@ -6196,7 +6367,7 @@
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "Codex corroborated current CHANGELOG/spec/implementation-plan drift against code on PR55. Retain P3/open; no documentation correction is claimed by the review annotation.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "P3",
       "scope_state": "in_scope",
       "source": {
@@ -6207,7 +6378,7 @@
         "representation": "comment",
         "symbol": "Unreleased"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "title": "Record the user-visible changes from PRs #53 and #54",
       "title_override": null
@@ -6334,7 +6505,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1700,
+        "line": 1702,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -7505,7 +7676,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1703,
+        "line": 1705,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -7928,6 +8099,28 @@
           "old": {
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-27T18:38:20Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:23Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:23Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/spec.md"
+          }
         }
       ],
       "id": "971b9d",
@@ -7939,7 +8132,7 @@
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "Codex corroborated current CHANGELOG/spec/implementation-plan drift against code on PR55. Retain P3/open; no documentation correction is claimed by the review annotation.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "P3",
       "scope_state": "in_scope",
       "source": {
@@ -7950,7 +8143,7 @@
         "representation": "comment",
         "symbol": "3. User-facing source syntax"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "title": "Describe the current tag case rule in the spec and implementation plan",
       "title_override": null
@@ -8620,8 +8813,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 305,
-        "line": 309,
+        "decl_line": 313,
+        "line": 317,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"
@@ -9122,6 +9315,28 @@
           "old": {
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-27T18:38:12Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:15Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/persistence.py"
+          }
         }
       ],
       "id": "aaf7d7",
@@ -9133,18 +9348,18 @@
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "P3",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
         "decl_line": 135,
-        "line": 165,
+        "line": 166,
         "path": "src/byteplan/persistence.py",
         "representation": "comment",
         "symbol": "project_lock"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
@@ -10047,6 +10262,28 @@
           "old": {
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-27T18:38:15Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:17Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:17Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/operations/archive.py"
+          }
         }
       ],
       "id": "bbe04c",
@@ -10058,7 +10295,7 @@
       "last_seen": "2026-10-27T18:00:00Z",
       "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "P3",
       "scope_state": "in_scope",
       "source": {
@@ -10069,13 +10306,19 @@
         "representation": "comment",
         "symbol": "ignore_archive_store"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
           {
             "line": 362,
             "node": "tests/test_archive.py::test_a_comment_naming_the_archive_store_is_not_an_ignore_rule",
+            "path": "tests/test_archive.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 380,
+            "node": "tests/test_archive.py::test_an_existing_archive_ignore_rule_is_not_duplicated",
             "path": "tests/test_archive.py",
             "provenance": "verifies"
           }
@@ -12266,7 +12509,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1697,
+        "line": 1699,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -12411,6 +12654,28 @@
           "old": {
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-27T18:38:00Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:02Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:02Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/cleanup.py"
+          }
         }
       ],
       "id": "e3d6bd",
@@ -12422,7 +12687,7 @@
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "P2",
       "scope_state": "in_scope",
       "source": {
@@ -12433,7 +12698,7 @@
         "representation": "comment",
         "symbol": "_drop_unused_runtime_imports"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
@@ -12441,6 +12706,12 @@
             "line": 367,
             "node": "tests/test_cleanup.py::test_cleanup_removes_the_runtime_import_with_python_line_breaks",
             "path": "tests/test_cleanup.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 218,
+            "node": "tests/test_release.py::test_release_then_restore_is_byte_identical",
+            "path": "tests/test_release.py",
             "provenance": "verifies"
           }
         ],
@@ -12800,6 +13071,28 @@
           "old": {
             "notes": ""
           }
+        },
+        {
+          "at": "2026-10-27T18:38:23Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:25Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:25Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "README.md"
+          }
         }
       ],
       "id": "e8bd84",
@@ -12811,7 +13104,7 @@
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "Codex checked diagnostic enum against README after stripping HTML comments: 15 code names absent: unregistered_id, malformed_id, pending_journal, unresolved_todo_decorator, invalid_todo_decorator, dynamic_todo_argument, conflicting_test_arguments, decorator_needs_review, unknown_task_reference, staged_config_mismatch, working_tree_changed_but_not_staged, malformed_test_id, scaffold_placeholder, release_stripped, release_on_default_branch. Existing FIXME comment is not a diagnostic reference.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "P3",
       "scope_state": "in_scope",
       "source": {
@@ -12822,7 +13115,7 @@
         "representation": "comment",
         "symbol": "Commands"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "title": "Document every diagnostic code the CLI and MCP can emit",
       "title_override": null
@@ -12878,7 +13171,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1710,
+        "line": 1712,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
