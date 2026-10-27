@@ -184,8 +184,10 @@ existing algorithms; the facade and internal operations share one canonical set 
 ## Resolved design decisions
 
 **Comment grammar.** This applies only to the text of `tokenize.COMMENT` tokens. The tag pattern is
-`^#\s*(TODO|FIXME|HACK|XXX)(?:\[([^\]]*)\])?(?=[:\s]|$)`, case-insensitive, and the tag must
-start the comment. A non-hex or wrong-length bracket raises `malformed_id` and is never rewritten.
+`^#\s*(TODO|FIXME|HACK|XXX)(?:\[([^\]]*)\])?(?=[:\s]|$)` for the configured spelling, and the tag
+must start the comment. Any other case matches only when `:` or `[id]` follows the tag (415a0f), so
+prose such as `# Todo list model` isn't a task. A non-hex or wrong-length bracket, or an unclosed
+`[`, raises `malformed_id` and is never rewritten.
 Trailing comments (`x = 1  # TODO: ...`) are tasks without continuations. A continuation line is
 the next physical line, holds only a comment, has its `#` in the same column, and has at least
 2 spaces after `#`. A block ends at a blank line, a code line, another tag, an ordinary comment
@@ -1153,8 +1155,8 @@ Git integration and never-auto-resolve rule as Python.
 ### Markdown
 
 - **What counts:** a tag inside an HTML comment, `<!-- TODO: title -->`, under the same tag
-  rules as Python. The tag must open the comment, `[id]` is optional, and tags match
-  case-insensitively.
+  rules as Python. The tag must open the comment, `[id]` is optional, and a spelling other
+  than the configured one needs `:` or `[id]` right after it.
   - Prose `TODO`s are not tracked; "TODO list" in a sentence is not a task.
 - **Title and description:** the comment's first line is the title. The rest of a multi-line
   comment, up to `-->`, is the description, dedented.
