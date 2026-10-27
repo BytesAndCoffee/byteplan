@@ -3323,6 +3323,28 @@
           "old": {
             "description": "Matching is case-insensitive and only needs whitespace after the tag, so `# Todo list model`\nand `# hack around the parser` become tasks, and the first writing scan (or the default\nreconcile commit hook) edits them to `# Todo[id] list model`. Markdown already promises\n\"a TODO list\" is not a task. E.g. require `:` or `[id]` after a non-uppercase spelling."
           }
+        },
+        {
+          "at": "2026-10-27T05:08:46Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed: non-configured spellings need ':' or '[id]'. tests/test_comments.py::test_prose_comments_that_start_with_a_tag_word_are_not_tasks (failed on the old code) and ::test_explicit_tag_spellings_stay_tasks fresh pass.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T05:08:48Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T05:08:48Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/scanner/comments.py"
+          }
         }
       ],
       "id": "415a0f",
@@ -3331,7 +3353,7 @@
       "last_seen": "2026-10-27T04:58:47Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -3342,7 +3364,7 @@
         "representation": "comment",
         "symbol": "tag_pattern"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
