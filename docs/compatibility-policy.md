@@ -140,6 +140,11 @@ before opening. Aliases, nonregular files and shared hardlinked cache files are 
 preserving existing material. This write boundary does not define a general read sandbox for
 every raw Python metadata reader, or a guarantee against adversarial concurrent path replacement.
 
+Existing project locks are never reclaimed automatically. Stop all BytePlan writers and confirm
+none is running before deliberately removing a stale `.byteplan/scan.lock`; preserve the
+transaction journal and copies for the next authorized write to recover. A dead-looking PID
+does not grant permission to unlink a lock that another writer may have replaced.
+
 Compatibility changes need an explicit rationale, affected-interface inventory and regression
 evidence. Schema changes need a migration and an older-client failure boundary, preserving
 tasks/history/evidence and documenting recovery. Additive fields must not create conflicting

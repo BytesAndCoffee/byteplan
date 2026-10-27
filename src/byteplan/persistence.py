@@ -128,7 +128,12 @@ def atomic_write_bytes(path: Path, data: bytes, mode: int | None = None) -> bool
 
 @contextlib.contextmanager
 def project_lock(root: Path) -> Iterator[None]:
-    """Hold ``.byteplan/scan.lock`` for the duration of a read-plan-write cycle."""
+    """Hold ``.byteplan/scan.lock`` for a read-plan-write cycle.
+
+    Never reclaim an existing lock automatically: between inspecting a dead PID
+    and unlinking its pathname, another writer could have acquired a new lock.
+    Deliberate stale-lock cleanup requires stopping all writers first.
+    """
     try:
         control_directory(root, STATE_DIR)
         path = project_target(root, f"{STATE_DIR}/{LOCK}", control=True)
@@ -136,21 +141,19 @@ def project_lock(root: Path) -> Iterator[None]:
         msg = f"unsafe project lock: {exc}"
         raise JournalConflictError(msg) from exc
     path.parent.mkdir(parents=True, exist_ok=True)
-    for attempt in range(2):
-        try:
-            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
-        except FileExistsError:
-            holder = _lock_holder(path)
-            if attempt == 0 and holder is not None and not _pid_alive(holder):
-                with contextlib.suppress(FileNotFoundError):
-                    path.unlink()
-                continue
-            who = f"process {holder}" if holder is not None else "another process"
-            msg = f"{who} holds {path.relative_to(root).as_posix()}; if no byteplan is running, delete it"
-            raise LockedError(msg) from None
-        with os.fdopen(fd, "w") as handle:
-            handle.write(str(os.getpid()))
-        break
+    try:
+        fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+    except FileExistsError:
+        holder = _lock_holder(path)
+        who = f"process {holder}" if holder is not None else "another process"
+        msg = (
+            f"{who} holds {path.relative_to(root).as_posix()}; existing locks are never removed automatically. "
+            "Stop all BytePlan writers and confirm none is running before deleting this lock and retrying. "
+            "Preserve .byteplan/txn/ so the next authorized write can recover any interrupted transaction"
+        )
+        raise LockedError(msg) from None
+    with os.fdopen(fd, "w") as handle:
+        handle.write(str(os.getpid()))
     try:
         yield
     finally:
@@ -163,18 +166,6 @@ def _lock_holder(path: Path) -> int | None:
         return int(path.read_text().strip())
     except (OSError, ValueError):
         return None
-
-
-def _pid_alive(pid: int) -> bool:
-    if sys.platform == "win32":  # os.kill(pid, 0) is not a probe on Windows
-        return True
-    try:
-        os.kill(pid, 0)
-    except ProcessLookupError:
-        return False
-    except PermissionError:
-        return True
-    return True
 
 
 def staged_dir(root: Path) -> Path:
