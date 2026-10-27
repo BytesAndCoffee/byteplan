@@ -4505,19 +4505,37 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-27T17:49:51Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P1"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P1"
+            ],
+            "priority": "high"
+          }
         }
       ],
       "id": "53c751",
       "kind": "FIXME",
       "labels": [
-        "rc1-gate-review",
-        "P1"
+        "release:1.0",
+        "review:claude-gate"
       ],
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
-      "priority": "high",
+      "priority": "P1",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
@@ -6025,19 +6043,37 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-27T17:49:52Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P3"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ],
+            "priority": "low"
+          }
         }
       ],
       "id": "7140aa",
       "kind": "FIXME",
       "labels": [
-        "rc1-gate-review",
-        "P3"
+        "release:1.0",
+        "review:claude-gate"
       ],
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
-      "priority": "low",
+      "priority": "P3",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
@@ -7740,19 +7776,37 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-27T17:49:53Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P3"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ],
+            "priority": "low"
+          }
         }
       ],
       "id": "971b9d",
       "kind": "FIXME",
       "labels": [
-        "rc1-gate-review",
-        "P3"
+        "release:1.0",
+        "review:claude-gate"
       ],
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
-      "priority": "low",
+      "priority": "P3",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
@@ -8896,19 +8950,37 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-27T17:49:52Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P3"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ],
+            "priority": "low"
+          }
         }
       ],
       "id": "aaf7d7",
       "kind": "FIXME",
       "labels": [
-        "rc1-gate-review",
-        "P3"
+        "release:1.0",
+        "review:claude-gate"
       ],
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
-      "priority": "low",
+      "priority": "P3",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
@@ -12071,19 +12143,37 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-27T17:49:52Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P2"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P2"
+            ],
+            "priority": "normal"
+          }
         }
       ],
       "id": "e3d6bd",
       "kind": "FIXME",
       "labels": [
-        "rc1-gate-review",
-        "P2"
+        "release:1.0",
+        "review:claude-gate"
       ],
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
-      "priority": "normal",
+      "priority": "P2",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
@@ -12432,19 +12522,37 @@
           "old": {
             "labels": []
           }
+        },
+        {
+          "at": "2026-10-27T17:49:53Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P3"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ],
+            "priority": "low"
+          }
         }
       ],
       "id": "e8bd84",
       "kind": "FIXME",
       "labels": [
-        "rc1-gate-review",
-        "P3"
+        "release:1.0",
+        "review:claude-gate"
       ],
       "last_seen": "2026-10-27T17:13:38Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
-      "priority": "low",
+      "priority": "P3",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",

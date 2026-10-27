@@ -190,3 +190,22 @@ The runtime artifacts are byte-identical to the `b551870` reference build.
 - I didn't run the released-client matrix locally.
 - I reviewed the whole repository, reading most deeply the write paths, recovery, scanner grammar,
   merge, locking, cleanup and release. I skimmed reporting and the CLI formatting code.
+
+## Reconciliation with the Codex review
+
+This section was written after both initial reports were recorded. Commit `c39c43b` holds the
+initial report above, unchanged.
+
+- **Overlap:** none. Codex's three P2s (515d45 scaffold bindings, 6698e7 Windows verify timeout,
+  26756c snapshot path aliases) and these six findings are distinct. Codex's scaffold finding and
+  e3d6bd both touch `scaffold.plan`, but for different causes: name shadowing versus
+  physical-line indexing.
+- **Blockers:** the reviewers disagree. Codex reports no P1. This review reports 53c751 as a
+  P1 security blocker, so the gate's agreement condition (no unresolved blocker from either
+  reviewer) is not met.
+- **Artifacts:** both reviews built byte-identical wheel and sdist hashes at the gate SHA
+  (`f708b6e8…db95`, `928152390…4eec`).
+- **Local suite:** Codex's full Linux run had one timeout in
+  `test__verify_plugin.py::test_verification_preserves_symlink_node_ids[passed-directory-False]`,
+  which passed when rerun alone. This review's full macOS run passed that case. Neither result
+  establishes the cause.
