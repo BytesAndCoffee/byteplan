@@ -29,6 +29,7 @@ from byteplan.scaffold import (
     ensure_only_added,
     is_placeholder,
     placeholder_nodes,
+    plan,
     snake,
     target_path,
 )
@@ -676,14 +677,25 @@ def test_scaffold_imports_stay_below_future_imports(routed: ProjectFactory, run_
 
 
 @verifies("67a65c")
-@pytest.mark.xfail(reason="BytePlan 67a65c: acceptance test not implemented", strict=True)
-def test_task_67a65c() -> None:
-    """Acceptance test scaffold for BytePlan task 67a65c.
-
-    Target: task 67a65c (statement)
-    Requirement: Separate first-party runtime imports from pytest in new scaffold files
-    """
-    # GIVEN: TODO - arrange the state this requirement depends on
-    # WHEN: TODO - exercise the code task 67a65c is about
-    # THEN: TODO - assert the required result
-    pytest.fail("BytePlan 67a65c: acceptance test not implemented")
+@pytest.mark.parametrize(
+    ("runtime", "head"),
+    [
+        ("byteplan_runtime", "import pytest\nfrom byteplan_runtime import verifies\n"),
+        # A shim is project code: isort wants it in a first-party section of its own.
+        ("pkg._todo", "import pytest\n\nfrom pkg._todo import verifies\n"),
+    ],
+)
+def test_new_scaffold_files_section_imports_like_isort(runtime: str, head: str) -> None:
+    task = Task(id="a83f", kind="TODO", title="t")
+    result = plan(
+        task,
+        Target(None, None),
+        "tests/test_new.py",
+        None,
+        name=None,
+        policy="fail",
+        link_style="verifies",
+        runtime=runtime,
+        async_tests="",
+    )
+    assert result.text.startswith(head + "\n\n@verifies(")

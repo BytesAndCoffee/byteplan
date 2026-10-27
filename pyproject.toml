@@ -25,7 +25,6 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development :: Quality Assurance",
 ]
 dependencies = [
@@ -88,6 +87,9 @@ path = "src/byteplan/__about__.py"
 exclude = [
   ".byteplan",
   "docs/spec*.md",
+  # Internal review and planning notes, with paths from the reviewers' machines.
+  "docs/reviews",
+  "docs/rc1-next-steps.md",
   # A separate distribution that lives in this repository; see its own pyproject.toml.
   "byteplan-runtime",
 ]

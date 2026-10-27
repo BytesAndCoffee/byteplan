@@ -11,6 +11,13 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
   inserted an ID into it. A tag spelled differently from its configuration now needs `:` or `[id]`
   right after it (`# todo: ...`); the configured spelling (`# TODO ...`) is unchanged. Already
   annotated tasks (`# Todo[id] ...`) keep matching. Applies to Python, Markdown and JSONC comments.
+- **New scaffold files pass isort:** when `@verifies` comes from a project shim rather than
+  `byteplan_runtime`, a newly created test file now puts the shim import in its own section
+  below `import pytest`, as ruff's isort expects.
+
+### Packaging
+- The PyPy classifier is gone; CI tests CPython only. The sdist no longer ships internal review
+  notes (`docs/reviews/`, `docs/rc1-next-steps.md`).
 
 ## 1.0.0rc1 — candidate preparation
 

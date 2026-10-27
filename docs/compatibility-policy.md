@@ -1,11 +1,7 @@
 # BytePlan 1.0 public compatibility policy
 
-<!-- FIXME[14c4fe]: Update stale tense in the compatibility policy
-  It calls the current release "alpha" (the package is 1.0.0rc1, Beta) and describes the API
-  decomposition and its monkey-patching inspection as future work; PR #47 completed it. -->
-
 This document defines the compatibility boundary for the 1.0 release and its release
-candidates. It does not declare the current alpha release or an unreviewed checkout ready for
+candidates. It does not declare a release candidate or an unreviewed checkout ready for
 production. [Addendum E](spec-addendum-e.md) retains the RC1 acceptance and approval gates.
 
 Within 1.x, supported public interfaces keep their existing names, accepted arguments,
@@ -23,7 +19,7 @@ they must explain recovery and preserve valid authoritative work.
 | Authoritative task lifecycle | Managed status, labels, assignee, priority, notes and history; permanent reservations; explicit resolution; source presence distinct from lifecycle; verification and evidence freshness rules. Unknown supported extension fields round-trip. | Removing an annotation or passing a test does not resolve a task. A recorded historical pass is not fresh evidence after relevant changes. Missing archived evidence cannot be reconstructed as a passing result. |
 | Registry and migration | Versioned registry/evidence validation, deterministic serialization, explicit journaled migration, source-editing guards and recoverable writes. Existing valid tasks, history and evidence survive supported migrations. Unsupported future schemas fail visibly. | Compatibility does not mean every older binary can read newer schemas. Upgrade clients before migration and incompatible annotations. Physical indexes/caches are distinct from authoritative task records; see the [storage decision](rc1-compatibility.md#intended-authoritative-storage-contract). |
 | CLI | The documented command names, flags, defaults and exit meanings in the [command reference](../README.md#commands), including advanced scan/sync/scaffold/verify, repair, migration, archive and release/restore operations. `--format json` preserves existing field names/types/meanings; diagnostics remain on stderr. | Text/table/Markdown layout, generated test names and exact diagnostic wording can improve. Parse structured fields and exit codes instead. New JSON fields and findings may appear. |
-| Python API | `byteplan.api.Project`, its existing public methods/properties and supported signatures, result types and exception semantics; details below. | Private methods, implementation dependencies and arbitrary imported names are not extension APIs. The required RC1 decomposition preserves existing behavior and tested patch targets even where they are internal. |
+| Python API | `byteplan.api.Project`, its existing public methods/properties and supported signatures, result types and exception semantics; details below. | Private methods, implementation dependencies and arbitrary imported names are not extension APIs. The RC1 decomposition (PR #47) preserved existing behavior and tested patch targets even where they are internal. |
 | Configuration | Documented `[tool.byteplan]` sections and options, defaults, accepted values, project-relative path rules and strict unknown-key rejection. `byteplan.config.Config`, its section dataclasses, and `load_config` support programmatic configuration and the documented custom Hatch integration. | A future optional feature may require new configuration. Unknown options still fail rather than silently doing nothing. No interface promises that unsupported settings such as `placeholder_assignments=true` will work. |
 | Runtime decorators | `byteplan_runtime.todo(title, /, *, id=None, kind="TODO", description="", test=None, tests=())` and `verifies(*ids)` retain their parameters and inert identity behavior. Generated runtime shims provide the same decorators. | Runtime markers do not validate or register tasks. Scanner acceptance is static and separately checked. `byteplan-runtime` remains a separately versioned distribution with its own supported Python versions. `byteplan.api` does not export runtime decorators. |
 | MCP protocol | The documented stdio entry points, existing tool names/arguments, resources, structured result fields and permissions in the [MCP reference](../README.md#mcp-server-for-ai-agents). Source-writing tools preview unless `apply=true`; source writes and project-code execution require their documented permissions. | Additional tools/result fields may be introduced. Protocol consumers must negotiate capabilities and handle unavailable tools. Restart/reconnect long-running servers after upgrading or checking out code they need to load. A restart cannot add unsupported schema support to an old installation. |
@@ -39,8 +35,8 @@ Import the facade from `byteplan.api`, data models from `byteplan.models`, confi
 `byteplan.config` and exceptions from `byteplan.errors`. `Project.open()` discovers the project
 from the current directory; an explicit start is a `pathlib.Path`. `Project.open_snapshot()`
 provides a read-only index or commit view, and `close()` releases its Git reader. The supported
-`Project(config, clock=..., snapshot=..., notices=...)` constructor and existing methods retain
-their signatures during decomposition.
+`Project(config, clock=..., snapshot=..., notices=...)` constructor and existing methods kept
+their signatures through the RC1 decomposition.
 
 Snapshot projects support scanning, checking, active-registry queries, reports and recorded
 verification queries using the selected Git data. They reject mutation and test execution
@@ -75,9 +71,9 @@ attributes remain usable. Error messages may gain actionable detail. At the CLI,
 map to exit 2; policy findings map to exit 1 and successful execution to exit 0. Findings and successful
 verification are separate from explicit task resolution.
 
-The facade refactor must inspect monkey-patching before moving dependencies. For example,
-`tests/test_persistence.py` currently patches `byteplan.api.commit`; preserving that behavior is
-a required refactor regression, not a promise that every name imported into `api.py` becomes a
+The RC1 facade decomposition inspected monkey-patching before moving dependencies. For example,
+`tests/test_persistence.py` patches `byteplan.api.commit`, and that test guards the behavior; it
+is a regression check, not a promise that every name imported into `api.py` becomes a
 permanent plugin hook. Subclassing private operations, replacing internal module globals, direct
 mutation of serialized registry dictionaries and local SQLite tables are outside the supported
 extension boundary. Use supported operations for writes.
