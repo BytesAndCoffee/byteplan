@@ -8,8 +8,8 @@ Git and persistence modules continue to own their algorithms.
 The initial integrated baseline, `0be125e`, had a 3,058-line `api.py` and a 2,302-line
 `Project` class. The restore-corrected compatibility revision `fea1d3e` has 3,104 and 2,347
 lines respectively. The extraction produced a 725-line facade with a 536-line `Project` class.
-The subsequent per-adapter recovery guard brings these to 734 and 545 lines, retaining the
-same supported public signatures and delegation boundaries.
+Later corrections bring these to 739 and 549 lines at the RC1 code freeze (`0964bb4`),
+retaining the same supported public signatures and delegation boundaries.
 Private delegation methods retain existing coordination and patch boundaries; no mixin
 hierarchy, service locator or second implementation of task operations is introduced.
 
@@ -92,11 +92,12 @@ bindings; this supports the test evidence without claiming static comparison pro
 
 An initial post-extraction full suite passed 1,187 ordinary tests plus three explicit network
 cases. Seven additional constructor-introspection regressions now cover every previously
-resolvable result constructor. The combined final local suite passes **1,210 tests**, with three network cases passed
-separately and one existing nonblocking P3 placeholder xfailed. Full formatting and strict
-typing pass (111 checked files; 112 formatted files). Wheel and sdist installations both exercise installed scan,
-query, check and result-pickle behavior outside the checkout. Platform CI and final independent
-review remain integration gates for the structural PR.
+resolvable result constructor. The combined local suite at extraction passed **1,210 tests**,
+with three network cases passed separately and one then-open P3 placeholder xfailed. Full
+formatting and strict typing passed (111 checked files; 112 formatted files). Wheel and sdist
+installations both exercised installed scan, query, check and result-pickle behavior outside
+the checkout. The structural change was merged as PR #47 and has been covered by every later
+platform CI run and whole-repository review.
 
 Review also reproduced inherited restore integrity defect `50ad66` against both baseline and
 extraction. Its correction is isolated in compatibility PR #46: exact parsed-byte transaction

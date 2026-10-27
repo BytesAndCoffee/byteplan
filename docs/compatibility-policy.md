@@ -132,6 +132,9 @@ Serialized recovery and release-restore paths must stay within the project and a
 VCS/transaction state. Journals and archive indexes reject unsupported versions or malformed
 records before mutation, retaining material for inspection. Valid current formats need no new
 migration for these guards. Same-version archive-index extension fields remain preserved.
+Recovery also replays only journals written in the same checkout: each records the identity of
+its `.byteplan/txn/` directory, so a journal supplied by repository content (a clone or an
+unpacked archive) is refused before any write.
 
 Transaction control paths must retain their lexical identity, including Windows junctions;
 ordinary confined source-parent aliases remain supported. Project archive stores bind their
@@ -154,6 +157,6 @@ deprecation guidance should precede removal where feasible.
 The RC1 API extraction is behavior-preserving: capture imports, signatures, result shapes,
 exceptions, patch targets and CLI/MCP/Hatch/Git behavior before extraction, then compare after
 it. See the [facade and internal operations architecture](api-architecture.md) for the module
-boundaries and preserved constructor annotation/pickle identities. Final whole-repository reviews and the readiness report must assess this policy against the
-same frozen revision. A policy document and passing individual tests do not substitute for
-those release gates.
+boundaries and preserved constructor annotation/pickle identities. Final whole-repository
+reviews and the readiness report must assess this policy against the same frozen revision. A
+policy document and passing individual tests do not substitute for those release gates.
