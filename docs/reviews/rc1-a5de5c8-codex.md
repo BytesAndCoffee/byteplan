@@ -152,3 +152,57 @@ ran on Python 3.12/Linux; platform coverage comes from the separately attributed
 The native Windows junction traversal observation remains unverified and is not a
 confirmed finding or an outside-write claim. No product fix, semantic graph implementation,
 tag, publication or final release approval is part of this review record.
+
+## Post-review reconciliation: Claude and focused ChatGPT findings
+
+This section was added after all three initial reports were recorded. The independent
+Codex initial conclusions remain above and in commit `7b93596`. Reading the peer reports
+now does not retroactively make them findings of the initial Codex review.
+
+**Reconciled disposition: do not approve the gate for RC1.** Claude found a P1 that this
+review missed, and Codex now corroborates it. The absence of a P1 in the initial Codex
+report was not evidence that no blocker existed. The focused non-Codex ChatGPT report
+adds two independently registered findings; it does not replace a whole-repository review.
+
+| Priority | Open task | Confirmed issue / disposition |
+|---|---|---|
+| P1, release blocker | `53c751` | Repository-supplied ordinary and staged journals can replay attacker-chosen writes into ignored paths in a fresh clone. Fix recovery authorization/provenance first, preserving legitimate crash recovery. |
+| P2, pre-RC1 correction | `e3d6bd` | Physical-line indexing during cleanup deletes user text; related release/scaffold paths use the same incorrect splitter. |
+| P2, pre-RC1 correction | `6944ec` | Fixed index scratch pathname follows a planted symlink and overwrites an outside file. Requires local Git-directory write access, so retain P2 rather than equating its threat model to the committed-journal P1. |
+| P2, pre-RC1 correction | `515d45`, `6698e7`, `26756c` | Original Codex scaffold binding, Windows timeout and snapshot-identity findings remain open. |
+| P3, defensive hardening | `aaf7d7` | Lock release removes a replacement lock. Trigger requires manual removal while the original writer is active, contrary to documented recovery prerequisites; retain P3. |
+| P3, documentation | `7140aa`, `971b9d`, `e8bd84` | Changelog omissions, tag-case contract drift and incomplete diagnostic-code reference are confirmed. |
+| P3, archive ergonomics | `bbe04c` | A comment mentioning the local archive filename incorrectly satisfies the ignore-rule check. |
+
+Total: **one P1, five P2s and five P3s**, all already registered with stable BytePlan
+identities. No duplicate identities or automatic resolutions were introduced.
+
+Codex reran all six new executable regression cases with `--runxfail`, removing the
+expected-failure masking for this diagnostic run only. All six **failed for the reported
+reasons** (exit 1, 1.43 seconds): committed-journal replay, two cleanup line-break cases,
+replacement-lock deletion, outside-file overwrite and archive ignore mismatch. This is
+confirmation of unfixed defects, not passing acceptance evidence. Test files, markers and
+timeouts were not changed. Output is retained in
+`/workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log`.
+
+An additional benign reproduction ran the exact frozen gate source against two actual
+fresh Git clones. One contained a committed ordinary journal, the other a committed
+staged journal with `index=null`. `byteplan scan` and `scan --staged --apply` respectively
+both exited 0 and created the absent ignored `.venv/planted.py` containing the supplied
+marker. The marker was never executed. This independently corroborates both replay paths
+of `53c751`; the sitecustomize execution demonstration is attributed to Claude. Script
+and output: `review55-triage/repro_clone_journals.py` and `clone-journals.log` in the same
+evidence directory.
+
+Checksums and path confinement establish payload integrity, not permission to replay a
+plan from repository content. A correction must distinguish locally authorized interrupted
+work from supplied journals before any recovery side effect. Exercise ordinary/staged
+flows, legitimate partial writes, interrupted recovery, non-Git projects and existing MCP
+recovery restrictions. Rejecting an unsafe replay must preserve journal/evidence bytes
+and give an actionable diagnostic.
+
+The next implementation order is the P1, then the five P2 correctness/safety corrections,
+then the bounded P3 hardening/documentation work. Keep fixes separate from these initial
+review records. After integration, freeze a new common revision and repeat the required
+independent reviews and exact-revision validation; the current gate is rejected, not
+approved by its green CI or expected-failure tests. No release tag or publication is authorized.
