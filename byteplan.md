@@ -8,6 +8,7 @@
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
+| `c053` | in_progress | TODO | high | - | [`docs/spec-addendum-e.md:363`](docs/spec-addendum-e.md#L363) | RC1 freeze one integrated revision for two independent whole-repository reviews |
 | `a70d` | in_progress | TODO | high | - | [`docs/spec-addendum-e.md:395`](docs/spec-addendum-e.md#L395) | RC1 approval-ready release report and artifact/platform validation |
 | `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1697`](docs/IMPLEMENTATION_PLAN.md#L1697) | Phase 6c (optional): acceptance criteria and dependencies |
 | `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1700`](docs/IMPLEMENTATION_PLAN.md#L1700) | Phase 11 (optional): spec section 14 phase 5 items |
@@ -23,7 +24,6 @@
 | `cdcb` | open | TODO | low | - | [`docs/spec-addendum-e.md:268`](docs/spec-addendum-e.md#L268) | 2.0 verification intelligence with traceable recommendations |
 | `4d69` | open | TODO | low | - | [`docs/spec-addendum-e.md:272`](docs/spec-addendum-e.md#L272) | 2.0 Assignment and specification traceability |
 | `595f` | open | TODO | low | - | [`docs/spec-addendum-e.md:276`](docs/spec-addendum-e.md#L276) | 2.0 bounded MCP graph operations and portable visualization design |
-| `c053` | open | TODO | high | - | [`docs/spec-addendum-e.md:363`](docs/spec-addendum-e.md#L363) | RC1 freeze one integrated revision for two independent whole-repository reviews |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:309`](src/byteplan/config.py#L309) | Support detect.placeholder_assignments |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:71`](src/byteplan/scanner/comments.py#L71) | Recognize Google-style `TODO(owner): ...` tags |
 

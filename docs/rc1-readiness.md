@@ -5,18 +5,24 @@
   record its exact-head CI run, rebuild the wheel/sdist there and record their hashes and install
   smoke, and update README's "Status: preparing 1.0.0rc1" line when the tag is approved. -->
 
-**Status: the four Codex review findings are corrected on this branch; final release gates
-remain open.** No RC1 tag or package has been published. The [frozen review](reviews/rc1-d29ac93-codex.md)
+**Status: compatibility corrections are integrated; common-revision independent gate reviews
+and final readiness evidence remain open.** No RC1 tag or package has been published.
+The [gate instructions](rc1-gate-check.md) define the shared Codex/Claude review target and
+independence requirements. The [frozen review](reviews/rc1-d29ac93-codex.md)
 demonstrated task loss (`c6bc7c`, P1), an external attributes write (`e86b8e`, P1), and two P2
 findings (`9e4d1c`, `668a6c`). [Focused corrections](reviews/rc1-review4-corrections.md) have real
 regressions, recorded linked verification, explicit task resolution and independent affected-area
-reviews. Integration/platform checks and a new common-SHA pair of whole-repository reviews are
-still required. Earlier `b551870` checks below are historical evidence, not final approval.
+reviews. PR #54 is merged, all 15 platform/quality/consistency jobs passed on its head, and
+its native Windows installer-junction regression passed. A new common-SHA pair of whole-repository
+reviews and exact-gate artifact/readiness evidence are still required. Earlier `b551870`
+checks below are historical evidence, not final approval.
 
 ## Revision and integration gates
 
 | Item | Current evidence |
 |---|---|
+| Current independent review gate | The commit first adding [the shared gate instructions](rc1-gate-check.md), based on `2c2b1ae2e38271097d9943155819055e2bf8db82`. Both Codex and Claude must report the same full gate SHA and independently review the whole repository. No initial verdict is recorded yet. |
+| Latest compatibility correction | PR #54 merged as `013f71b0f88824001fdf2e3d0dcdb30425b6e77d`; CI run `40541039783` passed all 15 jobs at head `b8cdbc5f6f17632c05118716d48756f39ef483ac`. Local suite: 1,742 passed, two skipped; network: three passed; typing: 123 files; formatting: 124 files. Clean installed artifacts/MCP/Hatch/runtime passed. The reference artifacts identify that pre-integration head, not the new gate. |
 | Readiness check SHA | `b551870` (`main` after PR #50). CI run 40450659828 passed all 15 jobs on its code commit `d5b7af9`; `b551870` only regenerates `byteplan.md`. |
 | Changes after the check | PR #51 (merged as `ba32637`): prose comments that open with a tag word, such as `# Todo list model`, are no longer tasks (415a0f); review findings tracked. The RC1 follow-up PR: scaffold import sections (67a65c), PyPy classifier, sdist contents, documentation corrections. |
 | Architecture plan | Addendum E and roadmap integrated through PR #44. Graph and Assignment implementation remain deferred. |
@@ -110,7 +116,7 @@ No semantic graph implementation belongs in RC1.
 ## Approval decision
 
 **Pending final release gates.** The four confirmed P1/P2 corrections have real regression
-tests, recorded evidence and explicit lifecycle resolution. Complete their integration and
+tests, recorded evidence, explicit lifecycle resolution, completed integration and passing
 platform validation. The writer-lock correction affects repository-wide integrity:
 freeze a new common SHA and complete two independent whole-repository reviews under Addendum E,
 then record its platform CI and freshly rebuilt/installed artifacts. Update this report with
