@@ -8,9 +8,9 @@ review. The persistence, source-safety and interface inspections are parts of th
 Codex repository-wide review; they are not the second independent whole-repository review.
 The gate remains immutable. This report and its task registrations are follow-up records.
 
-Initial disposition: changes required for the confirmed P2 concerns below. No confirmed
-P0/P1 finding has been identified so far. Validation is still running; this draft is not
-release approval and does not claim agreement with Claude.
+Disposition: changes requested for three confirmed P2 concerns. No confirmed P0/P1
+finding. All three tasks remain open for explicit triage and correction. This is one
+independent review, not release approval or a claim of agreement with Claude.
 
 ## Confirmed findings
 
@@ -101,10 +101,53 @@ CLI, public API/result identities, MCP permissions, Hatch/Git integration; packa
 platform CI, documentation, decomposition and deferred 1.5/2.0 boundaries.
 
 Local evidence is under `/workspace/byteplan-rc1-evidence/codex-a5de5c8/`.
-Reproductions and area reports retain exact commands and limitations. The source-focused
-suite completed **404 passed**. Full-suite, remaining focused checks, exact-gate platform
-CI and fresh installed-artifact checks are in progress and will be attributed explicitly
-when complete. No pending, interrupted or platform-skipped check is counted as passed.
+Reproductions and area reports retain exact commands and limitations. Completed focused
+checks, which overlap and must not be added as a unique-test total:
+
+| Selection | Completed result |
+|---|---|
+| Source/scanner/editing/normalization/cleanup/scaffold | 404 passed; exit 0 |
+| Persistence/IDs/collisions/merges/archive/evidence | 422 passed, one native Windows case skipped on Linux; exit 0 |
+| Public API/CLI/MCP/config/initialization/Hatch | 208 passed, one network case deselected; exit 0 |
+| Exact selected-commit consistency | `byteplan check --commit a5de5c861382a61cf2ca38c093e8268f401f82c3 --format json`: exit 0, empty diagnostics |
+
+The complete local run **failed**: **1,741 passed, one failed, two skipped and three
+network cases deselected in 1,230.29 seconds**, exit 1. The sole failure was
+`tests/test__verify_plugin.py::test_verification_preserves_symlink_node_ids[passed-directory-False]`:
+the real child pytest invocation hit the existing 30-second timeout without output;
+the expected `passed` result was `timeout`. The same case rerun in isolation passed
+(3.22 seconds), then all eight related symlink/plugin cases passed (38.40 seconds),
+both exit 0. No test, timeout or product source was changed. The original full-run
+failure remains in `full-suite.log`; focused reruns have separate logs and do not turn
+that run into a pass. The initial run overlapped other checks, but its precise timeout
+cause is not established. This Linux direct-runner timeout is separate from the
+confirmed Windows wrapper/descendant defect above. No pending, interrupted or
+platform-skipped check is counted as passed.
+
+[Gate CI run 40546275232](https://github.com/BytesAndCoffee/byteplan/actions/runs/40546275232)
+completed all **15 jobs successfully** at the exact reviewed SHA: CPython 3.11–3.14 on
+Linux/macOS/Windows, actual released-client compatibility, formatting/strict typing/runtime
+checks and BytePlan consistency. Windows 3.12 job `122337643833` completed 1,733 passed,
+nine skipped and three network cases deselected. Its two explicit native junction checks
+also passed: control-directory cleanup and merge-driver installation confinement. These
+do not test the newly identified Windows wrapper-timeout defect. Current CI does not
+establish PyPy support or the separate runtime's entire advertised interpreter matrix.
+
+Fresh exact-gate wheel/sdist builds and isolated installations completed successfully.
+The artifact harness verified all 59 package source files, 64 wheel entries and 150 sdist
+entries, with tracked checkout content/status unchanged before and after. Installed
+CLI/API and public-result pickle/constructor checks, actual MCP stdio permissions and
+queries, isolated Hatch default/explicit-write builds and separately installed inert
+runtime checks all passed. No editable installation substituted for an artifact install.
+
+| Exact-gate artifact | SHA-256 |
+|---|---|
+| `byteplan-1.0.0rc1-py3-none-any.whl` | `f708b6e840a928d8ead8c91430ca2f35188f0880f7237fa6fef5558c240edb95` |
+| `byteplan-1.0.0rc1.tar.gz` | `928152390a52a01786abf1919db829193b645380609fb9233c7b9b405be54eec` |
+
+Artifact commands, metadata, payload comparisons and smoke results are retained in
+`/workspace/byteplan-rc1-evidence/artifacts-gate-a5de5c8/manifest.json`. These installations
+ran on Python 3.12/Linux; platform coverage comes from the separately attributed CI.
 
 The native Windows junction traversal observation remains unverified and is not a
 confirmed finding or an outside-write claim. No product fix, semantic graph implementation,
