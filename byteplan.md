@@ -2,18 +2,23 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**18 open** · 98 closed (resolved 98)
+**23 open** · 99 closed (resolved 99)
 
 ## Open
 
 | ID | Status | Kind | Priority | Assignee | Where | Title |
 |---|---|---|---|---|---|---|
 | `a70d` | in_progress | TODO | high | - | [`docs/spec-addendum-e.md:395`](docs/spec-addendum-e.md#L395) | RC1 approval-ready release report and artifact/platform validation |
+| `a899de` | open | FIXME | normal | - | [`README.md:250`](README.md#L250) | Say that "files" freshness covers only the annotated file and linked tests |
 | `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1692`](docs/IMPLEMENTATION_PLAN.md#L1692) | Phase 6c (optional): acceptance criteria and dependencies |
 | `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1695`](docs/IMPLEMENTATION_PLAN.md#L1695) | Phase 11 (optional): spec section 14 phase 5 items |
 | `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1698`](docs/IMPLEMENTATION_PLAN.md#L1698) | Phase 11b (optional): Git reporting |
 | `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1701`](docs/IMPLEMENTATION_PLAN.md#L1701) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
 | `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1705`](docs/IMPLEMENTATION_PLAN.md#L1705) | Phase 13 (optional): relay-for-github |
+| `14c4fe` | open | FIXME | normal | - | [`docs/compatibility-policy.md:3`](docs/compatibility-policy.md#L3) | Update stale tense in the compatibility policy |
+| `fd02a3` | open | FIXME | normal | - | [`docs/rc1-readiness.md:3`](docs/rc1-readiness.md#L3) | Reconcile this report with the final frozen revision before approval |
+| `bf67e6` | open | FIXME | normal | - | [`docs/rc1-readiness.md:9`](docs/rc1-readiness.md#L9) | Drop the PyPy classifier or add PyPy to CI |
+| `bbff04` | open | FIXME | normal | - | [`docs/rc1-readiness.md:13`](docs/rc1-readiness.md#L13) | Keep internal review notes out of the sdist |
 | `a933` | open | TODO | low | - | [`docs/spec-addendum-e.md:218`](docs/spec-addendum-e.md#L218) | 1.5 semantic graph schema, identity and provenance design |
 | `e4af` | open | TODO | low | - | [`docs/spec-addendum-e.md:235`](docs/spec-addendum-e.md#L235) | 1.5 repository symbol indexing and task-to-symbol associations |
 | `3644` | open | TODO | low | - | [`docs/spec-addendum-e.md:239`](docs/spec-addendum-e.md#L239) | 1.5 deterministic incremental graph cache and invalidation |
@@ -25,7 +30,7 @@
 | `c053` | open | TODO | high | - | [`docs/spec-addendum-e.md:363`](docs/spec-addendum-e.md#L363) | RC1 freeze one integrated revision for two independent whole-repository reviews |
 | `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:309`](src/byteplan/config.py#L309) | Support detect.placeholder_assignments |
 | `67a65c` | open | FIXME | low | - | [`src/byteplan/scaffold.py:333`](src/byteplan/scaffold.py#L333) | Separate first-party runtime imports from pytest in new scaffold files |
-| `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:70`](src/byteplan/scanner/comments.py#L70) | Recognize Google-style `TODO(owner): ...` tags |
+| `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:71`](src/byteplan/scanner/comments.py#L71) | Recognize Google-style `TODO(owner): ...` tags |
 
 ## Closed
 
@@ -56,6 +61,7 @@
 | `3d3a` | resolved | FIXME | the archive index is read from the working tree even when checking a Git snapshot |
 | `3d5bb4` | resolved | FIXME | Reserve unregistered embedded IDs outside narrowed targets before allocation. |
 | `3f50` | resolved | FIXME | [P2] Normalize the test directory before excluding test-side tasks |
+| `415a0f` | resolved | FIXME | [P2] Don't treat prose comments that start with a tag word as tasks |
 | `4518` | resolved | FIXME | An escaping package exposes every submodule imported under it |
 | `478d` | resolved | FIXME | Resolve relative imports before deciding whether they import the runtime |
 | `4842` | resolved | TODO | RC1 authoritative storage decision based on measured collaboration and integrity risk |
