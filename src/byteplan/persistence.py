@@ -157,24 +157,25 @@ def project_lock(root: Path) -> Iterator[None]:
             "Preserve .byteplan/txn/ so the next authorized write can recover any interrupted transaction"
         )
         raise LockedError(msg) from None
-    created = os.fstat(fd)
+    # A token unique to this acquisition. File identity can't tell locks apart: Linux reuses
+    # a deleted lock's inode number for the next one at once.
+    content = f"{os.getpid()} {secrets.token_hex(16)}"
     with os.fdopen(fd, "w") as handle:
-        handle.write(str(os.getpid()))
+        handle.write(content)
     try:
         yield
     finally:
-        # Remove only the file this process created: if it was deleted by hand meanwhile and
-        # another writer took the lock, that writer's lock must stay.
+        # Remove only this acquisition's lock: if it was deleted by hand meanwhile and another
+        # writer took the lock, that writer's lock must stay.
         with contextlib.suppress(FileNotFoundError):
-            current = path.lstat()
-            if (current.st_dev, current.st_ino) == (created.st_dev, created.st_ino):
+            if path.read_text() == content:
                 path.unlink()
 
 
 def _lock_holder(path: Path) -> int | None:
     try:
-        return int(path.read_text().strip())
-    except (OSError, ValueError):
+        return int(path.read_text().split()[0])
+    except (OSError, ValueError, IndexError):
         return None
 
 

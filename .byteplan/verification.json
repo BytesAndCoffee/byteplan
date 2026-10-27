@@ -74,6 +74,22 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "20b40f7e3f7a4c48ab86ba02d3865bed": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-27T18:50:38Z",
+      "dirty": true,
+      "head": "e915be51849ee5100b9f77dbb602e2a6aaf6e00c",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "2b16814e99df4b51bf1249b825d17e93": {
       "argv": [
         "hatch",
@@ -1244,11 +1260,11 @@
       }
     },
     "53c751": {
-      "fingerprint": "616a7002a08c0ea8777dfe2f0a038a98c4e8d1df8b49e0f09e6fcf303d778224",
-      "run": "e460561e75a04ab1a492ddf96a83e5c5",
+      "fingerprint": "913845958456d257be7c7d29efcbc3fbe2a9983794465d07d33e9789bdc7da16",
+      "run": "20b40f7e3f7a4c48ab86ba02d3865bed",
       "tests": {
         "tests/test_persistence.py::test_a_journal_from_the_repository_is_never_recovered": {
-          "duration_ms": 276,
+          "duration_ms": 248,
           "outcome": "passed"
         },
         "tests/test_persistence.py::test_a_journal_written_here_is_still_recovered": {
@@ -1946,11 +1962,11 @@
       }
     },
     "aaf7d7": {
-      "fingerprint": "616a7002a08c0ea8777dfe2f0a038a98c4e8d1df8b49e0f09e6fcf303d778224",
-      "run": "e460561e75a04ab1a492ddf96a83e5c5",
+      "fingerprint": "913845958456d257be7c7d29efcbc3fbe2a9983794465d07d33e9789bdc7da16",
+      "run": "20b40f7e3f7a4c48ab86ba02d3865bed",
       "tests": {
         "tests/test_persistence.py::test_lock_release_leaves_a_later_writers_lock": {
-          "duration_ms": 4,
+          "duration_ms": 2,
           "outcome": "passed"
         }
       }
