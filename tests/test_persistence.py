@@ -19,9 +19,11 @@ import pytest
 from byteplan import persistence
 from byteplan._todo import verifies
 from byteplan.api import Project
+from byteplan.cli import EXIT_ERROR
 from byteplan.errors import ConcurrentModificationError, JournalConflictError
 from byteplan.persistence import FileWrite, commit, recover, sha256
 from byteplan.writeguard import control_directory, project_target
+from tests.gitutil import git
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -174,7 +176,8 @@ def test_corrupt_staged_copy(tmp_path: Path) -> None:
     (txn / "0.stage").write_bytes(b"tampered")
     (tmp_path / "f.py").write_bytes(b"old")
     entry = {"target": "f.py", "staged": "0.stage", "before": sha256(b"old"), "after": sha256(b"new"), "mode": None}
-    persistence.journal_path(tmp_path).write_text(json.dumps({"version": 1, "entries": [entry]}))
+    origin = persistence.txn_origin(tmp_path)
+    persistence.journal_path(tmp_path).write_text(json.dumps({"version": 2, "origin": origin, "entries": [entry]}))
     with pytest.raises(JournalConflictError, match="corrupt"):
         recover(tmp_path)
     assert (tmp_path / "f.py").read_bytes() == b"old"
@@ -256,7 +259,7 @@ def recovery_plan(root: Path) -> dict[str, Any]:
         entries.append(
             {"target": name, "staged": staged, "before": sha256(b"old"), "after": sha256(b"new"), "mode": None}
         )
-    return {"version": 1, "entries": entries}
+    return {"version": 2, "origin": persistence.txn_origin(root), "entries": entries}
 
 
 @verifies("62edd5")
@@ -284,7 +287,7 @@ def test_recover_rejects_whole_invalid_journal_without_changes(tmp_path: Path, d
     journal = recovery_plan(tmp_path)
     entry = journal["entries"][1]
     if defect == "version":
-        journal["version"] = 2
+        journal["version"] = 3
     elif defect == "version_bool":
         journal["version"] = True
     elif defect == "container":
@@ -312,7 +315,7 @@ def test_recover_rejects_whole_invalid_journal_without_changes(tmp_path: Path, d
         entry["mode"] = True
     encoded = json.dumps(journal)
     if defect == "duplicate_key":
-        encoded = encoded.replace('"version": 1', '"version": 1, "version": 1')
+        encoded = encoded.replace('"version": 2', '"version": 2, "version": 2')
     path = persistence.journal_path(tmp_path)
     path.write_text(encoded)
     before = {p.relative_to(tmp_path): p.read_bytes() for p in tmp_path.rglob("*") if p.is_file()}
@@ -534,3 +537,84 @@ def test_commit_rejects_lock_descendant_before_any_side_effect(tmp_path: Path, p
         commit(tmp_path, [FileWrite("a.py", None, b"new source\n"), FileWrite(target, None, b"{}\n")])
 
     assert control_tree_state(tmp_path) == before
+
+
+@verifies("aaf7d7")
+def test_lock_release_leaves_a_later_writers_lock(tmp_path: Path) -> None:
+    lock = tmp_path / ".byteplan" / "scan.lock"
+    with persistence.project_lock(tmp_path):
+        lock.unlink()  # deleted by hand while this writer still runs
+        lock.write_text("424242")  # and taken by a second writer
+    assert lock.read_text() == "424242"
+
+
+def _supplied_journal(upstream: Path, form: str) -> None:
+    """Commit a journal that replays a planted file, as a hostile repository would."""
+    payload = b"print('planted')\n"
+    txn = upstream / ".byteplan" / "txn"
+    txn.mkdir(parents=True, exist_ok=True)
+    if form == "staged":
+        staged = txn / "staged"
+        staged.mkdir()
+        (staged / "0.after").write_bytes(payload)
+        entry = {
+            "path": ".venv/planted.py",
+            "top_path": ".venv/planted.py",
+            "mode": "100644",
+            "before_oid": None,
+            "after_oid": "0" * 40,
+            "before_hash": None,
+            "after_hash": sha256(payload),
+            "before_copy": None,
+            "after_copy": "0.after",
+            "written": False,
+        }
+        data = {"version": 2, "origin": persistence.txn_origin(upstream), "index": None, "direction": "forward"}
+        (staged / "journal.json").write_text(json.dumps({**data, "entries": [entry]}))
+        return
+    (txn / "0.stage").write_bytes(payload)
+    entry = {"target": ".venv/planted.py", "staged": "0.stage", "before": None, "after": sha256(payload), "mode": None}
+    if form == "legacy":
+        journal: dict[str, Any] = {"version": 1, "entries": [entry]}
+    else:  # a current journal, with the origin of the checkout that made it
+        journal = {"version": 2, "origin": persistence.txn_origin(upstream), "entries": [entry]}
+    (txn / "journal.json").write_text(json.dumps(journal))
+
+
+@verifies("53c751")
+@pytest.mark.parametrize("form", ["legacy", "current", "staged"])
+def test_a_journal_from_the_repository_is_never_recovered(
+    project: ProjectFactory, run_cli: RunCli, tmp_path_factory: pytest.TempPathFactory, form: str
+) -> None:
+    """A clone must not turn a committed journal into writes, even into ignored paths."""
+    project.init()
+    upstream = project.root
+    _supplied_journal(upstream, form)
+    git(upstream, "init", "-q")
+    git(upstream, "add", "-A")
+    git(upstream, "add", "-f", ".byteplan/txn")
+    git(upstream, "-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-q", "-m", "planted")
+    clone = tmp_path_factory.mktemp("victim") / "clone"
+    git(upstream.parent, "clone", "-q", str(upstream), str(clone))
+    control = sorted(p for p in (clone / ".byteplan" / "txn").rglob("*") if p.is_file())
+    before = {p: p.read_bytes() for p in control}
+
+    if form == "staged":
+        result = run_cli("scan", "--staged", "--apply", "--project", clone)
+    else:
+        result = run_cli("scan", "--project", clone)
+
+    assert result.code == EXIT_ERROR
+    assert not (clone / ".venv" / "planted.py").exists()
+    assert {p: p.read_bytes() for p in control} == before  # kept for inspection
+    expected = "unsupported journal version" if form == "legacy" else "not written by BytePlan in this checkout"
+    assert expected in result.err
+
+
+@verifies("53c751")
+def test_a_journal_written_here_is_still_recovered(tmp_path: Path) -> None:
+    """Provenance doesn't get in the way of the crash recovery it exists for."""
+    journal = recovery_plan(tmp_path)
+    persistence.journal_path(tmp_path).write_text(json.dumps(journal))
+    assert sorted(recover(tmp_path)) == ["a.py", "b.py"]
+    assert (tmp_path / "a.py").read_bytes() == b"new"

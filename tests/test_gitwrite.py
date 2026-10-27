@@ -106,7 +106,7 @@ def test_staged_recovery_rejects_whole_invalid_journal(repo: ProjectFactory, def
     data = json.loads(path.read_text())
     entry = data["entries"][-1]
     if defect == "version":
-        data["version"] = 2
+        data["version"] = 3
     elif defect == "entry":
         data["entries"][-1] = []
     elif defect == "direction":
@@ -133,7 +133,7 @@ def test_staged_recovery_rejects_whole_invalid_journal(repo: ProjectFactory, def
         data["index"] = str(repo.root / "unused-index")
     encoded = json.dumps(data)
     if defect == "duplicate_key":
-        encoded = encoded.replace('"version": 1', '"version": 1, "version": 1')
+        encoded = encoded.replace('"version": 2', '"version": 2, "version": 2')
     path.write_text(encoded)
     before = snapshot(repo)
     with pytest.raises(RollbackConflictError):
@@ -504,3 +504,27 @@ def test_failed_index_publication_preserves_original_and_recovery(
     assert git(top, "show", ":proj/user.txt").stdout == "user staged bytes\n"
     assert (repo.root / "user.txt").read_text() == "user unstaged bytes\n"
     assert not StagedJournal.path(repo.root).exists()
+
+
+@verifies("6944ec")
+def test_index_swap_never_writes_through_a_planted_scratch_link(
+    repo: ProjectFactory, tmp_path_factory: pytest.TempPathFactory
+) -> None:
+    journal = staged_plan(repo)
+    top = repo.root.parent
+    assert journal.index is not None
+    index = Path(journal.index)
+    victim = tmp_path_factory.mktemp("outside") / "unrelated.txt"
+    victim.write_bytes(b"important unrelated content\n")
+    try:
+        index.with_name(index.name + ".byteplan-scratch").symlink_to(victim)
+    except OSError:
+        pytest.skip("symlinks are not available")
+    gitwrite._swap_index(  # noqa: SLF001
+        top,
+        index,
+        {e.top_path: None if e.before_oid is None else (e.mode, e.before_oid) for e in journal.entries},
+        {e.top_path: (e.mode, e.after_oid) for e in journal.entries},
+    )
+    assert victim.read_bytes() == b"important unrelated content\n"
+    assert not [p for p in index.parent.iterdir() if p.name.endswith(".scratch")]  # its own copy is removed

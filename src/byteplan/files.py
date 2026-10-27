@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING, Protocol
 
 import pathspec
 
+from byteplan.config import lexical_rel
 from byteplan.errors import ConfigError, ScanError, SourceError
 from byteplan.languages import language_for
 
@@ -131,11 +132,17 @@ class ScopeMatcher:
 
     def __init__(self, config: Config, source: TextSource | None = None) -> None:
         self.root = config.root
-        root = config.root.resolve()
-        # Generated files BytePlan writes itself are never scanned.
-        self._generated = {config.registry_path.resolve().relative_to(root).as_posix()}
-        if config.report_file:
-            self._generated.add((config.root / config.report_file).resolve().relative_to(root).as_posix())
+        # Generated files BytePlan writes itself are never scanned. A Git snapshot names them as
+        # configured: an unstaged symlink in the working tree must not change the selected view.
+        if source is None or isinstance(source, FilesystemSource):
+            root = config.root.resolve()
+            self._generated = {config.registry_path.resolve().relative_to(root).as_posix()}
+            if config.report_file:
+                self._generated.add((config.root / config.report_file).resolve().relative_to(root).as_posix())
+        else:
+            self._generated = {lexical_rel(config.registry, config.root)}
+            if config.report_file:
+                self._generated.add(lexical_rel(config.report_file, config.root))
         self._include = pathspec.PathSpec.from_lines("gitignore", config.include)
         self._exclude = pathspec.PathSpec.from_lines("gitignore", config.exclude)
         if config.respect_gitignore:

@@ -29,7 +29,9 @@ The product is not a GitHub Issues replacement, not a full code-quality linter, 
 
 ## 3. User-facing source syntax
 
-Supported comment kinds, case-insensitive during initial discovery:
+Supported comment kinds. The configured spelling (`TODO`) is a tag wherever it opens a comment;
+any other case (`todo`, `Todo`) must be followed by `:` or `[id]`, so prose such as
+`# Todo list model` is not a task:
 
 ```python
 # TODO: Implement route poisoning

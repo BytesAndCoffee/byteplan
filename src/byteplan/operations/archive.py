@@ -265,7 +265,12 @@ def committed_evidence(self: Project) -> verification.Evidence:
 def ignore_archive_store(self: Project) -> None:
     gitignore = self.root / STATE_DIR / ".gitignore"
     current = (_read_bytes(gitignore) or b"").decode()
-    if archive_store.STORE not in current.split():
+    # Only a rule line counts (a comment mentioning the name doesn't), and the last matching
+    # rule wins, as in Git: a later `!archive.sqlite` un-ignores it.
+    rules = [line.strip() for line in current.splitlines()]
+    positive = {archive_store.STORE, f"/{archive_store.STORE}"}
+    last = next((rule for rule in reversed(rules) if rule.removeprefix("!") in positive), None)
+    if last is None or last.startswith("!"):
         atomic_write_bytes(gitignore, (current.rstrip("\n") + f"\n{archive_store.STORE}\n").lstrip("\n").encode())
 
 

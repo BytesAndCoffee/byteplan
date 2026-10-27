@@ -188,7 +188,7 @@ def test_real_process_writer_is_excluded_then_preserves_prior_successful_work(tm
     with persistence.project_lock(tmp_path):
         lock = state / "scan.lock"
         owned = lock.read_bytes()
-        assert int(owned) == os.getpid()
+        assert int(owned.split()[0]) == os.getpid()
         refused = subprocess.run(command, capture_output=True, check=False, timeout=_CHILD_TIMEOUT)
         assert refused.returncode == 2, refused.stderr.decode(errors="replace")
         assert lock.read_bytes() == owned

@@ -5,7 +5,44 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+### Security
+- **Journals that came with the repository are never replayed:** a `.byteplan/txn/` journal
+  committed to a repository (or shipped in an archive) made the next ordinary write command, even
+  a plain `byteplan scan`, create arbitrary files under the project, including ignored paths such
+  as a virtualenv's `site-packages` (53c751). Ordinary and staged journals now record the inode of
+  the `.byteplan/txn/` directory that wrote them, and recovery refuses any other journal before
+  writing anything. Journals are now version 2; one left by an older BytePlan must be inspected
+  and deleted by hand.
+
+### Changed
+- **Project locks are never reclaimed automatically:** on POSIX, a `scan.lock` whose process
+  looked dead used to be removed and retaken. Another writer could take the lock between that
+  check and the removal, so BytePlan now always reports the lock; stop all writers, then delete
+  it yourself. A writer also releases only the lock file it created (aaf7d7).
+- **Merge-driver installation checks everything first:** `git install-merge-driver` validates
+  every destination and reads every `.gitattributes` before writing any of them, and quotes
+  attribute patterns so unusual file names match literally.
+- **Unclosed task-ID brackets are diagnosed:** `# TODO[7fa2 ...` without its `]` is now a
+  `malformed_id` warning instead of being silently ignored.
+- **Scaffolding refuses modules that shadow its names:** a test module that binds `pytest` or
+  `verifies` to anything but the import BytePlan adds (an assignment, a definition, an aliased or
+  conditional import) fails with `scaffold_name_conflict` and is left unchanged (515d45).
+
 ### Fixed
+- **Python line breaks only:** cleanup, `release`/`restore` and scaffolding split lines with
+  `str.splitlines`, which also breaks at form feeds and U+2028. `resolve --sync-source` could delete
+  user comment text, and `release` refused valid files (e3d6bd).
+- **Staged commits can't be redirected through the Git directory:** the index scratch copy was
+  written to a fixed path that a planted symlink could point elsewhere; it's now created
+  exclusively (6944ec).
+- **Snapshot checks judge Git objects:** `check --staged`/`--commit` resolved the registry and
+  report paths through the working tree, so an unstaged symlink could hide a staged task
+  (26756c).
+- **`verify` timeouts end:** on Windows only the runner was killed, and a wrapper's pytest child
+  holding the output pipe could keep `verify` waiting forever. The process tree is now killed,
+  and output reading after a timeout is bounded on every platform (6698e7).
+- **Archive ignore rule:** a comment mentioning `archive.sqlite` in `.byteplan/.gitignore` no
+  longer counts as the rule that ignores it (bbe04c).
 - **Prose comments are no longer tasks:** a comment that merely starts with a tag word in another
   case (`# Todo list model`, `# hack around the parser`) was tracked, and the first writing scan
   inserted an ID into it. A tag spelled differently from its configuration now needs `:` or `[id]`
@@ -18,6 +55,10 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 ### Packaging
 - The PyPy classifier is gone; CI tests CPython only. The sdist no longer ships internal review
   notes (`docs/reviews/`, `docs/rc1-next-steps.md`).
+
+### Documentation
+- The README lists every diagnostic code (e8bd84), and the spec and implementation plan describe
+  the current tag case rule (971b9d).
 
 ## 1.0.0rc1 — candidate preparation
 
@@ -115,8 +156,8 @@ artifact/platform validation and explicit approval described in
   with `policy = "xfail"`.
 - **Scaffold typing and existing-file imports:** tests are annotated `-> None` (mypy
   `--strict`), and imports added to an existing file go into its import sections in isort order
-  (ruff `I001`). New files using a first-party runtime shim may still need a formatter pass
-  to separate that shim from third-party pytest imports (tracked as nonblocking `67a65c`).
+  (ruff `I001`). New files using a first-party runtime shim get it in its own import section
+  (see Unreleased).
 
 ### Compact MCP results
 - **`scan`** returns counts and what changed; `detail=true` lists every annotation.

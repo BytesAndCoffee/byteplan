@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from byteplan import persistence
+from byteplan._todo import verifies
 from byteplan.api import Project
 from byteplan.cli import EXIT_ERROR, EXIT_FINDINGS, EXIT_OK
 from tests.gitutil import git
@@ -207,10 +208,14 @@ def test_writing_commands_refuse_while_stripped(released_repo: ProjectFactory, r
         "#!/usr/bin/env python\n# -*- coding: utf-8 -*-\n",
         "﻿",
         "",
+        # Line breaks for str.splitlines but not for Python (e3d6bd).
+        "# note\u2028more words\n",
+        "# page one\n\x0c\n",
     ],
 )
 @pytest.mark.parametrize("newline", ["\n", "\r\n"])
 @pytest.mark.parametrize("final_newline", [True, False])
+@verifies("e3d6bd")
 def test_release_then_restore_is_byte_identical(
     released_repo: ProjectFactory,
     run_cli: RunCli,

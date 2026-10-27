@@ -17,6 +17,7 @@
     "237cb5",
     "2533",
     "2650ec",
+    "26756c",
     "279e27",
     "2887",
     "28e56f",
@@ -30,6 +31,7 @@
     "3d5bb4",
     "3f50",
     "415a0f",
+    "4308bf",
     "4518",
     "46b6",
     "478d",
@@ -39,6 +41,8 @@
     "4d69",
     "4fb5",
     "50ad66",
+    "515d45",
+    "53c751",
     "595f",
     "5aae",
     "5ff6",
@@ -46,11 +50,14 @@
     "631761",
     "6639",
     "668a6c",
+    "6698e7",
     "67a65c",
     "67df",
     "680a",
+    "6944ec",
     "6b83",
     "6d434f",
+    "7140aa",
     "71c4",
     "75b4",
     "765f23",
@@ -62,11 +69,13 @@
     "8aeb",
     "8b28",
     "8c7f",
+    "8df831",
     "9054",
     "90c6",
     "9185",
     "932b36",
     "93dd",
+    "971b9d",
     "98d6",
     "9b40",
     "9c60",
@@ -80,6 +89,7 @@
     "a740",
     "a899de",
     "a933",
+    "aaf7d7",
     "ac9d",
     "ae7a",
     "aedf",
@@ -89,6 +99,7 @@
     "b68c",
     "b865",
     "baeb",
+    "bbe04c",
     "bbff04",
     "be8e",
     "bf67e6",
@@ -110,9 +121,12 @@
     "dcd417",
     "de66",
     "def0",
+    "e3d6bd",
     "e4af",
+    "e56005",
     "e7d9",
     "e86b8e",
+    "e8bd84",
     "ec99",
     "ecf4",
     "ed2b",
@@ -730,7 +744,7 @@
             "provenance": "verifies"
           },
           {
-            "line": 516,
+            "line": 519,
             "node": "tests/test_persistence.py::test_commit_rejects_lock_descendant_before_any_side_effect",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
@@ -1008,7 +1022,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1706,
+        "line": 1708,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -1915,6 +1929,106 @@
         "managed": []
       },
       "title": "Verify merge preservation across Git checkout newline conversion.",
+      "title_override": null
+    },
+    "26756c": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T17:13:52Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:52Z",
+          "event": "created",
+          "new": {
+            "line": 72,
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:56Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:codex-gate"
+            ],
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required.",
+            "priority": "P2"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:15:10Z",
+          "event": "edited",
+          "new": {
+            "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: real Git/API reproduction leaves HEAD/index identical; an unstaged report symlink changes both selected-view checks from exit1/new_unregistered to exit0 by excluding the real source task. Evidence: codex-a5de5c8/interfaces/repro_snapshot_report_alias.py and .log, plus parent confirmation. P2, open pending snapshot identity correction and regression verification."
+          },
+          "old": {
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required."
+          }
+        },
+        {
+          "at": "2026-10-27T18:38:10Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:12Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:12Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          }
+        }
+      ],
+      "id": "26756c",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:codex-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:52Z",
+      "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: real Git/API reproduction leaves HEAD/index identical; an unstaged report symlink changes both selected-view checks from exit1/new_unregistered to exit0 by excluding the real source task. Evidence: codex-a5de5c8/interfaces/repro_snapshot_report_alias.py and .log, plus parent confirmation. P2, open pending snapshot identity correction and regression verification.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "P2",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 68,
+        "path": "docs/reviews/rc1-a5de5c8-codex.md",
+        "representation": "comment",
+        "symbol": "P2 — Live filesystem aliases can change a staged or committed snapshot check"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 387,
+            "node": "tests/test_git_snapshot.py::test_an_unstaged_report_alias_cannot_hide_a_selected_task",
+            "path": "tests/test_git_snapshot.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Resolve snapshot registry and generated-report identities from selected Git paths so unstaged filesystem aliases cannot hide staged or committed tasks.",
       "title_override": null
     },
     "279e27": {
@@ -3411,6 +3525,76 @@
       "title": "[P2] Don't treat prose comments that start with a tag word as tasks",
       "title_override": null
     },
+    "4308bf": {
+      "assignee": null,
+      "description": "_check_generated_names compares whole import statements, so `from byteplan_runtime import todo,\nverifies` or `import pytest, os` is refused with scaffold_name_conflict although it binds the\nname exactly as the generated import would. Compare the binding (module and imported name) per\nalias, and let _present count such a binding so no duplicate import is added. (Codex, PR #55)",
+      "first_seen": "2026-10-27T18:55:59Z",
+      "history": [
+        {
+          "at": "2026-10-27T18:55:59Z",
+          "event": "created",
+          "new": {
+            "line": 230,
+            "path": "src/byteplan/scaffold.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T18:59:56Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 (Codex review 5672548097)",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:59:59Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:59:59Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/scaffold.py"
+          }
+        }
+      ],
+      "id": "4308bf",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-27T18:55:59Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 235,
+        "line": 230,
+        "path": "src/byteplan/scaffold.py",
+        "representation": "comment",
+        "symbol": "_check_generated_names"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 738,
+            "node": "tests/test_scaffold.py::test_scaffold_accepts_equivalent_bindings_in_grouped_imports",
+            "path": "tests/test_scaffold.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Accept an equivalent binding inside a grouped import statement",
+      "title_override": null
+    },
     "4518": {
       "assignee": null,
       "description": "Codex review of #32: https://github.com/BytesAndCoffee/byteplan/pull/32#discussion_r4353601498\n`import pkg.reexport; alias = pkg` reached pkg.reexport.todo unseen.",
@@ -4316,6 +4500,262 @@
       "title": "Preserve external evidence and archive-index edits during archived task restoration",
       "title_override": null
     },
+    "515d45": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T17:13:52Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:52Z",
+          "event": "created",
+          "new": {
+            "line": 19,
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:54Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:codex-gate"
+            ],
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required.",
+            "priority": "P2"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:15:08Z",
+          "event": "edited",
+          "new": {
+            "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: real supported API scaffolding writes and actual pytest before/after prove collection failure with existing pytest value/helper bindings. Evidence: codex-a5de5c8/source/REPORT.md and two reproduction scripts/logs. P2, open pending correction and regression verification."
+          },
+          "old": {
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required."
+          }
+        },
+        {
+          "at": "2026-10-27T18:38:05Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:07Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:07Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          }
+        }
+      ],
+      "id": "515d45",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:codex-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:52Z",
+      "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: real supported API scaffolding writes and actual pytest before/after prove collection failure with existing pytest value/helper bindings. Evidence: codex-a5de5c8/source/REPORT.md and two reproduction scripts/logs. P2, open pending correction and regression verification.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "P2",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 19,
+        "path": "docs/reviews/rc1-a5de5c8-codex.md",
+        "representation": "comment",
+        "symbol": "P2 — Scaffold generated imports can collide with existing module bindings"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 704,
+            "node": "tests/test_scaffold.py::test_scaffold_refuses_a_module_that_shadows_generated_names",
+            "path": "tests/test_scaffold.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 730,
+            "node": "tests/test_scaffold.py::test_scaffold_still_extends_a_module_with_the_same_imports",
+            "path": "tests/test_scaffold.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Refuse or safely alias scaffold-generated pytest/runtime bindings when existing test-module bindings make generated code unsafe.",
+      "title_override": null
+    },
+    "53c751": {
+      "assignee": null,
+      "description": "A cloned repository can commit `.byteplan/txn/journal.json` and a staged copy (force-added past\n`.byteplan/.gitignore`). The next ordinary write command (`byteplan scan`, `resolve`, a hook with\nwrite_source) then \"completes\" it and creates any absent file under the root, including ignored\npaths: `.venv/lib/python3.X/site-packages/sitecustomize.py` runs on the venv's next start. That\nbreaks \"scanning never executes project code\". gitwrite's staged journal (index null, forward)\nhas the same shape. Recover only journals this clone wrote (e.g. a hash recorded under the Git\ndir), refuse tracked/committed control files, and limit targets to paths BytePlan plans writes to.",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 261,
+            "path": "src/byteplan/persistence.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_persistence.py::test_recover",
+            "path": "tests/test_persistence.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:40Z",
+          "event": "edited",
+          "new": {
+            "priority": "high"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:14:47Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P1"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        },
+        {
+          "at": "2026-10-27T17:49:51Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P1"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P1"
+            ],
+            "priority": "high"
+          }
+        },
+        {
+          "at": "2026-10-27T18:08:46Z",
+          "event": "edited",
+          "new": {
+            "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed."
+          },
+          "old": {
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-27T18:08:47Z",
+          "event": "edited",
+          "new": {
+            "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed.\n\nAdditional exact-gate proof: actual fresh ordinary/staged clones both accept committed journals and write benign absent ignored .venv/planted.py via ordinary scan / scan --staged --apply, exit0. No payload executed. Corroborates both paths; Codex accepts P1 missed by its initial review. Fix provenance/authorization before replay while retaining legitimate recovery. clone-journals.log/repro_clone_journals.py retained."
+          },
+          "old": {
+            "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed."
+          }
+        },
+        {
+          "at": "2026-10-27T18:37:58Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:00Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:00Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/persistence.py"
+          }
+        }
+      ],
+      "id": "53c751",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:claude-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed.\n\nAdditional exact-gate proof: actual fresh ordinary/staged clones both accept committed journals and write benign absent ignored .venv/planted.py via ordinary scan / scan --staged --apply, exit0. No payload executed. Corroborates both paths; Codex accepts P1 missed by its initial review. Fix provenance/authorization before replay while retaining legitimate recovery. clone-journals.log/repro_clone_journals.py retained.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "P1",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 309,
+        "line": 301,
+        "path": "src/byteplan/persistence.py",
+        "representation": "comment",
+        "symbol": "recover"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 584,
+            "node": "tests/test_persistence.py::test_a_journal_from_the_repository_is_never_recovered",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 614,
+            "node": "tests/test_persistence.py::test_a_journal_written_here_is_still_recovered",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Refuse to recover a transaction journal that came from the repository",
+      "title_override": null
+    },
     "595f": {
       "assignee": null,
       "description": "Design structured queries and CLI/IDE/optional visual representations; candidate names\nare not public commitments and no graphical interface is required.",
@@ -4756,49 +5196,49 @@
             "provenance": "verifies"
           },
           {
-            "line": 339,
+            "line": 342,
             "node": "tests/test_persistence.py::test_commit_validates_entire_target_set_first",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 438,
+            "line": 441,
             "node": "tests/test_persistence.py::test_control_guards_reject_resolved_aliases_without_symlink_flag",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 484,
+            "line": 487,
             "node": "tests/test_persistence.py::test_native_windows_control_junction_is_rejected_before_cleanup",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 455,
+            "line": 458,
             "node": "tests/test_persistence.py::test_no_journal_recovery_rejects_control_alias_before_cleanup",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 470,
+            "line": 473,
             "node": "tests/test_persistence.py::test_ordinary_confined_source_parent_alias_remains_supported",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 324,
+            "line": 327,
             "node": "tests/test_persistence.py::test_recover_checks_all_copies_before_first_write",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 361,
+            "line": 364,
             "node": "tests/test_persistence.py::test_recover_rejects_symlink_copy_without_cleanup",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 262,
+            "line": 265,
             "node": "tests/test_persistence.py::test_recover_rejects_whole_invalid_journal_without_changes",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
@@ -5251,6 +5691,106 @@
       "title": "Report malformed task-ID bracket syntax instead of silently ignoring the annotation.",
       "title_override": null
     },
+    "6698e7": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T17:13:52Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:52Z",
+          "event": "created",
+          "new": {
+            "line": 44,
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:55Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:codex-gate"
+            ],
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required.",
+            "priority": "P2"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:15:09Z",
+          "event": "edited",
+          "new": {
+            "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: actual subprocess/pipe reproduction isolates Windows launch/kill branch on Linux. 0.2s configured timeout, 3.361s waiting after wrapper kill. This is not a native Windows run. Evidence: codex-a5de5c8/windows-timeout-isolated.log and repro_windows_timeout.py; native Windows launcher/descendant regression required. P2, open pending correction."
+          },
+          "old": {
+            "notes": "Confirmed in independent Codex review at a5de5c861382a61cf2ca38c093e8268f401f82c3. See docs/reviews/rc1-a5de5c8-codex.md and external codex-a5de5c8 evidence; open pending explicit triage and correction. Windows timeout reproduction selects the Windows branch on Linux; native Windows regression is required."
+          }
+        },
+        {
+          "at": "2026-10-27T18:38:07Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:09Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:09Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/reviews/rc1-a5de5c8-codex.md"
+          }
+        }
+      ],
+      "id": "6698e7",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:codex-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:52Z",
+      "notes": "Independent Codex whole-repository review at a5de5c861382a61cf2ca38c093e8268f401f82c3: actual subprocess/pipe reproduction isolates Windows launch/kill branch on Linux. 0.2s configured timeout, 3.361s waiting after wrapper kill. This is not a native Windows run. Evidence: codex-a5de5c8/windows-timeout-isolated.log and repro_windows_timeout.py; native Windows launcher/descendant regression required. P2, open pending correction.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "P2",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 42,
+        "path": "docs/reviews/rc1-a5de5c8-codex.md",
+        "representation": "comment",
+        "symbol": "P2 — Windows verification timeout can wait indefinitely for a wrapper's descendant"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 474,
+            "node": "tests/test_verify.py::test_timeout_cleanup_ends_even_if_a_descendant_keeps_the_pipe",
+            "path": "tests/test_verify.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Bound verification timeout cleanup and terminate supported Windows runner descendants so inherited output pipes cannot keep verify blocked.",
+      "title_override": null
+    },
     "67a65c": {
       "assignee": null,
       "description": "A new file gets `import pytest` and `from <runtime> import verifies` in one block. When the\nruntime is a first-party shim (BytePlan's own `byteplan._todo`), ruff's isort wants a blank\nline between them (I001), so `hatch fmt --check` fails until the file is formatted.",
@@ -5495,6 +6035,114 @@
       "title": "2.0 cross-module dependency and change-impact analysis",
       "title_override": null
     },
+    "6944ec": {
+      "assignee": null,
+      "description": "`<index>.byteplan-scratch` is predictable and `shutil.copyfile` follows a symlink there, so a\nplanted link in the Git directory makes every staged reconciliation overwrite its target\nwith index bytes. Create a unique file with O_EXCL (e.g. tempfile.mkstemp in the index's\ndirectory), write through that descriptor and remove only that file. (ChatGPT BP-IND-01)",
+      "first_seen": "2026-10-27T18:00:00Z",
+      "history": [
+        {
+          "at": "2026-10-27T18:00:00Z",
+          "event": "created",
+          "new": {
+            "line": 362,
+            "path": "src/byteplan/gitwrite.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T18:00:00Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_gitwrite.py::test_task_6944ec",
+            "path": "tests/test_gitwrite.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T18:00:22Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:chatgpt-gate"
+            ],
+            "priority": "P2"
+          },
+          "old": {
+            "labels": [],
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T18:08:46Z",
+          "event": "edited",
+          "new": {
+            "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed."
+          },
+          "old": {
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-27T18:38:03Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:05Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:05Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/gitwrite.py"
+          }
+        }
+      ],
+      "id": "6944ec",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:chatgpt-gate"
+      ],
+      "last_seen": "2026-10-27T18:00:00Z",
+      "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "P2",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 357,
+        "line": 376,
+        "path": "src/byteplan/gitwrite.py",
+        "representation": "comment",
+        "symbol": "_swap_index"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 509,
+            "node": "tests/test_gitwrite.py::test_index_swap_never_writes_through_a_planted_scratch_link",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Create the index scratch copy exclusively instead of at a fixed, followed path",
+      "title_override": null
+    },
     "6b83": {
       "assignee": null,
       "description": "Codex review of #30: https://github.com/BytesAndCoffee/byteplan/pull/30#discussion_r4352185466\nWith remove_resolved in comment mode the output lost dry_run, rewrites, written, ...",
@@ -5695,6 +6343,119 @@
       "title": "Preserve opaque evidence metadata across ordinary verification and archive writes.",
       "title_override": null
     },
+    "7140aa": {
+      "assignee": null,
+      "description": "Unreleased lists only #51/#52. Missing: existing project locks are never reclaimed automatically\n(POSIX users used to get a dead-PID lock removed; now they must delete it), unclosed `[id` brackets\nare a malformed_id warning, and merge-driver installation preflights all destinations and quotes\nattribute patterns. The 1.0.0rc1 section still calls 67a65c open (\"tracked as nonblocking\").",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 8,
+            "path": "CHANGELOG.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:40Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:14:47Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        },
+        {
+          "at": "2026-10-27T17:49:52Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P3"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ],
+            "priority": "low"
+          }
+        },
+        {
+          "at": "2026-10-27T18:08:47Z",
+          "event": "edited",
+          "new": {
+            "notes": "Codex corroborated current CHANGELOG/spec/implementation-plan drift against code on PR55. Retain P3/open; no documentation correction is claimed by the review annotation."
+          },
+          "old": {
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-27T18:38:18Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:20Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:20Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "CHANGELOG.md"
+          }
+        }
+      ],
+      "id": "7140aa",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:claude-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "Codex corroborated current CHANGELOG/spec/implementation-plan drift against code on PR55. Retain P3/open; no documentation correction is claimed by the review annotation.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "P3",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 8,
+        "path": "CHANGELOG.md",
+        "representation": "comment",
+        "symbol": "Unreleased"
+      },
+      "status": "resolved",
+      "stub": null,
+      "title": "Record the user-visible changes from PRs #53 and #54",
+      "title_override": null
+    },
     "71c4": {
       "assignee": null,
       "description": "https://github.com/BytesAndCoffee/byteplan/pull/35#discussion_r4354387060",
@@ -5817,7 +6578,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1700,
+        "line": 1702,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -6937,6 +7698,92 @@
       "title": "[P1] Detect module-level bindings through control flow before editing decorators",
       "title_override": null
     },
+    "8df831": {
+      "assignee": null,
+      "description": "lexical_rel searches ancestors nearest-first, so for `/project/reports/report.md` an unstaged\n`reports -> .` symlink makes `/project/reports` match the root and the snapshot excludes\n`report.md` instead of `reports/report.md`, hiding selected tasks again. Remove an existing\nlexical root prefix first; when the root is spelled through an alias, match the outermost\nancestor and never resolve directories inside the project. (Codex, PR #55)",
+      "first_seen": "2026-10-27T19:16:13Z",
+      "history": [
+        {
+          "at": "2026-10-27T19:16:13Z",
+          "event": "created",
+          "new": {
+            "line": 169,
+            "path": "src/byteplan/config.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T19:16:13Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_config.py::test_lexical_rel_8df831",
+            "path": "tests/test_config.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T19:20:26Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 (Codex review on 79ca5f8)",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T19:20:28Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T19:20:28Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/config.py"
+          }
+        }
+      ],
+      "id": "8df831",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-27T19:16:13Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 175,
+        "line": 169,
+        "path": "src/byteplan/config.py",
+        "representation": "comment",
+        "symbol": "lexical_rel"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 109,
+            "node": "tests/test_config.py::test_lexical_rel_never_resolves_directories_inside_the_root",
+            "path": "tests/test_config.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 432,
+            "node": "tests/test_git_snapshot.py::test_an_unstaged_directory_alias_cannot_shift_an_absolute_report_path",
+            "path": "tests/test_git_snapshot.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Strip the lexical project root before resolving any absolute-path ancestor",
+      "title_override": null
+    },
     "9054": {
       "assignee": null,
       "description": "`byteplan diff BASE...HEAD`, SARIF output, Markdown PR annotations.",
@@ -6988,7 +7835,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1703,
+        "line": 1705,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -7345,6 +8192,119 @@
         ]
       },
       "title": "Phase 10: integration",
+      "title_override": null
+    },
+    "971b9d": {
+      "assignee": null,
+      "description": "Here and in IMPLEMENTATION_PLAN.md (the \"case-insensitive\" tag regex near line 187), discovery is\nstill described as case-insensitive. Since 415a0f only the configured spelling matches bare;\nother spellings need `:` or `[id]` right after the tag.",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 32,
+            "path": "docs/spec.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:41Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:14:48Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        },
+        {
+          "at": "2026-10-27T17:49:53Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P3"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ],
+            "priority": "low"
+          }
+        },
+        {
+          "at": "2026-10-27T18:08:48Z",
+          "event": "edited",
+          "new": {
+            "notes": "Codex corroborated current CHANGELOG/spec/implementation-plan drift against code on PR55. Retain P3/open; no documentation correction is claimed by the review annotation."
+          },
+          "old": {
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-27T18:38:20Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:23Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:23Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/spec.md"
+          }
+        }
+      ],
+      "id": "971b9d",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:claude-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "Codex corroborated current CHANGELOG/spec/implementation-plan drift against code on PR55. Retain P3/open; no documentation correction is claimed by the review annotation.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "P3",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 32,
+        "path": "docs/spec.md",
+        "representation": "comment",
+        "symbol": "3. User-facing source syntax"
+      },
+      "status": "resolved",
+      "stub": null,
+      "title": "Describe the current tag case rule in the spec and implementation plan",
       "title_override": null
     },
     "98d6": {
@@ -8012,8 +8972,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 305,
-        "line": 309,
+        "decl_line": 324,
+        "line": 328,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"
@@ -8191,6 +9151,36 @@
           "old": {
             "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication."
           }
+        },
+        {
+          "at": "2026-10-27T17:21:22Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nPR54 integrated (013f71b0f88824001fdf2e3d0dcdb30425b6e77d), settledbaseline2c2b1ae2e38271097d9943155819055e2bf8db82. Headb8cdbc5f6f17632c05118716d48756f39ef483ac passed full local1742/2skip+3network, stricttypes123/Ruff124, all15CI40541039783 and cleaninstalledwheel/sdist/MCP/Hatch/runtime. These are prior-head evidence; newgate exact-SHA CI/artifacts, independent reviews and final readiness approval remain pending. No tag/publication.\n\nExact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: all15 CI jobs succeeded in run40546275232 (Linux/macOS/Windows CPython3.11–3.14, actual released clients, quality/runtime and consistency). Fresh exact-gate artifact builds/installations, CLI/API, actual MCP stdio, isolated Hatch default/write and separate runtime passed; manifest artifacts-gate-a5de5c8/manifest.json completed=true/source_unchanged=true. WheelSHA f708b6e840a928d8ead8c91430ca2f35188f0880f7237fa6fef5558c240edb95; sdistSHA928152390a52a01786abf1919db829193b645380609fb9233c7b9b405be54eec. Native Windows3.12 both explicit junction regressions passed; separate from Linux skips. Three new Codex P2 issues remain open; no final pair or RC1 approval claimed."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nPR54 integrated (013f71b0f88824001fdf2e3d0dcdb30425b6e77d), settledbaseline2c2b1ae2e38271097d9943155819055e2bf8db82. Headb8cdbc5f6f17632c05118716d48756f39ef483ac passed full local1742/2skip+3network, stricttypes123/Ruff124, all15CI40541039783 and cleaninstalledwheel/sdist/MCP/Hatch/runtime. These are prior-head evidence; newgate exact-SHA CI/artifacts, independent reviews and final readiness approval remain pending. No tag/publication."
+          }
+        },
+        {
+          "at": "2026-10-27T17:30:29Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nPR54 integrated (013f71b0f88824001fdf2e3d0dcdb30425b6e77d), settledbaseline2c2b1ae2e38271097d9943155819055e2bf8db82. Headb8cdbc5f6f17632c05118716d48756f39ef483ac passed full local1742/2skip+3network, stricttypes123/Ruff124, all15CI40541039783 and cleaninstalledwheel/sdist/MCP/Hatch/runtime. These are prior-head evidence; newgate exact-SHA CI/artifacts, independent reviews and final readiness approval remain pending. No tag/publication.\n\nExact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: all15 CI jobs succeeded in run40546275232 (Linux/macOS/Windows CPython3.11–3.14, actual released clients, quality/runtime and consistency). Fresh exact-gate artifact builds/installations, CLI/API, actual MCP stdio, isolated Hatch default/write and separate runtime passed; manifest artifacts-gate-a5de5c8/manifest.json completed=true/source_unchanged=true. WheelSHA f708b6e840a928d8ead8c91430ca2f35188f0880f7237fa6fef5558c240edb95; sdistSHA928152390a52a01786abf1919db829193b645380609fb9233c7b9b405be54eec. Native Windows3.12 both explicit junction regressions passed; separate from Linux skips. Three new Codex P2 issues remain open; no final pair or RC1 approval claimed.\n\nCodex local exact-gate full run completed EXIT1:1741passed,1failed,2skipped,3networkdeselected1230.29s. The lone symlink-plugin passed-directory-False case child pytest hit existing30s timeout with empty output. Exact isolated rerun passed3.22s and all8related cases passed38.40s without test/source/timeout changes. Original full-suite failure retained; precise cause uncertain. Separate exact-gate CI all15jobs passed. See codex-a5de5c8/full-suite.log and symlink rerun logs. This does not count local full run as passing and is separate from the Windows wrapper defect."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nPR54 integrated (013f71b0f88824001fdf2e3d0dcdb30425b6e77d), settledbaseline2c2b1ae2e38271097d9943155819055e2bf8db82. Headb8cdbc5f6f17632c05118716d48756f39ef483ac passed full local1742/2skip+3network, stricttypes123/Ruff124, all15CI40541039783 and cleaninstalledwheel/sdist/MCP/Hatch/runtime. These are prior-head evidence; newgate exact-SHA CI/artifacts, independent reviews and final readiness approval remain pending. No tag/publication.\n\nExact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: all15 CI jobs succeeded in run40546275232 (Linux/macOS/Windows CPython3.11–3.14, actual released clients, quality/runtime and consistency). Fresh exact-gate artifact builds/installations, CLI/API, actual MCP stdio, isolated Hatch default/write and separate runtime passed; manifest artifacts-gate-a5de5c8/manifest.json completed=true/source_unchanged=true. WheelSHA f708b6e840a928d8ead8c91430ca2f35188f0880f7237fa6fef5558c240edb95; sdistSHA928152390a52a01786abf1919db829193b645380609fb9233c7b9b405be54eec. Native Windows3.12 both explicit junction regressions passed; separate from Linux skips. Three new Codex P2 issues remain open; no final pair or RC1 approval claimed."
+          }
+        },
+        {
+          "at": "2026-10-27T18:08:48Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nPR54 integrated (013f71b0f88824001fdf2e3d0dcdb30425b6e77d), settledbaseline2c2b1ae2e38271097d9943155819055e2bf8db82. Headb8cdbc5f6f17632c05118716d48756f39ef483ac passed full local1742/2skip+3network, stricttypes123/Ruff124, all15CI40541039783 and cleaninstalledwheel/sdist/MCP/Hatch/runtime. These are prior-head evidence; newgate exact-SHA CI/artifacts, independent reviews and final readiness approval remain pending. No tag/publication.\n\nExact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: all15 CI jobs succeeded in run40546275232 (Linux/macOS/Windows CPython3.11–3.14, actual released clients, quality/runtime and consistency). Fresh exact-gate artifact builds/installations, CLI/API, actual MCP stdio, isolated Hatch default/write and separate runtime passed; manifest artifacts-gate-a5de5c8/manifest.json completed=true/source_unchanged=true. WheelSHA f708b6e840a928d8ead8c91430ca2f35188f0880f7237fa6fef5558c240edb95; sdistSHA928152390a52a01786abf1919db829193b645380609fb9233c7b9b405be54eec. Native Windows3.12 both explicit junction regressions passed; separate from Linux skips. Three new Codex P2 issues remain open; no final pair or RC1 approval claimed.\n\nCodex local exact-gate full run completed EXIT1:1741passed,1failed,2skipped,3networkdeselected1230.29s. The lone symlink-plugin passed-directory-False case child pytest hit existing30s timeout with empty output. Exact isolated rerun passed3.22s and all8related cases passed38.40s without test/source/timeout changes. Original full-suite failure retained; precise cause uncertain. Separate exact-gate CI all15jobs passed. See codex-a5de5c8/full-suite.log and symlink rerun logs. This does not count local full run as passing and is separate from the Windows wrapper defect.\n\nPost-review reconciliation complete: Codex accepts Claude P1 53c751 (fresh ordinary+staged clone proof), new P2 e3d6bd/6944ec, existing Codex3P2, and5P3. Combined11open findings:1P1/5P2/5P3. Gatea5de5c8 rejected for RC1. Initial reports retained; no blockers resolved, no release approval. See appended reconciliation in docs/reviews/rc1-a5de5c8-codex.md."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nPR54 integrated (013f71b0f88824001fdf2e3d0dcdb30425b6e77d), settledbaseline2c2b1ae2e38271097d9943155819055e2bf8db82. Headb8cdbc5f6f17632c05118716d48756f39ef483ac passed full local1742/2skip+3network, stricttypes123/Ruff124, all15CI40541039783 and cleaninstalledwheel/sdist/MCP/Hatch/runtime. These are prior-head evidence; newgate exact-SHA CI/artifacts, independent reviews and final readiness approval remain pending. No tag/publication.\n\nExact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: all15 CI jobs succeeded in run40546275232 (Linux/macOS/Windows CPython3.11–3.14, actual released clients, quality/runtime and consistency). Fresh exact-gate artifact builds/installations, CLI/API, actual MCP stdio, isolated Hatch default/write and separate runtime passed; manifest artifacts-gate-a5de5c8/manifest.json completed=true/source_unchanged=true. WheelSHA f708b6e840a928d8ead8c91430ca2f35188f0880f7237fa6fef5558c240edb95; sdistSHA928152390a52a01786abf1919db829193b645380609fb9233c7b9b405be54eec. Native Windows3.12 both explicit junction regressions passed; separate from Linux skips. Three new Codex P2 issues remain open; no final pair or RC1 approval claimed.\n\nCodex local exact-gate full run completed EXIT1:1741passed,1failed,2skipped,3networkdeselected1230.29s. The lone symlink-plugin passed-directory-False case child pytest hit existing30s timeout with empty output. Exact isolated rerun passed3.22s and all8related cases passed38.40s without test/source/timeout changes. Original full-suite failure retained; precise cause uncertain. Separate exact-gate CI all15jobs passed. See codex-a5de5c8/full-suite.log and symlink rerun logs. This does not count local full run as passing and is separate from the Windows wrapper defect."
+          }
         }
       ],
       "id": "a70d",
@@ -8200,7 +9190,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nPR54 integrated (013f71b0f88824001fdf2e3d0dcdb30425b6e77d), settledbaseline2c2b1ae2e38271097d9943155819055e2bf8db82. Headb8cdbc5f6f17632c05118716d48756f39ef483ac passed full local1742/2skip+3network, stricttypes123/Ruff124, all15CI40541039783 and cleaninstalledwheel/sdist/MCP/Hatch/runtime. These are prior-head evidence; newgate exact-SHA CI/artifacts, independent reviews and final readiness approval remain pending. No tag/publication.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 approval gate, pending all compatibility/refactoring/review and platform/artifact validation. No automatic tag or publication.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\nCandidate preparation: core version 1.0.0rc1 and Beta classifier; runtime remains separately versioned 0.1.0. docs/rc1-readiness.md explicitly lists pending integration, common-SHA reviews and final named artifact/platform checks. Prior 0.2.0 development builds are not candidate artifacts. Final approval remains pending; do not tag or publish.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nPR54 integrated (013f71b0f88824001fdf2e3d0dcdb30425b6e77d), settledbaseline2c2b1ae2e38271097d9943155819055e2bf8db82. Headb8cdbc5f6f17632c05118716d48756f39ef483ac passed full local1742/2skip+3network, stricttypes123/Ruff124, all15CI40541039783 and cleaninstalledwheel/sdist/MCP/Hatch/runtime. These are prior-head evidence; newgate exact-SHA CI/artifacts, independent reviews and final readiness approval remain pending. No tag/publication.\n\nExact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: all15 CI jobs succeeded in run40546275232 (Linux/macOS/Windows CPython3.11–3.14, actual released clients, quality/runtime and consistency). Fresh exact-gate artifact builds/installations, CLI/API, actual MCP stdio, isolated Hatch default/write and separate runtime passed; manifest artifacts-gate-a5de5c8/manifest.json completed=true/source_unchanged=true. WheelSHA f708b6e840a928d8ead8c91430ca2f35188f0880f7237fa6fef5558c240edb95; sdistSHA928152390a52a01786abf1919db829193b645380609fb9233c7b9b405be54eec. Native Windows3.12 both explicit junction regressions passed; separate from Linux skips. Three new Codex P2 issues remain open; no final pair or RC1 approval claimed.\n\nCodex local exact-gate full run completed EXIT1:1741passed,1failed,2skipped,3networkdeselected1230.29s. The lone symlink-plugin passed-directory-False case child pytest hit existing30s timeout with empty output. Exact isolated rerun passed3.22s and all8related cases passed38.40s without test/source/timeout changes. Original full-suite failure retained; precise cause uncertain. Separate exact-gate CI all15jobs passed. See codex-a5de5c8/full-suite.log and symlink rerun logs. This does not count local full run as passing and is separate from the Windows wrapper defect.\n\nPost-review reconciliation complete: Codex accepts Claude P1 53c751 (fresh ordinary+staged clone proof), new P2 e3d6bd/6944ec, existing Codex3P2, and5P3. Combined11open findings:1P1/5P2/5P3. Gatea5de5c8 rejected for RC1. Initial reports retained; no blockers resolved, no release approval. See appended reconciliation in docs/reviews/rc1-a5de5c8-codex.md.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -8408,6 +9398,140 @@
       "status": "open",
       "stub": null,
       "title": "1.5 semantic graph schema, identity and provenance design",
+      "title_override": null
+    },
+    "aaf7d7": {
+      "assignee": null,
+      "description": "The finally block unlinks whatever `scan.lock` is there. If the lock was deleted by hand\nwhile this writer still ran (the guidance invites manual cleanup) and a second writer took\nit, this exit removes the second writer's lock and a third can start alongside it. Compare\nthe file's identity (st_dev/st_ino) or a per-acquisition token before unlinking.",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 160,
+            "path": "src/byteplan/persistence.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_persistence.py::test_task_aaf7d7",
+            "path": "tests/test_persistence.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:41Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:14:48Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        },
+        {
+          "at": "2026-10-27T17:49:52Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P3"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ],
+            "priority": "low"
+          }
+        },
+        {
+          "at": "2026-10-27T18:08:46Z",
+          "event": "edited",
+          "new": {
+            "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed."
+          },
+          "old": {
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-27T18:38:12Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:15Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:15Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/persistence.py"
+          }
+        }
+      ],
+      "id": "aaf7d7",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:claude-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "P3",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 135,
+        "line": 166,
+        "path": "src/byteplan/persistence.py",
+        "representation": "comment",
+        "symbol": "project_lock"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 542,
+            "node": "tests/test_persistence.py::test_lock_release_leaves_a_later_writers_lock",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Release only the lock this process created",
       "title_override": null
     },
     "ac9d": {
@@ -9259,6 +10383,110 @@
       "title": "Count every __all__ assignment form as an export",
       "title_override": null
     },
+    "bbe04c": {
+      "assignee": null,
+      "description": "`STORE in current.split()` is satisfied by a comment such as `# archive.sqlite is a local\ncache`, so the rule is never added and `git add .` stages the local SQLite archive. Match whole\nrule lines (or ask `git check-ignore`) instead. (ChatGPT BP-IND-02)",
+      "first_seen": "2026-10-27T18:00:00Z",
+      "history": [
+        {
+          "at": "2026-10-27T18:00:00Z",
+          "event": "created",
+          "new": {
+            "line": 268,
+            "path": "src/byteplan/operations/archive.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T18:00:22Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:chatgpt-gate"
+            ],
+            "priority": "P3"
+          },
+          "old": {
+            "labels": [],
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T18:08:47Z",
+          "event": "edited",
+          "new": {
+            "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed."
+          },
+          "old": {
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-27T18:38:15Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:17Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:17Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/operations/archive.py"
+          }
+        }
+      ],
+      "id": "bbe04c",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:chatgpt-gate"
+      ],
+      "last_seen": "2026-10-27T18:00:00Z",
+      "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "P3",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 265,
+        "line": 268,
+        "path": "src/byteplan/operations/archive.py",
+        "representation": "comment",
+        "symbol": "ignore_archive_store"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 362,
+            "node": "tests/test_archive.py::test_a_comment_naming_the_archive_store_is_not_an_ignore_rule",
+            "path": "tests/test_archive.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 380,
+            "node": "tests/test_archive.py::test_an_existing_archive_ignore_rule_is_not_duplicated",
+            "path": "tests/test_archive.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Recognize only a real ignore rule for the archive store, not any mention of its name",
+      "title_override": null
+    },
     "bbff04": {
       "assignee": null,
       "description": "docs/reviews/ and rc1-next-steps.md ship in the sdist with internal /workspace/... paths and\nprocess detail. Exclude them in [tool.hatch.build.targets.sdist] or move them out of docs/.",
@@ -9542,6 +10770,36 @@
           "old": {
             "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication."
           }
+        },
+        {
+          "at": "2026-10-27T17:15:10Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.\n\nCodex initial independent whole-repository gate findings captured against a5de5c861382a61cf2ca38c093e8268f401f82c3 without reading Claude current review. Three new P2 findings: 515d45, 6698e7, 26756c; no confirmed P0/P1. Review evidence is still completing. Keep common-review task in progress; this is not the independent pair or RC1 approval."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target."
+          }
+        },
+        {
+          "at": "2026-10-27T17:30:30Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.\n\nCodex initial independent whole-repository gate findings captured against a5de5c861382a61cf2ca38c093e8268f401f82c3 without reading Claude current review. Three new P2 findings: 515d45, 6698e7, 26756c; no confirmed P0/P1. Review evidence is still completing. Keep common-review task in progress; this is not the independent pair or RC1 approval.\n\nCodex initial whole-repository review complete at exact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: no confirmed P0/P1,3openP2 (515d45,6698e7,26756c). Exact-gate CI15jobs/artifact installs passed; local full-suite EXIT1 preserved with isolated1case+all8related reruns passing, cause uncertain. Initial conclusions committed separately as7b93596 before any current Claude conclusions were consulted. Keep common-review task in progress pending independent peer report and explicit dispositions; no RC1 approval."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.\n\nCodex initial independent whole-repository gate findings captured against a5de5c861382a61cf2ca38c093e8268f401f82c3 without reading Claude current review. Three new P2 findings: 515d45, 6698e7, 26756c; no confirmed P0/P1. Review evidence is still completing. Keep common-review task in progress; this is not the independent pair or RC1 approval."
+          }
+        },
+        {
+          "at": "2026-10-27T18:08:48Z",
+          "event": "edited",
+          "new": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.\n\nCodex initial independent whole-repository gate findings captured against a5de5c861382a61cf2ca38c093e8268f401f82c3 without reading Claude current review. Three new P2 findings: 515d45, 6698e7, 26756c; no confirmed P0/P1. Review evidence is still completing. Keep common-review task in progress; this is not the independent pair or RC1 approval.\n\nCodex initial whole-repository review complete at exact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: no confirmed P0/P1,3openP2 (515d45,6698e7,26756c). Exact-gate CI15jobs/artifact installs passed; local full-suite EXIT1 preserved with isolated1case+all8related reruns passing, cause uncertain. Initial conclusions committed separately as7b93596 before any current Claude conclusions were consulted. Keep common-review task in progress pending independent peer report and explicit dispositions; no RC1 approval.\n\nPost-review reconciliation complete: Codex accepts Claude P1 53c751 (fresh ordinary+staged clone proof), new P2 e3d6bd/6944ec, existing Codex3P2, and5P3. Combined11open findings:1P1/5P2/5P3. Gatea5de5c8 rejected for RC1. Initial reports retained; no blockers resolved, no release approval. See appended reconciliation in docs/reviews/rc1-a5de5c8-codex.md."
+          },
+          "old": {
+            "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.\n\nCodex initial independent whole-repository gate findings captured against a5de5c861382a61cf2ca38c093e8268f401f82c3 without reading Claude current review. Three new P2 findings: 515d45, 6698e7, 26756c; no confirmed P0/P1. Review evidence is still completing. Keep common-review task in progress; this is not the independent pair or RC1 approval.\n\nCodex initial whole-repository review complete at exact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: no confirmed P0/P1,3openP2 (515d45,6698e7,26756c). Exact-gate CI15jobs/artifact installs passed; local full-suite EXIT1 preserved with isolated1case+all8related reruns passing, cause uncertain. Initial conclusions committed separately as7b93596 before any current Claude conclusions were consulted. Keep common-review task in progress pending independent peer report and explicit dispositions; no RC1 approval."
+          }
         }
       ],
       "id": "c053",
@@ -9551,7 +10809,7 @@
         "addendum:e"
       ],
       "last_seen": "2026-10-23T21:03:42Z",
-      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.",
+      "notes": "Addendum E plan registration only. Release 1.0; open until its documented acceptance criteria are independently verified. No implementation completion is claimed by PR C.\n\nTriage at merged main 471ccca: P1 release gate, deferred execution until A/B/C integrated. Freeze one SHA for two independent whole-repository reviews; do not substitute current diff reviews.\n\nTriage clarification: this is a mandatory procedural/release approval gate with high scheduling priority, not a demonstrated correctness defect; no defect severity assigned.\n\nIndependent Codex whole-repository review at d29ac93bbbf57e9216a2c10694b307409399c734 recorded before consulting current Claude readiness conclusions. Changes required: P1 c6bc7c/e86b8e and accepted pre-RC1 P2 9e4d1c/668a6c remain open. See docs/reviews/rc1-d29ac93-codex.md. No release approval. Lock correction requires new common-SHA independent whole-repository reviews; do not treat PR reviews or CI as substitutes.\n\nFour d29ac93 findings corrected in322fd6c/0821cb2/c0e1cb6, tests refined6f9b723. Explicit fix resolution includes real linked outcomes and independent affected reviews; e86b8e retains nativeLinuxskip/needs_review, actualWindowsCI gate pending. Retained failed postcleanup evidence/reopen6aa3494 and fresh passing re-verification. New common-SHA whole-repository pair and final installed artifacts/readiness still required; no tag/publication.\n\nGate protocol docs/rc1-gate-check.md requires the same full immutable SHA, entire-repository scope rather than commit diff, separate initial reports, demonstrated severity and preserved verification limits. Touching tracked files changes only mtimes and does not expand Git diff. Subsequent reports/fixes must preserve the pinned review target.\n\nCodex initial independent whole-repository gate findings captured against a5de5c861382a61cf2ca38c093e8268f401f82c3 without reading Claude current review. Three new P2 findings: 515d45, 6698e7, 26756c; no confirmed P0/P1. Review evidence is still completing. Keep common-review task in progress; this is not the independent pair or RC1 approval.\n\nCodex initial whole-repository review complete at exact gate a5de5c861382a61cf2ca38c093e8268f401f82c3: no confirmed P0/P1,3openP2 (515d45,6698e7,26756c). Exact-gate CI15jobs/artifact installs passed; local full-suite EXIT1 preserved with isolated1case+all8related reruns passing, cause uncertain. Initial conclusions committed separately as7b93596 before any current Claude conclusions were consulted. Keep common-review task in progress pending independent peer report and explicit dispositions; no RC1 approval.\n\nPost-review reconciliation complete: Codex accepts Claude P1 53c751 (fresh ordinary+staged clone proof), new P2 e3d6bd/6944ec, existing Codex3P2, and5P3. Combined11open findings:1P1/5P2/5P3. Gatea5de5c8 rejected for RC1. Initial reports retained; no blockers resolved, no release approval. See appended reconciliation in docs/reviews/rc1-a5de5c8-codex.md.",
       "origin": "comment",
       "presence": "present",
       "priority": "high",
@@ -11410,7 +12668,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1697,
+        "line": 1699,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -11491,6 +12749,136 @@
       "title": "scan paths resolve against the server's cwd, not the served project's root",
       "title_override": null
     },
+    "e3d6bd": {
+      "assignee": null,
+      "description": "splitlines also breaks at \\f, \\v, \\x1c-\\x1e, \\x85, U+2028 and U+2029, so ast line numbers\npoint at the wrong entry. `resolve --sync-source` then deletes user text: with `# a<U+2028>b`\nabove the runtime import it removes \"b\" and moves the import into the comment; with a form-feed\nline it removes a newline, keeps the import, and still reports \"unused runtime import\" removed.\nrelease.py's `_lines` (strip/restore: false \"shares its line\" refusals) and scaffold.plan's\nimport insertion share the pattern.",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 250,
+            "path": "src/byteplan/cleanup.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_cleanup.py::test_task_e3d6bd",
+            "path": "tests/test_cleanup.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:47Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P2"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        },
+        {
+          "at": "2026-10-27T17:49:52Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P2"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P2"
+            ],
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T18:08:46Z",
+          "event": "edited",
+          "new": {
+            "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed."
+          },
+          "old": {
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-27T18:38:00Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:02Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:02Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/cleanup.py"
+          }
+        }
+      ],
+      "id": "e3d6bd",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:claude-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "Codex corroboration on PR55 head5b0031f: six new regression cases rerun with --runxfail all fail for reported reasons (EXIT1,1.43s), so no passing/fixed evidence claimed. Logs: /workspace/byteplan-rc1-evidence/review55-triage/reproductions-runxfail.log. Existing identity retained OPEN; no test, marker, timeout or product source changed.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "P2",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 231,
+        "line": 250,
+        "path": "src/byteplan/cleanup.py",
+        "representation": "comment",
+        "symbol": "_drop_unused_runtime_imports"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 367,
+            "node": "tests/test_cleanup.py::test_cleanup_removes_the_runtime_import_with_python_line_breaks",
+            "path": "tests/test_cleanup.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 218,
+            "node": "tests/test_release.py::test_release_then_restore_is_byte_identical",
+            "path": "tests/test_release.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Index physical lines with edits.physical_lines, not str.splitlines",
+      "title_override": null
+    },
     "e4af": {
       "assignee": null,
       "description": "Build scope/qualified-name, import, definition, reference and inheritance relationships;\nevaluate ast and justified LibCST metadata without modifying source.",
@@ -11546,6 +12934,92 @@
       "status": "open",
       "stub": null,
       "title": "1.5 repository symbol indexing and task-to-symbol associations",
+      "title_override": null
+    },
+    "e56005": {
+      "assignee": null,
+      "description": "lexical_rel keeps an absolute `registry`/`report_file` (accepted by validation) absolute, so a\nsnapshot looks up \"/.../tasks.json\" among Git entries and check --staged/--commit reports the\nregistry missing. Strip the project root lexically, resolving only the ancestor that is the\nroot, never files inside it. (Codex, PR #55)",
+      "first_seen": "2026-10-27T19:05:56Z",
+      "history": [
+        {
+          "at": "2026-10-27T19:05:56Z",
+          "event": "created",
+          "new": {
+            "line": 171,
+            "path": "src/byteplan/config.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T19:05:56Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_config.py::test_lexical_rel",
+            "path": "tests/test_config.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T19:10:40Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 (Codex review on ecb8b8f)",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T19:10:42Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T19:10:42Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/config.py"
+          }
+        }
+      ],
+      "id": "e56005",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-27T19:05:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 174,
+        "line": 169,
+        "path": "src/byteplan/config.py",
+        "representation": "comment",
+        "symbol": "lexical_rel"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 92,
+            "node": "tests/test_config.py::test_lexical_rel",
+            "path": "tests/test_config.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 416,
+            "node": "tests/test_git_snapshot.py::test_snapshot_checks_accept_absolute_in_root_paths",
+            "path": "tests/test_git_snapshot.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Make absolute in-root registry and report paths snapshot-relative",
       "title_override": null
     },
     "e7d9": {
@@ -11778,6 +13252,119 @@
       "title": "Preflight all merge-driver installation destinations before changing attributes or Git configuration.",
       "title_override": null
     },
+    "e8bd84": {
+      "assignee": null,
+      "description": "The compatibility policy treats diagnostic codes as machine-readable API, but 15 codes in\nbyteplan.diagnostics.Code appear nowhere in the README, including malformed_id, unregistered_id,\npending_journal, release_stripped and scaffold_placeholder. Add a reference table.",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 443,
+            "path": "README.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:40Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:14:48Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        },
+        {
+          "at": "2026-10-27T17:49:53Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "review:claude-gate"
+            ],
+            "priority": "P3"
+          },
+          "old": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ],
+            "priority": "low"
+          }
+        },
+        {
+          "at": "2026-10-27T18:08:47Z",
+          "event": "edited",
+          "new": {
+            "notes": "Codex checked diagnostic enum against README after stripping HTML comments: 15 code names absent: unregistered_id, malformed_id, pending_journal, unresolved_todo_decorator, invalid_todo_decorator, dynamic_todo_argument, conflicting_test_arguments, decorator_needs_review, unknown_task_reference, staged_config_mismatch, working_tree_changed_but_not_staged, malformed_test_id, scaffold_placeholder, release_stripped, release_on_default_branch. Existing FIXME comment is not a diagnostic reference."
+          },
+          "old": {
+            "notes": ""
+          }
+        },
+        {
+          "at": "2026-10-27T18:38:23Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 with regression tests",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T18:38:25Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T18:38:25Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "README.md"
+          }
+        }
+      ],
+      "id": "e8bd84",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "review:claude-gate"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "Codex checked diagnostic enum against README after stripping HTML comments: 15 code names absent: unregistered_id, malformed_id, pending_journal, unresolved_todo_decorator, invalid_todo_decorator, dynamic_todo_argument, conflicting_test_arguments, decorator_needs_review, unknown_task_reference, staged_config_mismatch, working_tree_changed_but_not_staged, malformed_test_id, scaffold_placeholder, release_stripped, release_on_default_branch. Existing FIXME comment is not a diagnostic reference.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "P3",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 443,
+        "path": "README.md",
+        "representation": "comment",
+        "symbol": "Commands"
+      },
+      "status": "resolved",
+      "stub": null,
+      "title": "Document every diagnostic code the CLI and MCP can emit",
+      "title_override": null
+    },
     "ec99": {
       "assignee": null,
       "description": "Separate package: reusable workflows, triage-agent guide, branch-protection docs, end-to-end\ndemo.",
@@ -11829,7 +13416,7 @@
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 1710,
+        "line": 1712,
         "path": "docs/IMPLEMENTATION_PLAN.md",
         "representation": "comment",
         "symbol": "Phases"
@@ -13054,6 +14641,16 @@
           "old": {
             "path": "src/byteplan/_verify_plugin.py"
           }
+        },
+        {
+          "at": "2026-10-27T17:30:30Z",
+          "event": "edited",
+          "new": {
+            "notes": "P2 review follow-up on PR #43: preserve symlink spellings when converting pytest node IDs to project-relative paths. https://github.com/BytesAndCoffee/byteplan/pull/43#discussion_r4363730666\n\nCodex local exact-gate full run completed EXIT1:1741passed,1failed,2skipped,3networkdeselected1230.29s. The lone symlink-plugin passed-directory-False case child pytest hit existing30s timeout with empty output. Exact isolated rerun passed3.22s and all8related cases passed38.40s without test/source/timeout changes. Original full-suite failure retained; precise cause uncertain. Separate exact-gate CI all15jobs passed. See codex-a5de5c8/full-suite.log and symlink rerun logs. This does not count local full run as passing and is separate from the Windows wrapper defect."
+          },
+          "old": {
+            "notes": "P2 review follow-up on PR #43: preserve symlink spellings when converting pytest node IDs to project-relative paths. https://github.com/BytesAndCoffee/byteplan/pull/43#discussion_r4363730666"
+          }
         }
       ],
       "id": "ff72",
@@ -13063,7 +14660,7 @@
         "review:43"
       ],
       "last_seen": "2026-10-23T20:10:49Z",
-      "notes": "P2 review follow-up on PR #43: preserve symlink spellings when converting pytest node IDs to project-relative paths. https://github.com/BytesAndCoffee/byteplan/pull/43#discussion_r4363730666",
+      "notes": "P2 review follow-up on PR #43: preserve symlink spellings when converting pytest node IDs to project-relative paths. https://github.com/BytesAndCoffee/byteplan/pull/43#discussion_r4363730666\n\nCodex local exact-gate full run completed EXIT1:1741passed,1failed,2skipped,3networkdeselected1230.29s. The lone symlink-plugin passed-directory-False case child pytest hit existing30s timeout with empty output. Exact isolated rerun passed3.22s and all8related cases passed38.40s without test/source/timeout changes. Original full-suite failure retained; precise cause uncertain. Separate exact-gate CI all15jobs passed. See codex-a5de5c8/full-suite.log and symlink rerun logs. This does not count local full run as passing and is separate from the Windows wrapper defect.",
       "origin": "comment",
       "presence": "missing",
       "priority": "normal",

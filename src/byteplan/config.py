@@ -5,14 +5,13 @@
 
 from __future__ import annotations
 
+import posixpath
 import tomllib
 from dataclasses import dataclass, field, fields
-from typing import TYPE_CHECKING, Any, TypeVar
+from pathlib import Path
+from typing import Any, TypeVar
 
 from byteplan.errors import ConfigError
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 PYPROJECT = "pyproject.toml"
 DEFAULT_REGISTRY = ".byteplan/tasks.json"
@@ -165,6 +164,26 @@ class Config:
     @property
     def registry_path(self) -> Path:
         return self.root / self.registry
+
+
+def lexical_rel(rel: str, root: Path) -> str:
+    """A configured path as a project-relative POSIX path, normalized as written. Git snapshots
+    use this: resolving it through the live filesystem would let an unstaged symlink change which
+    selected file it names. An absolute path loses its project-root prefix; only the ancestor
+    that is the root itself is resolved (it may be spelled through an alias), never anything
+    inside the project."""
+    path = Path(rel)
+    if path.is_absolute():
+        resolved_root = root.resolve()
+        # Spelled with the root itself: strip it without touching the filesystem.
+        lexical = next((r for r in (root, resolved_root) if path.is_relative_to(r)), None)
+        # Spelled through an alias of the root: the outermost ancestor that is the root. Going
+        # outermost first never resolves a directory inside the project (`reports -> .`).
+        parent = lexical or next((p for p in reversed(path.parents) if Path(p).resolve() == resolved_root), None)
+        # Validation already confined it; a path that enters the root only through an
+        # alias inside some other directory falls back to resolving it whole.
+        path = path.relative_to(parent) if parent is not None else path.resolve().relative_to(resolved_root)
+    return posixpath.normpath(path.as_posix().replace("\\", "/"))
 
 
 def find_project_root(start: Path) -> Path:

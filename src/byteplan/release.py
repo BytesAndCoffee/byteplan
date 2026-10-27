@@ -31,7 +31,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 from byteplan.cleanup import _exported
-from byteplan.edits import header_end
+from byteplan.edits import header_end, physical_lines
 from byteplan.errors import ByteplanError
 from byteplan.scanner.decorators import RuntimeNames, _binds, _enclosing_scopes, resolve_runtime_names
 from byteplan.scanner.stubs import dotted_name
@@ -75,7 +75,9 @@ def _parse(path: str, text: str) -> ast.Module:
 
 
 def _lines(text: str) -> list[str]:
-    return text.splitlines(keepends=True)
+    # Python's line breaks only: str.splitlines also splits at \f, U+2028 and others, which
+    # would shift every ast line number after them.
+    return physical_lines(text)
 
 
 def _block(lines: Sequence[str], first: int, last: int) -> str:

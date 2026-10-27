@@ -443,6 +443,51 @@ the narrowed paths. Files deliberately excluded from source scope are not alloca
 - **Exit codes:** `0` OK, `1` findings that fail your `[tool.byteplan.check]` policy (duplicate IDs
   by default), `2` errors (bad config, unreadable registry, a file that won't parse).
 
+### Diagnostic codes
+
+Every finding carries one of these codes: in text output (upper-cased) and as `code` in JSON and
+MCP results. Codes are stable; new ones may be added, and messages may change.
+
+| Code | Meaning |
+|---|---|
+| **Identity** | |
+| `duplicate_id` | The same ID appears on more than one annotation (a copied comment). |
+| `unregistered_id` | An annotation carries an ID the registry doesn't hold, or one that's archived. |
+| `malformed_id` | A tag's `[id]` isn't a lowercase hexadecimal ID, or its `[` is never closed; the tag isn't tracked. |
+| `stale_annotation` | A resolved or dismissed task's annotation is still in source. |
+| `missing` | A task's annotation is no longer in source; its status is unchanged. |
+| `pending_journal` | An earlier write was interrupted; the next authorized write finishes it. |
+| **Decorators and stubs** | |
+| `unresolved_todo_decorator` | `@todo`/`@verifies` may not be BytePlan's (the name is rebound or shadowed); not tracked. |
+| `invalid_todo_decorator` | A decorator is used incorrectly (not called, or the wrong arguments); not tracked. |
+| `dynamic_todo_argument` | A decorator argument can't be read statically (e.g. `**kwargs`); not tracked. |
+| `conflicting_test_arguments` | A decorator has both `test=` and `tests=`. |
+| `decorator_needs_review` | `id=` can't be added to a decorator safely; add it by hand. |
+| `stub_needs_review` | A declaration looks unfinished but the annotation mode doesn't annotate it. |
+| `implementation_changed` | A task's stub no longer looks like a stub; the task is still open. |
+| `implementation_complete_candidate` | As above, and its linked tests pass: worth reviewing for resolution. |
+| `unknown_task_reference` | A test verifies a task ID that isn't in the registry. |
+| **Snapshot consistency** (`check --staged`/`--commit`, or `require_reconciled`) | |
+| `new_unregistered` | A new annotation has no ID yet: run `byteplan scan` and stage the result. |
+| `registry_not_staged` | The registry isn't staged (or committed) with the source. |
+| `registry_out_of_sync` | The selected registry doesn't reflect the selected code. |
+| `position_drift` | Only line positions differ from the registry; harmless. |
+| `staged_config_mismatch` | `[tool.byteplan]` differs between the working tree and the index; the staged one is used. |
+| `working_tree_changed_but_not_staged` | The working-tree registry differs from the staged copy. |
+| `report_out_of_sync` | `report_file` doesn't match the registry. |
+| **Acceptance tests** | |
+| `malformed_test_id` | A test link isn't a pytest node ID (`path/to/test_file.py::test_name`). |
+| `test_not_in_scope` | A linked test file doesn't exist or isn't in the scan scope. |
+| `scaffold_placeholder` | A linked test is still a scaffold placeholder that fails on purpose. |
+| **Sync, release and cleanup** | |
+| `conversion_needs_review` | `sync` can't convert an annotation to a decorator safely. |
+| `release_stripped` | The tree is stripped for a release; writing commands refuse until `restore`. |
+| `release_on_default_branch` | `release` is stripping your development branch. |
+| `runtime_dependency_in_release` | `byteplan-runtime` is still a runtime dependency of the release. |
+| `unfinished_scaffold_in_sdist` | A failing scaffold placeholder would ship in the sdist. |
+| `resolved_but_stubbed` | A closed task's declaration still looks unfinished, so its annotation stays. |
+| `cleanup_needs_review` | An annotation can't be removed automatically (e.g. a JSON string value); remove it by hand. |
+
 ## Configuration
 
 Everything lives in `pyproject.toml`. These are the defaults:
@@ -816,6 +861,11 @@ isn't offered at all:
 - **Interrupted writes finish safely:** the next authorized write command completes them once
   the project lock is available. If a file was
   changed by something else in the meantime, BytePlan stops instead of overwriting it.
+- **Only this checkout's interrupted writes are finished:** a journal records the identity (inode)
+  of the `.byteplan/txn/` directory that wrote it. A journal that arrives with a clone or an
+  unpacked archive never matches, so BytePlan refuses it with an error and writes nothing;
+  inspect it and delete `.byteplan/txn/`. (On a filesystem without stable inodes,
+  such as FAT, every interrupted write needs this manual step.)
 - **Failures stop the scan cleanly:** a file that can't be read or parsed, or a directory that can't
   be listed, fails the whole scan before anything is reconciled.
 

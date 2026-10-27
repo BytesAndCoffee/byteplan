@@ -29,7 +29,7 @@ import warnings
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from byteplan.edits import header_end
+from byteplan.edits import header_end, physical_lines
 from byteplan.errors import ByteplanError, EditError
 from byteplan.models import AttachmentKind
 from byteplan.scanner.bindings import bound_names, module_statements
@@ -48,6 +48,7 @@ NEEDS_PATH = "scaffold_needs_path"
 RUNTIME_UNAVAILABLE = "runtime_unavailable"
 INVALID_NAME = "invalid_test_name"
 MARKER_NOT_ENABLED = "marker_not_enabled"
+NAME_CONFLICT = "scaffold_name_conflict"
 
 
 class ScaffoldError(ByteplanError):
@@ -226,9 +227,49 @@ def _parse(path: str, text: str) -> ast.Module:
         raise ScaffoldError(NEEDS_PATH, f"{path} doesn't parse ({exc})", "fix it or pass --path") from exc
 
 
+def _check_generated_names(path: str, tree: ast.Module, imports: Sequence[str]) -> None:
+    """Refuse a file whose module namespace binds a name the scaffold uses (``pytest``,
+    ``verifies``) to anything but the import BytePlan would add: an assignment, a definition,
+    an aliased or conditional import or a ``del`` would shadow it when the test runs."""
+    expected = {}
+    for statement in imports:
+        node = ast.parse(statement).body[0]
+        for name in bound_names(node):
+            expected[name] = (statement, _binding(node, name))
+    for node in module_statements(tree.body):
+        for name in sorted(bound_names(node) & expected.keys()):
+            statement, binding = expected[name]
+            if _binding(node, name) != binding:
+                raise ScaffoldError(
+                    NAME_CONFLICT,
+                    f"{path}:{node.lineno} binds {name!r} to something other than `{statement}`, "
+                    "which the scaffolded test relies on; nothing was written",
+                    "rename that binding, or scaffold into another file with --path",
+                )
+
+
+def _binding(node: ast.stmt, name: str) -> tuple[str, str] | None:
+    """What an import statement binds ``name`` to, alias by alias, so ``import os, pytest`` and
+    ``from runtime import todo, verifies`` count as the generated imports. None otherwise."""
+    if isinstance(node, ast.Import):
+        for alias in reversed(node.names):  # the last alias binding the name wins
+            if alias.asname == name:
+                return ("module", alias.name)
+            if alias.asname is None and alias.name.split(".")[0] == name:
+                return ("module", name)
+    elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+        for alias in reversed(node.names):
+            if (alias.asname or alias.name) == name:
+                return ("from", f"{node.module}:{alias.name}")
+    return None
+
+
 def _present(tree: ast.Module, statement: str) -> bool:
-    wanted = ast.dump(ast.parse(statement).body[0])
-    return any(ast.dump(node) == wanted for node in tree.body)
+    """Whether an unconditional top-level import already binds every name ``statement`` would."""
+    wanted = ast.parse(statement).body[0]
+    return all(
+        any(_binding(node, name) == _binding(wanted, name) for node in tree.body) for name in bound_names(wanted)
+    )
 
 
 def _import_offset(tree: ast.Module, lines: Sequence[str]) -> int:
@@ -339,6 +380,7 @@ def plan(
         )
 
     tree = _parse(path, existing)
+    _check_generated_names(path, tree, imports)
     taken = defined_names(tree)
     if name is not None:
         _check_name(name, taken)
@@ -346,7 +388,7 @@ def plan(
     match = re.search(r"\r\n|\n|\r", existing)
     nl = match.group() if match else "\n"
     missing = [line for line in imports if not _present(tree, line)]
-    lines = existing.splitlines(keepends=True)
+    lines = physical_lines(existing)
     if missing:
         _insert_imports(tree, lines, missing, nl)
     text = "".join(lines)

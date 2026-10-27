@@ -247,7 +247,7 @@ def _drop_unused_runtime_imports(
     used |= {_root(node) for node in ast.walk(tree) if isinstance(node, ast.Attribute)}
     used |= _exported(tree)
     used |= consumers
-    lines = text.splitlines(keepends=True)
+    lines = physical_lines(text)
     removed: list[str] = []
     for stmt in sorted(tree.body, key=lambda s: s.lineno, reverse=True):
         if not (isinstance(stmt, ast.ImportFrom) and stmt.level == 0 and stmt.module in runtime):

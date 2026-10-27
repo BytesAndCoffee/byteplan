@@ -699,3 +699,62 @@ def test_new_scaffold_files_section_imports_like_isort(runtime: str, head: str) 
         async_tests="",
     )
     assert result.text.startswith(head + "\n\n@verifies(")
+
+
+@verifies("515d45")
+@pytest.mark.parametrize(
+    "binding",
+    [
+        "pytest = 7\n",
+        "def pytest() -> int:\n    return 7\n",
+        "import unittest as pytest\n",
+        "try:\n    import pytest\nexcept ImportError:\n    pytest = None\n",
+        "verifies = None\n",
+        "import pytest\n\ndel pytest\n",
+    ],
+)
+def test_scaffold_refuses_a_module_that_shadows_generated_names(
+    routed: ProjectFactory, run_cli: RunCli, binding: str
+) -> None:
+    """The test would resolve `pytest`/`verifies` to the module's own binding and break collection."""
+    target = routed.root / "tests/test_routing.py"
+    routed.write("tests/test_routing.py", binding + "\n\ndef test_a() -> None:\n    assert True\n", dedent=False)
+    before = target.read_bytes()
+    task_id = task_by_title(routed, "Plain function")["id"]
+    result = run_cli("tests", "scaffold", task_id, "--path", "tests/test_routing.py", "--project", routed.root)
+    assert result.code == EXIT_ERROR
+    assert "scaffold_name_conflict" in result.err
+    assert target.read_bytes() == before
+
+
+@verifies("515d45")
+def test_scaffold_still_extends_a_module_with_the_same_imports(routed: ProjectFactory, run_cli: RunCli) -> None:
+    head = "import pytest\n\nfrom byteplan_runtime import verifies\n"
+    routed.write("tests/test_routing.py", head + "\n\ndef test_a() -> None:\n    assert verifies\n", dedent=False)
+    data = scaffold(routed, run_cli, task_by_title(routed, "Plain function")["id"], "--path", "tests/test_routing.py")
+    assert data["path"] == "tests/test_routing.py"
+
+
+@verifies("4308bf")
+@pytest.mark.parametrize(
+    "head",
+    [
+        "import os, pytest\n\nfrom byteplan_runtime import todo, verifies\n",
+        "import pytest\n\nfrom byteplan_runtime import verifies as verifies\n",
+    ],
+)
+def test_scaffold_accepts_equivalent_bindings_in_grouped_imports(
+    routed: ProjectFactory, run_cli: RunCli, head: str
+) -> None:
+    """Each name is bound exactly as the generated import would bind it, so nothing conflicts."""
+    body = (
+        "\n\ndef test_a() -> None:\n    assert os and todo and verifies\n"
+        if "os" in head
+        else "\n\ndef test_a() -> None:\n    assert verifies\n"
+    )
+    routed.write("tests/test_routing.py", head + body, dedent=False)
+    data = scaffold(routed, run_cli, task_by_title(routed, "Plain function")["id"], "--path", "tests/test_routing.py")
+    text = (routed.root / data["path"]).read_text()
+    assert text.startswith(head)  # no duplicate import was added above the existing ones
+    assert text.count("import pytest") == head.count("import pytest")
+    compile(text, data["path"], "exec")
