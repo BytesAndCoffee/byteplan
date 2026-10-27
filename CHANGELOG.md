@@ -5,6 +5,12 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+<!-- FIXME[7140aa]: Record the user-visible changes from PRs #53 and #54
+  Unreleased lists only #51/#52. Missing: existing project locks are never reclaimed automatically
+  (POSIX users used to get a dead-PID lock removed; now they must delete it), unclosed `[id` brackets
+  are a malformed_id warning, and merge-driver installation preflights all destinations and quotes
+  attribute patterns. The 1.0.0rc1 section still calls 67a65c open ("tracked as nonblocking"). -->
+
 ### Fixed
 - **Prose comments are no longer tasks:** a comment that merely starts with a tag word in another
   case (`# Todo list model`, `# hack around the parser`) was tracked, and the first writing scan

@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from byteplan import persistence
+from byteplan._todo import verifies
 from byteplan.api import Project
 from byteplan.cli import EXIT_FINDINGS, EXIT_OK
 
@@ -361,3 +362,27 @@ def test_whole_line_markdown_removal_leaves_no_double_blank_line(
     resolve(project, run_cli, "aaaa")
     assert run_cli("sync", "--remove-resolved", "--apply", "--project", project.root).code == EXIT_OK
     assert (project.root / "README.md").read_text() == expected
+
+
+@verifies("e3d6bd")
+@pytest.mark.xfail(reason="BytePlan e3d6bd: cleanup indexes lines with str.splitlines", strict=True)
+@pytest.mark.parametrize(
+    ("before", "kept"),
+    [
+        ("# note\u2028more words\n", "# note\u2028more words\n"),  # a line separator inside a comment
+        ("import os\n\x0c\n", "import os\n\x0c\n"),  # a form-feed page break
+    ],
+)
+def test_cleanup_removes_the_runtime_import_with_python_line_breaks(
+    project: ProjectFactory, run_cli: RunCli, before: str, kept: str
+) -> None:
+    """Text that str.splitlines (but not Python) treats as a line break must not shift the edit."""
+    project.init()
+    code = f'{before}from byteplan_runtime import todo\n\n\n@todo("Finished", id="bbbb")\ndef f():\n    return 1\n'
+    project.write("src/a.py", code, dedent=False)
+    assert run_cli("repair", "--import", "bbbb", "--project", project.root).code == EXIT_OK
+    assert run_cli("scan", "--project", project.root).code == EXIT_OK
+    assert run_cli("resolve", "bbbb", "--sync-source", "--project", project.root).code == EXIT_OK
+    text = (project.root / "src/a.py").read_text(encoding="utf-8")
+    assert text.startswith(kept)
+    assert "byteplan_runtime" not in text

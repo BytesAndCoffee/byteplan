@@ -29,6 +29,11 @@ The product is not a GitHub Issues replacement, not a full code-quality linter, 
 
 ## 3. User-facing source syntax
 
+<!-- FIXME[971b9d]: Describe the current tag case rule in the spec and implementation plan
+  Here and in IMPLEMENTATION_PLAN.md (the "case-insensitive" tag regex near line 187), discovery is
+  still described as case-insensitive. Since 415a0f only the configured spelling matches bare;
+  other spellings need `:` or `[id]` right after the tag. -->
+
 Supported comment kinds, case-insensitive during initial discovery:
 
 ```python

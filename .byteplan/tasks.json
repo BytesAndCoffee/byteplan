@@ -41,6 +41,7 @@
     "4fb5",
     "50ad66",
     "515d45",
+    "53c751",
     "595f",
     "5aae",
     "5ff6",
@@ -54,6 +55,7 @@
     "680a",
     "6b83",
     "6d434f",
+    "7140aa",
     "71c4",
     "75b4",
     "765f23",
@@ -70,6 +72,7 @@
     "9185",
     "932b36",
     "93dd",
+    "971b9d",
     "98d6",
     "9b40",
     "9c60",
@@ -83,6 +86,7 @@
     "a740",
     "a899de",
     "a933",
+    "aaf7d7",
     "ac9d",
     "ae7a",
     "aedf",
@@ -113,9 +117,11 @@
     "dcd417",
     "de66",
     "def0",
+    "e3d6bd",
     "e4af",
     "e7d9",
     "e86b8e",
+    "e8bd84",
     "ec99",
     "ecf4",
     "ed2b",
@@ -733,7 +739,7 @@
             "provenance": "verifies"
           },
           {
-            "line": 516,
+            "line": 517,
             "node": "tests/test_persistence.py::test_commit_rejects_lock_descendant_before_any_side_effect",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
@@ -4453,6 +4459,90 @@
       "title": "Refuse or safely alias scaffold-generated pytest/runtime bindings when existing test-module bindings make generated code unsafe.",
       "title_override": null
     },
+    "53c751": {
+      "assignee": null,
+      "description": "A cloned repository can commit `.byteplan/txn/journal.json` and a staged copy (force-added past\n`.byteplan/.gitignore`). The next ordinary write command (`byteplan scan`, `resolve`, a hook with\nwrite_source) then \"completes\" it and creates any absent file under the root, including ignored\npaths: `.venv/lib/python3.X/site-packages/sitecustomize.py` runs on the venv's next start. That\nbreaks \"scanning never executes project code\". gitwrite's staged journal (index null, forward)\nhas the same shape. Recover only journals this clone wrote (e.g. a hash recorded under the Git\ndir), refuse tracked/committed control files, and limit targets to paths BytePlan plans writes to.",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 261,
+            "path": "src/byteplan/persistence.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_persistence.py::test_recover",
+            "path": "tests/test_persistence.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:40Z",
+          "event": "edited",
+          "new": {
+            "priority": "high"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:14:47Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P1"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "53c751",
+      "kind": "FIXME",
+      "labels": [
+        "rc1-gate-review",
+        "P1"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 269,
+        "line": 261,
+        "path": "src/byteplan/persistence.py",
+        "representation": "comment",
+        "symbol": "recover"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 550,
+            "node": "tests/test_persistence.py::test_a_journal_from_the_repository_is_never_recovered",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Refuse to recover a transaction journal that came from the repository",
+      "title_override": null
+    },
     "595f": {
       "assignee": null,
       "description": "Design structured queries and CLI/IDE/optional visual representations; candidate names\nare not public commitments and no graphical interface is required.",
@@ -4893,49 +4983,49 @@
             "provenance": "verifies"
           },
           {
-            "line": 339,
+            "line": 340,
             "node": "tests/test_persistence.py::test_commit_validates_entire_target_set_first",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 438,
+            "line": 439,
             "node": "tests/test_persistence.py::test_control_guards_reject_resolved_aliases_without_symlink_flag",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 484,
+            "line": 485,
             "node": "tests/test_persistence.py::test_native_windows_control_junction_is_rejected_before_cleanup",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 455,
+            "line": 456,
             "node": "tests/test_persistence.py::test_no_journal_recovery_rejects_control_alias_before_cleanup",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 470,
+            "line": 471,
             "node": "tests/test_persistence.py::test_ordinary_confined_source_parent_alias_remains_supported",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 324,
+            "line": 325,
             "node": "tests/test_persistence.py::test_recover_checks_all_copies_before_first_write",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 361,
+            "line": 362,
             "node": "tests/test_persistence.py::test_recover_rejects_symlink_copy_without_cleanup",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 262,
+            "line": 263,
             "node": "tests/test_persistence.py::test_recover_rejects_whole_invalid_journal_without_changes",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
@@ -5897,6 +5987,69 @@
         "managed": []
       },
       "title": "Preserve opaque evidence metadata across ordinary verification and archive writes.",
+      "title_override": null
+    },
+    "7140aa": {
+      "assignee": null,
+      "description": "Unreleased lists only #51/#52. Missing: existing project locks are never reclaimed automatically\n(POSIX users used to get a dead-PID lock removed; now they must delete it), unclosed `[id` brackets\nare a malformed_id warning, and merge-driver installation preflights all destinations and quotes\nattribute patterns. The 1.0.0rc1 section still calls 67a65c open (\"tracked as nonblocking\").",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 8,
+            "path": "CHANGELOG.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:40Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:14:47Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "7140aa",
+      "kind": "FIXME",
+      "labels": [
+        "rc1-gate-review",
+        "P3"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 8,
+        "path": "CHANGELOG.md",
+        "representation": "comment",
+        "symbol": "Unreleased"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Record the user-visible changes from PRs #53 and #54",
       "title_override": null
     },
     "71c4": {
@@ -7551,6 +7704,69 @@
       "title": "Phase 10: integration",
       "title_override": null
     },
+    "971b9d": {
+      "assignee": null,
+      "description": "Here and in IMPLEMENTATION_PLAN.md (the \"case-insensitive\" tag regex near line 187), discovery is\nstill described as case-insensitive. Since 415a0f only the configured spelling matches bare;\nother spellings need `:` or `[id]` right after the tag.",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 32,
+            "path": "docs/spec.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:41Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:14:48Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "971b9d",
+      "kind": "FIXME",
+      "labels": [
+        "rc1-gate-review",
+        "P3"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 32,
+        "path": "docs/spec.md",
+        "representation": "comment",
+        "symbol": "3. User-facing source syntax"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Describe the current tag case rule in the spec and implementation plan",
+      "title_override": null
+    },
     "98d6": {
       "assignee": null,
       "description": "A fixture finalizer calling pytest.skip/xfail is currently ignored after a passing\ncall, recording passed evidence and potentially marking the task ready_for_review.",
@@ -8632,6 +8848,90 @@
       "status": "open",
       "stub": null,
       "title": "1.5 semantic graph schema, identity and provenance design",
+      "title_override": null
+    },
+    "aaf7d7": {
+      "assignee": null,
+      "description": "The finally block unlinks whatever `scan.lock` is there. If the lock was deleted by hand\nwhile this writer still ran (the guidance invites manual cleanup) and a second writer took\nit, this exit removes the second writer's lock and a third can start alongside it. Compare\nthe file's identity (st_dev/st_ino) or a per-acquisition token before unlinking.",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 160,
+            "path": "src/byteplan/persistence.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_persistence.py::test_task_aaf7d7",
+            "path": "tests/test_persistence.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:41Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:14:48Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "aaf7d7",
+      "kind": "FIXME",
+      "labels": [
+        "rc1-gate-review",
+        "P3"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 130,
+        "line": 160,
+        "path": "src/byteplan/persistence.py",
+        "representation": "comment",
+        "symbol": "project_lock"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 540,
+            "node": "tests/test_persistence.py::test_lock_release_leaves_a_later_writers_lock",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Release only the lock this process created",
       "title_override": null
     },
     "ac9d": {
@@ -11735,6 +12035,80 @@
       "title": "scan paths resolve against the server's cwd, not the served project's root",
       "title_override": null
     },
+    "e3d6bd": {
+      "assignee": null,
+      "description": "splitlines also breaks at \\f, \\v, \\x1c-\\x1e, \\x85, U+2028 and U+2029, so ast line numbers\npoint at the wrong entry. `resolve --sync-source` then deletes user text: with `# a<U+2028>b`\nabove the runtime import it removes \"b\" and moves the import into the comment; with a form-feed\nline it removes a newline, keeps the import, and still reports \"unused runtime import\" removed.\nrelease.py's `_lines` (strip/restore: false \"shares its line\" refusals) and scaffold.plan's\nimport insertion share the pattern.",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 250,
+            "path": "src/byteplan/cleanup.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_cleanup.py::test_task_e3d6bd",
+            "path": "tests/test_cleanup.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:47Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P2"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "e3d6bd",
+      "kind": "FIXME",
+      "labels": [
+        "rc1-gate-review",
+        "P2"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 231,
+        "line": 250,
+        "path": "src/byteplan/cleanup.py",
+        "representation": "comment",
+        "symbol": "_drop_unused_runtime_imports"
+      },
+      "status": "open",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 367,
+            "node": "tests/test_cleanup.py::test_cleanup_removes_the_runtime_import_with_python_line_breaks",
+            "path": "tests/test_cleanup.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Index physical lines with edits.physical_lines, not str.splitlines",
+      "title_override": null
+    },
     "e4af": {
       "assignee": null,
       "description": "Build scope/qualified-name, import, definition, reference and inheritance relationships;\nevaluate ast and justified LibCST metadata without modifying source.",
@@ -12020,6 +12394,69 @@
         "managed": []
       },
       "title": "Preflight all merge-driver installation destinations before changing attributes or Git configuration.",
+      "title_override": null
+    },
+    "e8bd84": {
+      "assignee": null,
+      "description": "The compatibility policy treats diagnostic codes as machine-readable API, but 15 codes in\nbyteplan.diagnostics.Code appear nowhere in the README, including malformed_id, unregistered_id,\npending_journal, release_stripped and scaffold_placeholder. Add a reference table.",
+      "first_seen": "2026-10-27T17:13:38Z",
+      "history": [
+        {
+          "at": "2026-10-27T17:13:38Z",
+          "event": "created",
+          "new": {
+            "line": 443,
+            "path": "README.md"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T17:14:40Z",
+          "event": "edited",
+          "new": {
+            "priority": "low"
+          },
+          "old": {
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T17:14:48Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "rc1-gate-review",
+              "P3"
+            ]
+          },
+          "old": {
+            "labels": []
+          }
+        }
+      ],
+      "id": "e8bd84",
+      "kind": "FIXME",
+      "labels": [
+        "rc1-gate-review",
+        "P3"
+      ],
+      "last_seen": "2026-10-27T17:13:38Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "present",
+      "priority": "low",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 443,
+        "path": "README.md",
+        "representation": "comment",
+        "symbol": "Commands"
+      },
+      "status": "open",
+      "stub": null,
+      "title": "Document every diagnostic code the CLI and MCP can emit",
       "title_override": null
     },
     "ec99": {

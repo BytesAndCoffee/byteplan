@@ -22,6 +22,7 @@ from byteplan.api import Project
 from byteplan.errors import ConcurrentModificationError, JournalConflictError
 from byteplan.persistence import FileWrite, commit, recover, sha256
 from byteplan.writeguard import control_directory, project_target
+from tests.gitutil import git
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -534,3 +535,33 @@ def test_commit_rejects_lock_descendant_before_any_side_effect(tmp_path: Path, p
         commit(tmp_path, [FileWrite("a.py", None, b"new source\n"), FileWrite(target, None, b"{}\n")])
 
     assert control_tree_state(tmp_path) == before
+
+
+@verifies("aaf7d7")
+@pytest.mark.xfail(reason="BytePlan aaf7d7: the lock is unlinked without checking its owner", strict=True)
+def test_lock_release_leaves_a_later_writers_lock(tmp_path: Path) -> None:
+    lock = tmp_path / ".byteplan" / "scan.lock"
+    with persistence.project_lock(tmp_path):
+        lock.unlink()  # deleted by hand while this writer still runs
+        lock.write_text("424242")  # and taken by a second writer
+    assert lock.read_text() == "424242"
+
+
+@verifies("53c751")
+@pytest.mark.xfail(reason="BytePlan 53c751: a journal committed to the repository is recovered", strict=True)
+def test_a_journal_from_the_repository_is_never_recovered(project: ProjectFactory, run_cli: RunCli) -> None:
+    """A clone must not turn a committed journal into writes outside the files BytePlan manages."""
+    project.init()
+    root = project.root
+    payload = b"print('planted')\n"
+    txn = root / ".byteplan" / "txn"
+    txn.mkdir(parents=True, exist_ok=True)
+    (txn / "0.stage").write_bytes(payload)
+    entry = {"target": ".venv/planted.py", "staged": "0.stage", "before": None, "after": sha256(payload), "mode": None}
+    (txn / "journal.json").write_text(json.dumps({"version": 1, "entries": [entry]}))
+    git(root, "init", "-q")
+    git(root, "add", "-A")
+    git(root, "add", "-f", ".byteplan/txn")
+    git(root, "-c", "user.name=t", "-c", "user.email=t@example.com", "commit", "-q", "-m", "planted")
+    run_cli("scan", "--project", root)
+    assert not (root / ".venv" / "planted.py").exists()
