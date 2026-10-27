@@ -741,7 +741,7 @@
             "provenance": "verifies"
           },
           {
-            "line": 517,
+            "line": 519,
             "node": "tests/test_persistence.py::test_commit_rejects_lock_descendant_before_any_side_effect",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
@@ -4561,8 +4561,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "function",
-        "decl_line": 269,
-        "line": 261,
+        "decl_line": 304,
+        "line": 296,
         "path": "src/byteplan/persistence.py",
         "representation": "comment",
         "symbol": "recover"
@@ -4572,8 +4572,14 @@
       "tests": {
         "discovered": [
           {
-            "line": 550,
+            "line": 585,
             "node": "tests/test_persistence.py::test_a_journal_from_the_repository_is_never_recovered",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 615,
+            "node": "tests/test_persistence.py::test_a_journal_written_here_is_still_recovered",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           }
@@ -5023,49 +5029,49 @@
             "provenance": "verifies"
           },
           {
-            "line": 340,
+            "line": 342,
             "node": "tests/test_persistence.py::test_commit_validates_entire_target_set_first",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 439,
+            "line": 441,
             "node": "tests/test_persistence.py::test_control_guards_reject_resolved_aliases_without_symlink_flag",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 485,
+            "line": 487,
             "node": "tests/test_persistence.py::test_native_windows_control_junction_is_rejected_before_cleanup",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 456,
+            "line": 458,
             "node": "tests/test_persistence.py::test_no_journal_recovery_rejects_control_alias_before_cleanup",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 471,
+            "line": 473,
             "node": "tests/test_persistence.py::test_ordinary_confined_source_parent_alias_remains_supported",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 325,
+            "line": 327,
             "node": "tests/test_persistence.py::test_recover_checks_all_copies_before_first_write",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 362,
+            "line": 364,
             "node": "tests/test_persistence.py::test_recover_rejects_symlink_copy_without_cleanup",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
           },
           {
-            "line": 263,
+            "line": 265,
             "node": "tests/test_persistence.py::test_recover_rejects_whole_invalid_journal_without_changes",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"
@@ -5893,8 +5899,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 343,
-        "line": 362,
+        "decl_line": 356,
+        "line": 375,
         "path": "src/byteplan/gitwrite.py",
         "representation": "comment",
         "symbol": "_swap_index"
@@ -9132,8 +9138,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 130,
-        "line": 160,
+        "decl_line": 135,
+        "line": 165,
         "path": "src/byteplan/persistence.py",
         "representation": "comment",
         "symbol": "project_lock"
@@ -9143,7 +9149,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 540,
+            "line": 542,
             "node": "tests/test_persistence.py::test_lock_release_leaves_a_later_writers_lock",
             "path": "tests/test_persistence.py",
             "provenance": "verifies"

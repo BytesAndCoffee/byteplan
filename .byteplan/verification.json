@@ -368,6 +368,22 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "bd9e52a867974f3b8a0976078fa0f732": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-27T18:25:02Z",
+      "dirty": true,
+      "head": "c3a8a94e7a2c6c768d9f5de9e65416fb42f3caa1",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "c4b99806d441": {
       "argv": [
         "hatch",
@@ -1199,6 +1215,20 @@
         },
         "tests/test_restore_integrity.py::test_restore_reports_unreadable_inputs_without_writes": {
           "duration_ms": 1688,
+          "outcome": "passed"
+        }
+      }
+    },
+    "53c751": {
+      "fingerprint": "efece1a53110b052ec281400649dca9788aca03b321a077ebde15011f42d1896",
+      "run": "bd9e52a867974f3b8a0976078fa0f732",
+      "tests": {
+        "tests/test_persistence.py::test_a_journal_from_the_repository_is_never_recovered": {
+          "duration_ms": 239,
+          "outcome": "passed"
+        },
+        "tests/test_persistence.py::test_a_journal_written_here_is_still_recovered": {
+          "duration_ms": 3,
           "outcome": "passed"
         }
       }

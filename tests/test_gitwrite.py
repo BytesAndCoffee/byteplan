@@ -106,7 +106,7 @@ def test_staged_recovery_rejects_whole_invalid_journal(repo: ProjectFactory, def
     data = json.loads(path.read_text())
     entry = data["entries"][-1]
     if defect == "version":
-        data["version"] = 2
+        data["version"] = 3
     elif defect == "entry":
         data["entries"][-1] = []
     elif defect == "direction":
@@ -133,7 +133,7 @@ def test_staged_recovery_rejects_whole_invalid_journal(repo: ProjectFactory, def
         data["index"] = str(repo.root / "unused-index")
     encoded = json.dumps(data)
     if defect == "duplicate_key":
-        encoded = encoded.replace('"version": 1', '"version": 1, "version": 1')
+        encoded = encoded.replace('"version": 2', '"version": 2, "version": 2')
     path.write_text(encoded)
     before = snapshot(repo)
     with pytest.raises(RollbackConflictError):

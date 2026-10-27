@@ -97,7 +97,8 @@ def test_source_parent_replaced_by_symlink_fails_safely(
         path.write_text(
             json.dumps(
                 {
-                    "version": 1,
+                    "version": 2,
+                    "origin": persistence.txn_origin(project.root),
                     "entries": [
                         {
                             "target": "src/a.py",

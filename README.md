@@ -820,6 +820,11 @@ isn't offered at all:
 - **Interrupted writes finish safely:** the next authorized write command completes them once
   the project lock is available. If a file was
   changed by something else in the meantime, BytePlan stops instead of overwriting it.
+- **Only this checkout's interrupted writes are finished:** a journal records the identity (inode)
+  of the `.byteplan/txn/` directory that wrote it. A journal that arrives with a clone or an
+  unpacked archive never matches, so BytePlan refuses it with an error and writes nothing;
+  inspect it and delete `.byteplan/txn/`. (On a filesystem without stable inodes,
+  such as FAT, every interrupted write needs this manual step.)
 - **Failures stop the scan cleanly:** a file that can't be read or parsed, or a directory that can't
   be listed, fails the whole scan before anything is reconciled.
 

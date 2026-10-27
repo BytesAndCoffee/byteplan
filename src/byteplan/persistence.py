@@ -22,6 +22,11 @@ A multi-file write is a transaction:
    no portable compare-and-swap rename exists.
 6. The journal and staged files are deleted.
 
+A journal records the inode of this checkout's ``.byteplan/txn/`` directory, its origin.
+Recovery replays only a journal whose origin matches: a clone or an unpacked archive creates
+that directory afresh, so a journal supplied with the repository is refused before any write
+instead of being replayed into arbitrary (even ignored) paths.
+
 There is no filesystem-wide atomic rename, so a crash during step 5 can leave
 some targets old and some new. Recovery rolls forward: any later write command
 finds the journal and finishes the replacements (idempotent, by hash). A target
@@ -53,7 +58,7 @@ STATE_DIR = ".byteplan"
 TXN_DIR = "txn"
 JOURNAL = "journal.json"
 LOCK = "scan.lock"
-JOURNAL_VERSION = 1
+JOURNAL_VERSION = 2
 
 
 def sha256(data: bytes) -> str:
@@ -173,6 +178,34 @@ def _lock_holder(path: Path) -> int | None:
         return None
 
 
+def txn_origin(root: Path) -> int:
+    """The identity a journal records: the inode of this checkout's transaction directory.
+
+    Creates the directory. A clone or an unpacked archive gets a new directory, so a journal
+    that arrives with repository content can't carry a matching origin.
+    """
+    txn = control_directory(root, f"{STATE_DIR}/{TXN_DIR}")
+    txn.mkdir(parents=True, exist_ok=True)
+    return txn.stat().st_ino
+
+
+def check_origin(root: Path, origin: object, journal: Path) -> None:
+    """Refuse a journal this checkout didn't write, before any recovery side effect."""
+    try:
+        local = (root / STATE_DIR / TXN_DIR).stat().st_ino
+    except OSError:
+        local = 0
+    if type(origin) is not int or origin == 0 or origin != local:
+        rel = journal.relative_to(root).as_posix()
+        msg = (
+            f"{rel} was not written by BytePlan in this checkout (it may have come with the repository "
+            "or from an older BytePlan), so it is not replayed; nothing was written. Inspect it, then "
+            f"delete {journal.parent.relative_to(root).as_posix()}/ to discard it "
+            "(and `git rm -r --cached` it if it is tracked)"
+        )
+        raise JournalConflictError(msg)
+
+
 def staged_dir(root: Path) -> Path:
     """Working directory of an in-progress staged (Git index) reconciliation (Phase 4c).
 
@@ -223,7 +256,7 @@ def commit(root: Path, writes: Sequence[FileWrite]) -> list[str]:
         return []
 
     txn = root / STATE_DIR / TXN_DIR
-    txn.mkdir(parents=True, exist_ok=True)
+    origin = txn_origin(root)
     _clear_staging(txn)
     entries: list[dict[str, Any]] = []
     for index, write in enumerate(changed):
@@ -249,7 +282,9 @@ def commit(root: Path, writes: Sequence[FileWrite]) -> list[str]:
         )
     atomic_write_bytes(
         journal_path(root),
-        json.dumps({"version": JOURNAL_VERSION, "entries": entries}, indent=2, sort_keys=True).encode(),
+        json.dumps(
+            {"version": JOURNAL_VERSION, "origin": origin, "entries": entries}, indent=2, sort_keys=True
+        ).encode(),
     )
     _fsync_dir(txn)
 
@@ -274,6 +309,7 @@ def recover(root: Path, *, allowed_targets: Collection[str] | None = None) -> li
         project_target(root, f"{STATE_DIR}/{TXN_DIR}/{JOURNAL}", control=True)
         journal = jsonio.loads(path.read_text(encoding="utf-8"))
         entries = _journal_entries(root, journal)
+        check_origin(root, journal["origin"], path)
     except FileNotFoundError:
         _clear_staging(path.parent)
         return []
@@ -328,7 +364,7 @@ def recover(root: Path, *, allowed_targets: Collection[str] | None = None) -> li
 def _journal_entries(root: Path, journal: Any) -> list[dict[str, Any]]:
     if (
         not isinstance(journal, dict)
-        or set(journal) != {"version", "entries"}
+        or set(journal) != {"version", "origin", "entries"}
         or type(journal["version"]) is not int
         or journal["version"] != JOURNAL_VERSION
         or not isinstance(journal["entries"], list)

@@ -26,7 +26,8 @@ Safety, in order:
   (``rollback_conflict``, journal kept).
 * A crash leaves the journal; the next run picks one direction for every
   target (forward if nothing foreign is present, otherwise back), records it,
-  and finishes it.
+  and finishes it. Like the ordinary journal it records its origin (the inode of
+  ``.byteplan/txn/``), and one that came with the repository is never replayed.
 
 ``git commit <paths>`` builds a temporary ``next-index-*`` while Git separately
 stages the paths into the real index; annotating only the temporary index
@@ -53,13 +54,22 @@ from byteplan.api import Project, utc_now
 from byteplan.diagnostics import EXIT_FINDINGS, EXIT_OK, Code
 from byteplan.errors import ByteplanError, ConfigError
 from byteplan.gitio import git, toplevel
-from byteplan.persistence import atomic_write_bytes, pending_journal, project_lock, sha256, staged_dir
+from byteplan.persistence import (
+    atomic_write_bytes,
+    check_origin,
+    pending_journal,
+    project_lock,
+    sha256,
+    staged_dir,
+    txn_origin,
+)
 from byteplan.writeguard import control_directory, copy_path, project_target, relative_path, valid_hash
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
 
 STAGED_JOURNAL = "journal.json"  # in persistence.staged_dir()
+STAGED_JOURNAL_VERSION = 2
 NEW_FILE_MODE = "100644"
 
 
@@ -96,6 +106,7 @@ class StagedJournal:
     index: str | None  # None: working tree only (pre-commit framework)
     direction: str = "forward"
     entries: list[JournalEntry] = field(default_factory=list)
+    origin: int = 0  # persistence.txn_origin() of the checkout that wrote it
 
     @staticmethod
     def path(root: Path) -> Path:
@@ -109,7 +120,8 @@ class StagedJournal:
             msg = f"unsafe staged journal path: {exc}"
             raise RollbackConflictError(msg) from exc
         data = {
-            "version": 1,
+            "version": STAGED_JOURNAL_VERSION,
+            "origin": self.origin,
             "index": self.index,
             "direction": self.direction,
             "entries": [asdict(e) for e in self.entries],
@@ -159,9 +171,10 @@ def _checked_target(root: Path, path: object) -> Path:
 def _journal_from_data(root: Path, data: object) -> StagedJournal:
     if (
         not isinstance(data, dict)
-        or set(data) != {"version", "index", "direction", "entries"}
+        or set(data) != {"version", "origin", "index", "direction", "entries"}
         or type(data["version"]) is not int
-        or data["version"] != 1
+        or data["version"] != STAGED_JOURNAL_VERSION
+        or type(data["origin"]) is not int
         or (data["index"] is not None and (not isinstance(data["index"], str) or "\x00" in data["index"]))
         or not isinstance(data["direction"], str)
         or data["direction"] not in {"forward", "rollback"}
@@ -230,7 +243,7 @@ def _journal_from_data(root: Path, data: object) -> StagedJournal:
         seen_paths.add(path)
         seen_top.add(top_path)
         entries.append(JournalEntry(**raw))
-    return StagedJournal(data["index"], data["direction"], entries)
+    return StagedJournal(data["index"], data["direction"], entries, data["origin"])
 
 
 def _validate_staged_index(root: Path, top: Path, journal: StagedJournal) -> None:
@@ -540,6 +553,7 @@ def _recover_locked(root: Path) -> list[str]:
     journal = StagedJournal.load(root)
     if journal is None:
         return []
+    check_origin(root, journal.origin, StagedJournal.path(root))
     top = toplevel(root)
     _validate_staged_index(root, top, journal)
     copies = _validated_copies(root, journal)
@@ -647,7 +661,7 @@ def _plan(
         if not changes:
             return _check_only(start, None)
 
-        journal = StagedJournal(None if framework else str(index))
+        journal = StagedJournal(None if framework else str(index), origin=txn_origin(root))
         copies: dict[str, bytes] = {}
         conflicts = []
         for number, write in enumerate(changes):
