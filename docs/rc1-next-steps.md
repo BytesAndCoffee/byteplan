@@ -1,9 +1,20 @@
 # RC1 next steps — fresh assessment, 24 October 2026
 
+## Correction update, 27 October 2026
+
+All four findings from the independent `d29ac93` review are corrected in focused commits
+`322fd6c`, `0821cb2` and `c0e1cb6`. Tasks `c6bc7c`, `e86b8e`, `9e4d1c` and `668a6c` are
+explicitly resolved after actual linked verification and independent affected-area reviews;
+see [the correction record](reviews/rc1-review4-corrections.md). Complete compatibility-PR
+validation and integration, then freeze a new common SHA for the required independent
+whole-repository reviews and final artifact/readiness evidence. Existing project locks now
+require deliberate cleanup after all writers stop; retain journals for recovery. No tag or
+publication is authorized by these corrections.
+
 ## Independent Codex review update, 27 October 2026
 
 The [whole-repository Codex review](reviews/rc1-d29ac93-codex.md) freezes
-`d29ac93bbbf57e9216a2c10694b307409399c734`, after PRs #51 and #52. RC1 remains
+`d29ac93bbbf57e9216a2c10694b307409399c734`, after PRs #51 and #52. At that revision RC1 was
 blocked: `c6bc7c` (P1, stale-lock reclamation permits silent successful task loss) and
 `e86b8e` (P1, merge-driver installation writes through an external state-directory alias).
 Correct these before a new approval freeze. Accept `9e4d1c` (P2, literal configured paths

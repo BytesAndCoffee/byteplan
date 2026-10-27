@@ -74,6 +74,22 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "2b16814e99df4b51bf1249b825d17e93": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-27T16:22:37Z",
+      "dirty": true,
+      "head": "6f9b723fd5a3b739e0137aeb09f15a6a2ed2517c",
+      "python": "3.12.14",
+      "timed_out": false
+    },
     "2b81a3e16b1d": {
       "argv": [
         "hatch",
@@ -259,22 +275,6 @@
       "at": "2026-10-24T20:54:52Z",
       "dirty": true,
       "head": "b0e47167b4554bbebac07ab34d78fdddb261a74f",
-      "python": "3.12.14",
-      "timed_out": false
-    },
-    "846c7c50a0534201bcd67107c0acc1b1": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-m",
-        "network or not network",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-27T16:14:57Z",
-      "dirty": true,
-      "head": "c0e1cb67a87b64f5365963ea75333a46f05359fe",
       "python": "3.12.14",
       "timed_out": false
     },
@@ -1375,34 +1375,34 @@
     },
     "668a6c": {
       "fingerprint": "c54b388c83eeb8d4d5a97837cad3fd4253c509f7a95a0f2b58b70b1f9ffe8b16",
-      "run": "846c7c50a0534201bcd67107c0acc1b1",
+      "run": "2b16814e99df4b51bf1249b825d17e93",
       "tests": {
         "tests/test_malformed_annotation_ids.py::test_json_string_suppression_still_applies": {
-          "duration_ms": 3,
-          "outcome": "passed"
-        },
-        "tests/test_malformed_annotation_ids.py::test_malformed_tag_does_not_hide_in_previous_task_description": {
           "duration_ms": 1,
           "outcome": "passed"
         },
+        "tests/test_malformed_annotation_ids.py::test_malformed_tag_does_not_hide_in_previous_task_description": {
+          "duration_ms": 2,
+          "outcome": "passed"
+        },
         "tests/test_malformed_annotation_ids.py::test_non_annotations_and_suppressions_remain_excluded": {
-          "duration_ms": 13,
+          "duration_ms": 27,
           "outcome": "passed"
         },
         "tests/test_malformed_annotation_ids.py::test_project_scan_reports_malformed_identity_without_source_edits": {
-          "duration_ms": 52,
+          "duration_ms": 106,
           "outcome": "passed"
         },
         "tests/test_malformed_annotation_ids.py::test_registered_task_with_broken_bracket_keeps_identity_and_open_status": {
-          "duration_ms": 81,
+          "duration_ms": 105,
           "outcome": "passed"
         },
         "tests/test_malformed_annotation_ids.py::test_supported_identity_grammar_is_unchanged": {
-          "duration_ms": 30,
+          "duration_ms": 31,
           "outcome": "passed"
         },
         "tests/test_malformed_annotation_ids.py::test_unclosed_id_bracket_is_diagnosed": {
-          "duration_ms": 33,
+          "duration_ms": 36,
           "outcome": "passed"
         }
       }
@@ -1804,19 +1804,19 @@
       }
     },
     "9e4d1c": {
-      "fingerprint": "3659cc12b44569bc3fe88dda7aac38ccf0bf6146fcc206cb0313edf3f2514bc9",
-      "run": "846c7c50a0534201bcd67107c0acc1b1",
+      "fingerprint": "fdcf252bd7dfe0db7f40ffcc5f42947c1e6ae4f1822da60c753f55a6bd962fa5",
+      "run": "2b16814e99df4b51bf1249b825d17e93",
       "tests": {
         "tests/test_merge_install_safety.py::test_actual_git_patterns_match_only_literal_configured_names": {
-          "duration_ms": 4621,
+          "duration_ms": 3574,
           "outcome": "passed"
         },
         "tests/test_merge_install_safety.py::test_confined_ordinary_parent_alias_combines_rules_for_the_same_attributes_file": {
-          "duration_ms": 429,
+          "duration_ms": 1973,
           "outcome": "passed"
         },
         "tests/test_merge_install_safety.py::test_spaced_registry_and_report_use_their_drivers_in_a_real_divergent_merge": {
-          "duration_ms": 768,
+          "duration_ms": 1179,
           "outcome": "passed"
         }
       }
@@ -2116,28 +2116,27 @@
       }
     },
     "c6bc7c": {
-      "fingerprint": "f5ee8804420a8bdf7c688f3667de2da1d6885384609379e3326e2beb2bfb3e41",
-      "run": "846c7c50a0534201bcd67107c0acc1b1",
+      "fingerprint": "84cc85638d694293b2df1bb51633faa261468da2ae4ad2b4c718dd64b92c3ce8",
+      "run": "2b16814e99df4b51bf1249b825d17e93",
       "tests": {
         "tests/test_project_lock_integrity.py::test_competing_stale_lock_checks_cannot_publish_losing_transactions": {
-          "duration_ms": 16,
+          "duration_ms": 11,
           "outcome": "passed"
         },
         "tests/test_project_lock_integrity.py::test_existing_lock_never_authorizes_automatic_removal": {
-          "duration_ms": 17,
+          "duration_ms": 39,
           "outcome": "passed"
         },
         "tests/test_project_lock_integrity.py::test_manual_stale_lock_cleanup_retains_and_recovers_the_journal": {
-          "duration_ms": 14,
+          "duration_ms": 13,
           "outcome": "passed"
         },
         "tests/test_project_lock_integrity.py::test_real_process_writer_is_excluded_then_preserves_prior_successful_work": {
-          "duration_ms": 38568,
-          "message": "tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-66/test_real_process_writer_is_ex0')\n\n    @verifies(\"c6bc7c\")\n    def test_real_process_writer_is_excluded_then_preserves_prior_successful_work(tmp_path: Path) -> None:\n        state = tmp_path / \".byteplan\"\n        state.mkdir()\n        target = state / \"tasks.json\"\n        target.write_bytes(_record([\"aaaa\"]))\n        command = [sys.executable, \"-c\", _CHILD_WRITE, str(tmp_path)]\n        with persistence.project_lock(tmp_path):\n            lock = state / \"scan.lock\"\n            owned = lock.read_bytes()\n            assert int(owned) == os.getpid()\n            refused = subprocess.run(command, capture_output=True, check=False, timeout=30)\n            assert refused.returncode == 2, refused.stderr.decode(errors=\"replace\")\n            assert lock.read_bytes() == owned\n            before = target.read_bytes()\n            persistence.commit(\n                tmp_path,\n                [persistence.FileWrite(\".byteplan/tasks.json\", persistence.sha256(before), _recor…",
-          "outcome": "failed"
+          "duration_ms": 892,
+          "outcome": "passed"
         },
         "tests/test_write.py::test_stale_lock_requires_deliberate_cleanup": {
-          "duration_ms": 206,
+          "duration_ms": 68,
           "outcome": "passed"
         }
       }
@@ -2425,27 +2424,31 @@
       }
     },
     "e86b8e": {
-      "fingerprint": "3659cc12b44569bc3fe88dda7aac38ccf0bf6146fcc206cb0313edf3f2514bc9",
-      "run": "846c7c50a0534201bcd67107c0acc1b1",
+      "fingerprint": "fdcf252bd7dfe0db7f40ffcc5f42947c1e6ae4f1822da60c753f55a6bd962fa5",
+      "run": "2b16814e99df4b51bf1249b825d17e93",
       "tests": {
         "tests/test_merge_install_safety.py::test_confined_ordinary_parent_alias_combines_rules_for_the_same_attributes_file": {
-          "duration_ms": 429,
+          "duration_ms": 1973,
           "outcome": "passed"
         },
         "tests/test_merge_install_safety.py::test_every_attributes_destination_is_preflighted_before_the_first_mutation": {
-          "duration_ms": 710,
+          "duration_ms": 407,
           "outcome": "passed"
         },
         "tests/test_merge_install_safety.py::test_installation_cannot_turn_metadata_file_destinations_into_parents": {
-          "duration_ms": 506,
+          "duration_ms": 481,
           "outcome": "passed"
         },
+        "tests/test_merge_install_safety.py::test_native_windows_state_junction_is_refused_before_installation_writes": {
+          "duration_ms": 1,
+          "outcome": "skipped"
+        },
         "tests/test_merge_install_safety.py::test_protected_installation_destinations_fail_without_side_effects": {
-          "duration_ms": 306,
+          "duration_ms": 391,
           "outcome": "passed"
         },
         "tests/test_merge_install_safety.py::test_state_directory_alias_refused_before_any_installation_write": {
-          "duration_ms": 453,
+          "duration_ms": 202,
           "outcome": "passed"
         }
       }

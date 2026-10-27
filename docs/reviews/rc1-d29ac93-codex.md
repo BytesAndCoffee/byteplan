@@ -4,9 +4,12 @@ Reviewed revision: `d29ac93bbbf57e9216a2c10694b307409399c734`.
 
 Verdict: **changes required; RC1 is not approval-ready**. Two P1 safety/data-integrity defects and two P2 reliability findings were independently reproduced. These conclusions were recorded before consulting Claude's current review. No tag or release was created.
 
-## R1 — P1: stale-lock reclamation permits successful competing writes to lose a task
+This verdict describes the frozen revision above. [Subsequent corrections](rc1-review4-corrections.md)
+implement all four findings with real regressions, recorded verification and explicit task
+resolution. The original analysis below remains historical evidence; affected reviews do not
+replace the final common-SHA whole-repository release gate.
 
-<!-- FIXME[c6bc7c]: Prevent competing stale-lock reclaimers from deleting a live writer's lock. -->
+## R1 — P1: stale-lock reclamation permits successful competing writes to lose a task
 
 Location: `src/byteplan/persistence.py:143–147`; unconditional release at `:156–158` has the same ownership assumption.
 
@@ -29,8 +32,6 @@ This is a release blocker because BytePlan's own writer exclusion fails and actu
 
 ## R2 — P1: merge-driver installation writes outside the project through a state-directory alias
 
-<!-- FIXME[e86b8e]: Preflight all merge-driver installation destinations before changing attributes or Git configuration. -->
-
 Location: `src/byteplan/gitio.py:126–158`.
 
 Create a temporary Git project with `registry = "records/tasks.json"`, an outside temporary directory containing `.gitattributes` with `important.bin -text`, and a project `.byteplan` directory symlink to that outside directory. Run the public command `byteplan git install-merge-driver --project ROOT`.
@@ -40,8 +41,6 @@ Observed: exit 0; the outside file gains `archive.json merge=byteplan-archive`. 
 The demonstrated extent is an appended rule in a fixed external `.gitattributes`, not arbitrary-byte overwrite, registry loss or deletion. It is a release-blocking write-authority violation: integration installation modifies a destination outside the project without refusal or outside-target notice. Preflight every attributes destination, the lexical state-directory identity and unsafe/nonregular/conflicting/protected parents before the first attributes/config mutation. Reuse existing guards and preserve installation idempotence. Test no outside changes and no partial local/config changes on refusal, including native Windows aliases where available. Explicit Git `core.hooksPath` behavior is a separate contract.
 
 ## R3 — P2: supported filenames containing spaces receive no merge-driver association
-
-<!-- FIXME[9e4d1c]: Encode literal configured filenames correctly in generated Git attributes rules. -->
 
 Location: `src/byteplan/gitio.py:129`.
 
@@ -56,8 +55,6 @@ task plan.md: merge: unspecified
 Both the independent interface reviewer and parent reproduced this with the public CLI and `git check-attr`. Use Git attributes pattern/quoting rules rather than shell quoting, and test actual matching plus repeat installation. Consider literal glob characters in the fix; only spaces were demonstrated here. This is P2 supported-path reliability, not demonstrated data loss: plain Git can still fail with an explicit conflict. Accept for pre-RC1 correction alongside R2, without treating the custom driver as mandatory for correctness.
 
 ## R4 — P2: unclosed persistent-ID brackets silently hide intended task annotations
-
-<!-- FIXME[668a6c]: Report malformed task-ID bracket syntax instead of silently ignoring the annotation. -->
 
 Location: `src/byteplan/scanner/comments.py:79–88`; the shared grammar is used by Python, Markdown and JSON-comment scanners.
 
