@@ -254,7 +254,7 @@ def _drop_unused_runtime_imports(
     #   line it removes a newline, keeps the import, and still reports "unused runtime import" removed.
     #   release.py's `_lines` (strip/restore: false "shares its line" refusals) and scaffold.plan's
     #   import insertion share the pattern.
-    lines = text.splitlines(keepends=True)
+    lines = physical_lines(text)
     removed: list[str] = []
     for stmt in sorted(tree.body, key=lambda s: s.lineno, reverse=True):
         if not (isinstance(stmt, ast.ImportFrom) and stmt.level == 0 and stmt.module in runtime):

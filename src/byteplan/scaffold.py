@@ -29,7 +29,7 @@ import warnings
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from byteplan.edits import header_end
+from byteplan.edits import header_end, physical_lines
 from byteplan.errors import ByteplanError, EditError
 from byteplan.models import AttachmentKind
 from byteplan.scanner.bindings import bound_names, module_statements
@@ -346,7 +346,7 @@ def plan(
     match = re.search(r"\r\n|\n|\r", existing)
     nl = match.group() if match else "\n"
     missing = [line for line in imports if not _present(tree, line)]
-    lines = existing.splitlines(keepends=True)
+    lines = physical_lines(existing)
     if missing:
         _insert_imports(tree, lines, missing, nl)
     text = "".join(lines)

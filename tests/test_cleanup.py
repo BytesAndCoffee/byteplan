@@ -365,7 +365,6 @@ def test_whole_line_markdown_removal_leaves_no_double_blank_line(
 
 
 @verifies("e3d6bd")
-@pytest.mark.xfail(reason="BytePlan e3d6bd: cleanup indexes lines with str.splitlines", strict=True)
 @pytest.mark.parametrize(
     ("before", "kept"),
     [
