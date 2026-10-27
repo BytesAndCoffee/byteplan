@@ -259,6 +259,7 @@ def test_spaced_registry_and_report_use_their_drivers_in_a_real_divergent_merge(
     assert (project.root / "task plan.md").read_bytes() == b"main report\n"
 
 
+@verifies("e86b8e")
 @pytest.mark.skipif(sys.platform != "win32", reason="native Windows junction check")
 def test_native_windows_state_junction_is_refused_before_installation_writes(
     project: ProjectFactory, run_cli: RunCli, tmp_path: Path

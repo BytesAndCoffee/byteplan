@@ -172,6 +172,11 @@ except LockedError:
     sys.exit(2)
 """
 
+# Allow cold interpreter startup and fsync under contended CI. This is a
+# watchdog, not a product performance requirement; exclusion and byte/identity
+# preservation are asserted below regardless of how quickly the child starts.
+_CHILD_TIMEOUT = 120
+
 
 @verifies("c6bc7c")
 def test_real_process_writer_is_excluded_then_preserves_prior_successful_work(tmp_path: Path) -> None:
@@ -184,7 +189,7 @@ def test_real_process_writer_is_excluded_then_preserves_prior_successful_work(tm
         lock = state / "scan.lock"
         owned = lock.read_bytes()
         assert int(owned) == os.getpid()
-        refused = subprocess.run(command, capture_output=True, check=False, timeout=30)
+        refused = subprocess.run(command, capture_output=True, check=False, timeout=_CHILD_TIMEOUT)
         assert refused.returncode == 2, refused.stderr.decode(errors="replace")
         assert lock.read_bytes() == owned
         before = target.read_bytes()
@@ -192,7 +197,7 @@ def test_real_process_writer_is_excluded_then_preserves_prior_successful_work(tm
             tmp_path,
             [persistence.FileWrite(".byteplan/tasks.json", persistence.sha256(before), _record(["aaaa", "bbbb"]))],
         )
-    completed = subprocess.run(command, capture_output=True, check=False, timeout=30)
+    completed = subprocess.run(command, capture_output=True, check=False, timeout=_CHILD_TIMEOUT)
     assert completed.returncode == 0, completed.stderr.decode(errors="replace")
     assert set(registry.loads(target.read_text(encoding="utf-8")).tasks) == {"aaaa", "bbbb", "cccc"}
     assert set(json.loads(target.read_bytes())["reserved_ids"]) == {"aaaa", "bbbb", "cccc"}
