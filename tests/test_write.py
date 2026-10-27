@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from byteplan._todo import verifies
 from byteplan.api import Project
 from byteplan.diagnostics import EXIT_FINDINGS, Code
 from byteplan.models import Presence, Status
@@ -423,13 +424,24 @@ def test_lock_held_by_live_process(project: ProjectFactory, run_cli: RunCli) -> 
     assert lock.exists()
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="stale-lock probing is POSIX-only")
-def test_stale_lock_is_taken_over(project: ProjectFactory, clock: FakeClock) -> None:
+@verifies("c6bc7c")
+def test_stale_lock_requires_deliberate_cleanup(project: ProjectFactory, clock: FakeClock, run_cli: RunCli) -> None:
     project.init()
     project.write("a.py", "# TODO: x\n")
-    (project.root / ".byteplan/scan.lock").write_text("999999999")
+    lock = project.root / ".byteplan/scan.lock"
+    lock.write_text("999999999")
+    before = project.snapshot()
+    result = run_cli("scan", "--project", project.root)
+    assert result.code == 2
+    assert "existing locks are never removed automatically" in result.err
+    assert "Stop all BytePlan writers" in result.err
+    assert "Preserve .byteplan/txn/" in result.err
+    assert project.snapshot() == before
+    # Only after explicitly confirming no writer is running may the owner
+    # remove the stale marker; ordinary scanning then retains its behavior.
+    lock.unlink()
     scan(project, clock)
-    assert not (project.root / ".byteplan/scan.lock").exists()
+    assert not lock.exists()
     assert len(registry(project)["tasks"]) == 1
 
 

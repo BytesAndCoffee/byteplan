@@ -252,7 +252,13 @@ def scan_json(source: SourceFile, detect: DetectConfig) -> tuple[list[Annotation
     canonical = {tag.upper(): tag for tag in tags}
     patterns = {"line_comment": tag_pattern(tags, opener="//"), "block_comment": tag_pattern(tags, opener=r"/\*")}
     alternatives = "|".join(re.escape(tag) for tag in sorted(tags, key=len, reverse=True))
-    string_pattern = re.compile(rf'"(?P<tag>{alternatives})(?:\[(?P<id>[^\]"]*)\])?(?P<rest>:.*)"', re.DOTALL)
+    # Valid string annotations still require ':'. Only the malformed-ID branch
+    # may consume the complete string without it, so tag_annotation can diagnose it.
+    string_pattern = re.compile(
+        rf'"(?P<tag>{alternatives})(?:\[(?P<id>[^\]"]*)\]|\[(?P<unclosed>(?:\\.|[^"\\\]])*))?'
+        r'(?P<rest>(?(unclosed)|:.*))"',
+        re.DOTALL,
+    )
 
     found: list[Annotation] = []
     diagnostics: list[Diagnostic] = []

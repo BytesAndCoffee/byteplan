@@ -27,6 +27,9 @@ jobs:
       - name: Native Windows control-junction regression
         if: matrix.os == 'windows-latest' && matrix.python == '3.12'
         run: hatch test --python 3.12 -- -v tests/test_persistence.py::test_native_windows_control_junction_is_rejected_before_cleanup
+      - name: Native Windows merge-install junction regression
+        if: matrix.os == 'windows-latest' && matrix.python == '3.12'
+        run: hatch test --python 3.12 -- -v tests/test_merge_install_safety.py::test_native_windows_state_junction_is_refused_before_installation_writes
 
   released-clients:
     name: released-client compatibility

@@ -813,7 +813,8 @@ isn't offered at all:
 - **Writes are journaled and crash-safe:** a multi-file update is staged under a lock and journaled
   before anything is replaced. Each file is replaced atomically with its permissions kept, and the
   registry goes last.
-- **Interrupted writes finish safely:** the next write command completes them. If a file was
+- **Interrupted writes finish safely:** the next authorized write command completes them once
+  the project lock is available. If a file was
   changed by something else in the meantime, BytePlan stops instead of overwriting it.
 - **Failures stop the scan cleanly:** a file that can't be read or parsed, or a directory that can't
   be listed, fails the whole scan before anything is reconciled.
@@ -823,6 +824,11 @@ isn't offered at all:
   completion (roll-forward), not that all files change at the same instant.
 - **A small race window remains.** Each file's content is re-checked immediately before it's
   replaced, but nothing portable can close the gap between that check and the rename.
+- **Existing project locks require deliberate cleanup.** BytePlan never automatically removes
+  `.byteplan/scan.lock`, even if its recorded process appears dead: another writer could have
+  replaced that lock during inspection. Stop all CLI, hook, MCP and build writers and confirm
+  none is running before deleting only the stale lock file and retrying the intended write.
+  Preserve `.byteplan/txn/` and its journal/copies so recovery can finish interrupted work.
 - **Symlinks are never followed.** That prevents scanning a file twice or reaching outside the
   project.
 - **Only `.gitignore` files are honoured.** `.git/info/exclude` and global Git excludes aren't read.

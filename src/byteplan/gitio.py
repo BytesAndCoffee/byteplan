@@ -23,6 +23,7 @@ from byteplan import registry as registry_io
 from byteplan.errors import ByteplanError, ConfigError, RegistryError
 from byteplan.merge import MergeResult, merge_registries
 from byteplan.persistence import STATE_DIR, atomic_write_bytes
+from byteplan.writeguard import control_directory, project_target
 
 if TYPE_CHECKING:
     from byteplan.api import Project
@@ -123,34 +124,101 @@ def driver_command(subcommand: str = "merge-registry") -> str:
     return f"{shlex.quote(sys.executable)} -m byteplan {subcommand} %O %A %B %P"
 
 
-def _add_attribute(root: Path, target: Path, driver: str) -> list[str]:
-    """Add ``<name> merge=<driver>`` to the ``.gitattributes`` next to ``target``."""
-    attributes = target.parent / ".gitattributes"
-    line = f"{target.name} merge={driver}"
-    try:
-        existing = attributes.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        existing = ""
-    if line in existing.splitlines():
-        return []
-    prefix = existing if not existing or existing.endswith("\n") else existing + "\n"
-    atomic_write_bytes(attributes, (prefix + line + "\n").encode())
-    return [f"added `{line}` to {attributes.relative_to(root).as_posix()} (commit this file)"]
+def _attribute_pattern(name: str) -> str:
+    """A literal basename in Git attributes syntax (not shell quoting)."""
+    pattern = "".join("\\" + char if char in "*?[]\\" else char for char in name)
+    if pattern.startswith(("!", "#")):
+        pattern = "\\" + pattern
+    if pattern == name and all(char.isalnum() or char in "._-" for char in name):
+        return name
+    # C quoting is decoded before Git's glob matching. Preserve glob escapes through
+    # that decoding; encode other control characters with Git-supported octal escapes.
+    quoted = "".join(
+        "\\" + char if char in '\\"' else f"\\{ord(char):03o}" if char < " " or char == "\x7f" else char
+        for char in pattern
+    )
+    return f'"{quoted}"'
+
+
+def _attribute_target(root: Path, target: Path, *, control: bool = False) -> Path:
+    """Validate a destination and its parents before planning any installation writes."""
+    checked = project_target(root, target.relative_to(root).as_posix(), control=control)
+    for parent in checked.parents:
+        if parent == root:
+            break
+        if parent.exists() and not parent.is_dir():
+            msg = f"merge-driver destination {target.relative_to(root).as_posix()!r} has a non-directory parent"
+            raise ValueError(msg)
+    return checked
 
 
 def install_merge_driver(project: Project) -> list[str]:
     root = project.root
     toplevel(root)  # fails clearly outside a Git work tree
-    actions = _add_attribute(root, project.config.registry_path, DRIVER)
-    settings = [(f"merge.{DRIVER}.name", DRIVER_NAME), (f"merge.{DRIVER}.driver", driver_command())]
+    targets = [(project.config.registry_path, DRIVER)]
+    settings = [
+        (f"merge.{DRIVER}.name", DRIVER_NAME),
+        (f"merge.{DRIVER}.driver", driver_command()),
+    ]
     if project.report_rel is not None:
-        actions += _add_attribute(root, root / project.report_rel, REPORT_DRIVER)
-        settings += [(f"merge.{REPORT_DRIVER}.name", REPORT_DRIVER_NAME), (f"merge.{REPORT_DRIVER}.driver", "true")]
-    actions += _add_attribute(root, root / STATE_DIR / archive.INDEX, ARCHIVE_DRIVER)
+        targets.append((root / project.report_rel, REPORT_DRIVER))
+        settings += [
+            (f"merge.{REPORT_DRIVER}.name", REPORT_DRIVER_NAME),
+            (f"merge.{REPORT_DRIVER}.driver", "true"),
+        ]
+    targets.append((root / STATE_DIR / archive.INDEX, ARCHIVE_DRIVER))
     settings += [
         (f"merge.{ARCHIVE_DRIVER}.name", ARCHIVE_DRIVER_NAME),
         (f"merge.{ARCHIVE_DRIVER}.driver", driver_command("merge-archive")),
     ]
+
+    # Validate the complete target set and read every existing attributes file before
+    # creating any parent, appending any rule, or changing this clone's Git settings.
+    actions: list[str] = []
+    planned: dict[Path, str] = {}
+    originals: dict[Path, str] = {}
+    metadata: list[Path] = []
+    try:
+        control_directory(root, STATE_DIR)
+        for target, driver in targets:
+            metadata.append(_attribute_target(root, target).resolve())
+            attributes = _attribute_target(
+                root,
+                target.parent / ".gitattributes",
+                control=target.parent == root / STATE_DIR,
+            ).resolve()
+            if attributes not in planned:
+                try:
+                    existing = attributes.read_bytes().decode("utf-8")
+                except FileNotFoundError:
+                    existing = ""
+                originals[attributes] = planned[attributes] = existing
+            line = f"{_attribute_pattern(target.name)} merge={driver}"
+            existing = planned[attributes]
+            if line in existing.splitlines():
+                continue
+            newline = "\r\n" if "\r\n" in existing else "\n"
+            prefix = existing if not existing or existing.endswith(("\r", "\n")) else existing + newline
+            planned[attributes] = prefix + line + newline
+            actions.append(f"added `{line}` to {attributes.relative_to(root).as_posix()} (commit this file)")
+    except (ValueError, OSError) as exc:
+        msg = f"unsafe merge-driver installation; nothing was written: {exc}"
+        raise ConfigError(msg) from exc
+
+    if (
+        len(set(metadata)) != len(metadata)
+        or any(other in path.parents for path in metadata for other in metadata if other != path)
+        or any(other in path.parents for path in planned for other in planned if other != path)
+        or any(
+            path == other or path in other.parents or other in path.parents for path in planned for other in metadata
+        )
+    ):
+        msg = "unsafe merge-driver installation; nothing was written: metadata and attributes destinations overlap as files and directories"
+        raise ConfigError(msg)
+
+    for path, text in planned.items():
+        if text != originals[path]:
+            atomic_write_bytes(path, text.encode("utf-8"))
 
     for key, value in settings:
         try:

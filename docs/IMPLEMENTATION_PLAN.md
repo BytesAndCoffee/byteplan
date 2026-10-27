@@ -235,6 +235,11 @@ is written only if its bytes differ from the existing one.
 5. Write the registry last.
 6. Delete the journal.
 
+Existing lock markers fail closed, including dead-looking PIDs. Automatic stale-lock removal
+can delete a newer writer's lock between inspection and unlink. For deliberate recovery,
+stop all writers, confirm none is running, remove only the stale lock marker and retry the
+authorized write while preserving `.byteplan/txn/` and its journal/copies.
+
 Any later command that finds a journal **rolls forward**. If a hash matches neither the before
 nor the after value, it reports `journal_conflict` and leaves resolution to `repair`.
 

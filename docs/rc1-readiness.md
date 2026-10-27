@@ -5,12 +5,13 @@
   record its exact-head CI run, rebuild the wheel/sdist there and record their hashes and install
   smoke, and update README's "Status: preparing 1.0.0rc1" line when the tag is approved. -->
 
-**Status: release blocked by the independent Codex review at `d29ac93`.** No RC1 tag or package
-has been published by this work. The [new whole-repository review](reviews/rc1-d29ac93-codex.md)
-demonstrates successful task loss through stale-lock reclamation (`c6bc7c`, P1) and an external
-attributes-file write during merge-driver installation (`e86b8e`, P1). Two P2 findings
-(`9e4d1c`, `668a6c`) are also accepted for bounded pre-RC1 correction. All remain open.
-The earlier `b551870` checks below are historical evidence, not final approval of this revision.
+**Status: the four Codex review findings are corrected on this branch; final release gates
+remain open.** No RC1 tag or package has been published. The [frozen review](reviews/rc1-d29ac93-codex.md)
+demonstrated task loss (`c6bc7c`, P1), an external attributes write (`e86b8e`, P1), and two P2
+findings (`9e4d1c`, `668a6c`). [Focused corrections](reviews/rc1-review4-corrections.md) have real
+regressions, recorded linked verification, explicit task resolution and independent affected-area
+reviews. Integration/platform checks and a new common-SHA pair of whole-repository reviews are
+still required. Earlier `b551870` checks below are historical evidence, not final approval.
 
 ## Revision and integration gates
 
@@ -108,8 +109,9 @@ No semantic graph implementation belongs in RC1.
 
 ## Approval decision
 
-**Blocked.** Resolve the confirmed P1 findings and accepted P2 corrections with real regression
-tests and recorded evidence. The writer-lock correction affects repository-wide integrity:
+**Pending final release gates.** The four confirmed P1/P2 corrections have real regression
+tests, recorded evidence and explicit lifecycle resolution. Complete their integration and
+platform validation. The writer-lock correction affects repository-wide integrity:
 freeze a new common SHA and complete two independent whole-repository reviews under Addendum E,
 then record its platform CI and freshly rebuilt/installed artifacts. Update this report with
 the exact evidence and dispositions before presenting it for explicit approval. Do not tag
