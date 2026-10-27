@@ -540,7 +540,6 @@ def test_commit_rejects_lock_descendant_before_any_side_effect(tmp_path: Path, p
 
 
 @verifies("aaf7d7")
-@pytest.mark.xfail(reason="BytePlan aaf7d7: the lock is unlinked without checking its owner", strict=True)
 def test_lock_release_leaves_a_later_writers_lock(tmp_path: Path) -> None:
     lock = tmp_path / ".byteplan" / "scan.lock"
     with persistence.project_lock(tmp_path):

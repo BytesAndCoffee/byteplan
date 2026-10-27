@@ -157,6 +157,7 @@ def project_lock(root: Path) -> Iterator[None]:
             "Preserve .byteplan/txn/ so the next authorized write can recover any interrupted transaction"
         )
         raise LockedError(msg) from None
+    created = os.fstat(fd)
     with os.fdopen(fd, "w") as handle:
         handle.write(str(os.getpid()))
     try:
@@ -167,8 +168,12 @@ def project_lock(root: Path) -> Iterator[None]:
         #   while this writer still ran (the guidance invites manual cleanup) and a second writer took
         #   it, this exit removes the second writer's lock and a third can start alongside it. Compare
         #   the file's identity (st_dev/st_ino) or a per-acquisition token before unlinking.
+        # Remove only the file this process created: if it was deleted by hand meanwhile and
+        # another writer took the lock, that writer's lock must stay.
         with contextlib.suppress(FileNotFoundError):
-            path.unlink()
+            current = path.lstat()
+            if (current.st_dev, current.st_ino) == (created.st_dev, created.st_ino):
+                path.unlink()
 
 
 def _lock_holder(path: Path) -> int | None:
