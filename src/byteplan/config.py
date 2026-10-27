@@ -175,7 +175,11 @@ def lexical_rel(rel: str, root: Path) -> str:
     path = Path(rel)
     if path.is_absolute():
         resolved_root = root.resolve()
-        parent = next((p for p in path.parents if Path(p).resolve() == resolved_root), None)
+        # Spelled with the root itself: strip it without touching the filesystem.
+        lexical = next((r for r in (root, resolved_root) if path.is_relative_to(r)), None)
+        # Spelled through an alias of the root: the outermost ancestor that is the root. Going
+        # outermost first never resolves a directory inside the project (`reports -> .`).
+        parent = lexical or next((p for p in reversed(path.parents) if Path(p).resolve() == resolved_root), None)
         # Validation already confined it; a path that enters the root only through an
         # alias inside some other directory falls back to resolving it whole.
         path = path.relative_to(parent) if parent is not None else path.resolve().relative_to(resolved_root)

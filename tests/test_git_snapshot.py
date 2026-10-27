@@ -427,3 +427,33 @@ def test_snapshot_checks_accept_absolute_in_root_paths(repo: ProjectFactory, run
     for selection in (("--staged",), ("--commit", "HEAD")):
         result = run_cli("check", *selection, "--project", repo.root)
         assert result.code == EXIT_OK, (selection, result.err)
+
+
+@verifies("8df831")
+def test_an_unstaged_directory_alias_cannot_shift_an_absolute_report_path(
+    repo: ProjectFactory, run_cli: RunCli
+) -> None:
+    """`reports -> .` must not turn the configured reports/report.md into report.md."""
+    pyproject = repo.root / "pyproject.toml"
+    report = (repo.root / "reports" / "report.md").as_posix()
+    text = pyproject.read_text().replace('include = ["**/*.py"]', 'include = ["**/*.py", "**/*.md"]')
+    pyproject.write_text(text.replace("[tool.byteplan]\n", f'[tool.byteplan]\nreport_file = "{report}"\n', 1))
+    assert run_cli("scan", "--project", repo.root).code == EXIT_OK  # writes reports/report.md
+    repo.write("report.md", "<!-- TODO: a task nobody registered -->\n")
+    top = repo.root.parent
+    git(top, "add", "-A")
+    git(top, "commit", "-qm", "absolute report and a real report.md")
+    selections = (("--staged",), ("--commit", "HEAD"))
+    for selection in selections:
+        assert run_cli("check", *selection, "--project", repo.root).code == EXIT_FINDINGS, selection
+
+    reports = repo.root / "reports"
+    shutil.rmtree(reports)
+    try:
+        reports.symlink_to(".", target_is_directory=True)  # unstaged
+    except OSError:
+        pytest.skip("symlinks are not available")
+    for selection in selections:
+        result = run_cli("check", *selection, "--project", repo.root)
+        assert result.code == EXIT_FINDINGS, selection
+        assert "NEW_UNREGISTERED  report.md" in result.err, selection

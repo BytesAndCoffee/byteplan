@@ -46,22 +46,6 @@
       "python": "3.11.0",
       "timed_out": false
     },
-    "13f2f051e4f848d8b82f859220552829": {
-      "argv": [
-        "hatch",
-        "test",
-        "--",
-        "-m",
-        "network or not network",
-        "-p",
-        "_byteplan_verify_plugin"
-      ],
-      "at": "2026-10-27T19:10:39Z",
-      "dirty": true,
-      "head": "ecb8b8f146308b1a65e791eb2963da1c3fcf4b7b",
-      "python": "3.11.0",
-      "timed_out": false
-    },
     "165678588f64": {
       "argv": [
         "hatch",
@@ -175,6 +159,22 @@
       "at": "2026-10-23T03:46:25Z",
       "dirty": true,
       "head": "76909dfa18e4b23c892bf709a6c7f860fddc8036",
+      "python": "3.11.0",
+      "timed_out": false
+    },
+    "54ee6736736140668e137082856759be": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-27T19:20:24Z",
+      "dirty": true,
+      "head": "79ca5f8f8c66a2411a99ed90ac7e2263e50e43bc",
       "python": "3.11.0",
       "timed_out": false
     },
@@ -852,11 +852,11 @@
       }
     },
     "26756c": {
-      "fingerprint": "6b618895ad801299ddd39afbf961a778fbe72d4b7f0a0e4982ebdada0ac7547a",
-      "run": "13f2f051e4f848d8b82f859220552829",
+      "fingerprint": "1177a4fa05be705a5bb9ad24f40a02747ace1392137f824c469a661630dec010",
+      "run": "54ee6736736140668e137082856759be",
       "tests": {
         "tests/test_git_snapshot.py::test_an_unstaged_report_alias_cannot_hide_a_selected_task": {
-          "duration_ms": 235,
+          "duration_ms": 222,
           "outcome": "passed"
         }
       }
@@ -1821,6 +1821,20 @@
         }
       }
     },
+    "8df831": {
+      "fingerprint": "b7ad5e4215ef26c16bf35f1d2621b14c8eb4a339280c820d675baba5876ad3df",
+      "run": "54ee6736736140668e137082856759be",
+      "tests": {
+        "tests/test_config.py::test_lexical_rel_never_resolves_directories_inside_the_root": {
+          "duration_ms": 1,
+          "outcome": "passed"
+        },
+        "tests/test_git_snapshot.py::test_an_unstaged_directory_alias_cannot_shift_an_absolute_report_path": {
+          "duration_ms": 266,
+          "outcome": "passed"
+        }
+      }
+    },
     "90c6": {
       "fingerprint": "512a31da49996f58909edfb33042007d1b0aed7350b7348827f08990c330fd34",
       "run": "7d4f28e5d140",
@@ -2584,15 +2598,15 @@
       }
     },
     "e56005": {
-      "fingerprint": "22c4966207cbaa056ca7584dbacb0487550a0938c0fcb59139326218b21206d8",
-      "run": "13f2f051e4f848d8b82f859220552829",
+      "fingerprint": "bf6a9988ee84a4498fbc08350342c97bf375ae97c78e4cadf8b9441f51d3d7fd",
+      "run": "54ee6736736140668e137082856759be",
       "tests": {
         "tests/test_config.py::test_lexical_rel": {
           "duration_ms": 3,
           "outcome": "passed"
         },
         "tests/test_git_snapshot.py::test_snapshot_checks_accept_absolute_in_root_paths": {
-          "duration_ms": 172,
+          "duration_ms": 155,
           "outcome": "passed"
         }
       }

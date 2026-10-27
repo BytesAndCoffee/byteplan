@@ -104,3 +104,18 @@ def test_lexical_rel(tmp_path: Path) -> None:
     # The root may be spelled through an alias; a symlink inside the project is never followed.
     assert lexical_rel(str(tmp_path / "alias" / "report.md"), real) == "report.md"
     assert lexical_rel(str(real / ".byteplan" / "tasks.json"), real) == ".byteplan/tasks.json"
+
+
+@verifies("8df831")
+def test_lexical_rel_never_resolves_directories_inside_the_root(tmp_path: Path) -> None:
+    root = tmp_path / "real"
+    root.mkdir()
+    try:
+        (root / "reports").symlink_to(".", target_is_directory=True)  # reports -> the root itself
+        (tmp_path / "alias").symlink_to(root, target_is_directory=True)
+    except OSError:
+        pytest.skip("symlinks are not available")
+    real = root.resolve()
+    assert lexical_rel(str(real / "reports" / "report.md"), real) == "reports/report.md"
+    # Through an alias of the root, the outermost matching ancestor is the root.
+    assert lexical_rel(str(tmp_path / "alias" / "reports" / "report.md"), real) == "reports/report.md"
