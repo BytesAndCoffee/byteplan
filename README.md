@@ -7,7 +7,7 @@
 
 BytePlan is a source-first task tracker for Python projects. You write `# TODO:` where the work is,
 or leave a function unfinished, and BytePlan does the rest:
-- gives each obligation a permanent hexadecimal ID, written back into the source (`# TODO[7fa2]:`)
+- gives each obligation a permanent hexadecimal ID, written back into the source (`# TODO[7fa2c1]:`)
 - keeps status, priority, owner, notes and history in a Git-versioned registry,
   `.byteplan/tasks.json`
 - reconciles the two on every scan
@@ -15,8 +15,8 @@ or leave a function unfinished, and BytePlan does the rest:
 It never decides that work is done. If a TODO disappears, its task is marked **missing**, not
 resolved. Only you resolve tasks.
 
-> **Status: preparing 1.0.0rc1 (beta).** Final release validation and approval remain pending.
-> The current implementation includes:
+> **Status: 1.0.0rc1, a release candidate.** Independent review and feedback are welcome:
+> please [open an issue](https://github.com/BytesAndCoffee/byteplan/issues). It includes:
 > - the CLI, scanner and registry, for Python, Markdown and JSON
 > - Git integration: IDs added at commit time, staged and CI checks, and the merge drivers
 > - acceptance tests: linking, scaffolding and `byteplan verify` with recorded evidence
@@ -24,11 +24,11 @@ resolved. Only you resolve tasks.
 > - decorator mode (`byteplan sync`), release stripping, and the Hatch hook
 > - an MCP server for AI agents
 >
-> Assignments (linking tasks to issues, commits and PRs) are planned. See the
+> Planned after 1.0: linking tasks to issues, commits and PRs (Assignments), then a semantic graph
+> of tasks and code for 1.5 and 2.0. See the
 > [implementation plan](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/development/IMPLEMENTATION_PLAN.md)
-> and [Addendum E](docs/development/spec-addendum-e.md) for RC1 hardening and the proposed 1.5/2.0 semantic
-> graph roadmap. Graph implementation is deferred until after 1.0 stable. Shipped changes are
-> recorded in the [changelog](https://github.com/BytesAndCoffee/byteplan/blob/main/CHANGELOG.md).
+> and [Addendum E](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/development/spec-addendum-e.md).
+> Changes are recorded in the [changelog](https://github.com/BytesAndCoffee/byteplan/blob/main/CHANGELOG.md).
 
 ## Contents
 
@@ -64,8 +64,8 @@ dependencies) provides the `@todo` and `@verifies` decorators. It's only needed 
 ## Quick start
 
 New tasks receive six-character IDs; four-character IDs from existing projects remain fully
-supported. Existing projects must [migrate their registry](docs/guide/migration.md#migration-and-recovery)
-before allocating new IDs with this version.
+supported. A registry from BytePlan 0.x must be upgraded with `byteplan migrate` before this version
+allocates new IDs (see the [migration guide](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/guide/migration.md#migration-and-recovery)).
 
 ```console
 $ byteplan init                      # adds [tool.byteplan], creates .byteplan/tasks.json
@@ -386,18 +386,18 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 
 - **Local store:** `.byteplan/archive.sqlite` (gitignored) keeps the full record and its
   verification evidence, zlib-compressed.
-- **Reconciliation artifact:** `.byteplan/archive.json` (committed) lists each archived task's
-  title, status, dates and the sha256 of its record. It's small and merges by task ID.
-- **Other clones:** every archived record is in an earlier commit's `tasks.json`. `byteplan show
-  ID` finds it there by hash when the local store lacks it, and `byteplan archive --reconcile`
-  fills the store for all of them at once. This may populate the ignored local cache, but never
-  rewrites source or authoritative JSON. Evidence is not automatically reconciled; inspect its
-  committed Git history to recover historical results, then reverify for fresh evidence.
-- **Only committed records and evidence move:** in a Git repository, the current task record,
-  its evidence and referenced run must be committed before archival removes them from shared
-  JSON. Staging alone is insufficient. Unrelated evidence edits do not block a task's archival.
+- **Shared index:** `.byteplan/archive.json` (committed) lists each archived task's title,
+  status, dates and the sha256 of its record. It's small and merges by task ID.
+- **Other clones:** every archived record is still in an earlier commit's `tasks.json`.
+  `byteplan show ID` finds it there when the local store doesn't have it, and
+  `byteplan archive --reconcile` fills the local store for all of them. Neither rewrites source
+  or the committed JSON. Verification evidence isn't restored this way: recover old results
+  from Git history, or verify again.
+- **Only committed work is archived:** in a Git repository, a task's current record and evidence
+  must be committed (staging isn't enough) before archiving removes them from the shared JSON.
+  Unrelated evidence changes don't hold it up.
 - **Outside Git:** the SQLite store may be the only archived copy; back it up. See the
-  [storage contract and recovery limits](docs/guide/storage.md).
+  [storage contract and recovery limits](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/guide/storage.md).
 - **What stays:** the ID stays in `reserved_ids`, so it's never reused. If it turns up in source
   again, `check` says it's archived; `byteplan archive --restore ID` brings it back.
 
@@ -439,7 +439,7 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 | **Repair** | |
 | `byteplan repair --import ID` | register an unregistered source ID; archived IDs require `archive --restore ID` |
 | `byteplan repair --reassign PATH:LINE` | give a duplicated ID's copy a fresh ID; use `--dry-run` to preview |
-| `byteplan repair --reassign PATH:LINE --against REV` | preserve/reassign an independently created branch collision before merging; [procedure and limits](docs/guide/migration.md#merge-and-collision-recovery) |
+| `byteplan repair --reassign PATH:LINE --against REV` | preserve/reassign an independently created branch collision before merging; [procedure and limits](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/guide/migration.md#merge-and-collision-recovery) |
 | **Git and agents** | |
 | `byteplan git install-hooks [--mode reconcile\|check\|scan]` | direct pre-commit hook (default `reconcile`: IDs at commit time); never replaces a hook it didn't write |
 | `byteplan git install-merge-driver` | merge the registry by task ID in Git merges (per clone) |
@@ -448,10 +448,10 @@ source, the next writing `scan` moves it out (or run `byteplan archive` yourself
 | `byteplan merge-archive BASE OURS THEIRS [PATH]` | the archive index's merge driver (three-way per task ID); Git runs it |
 | `byteplan mcp [--allow-registry-write] [--allow-source-write] [--allow-test-execution]` | serve the registry to AI agents over MCP (stdio); needs `byteplan[mcp]` |
 
-Narrowed paths limit reconciliation and source edits. When allocating a new ID, BytePlan still
-reserves identities across the full configured source scope, including the selected Git view.
-An unreadable, unparseable or malformed in-scope file therefore blocks allocation even outside
-the narrowed paths. Files deliberately excluded from source scope are not allocation inputs.
+**Scanning only some paths** (`byteplan scan src/pkg`) limits reconciliation and source edits to
+those paths, and never marks anything missing. New IDs are still checked against every file in
+scope, so an unreadable or unparseable file anywhere in scope blocks new IDs, even outside the
+paths you named. Files excluded from the scope don't count.
 
 - **Common options:** `--project PATH` and `--format json` go after the command.
 - **Output streams:** stdout carries only the result (pure JSON with `--format json`); diagnostics
@@ -580,7 +580,7 @@ find_links = []                    # extra package sources for --offline install
 
 ## 1.0 compatibility boundary
 
-The [1.0 compatibility policy](docs/guide/compatibility-policy.md) covers task identities and registry
+The [1.0 compatibility policy](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/guide/compatibility-policy.md) covers task identities and registry
 semantics, source safety, the documented CLI and Python API, configuration, runtime decorators,
 MCP tools and Hatch/Git integrations. Advanced shipped commands share these guarantees.
 Python MCP embedding is explicitly experimental; the documented stdio protocol is included in
@@ -745,7 +745,7 @@ GitHub visitors see without installing anything.
   conflict on the report there. Set `report_branch = "main"` and only `main` writes or checks
   it: other branches (and the detached checkouts CI uses for PRs) leave the committed copy
   alone. After a merge, `byteplan report --write` regenerates it on any branch, so a CI job on
-  `main` can catch it up (see [the CI guide](docs/guide/ci.md#keeping-the-report-current-on-main)).
+  `main` can catch it up (see [the CI guide](https://github.com/BytesAndCoffee/byteplan/blob/main/docs/guide/ci.md#keeping-the-report-current-on-main)).
 - **Generated, not scanned:** the report file is never scanned for TODOs. Don't edit it by hand.
 
 ## Merging the registry in Git
@@ -900,11 +900,10 @@ isn't offered at all:
 - **Only `.gitignore` files are honoured.** `.git/info/exclude` and global Git excludes aren't read.
 - **Stub detection is a heuristic.** It reports candidates; `# byteplan: ignore` and the
   `[tool.byteplan.detect]` switches are there for intentional no-ops.
-- **Observed duplicate IDs block scan writes** until you resolve them. Full scans and narrowed
-  allocation inspect the configured identity namespace. A narrowed scan without allocation
-  checks selected identities against their prior canonical source before moving a task; it
-  tolerates unrelated parse errors and does not prove whole-project uniqueness. Run a full
-  `byteplan check` to validate the entire configured scope.
+- **Duplicate IDs block writing scans** until you fix them (`byteplan repair --reassign`). A
+  narrowed scan that allocates new IDs checks the whole scope. One that only updates existing
+  tasks checks just their IDs, tolerates parse errors elsewhere, and can miss a duplicate in
+  files it didn't read; run a full `byteplan check` to validate the whole project.
 
 ## License
 
