@@ -193,7 +193,7 @@ The runtime artifacts are byte-identical to the `b551870` reference build.
 
 ## Reconciliation with the Codex review
 
-This section was written after both initial reports were recorded. Commit `c39c43b` holds the
+This section was written after both initial reports were recorded. Commit `e612b67` holds the
 initial report above, unchanged.
 
 - **Overlap:** none. Codex's three P2s (515d45 scaffold bindings, 6698e7 Windows verify timeout,
