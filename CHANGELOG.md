@@ -1,7 +1,8 @@
 # Changelog
 
 All notable changes to `byteplan`. The runtime decorators ship separately as
-[`byteplan-runtime`](https://pypi.org/project/byteplan-runtime/), with their own versions.
+[`byteplan-runtime`](https://pypi.org/project/byteplan-runtime/), versioned in lockstep with `byteplan` from
+1.0.0rc1.
 
 ## 1.0.0rc1 — candidate preparation
 
@@ -9,7 +10,7 @@ This candidate is being prepared for review; it is not approved or published by 
 The final integrated revision still requires the independent whole-repository reviews,
 artifact/platform validation and explicit approval described in
 [Addendum E](docs/development/spec-addendum-e.md#track-g--release-candidate-readiness-and-approval).
-`byteplan-runtime` remains separately versioned; this is the devtool's release candidate.
+`byteplan-runtime` 1.0.0rc1 ships alongside it: from this release the two are versioned in lockstep.
 
 ### Upgrade and compatibility
 - Upgrade participating clients, preview and run `byteplan migrate`, then stage or commit
@@ -34,6 +35,9 @@ artifact/platform validation and explicit approval described in
   and deleted by hand.
 
 ### Changed
+- **`byteplan-runtime` is versioned in lockstep with `byteplan`,** starting at 1.0.0rc1 (the
+  previous runtime release was 0.1.0). Its API and supported Python versions (3.8+) are unchanged;
+  a test keeps the two versions equal.
 - **Project locks are never reclaimed automatically:** on POSIX, a `scan.lock` whose process
   looked dead used to be removed and retaken. Another writer could take the lock between that
   check and the removal, so BytePlan now always reports the lock; stop all writers, then delete
