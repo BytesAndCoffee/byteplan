@@ -140,9 +140,9 @@ class ScopeMatcher:
             if config.report_file:
                 self._generated.add((config.root / config.report_file).resolve().relative_to(root).as_posix())
         else:
-            self._generated = {lexical_rel(config.registry)}
+            self._generated = {lexical_rel(config.registry, config.root)}
             if config.report_file:
-                self._generated.add(lexical_rel(config.report_file))
+                self._generated.add(lexical_rel(config.report_file, config.root))
         self._include = pathspec.PathSpec.from_lines("gitignore", config.include)
         self._exclude = pathspec.PathSpec.from_lines("gitignore", config.exclude)
         if config.respect_gitignore:

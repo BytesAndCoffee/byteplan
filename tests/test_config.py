@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from byteplan.config import DEFAULT_EXCLUDE, find_project_root, load_config
+from byteplan._todo import verifies
+from byteplan.config import DEFAULT_EXCLUDE, find_project_root, lexical_rel, load_config
 from byteplan.errors import ConfigError
 
 if TYPE_CHECKING:
@@ -86,3 +87,20 @@ def test_project_root_found_from_subdirectory(project: ProjectFactory) -> None:
 def test_no_project_root(tmp_path: Path) -> None:
     with pytest.raises(ConfigError, match=r"no pyproject\.toml"):
         find_project_root(tmp_path)
+
+
+@verifies("e56005")
+def test_lexical_rel(tmp_path: Path) -> None:
+    root = tmp_path / "real"
+    (root / "docs").mkdir(parents=True)
+    (root / "other.md").write_text("x")
+    try:
+        (tmp_path / "alias").symlink_to(root, target_is_directory=True)
+        (root / "report.md").symlink_to(root / "other.md")
+    except OSError:
+        pytest.skip("symlinks are not available")
+    real = root.resolve()
+    assert lexical_rel("./docs/../report.md", real) == "report.md"
+    # The root may be spelled through an alias; a symlink inside the project is never followed.
+    assert lexical_rel(str(tmp_path / "alias" / "report.md"), real) == "report.md"
+    assert lexical_rel(str(real / ".byteplan" / "tasks.json"), real) == ".byteplan/tasks.json"

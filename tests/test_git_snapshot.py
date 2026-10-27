@@ -411,3 +411,19 @@ def test_an_unstaged_report_alias_cannot_hide_a_selected_task(repo: ProjectFacto
         result = run_cli("check", *selection, "--project", repo.root)
         assert result.code == EXIT_FINDINGS, selection
         assert "NEW_UNREGISTERED  real.md" in result.err, selection
+
+
+@verifies("e56005")
+def test_snapshot_checks_accept_absolute_in_root_paths(repo: ProjectFactory, run_cli: RunCli) -> None:
+    """An absolute registry/report path inside the project still names the selected Git entry."""
+    pyproject = repo.root / "pyproject.toml"
+    registry = (repo.root / ".byteplan" / "tasks.json").as_posix()
+    report = (repo.root / "report.md").as_posix()
+    text = pyproject.read_text().replace('registry = ".byteplan/tasks.json"', f'registry = "{registry}"')
+    pyproject.write_text(text.replace("[tool.byteplan]\n", f'[tool.byteplan]\nreport_file = "{report}"\n', 1))
+    assert run_cli("scan", "--project", repo.root).code == EXIT_OK  # writes report.md
+    git(repo.root.parent, "add", "-A")
+    git(repo.root.parent, "commit", "-qm", "absolute paths")
+    for selection in (("--staged",), ("--commit", "HEAD")):
+        result = run_cli("check", *selection, "--project", repo.root)
+        assert result.code == EXIT_OK, (selection, result.err)

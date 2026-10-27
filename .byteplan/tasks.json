@@ -122,6 +122,7 @@
     "def0",
     "e3d6bd",
     "e4af",
+    "e56005",
     "e7d9",
     "e86b8e",
     "e8bd84",
@@ -8884,8 +8885,8 @@
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 313,
-        "line": 317,
+        "decl_line": 320,
+        "line": 324,
         "path": "src/byteplan/config.py",
         "representation": "comment",
         "symbol": "_validate"
@@ -12846,6 +12847,92 @@
       "status": "open",
       "stub": null,
       "title": "1.5 repository symbol indexing and task-to-symbol associations",
+      "title_override": null
+    },
+    "e56005": {
+      "assignee": null,
+      "description": "lexical_rel keeps an absolute `registry`/`report_file` (accepted by validation) absolute, so a\nsnapshot looks up \"/.../tasks.json\" among Git entries and check --staged/--commit reports the\nregistry missing. Strip the project root lexically, resolving only the ancestor that is the\nroot, never files inside it. (Codex, PR #55)",
+      "first_seen": "2026-10-27T19:05:56Z",
+      "history": [
+        {
+          "at": "2026-10-27T19:05:56Z",
+          "event": "created",
+          "new": {
+            "line": 171,
+            "path": "src/byteplan/config.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T19:05:56Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_config.py::test_lexical_rel",
+            "path": "tests/test_config.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T19:10:40Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Fixed on PR #55 (Codex review on ecb8b8f)",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T19:10:42Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T19:10:42Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/config.py"
+          }
+        }
+      ],
+      "id": "e56005",
+      "kind": "FIXME",
+      "labels": [],
+      "last_seen": "2026-10-27T19:05:56Z",
+      "notes": "",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "normal",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 174,
+        "line": 169,
+        "path": "src/byteplan/config.py",
+        "representation": "comment",
+        "symbol": "lexical_rel"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 92,
+            "node": "tests/test_config.py::test_lexical_rel",
+            "path": "tests/test_config.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 416,
+            "node": "tests/test_git_snapshot.py::test_snapshot_checks_accept_absolute_in_root_paths",
+            "path": "tests/test_git_snapshot.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Make absolute in-root registry and report paths snapshot-relative",
       "title_override": null
     },
     "e7d9": {
