@@ -1,5 +1,8 @@
 # RC1 initial whole-repository review findings
 
+> This is a record of the review rounds at `e7e526e` and `378e722`; statements such as "pending"
+> describe that time. For the current state, see the [readiness report](rc1-readiness.md).
+
 Both initial independent reviews examined exactly
 `e7e526e43c888dcdf6821dd755de3969dd308fa1`. Their conclusions were formed separately.
 That revision is **not ready for RC1 approval**: three P1 defects are confirmed and all three

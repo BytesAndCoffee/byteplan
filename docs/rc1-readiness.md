@@ -5,23 +5,24 @@
   record its exact-head CI run, rebuild the wheel/sdist there and record their hashes and install
   smoke, and update README's "Status: preparing 1.0.0rc1" line when the tag is approved. -->
 
-**Status: compatibility corrections are integrated; common-revision independent gate reviews
-and final readiness evidence remain open.** No RC1 tag or package has been published.
-The [gate instructions](rc1-gate-check.md) define the shared Codex/Claude review target and
-independence requirements. The [frozen review](reviews/rc1-d29ac93-codex.md)
-demonstrated task loss (`c6bc7c`, P1), an external attributes write (`e86b8e`, P1), and two P2
-findings (`9e4d1c`, `668a6c`). [Focused corrections](reviews/rc1-review4-corrections.md) have real
-regressions, recorded linked verification, explicit task resolution and independent affected-area
-reviews. PR #54 is merged, all 15 platform/quality/consistency jobs passed on its head, and
-its native Windows installer-junction regression passed. A new common-SHA pair of whole-repository
-reviews and exact-gate artifact/readiness evidence are still required. Earlier `b551870`
-checks below are historical evidence, not final approval.
+**Status: gate review corrections are integrated; a new common-revision review pair and
+final readiness evidence remain open.** No RC1 tag or package has been published.
+
+The [`a5de5c8` gate](rc1-gate-check.md) was reviewed independently by Codex and Claude, with a
+focused third review by ChatGPT. None approved it. Together they confirmed one P1 (`53c751`, a
+journal supplied by repository content was replayed into arbitrary paths), five P2s and five P3s
+([Claude](reviews/rc1-a5de5c8-claude.md), [Codex](reviews/rc1-a5de5c8-codex.md),
+[ChatGPT](reviews/rc1-a5de5c8-chatgpt.md)). PR #55 corrects all eleven, plus three P2 regressions
+Codex found in those corrections, each with a regression test, recorded verification and explicit
+resolution. The code is frozen at the PR #55 merge, `0964bb4b333843b43409a58f5fbe7e73e3d610d5`;
+only documentation changes follow it. Earlier evidence below is history, not approval.
 
 ## Revision and integration gates
 
 | Item | Current evidence |
 |---|---|
-| Current independent review gate | The commit first adding [the shared gate instructions](rc1-gate-check.md), based on `2c2b1ae2e38271097d9943155819055e2bf8db82`. Both Codex and Claude must report the same full gate SHA and independently review the whole repository. No initial verdict is recorded yet. |
+| Current code freeze | `0964bb4b333843b43409a58f5fbe7e73e3d610d5`, the PR #55 merge. Its code is identical to PR head `b8d130c`, whose CI run `40568261164` passed all 15 jobs. Local suite at that head: 1,776 passed, two skipped, no expected failures. A new common revision for the repeat review pair has not yet been named. |
+| Gate review (`a5de5c8`) | Not approved. Codex and Claude reviewed the whole repository independently; ChatGPT reviewed focused paths. Findings: P1 `53c751`; P2 `e3d6bd`, `6944ec`, `515d45`, `6698e7`, `26756c`; P3 `aaf7d7`, `bbe04c`, `7140aa`, `971b9d`, `e8bd84`. All are resolved in PR #55, as are Codex's follow-up P2s `4308bf`, `e56005` and `8df831`. Gate artifacts (wheel `f708b6e8…db95`, sdist `92815239…4eec`) identify the rejected gate only. |
 | Latest compatibility correction | PR #54 merged as `013f71b0f88824001fdf2e3d0dcdb30425b6e77d`; CI run `40541039783` passed all 15 jobs at head `b8cdbc5f6f17632c05118716d48756f39ef483ac`. Local suite: 1,742 passed, two skipped; network: three passed; typing: 123 files; formatting: 124 files. Clean installed artifacts/MCP/Hatch/runtime passed. The reference artifacts identify that pre-integration head, not the new gate. |
 | Readiness check SHA | `b551870` (`main` after PR #50). CI run 40450659828 passed all 15 jobs on its code commit `d5b7af9`; `b551870` only regenerates `byteplan.md`. |
 | Changes after the check | PR #51 (merged as `ba32637`): prose comments that open with a tag word, such as `# Todo list model`, are no longer tasks (415a0f); review findings tracked. The RC1 follow-up PR: scaffold import sections (67a65c), PyPy classifier, sdist contents, documentation corrections. |
@@ -64,7 +65,7 @@ and local SQLite backup limits are documented in [the storage decision](rc1-stor
 
 ## Final module and interface boundaries
 
-`byteplan.api.Project` remains the supported facade. Its 734-line module delegates cohesive
+`byteplan.api.Project` remains the supported facade. Its 739-line module delegates cohesive
 scan, task, verification, scaffold, release, sync, archive and initialization operations to
 internal modules. Existing algorithm modules keep their responsibilities. The 13 public result
 types retain their `byteplan.api` identities, pickle lookup and supported constructor annotation
@@ -115,10 +116,10 @@ No semantic graph implementation belongs in RC1.
 
 ## Approval decision
 
-**Pending final release gates.** The four confirmed P1/P2 corrections have real regression
-tests, recorded evidence, explicit lifecycle resolution, completed integration and passing
-platform validation. The writer-lock correction affects repository-wide integrity:
-freeze a new common SHA and complete two independent whole-repository reviews under Addendum E,
-then record its platform CI and freshly rebuilt/installed artifacts. Update this report with
-the exact evidence and dispositions before presenting it for explicit approval. Do not tag
-or publish automatically.
+**Pending final release gates.** Every finding from the `a5de5c8` gate reviews is corrected with
+regression tests, recorded evidence and explicit resolution, and the corrected code passes the
+full platform matrix. Because the corrections touch recovery, locking, snapshots and source
+editing, Addendum E requires a new common revision and two independent whole-repository reviews
+of it, followed by its platform CI and freshly rebuilt, installed artifacts. Update this report
+with that evidence and the review dispositions before presenting it for explicit approval. Do
+not tag or publish automatically.
