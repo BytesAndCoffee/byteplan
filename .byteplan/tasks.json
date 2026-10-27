@@ -750,6 +750,27 @@
             "path": "docs/compatibility-policy.md"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-27T14:49:34Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T14:49:36Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T14:49:36Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/compatibility-policy.md"
+          }
         }
       ],
       "id": "14c4fe",
@@ -758,7 +779,7 @@
       "last_seen": "2026-10-27T04:58:00Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -769,7 +790,7 @@
         "representation": "comment",
         "symbol": "BytePlan 1.0 public compatibility policy"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "title": "Update stale tense in the compatibility policy",
       "title_override": null
@@ -5132,6 +5153,27 @@
           "old": {
             "notes": "Fresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): P3 formatting integration; release:1.0 scheduling, nonblocking for RC1 unless a stronger impact is demonstrated. First-party runtime-shim imports can require separation from pytest under Ruff. Use formatter-backed regression coverage and preserve third-party runtime behavior. Optional bounded fix; explicit deferral is acceptable. The xfail is not verification evidence."
           }
+        },
+        {
+          "at": "2026-10-27T14:49:27Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T14:49:29Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T14:49:29Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/scaffold.py"
+          }
         }
       ],
       "id": "67a65c",
@@ -5142,24 +5184,24 @@
       "last_seen": "2026-10-24T18:22:27Z",
       "notes": "Fresh planning assessment 2026-10-24 at 8e829805d2e950d31c1e2a6c746aa215ea143dc6 (docs/rc1-next-steps.md): P3 formatting integration; release:1.0 scheduling, nonblocking for RC1 unless a stronger impact is demonstrated. First-party runtime-shim imports can require separation from pytest under Ruff. Use formatter-backed regression coverage and preserve third-party runtime behavior. Optional bounded fix; explicit deferral is acceptable. The xfail is not verification evidence.\n\nExecution disposition: defer the bounded P3 first-party scaffold import-formatting issue from RC1 completion work. Existing source semantics and verification integrity are unaffected; task remains open at low priority with release:1.0 scheduling. Its placeholder is intentionally unimplemented, not a passing acceptance test.",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "low",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "statement",
-        "decl_line": 315,
-        "line": 333,
+        "decl_line": 316,
+        "line": 334,
         "path": "src/byteplan/scaffold.py",
         "representation": "comment",
         "symbol": "plan"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "tests": {
         "discovered": [
           {
-            "line": 678,
-            "node": "tests/test_scaffold.py::test_task_67a65c",
+            "line": 679,
+            "node": "tests/test_scaffold.py::test_new_scaffold_files_section_imports_like_isort",
             "path": "tests/test_scaffold.py",
             "provenance": "verifies"
           }
@@ -5238,7 +5280,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 663,
+            "line": 664,
             "node": "tests/test_scaffold.py::test_scaffold_imports_stay_below_future_imports",
             "path": "tests/test_scaffold.py",
             "provenance": "verifies"
@@ -7970,6 +8012,27 @@
             "path": "README.md"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-27T14:49:36Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T14:49:38Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T14:49:38Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "README.md"
+          }
         }
       ],
       "id": "a899de",
@@ -7978,7 +8041,7 @@
       "last_seen": "2026-10-27T04:58:00Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
@@ -7989,7 +8052,7 @@
         "representation": "comment",
         "symbol": "What BytePlan tracks"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "title": "Say that \"files\" freshness covers only the annotated file and linked tests",
       "title_override": null
@@ -8676,7 +8739,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 613,
+            "line": 614,
             "node": "tests/test_scaffold.py::test_scaffold_imports_land_in_isort_order",
             "path": "tests/test_scaffold.py",
             "provenance": "verifies"
@@ -8913,6 +8976,27 @@
             "path": "docs/rc1-readiness.md"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-27T14:49:31Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T14:49:33Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T14:49:33Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/rc1-readiness.md"
+          }
         }
       ],
       "id": "bbff04",
@@ -8921,18 +9005,18 @@
       "last_seen": "2026-10-27T04:58:00Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 13,
+        "line": 8,
         "path": "docs/rc1-readiness.md",
         "representation": "comment",
         "symbol": "BytePlan 1.0.0rc1 readiness report"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "title": "Keep internal review notes out of the sdist",
       "title_override": null
@@ -9006,7 +9090,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 649,
+            "line": 650,
             "node": "tests/test_scaffold.py::test_scaffolded_tests_are_annotated_for_strict_type_checkers",
             "path": "tests/test_scaffold.py",
             "provenance": "verifies"
@@ -9030,6 +9114,27 @@
             "path": "docs/rc1-readiness.md"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-27T14:49:29Z",
+          "event": "resolved",
+          "new": "resolved",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T14:49:31Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T14:49:31Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "docs/rc1-readiness.md"
+          }
         }
       ],
       "id": "bf67e6",
@@ -9038,18 +9143,18 @@
       "last_seen": "2026-10-27T04:58:00Z",
       "notes": "",
       "origin": "comment",
-      "presence": "present",
+      "presence": "missing",
       "priority": "normal",
       "scope_state": "in_scope",
       "source": {
         "attachment_kind": "module",
         "decl_line": null,
-        "line": 9,
+        "line": 8,
         "path": "docs/rc1-readiness.md",
         "representation": "comment",
         "symbol": "BytePlan 1.0.0rc1 readiness report"
       },
-      "status": "open",
+      "status": "resolved",
       "stub": null,
       "title": "Drop the PyPy classifier or add PyPy to CI",
       "title_override": null
@@ -11956,7 +12061,7 @@
     },
     "fd02a3": {
       "assignee": null,
-      "description": "It still says the whole-repository reviews and artifact checks are pending. Record the reviewed\nSHA (b551870; CI 40450659828 passed 15/15 on d5b7af9), the review rounds and dispositions, the\nnative Windows junction pass, artifact hashes and install smoke results, and update README's\n\"Status: preparing 1.0.0rc1\" line when the tag is approved.",
+      "description": "The evidence below is from b551870 plus the follow-up PRs. Once the tag commit is chosen,\nrecord its exact-head CI run, rebuild the wheel/sdist there and record their hashes and install\nsmoke, and update README's \"Status: preparing 1.0.0rc1\" line when the tag is approved.",
       "first_seen": "2026-10-27T04:58:00Z",
       "history": [
         {
@@ -11967,12 +12072,24 @@
             "path": "docs/rc1-readiness.md"
           },
           "old": null
+        },
+        {
+          "at": "2026-10-27T14:49:21Z",
+          "event": "text_changed",
+          "new": {
+            "description": "The evidence below is from b551870 plus the follow-up PRs. Once the tag commit is chosen,\nrecord its exact-head CI run, rebuild the wheel/sdist there and record their hashes and install\nsmoke, and update README's \"Status: preparing 1.0.0rc1\" line when the tag is approved.",
+            "title": "Record the frozen tag commit before approval"
+          },
+          "old": {
+            "description": "It still says the whole-repository reviews and artifact checks are pending. Record the reviewed\nSHA (b551870; CI 40450659828 passed 15/15 on d5b7af9), the review rounds and dispositions, the\nnative Windows junction pass, artifact hashes and install smoke results, and update README's\n\"Status: preparing 1.0.0rc1\" line when the tag is approved.",
+            "title": "Reconcile this report with the final frozen revision before approval"
+          }
         }
       ],
       "id": "fd02a3",
       "kind": "FIXME",
       "labels": [],
-      "last_seen": "2026-10-27T04:58:00Z",
+      "last_seen": "2026-10-27T14:49:21Z",
       "notes": "",
       "origin": "comment",
       "presence": "present",
@@ -11988,7 +12105,7 @@
       },
       "status": "open",
       "stub": null,
-      "title": "Reconcile this report with the final frozen revision before approval",
+      "title": "Record the frozen tag commit before approval",
       "title_override": null
     },
     "fd44": {

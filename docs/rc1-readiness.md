@@ -1,35 +1,27 @@
 # BytePlan 1.0.0rc1 readiness report
 
-<!-- FIXME[fd02a3]: Reconcile this report with the final frozen revision before approval
-  It still says the whole-repository reviews and artifact checks are pending. Record the reviewed
-  SHA (b551870; CI 40450659828 passed 15/15 on d5b7af9), the review rounds and dispositions, the
-  native Windows junction pass, artifact hashes and install smoke results, and update README's
-  "Status: preparing 1.0.0rc1" line when the tag is approved. -->
+<!-- FIXME[fd02a3]: Record the frozen tag commit before approval
+  The evidence below is from b551870 plus the follow-up PRs. Once the tag commit is chosen,
+  record its exact-head CI run, rebuild the wheel/sdist there and record their hashes and install
+  smoke, and update README's "Status: preparing 1.0.0rc1" line when the tag is approved. -->
 
-<!-- FIXME[bf67e6]: Drop the PyPy classifier or add PyPy to CI
-  pyproject.toml declares `Implementation :: PyPy`, but no CI job runs PyPy, and this report says
-  untested platforms must not be described as supported. -->
-
-<!-- FIXME[bbff04]: Keep internal review notes out of the sdist
-  docs/reviews/ and rc1-next-steps.md ship in the sdist with internal /workspace/... paths and
-  process detail. Exclude them in [tool.hatch.build.targets.sdist] or move them out of docs/. -->
-
-**Status: preparation in progress; release approval is pending.** No RC1 tag or package has
-been published by this work. This report must be completed against the final integrated
-revision before it can support an approval decision.
+**Status: technical checks complete; release approval is pending.** No RC1 tag or package has
+been published by this work. The readiness check at `b551870` found no technical blockers; the
+remaining steps are recording the frozen tag commit and the approval decision itself.
 
 ## Revision and integration gates
 
 | Item | Current evidence |
 |---|---|
-| Common whole-repository review SHA | Pending integration and freeze; no final review has started. |
+| Readiness check SHA | `b551870` (`main` after PR #50). CI run 40450659828 passed all 15 jobs on its code commit `d5b7af9`; `b551870` only regenerates `byteplan.md`. |
+| Changes after the check | PR #51 (merged as `ba32637`): prose comments that open with a tag word, such as `# Todo list model`, are no longer tasks (415a0f); review findings tracked. The RC1 follow-up PR: scaffold import sections (67a65c), PyPy classifier, sdist contents, documentation corrections. |
 | Architecture plan | Addendum E and roadmap integrated through PR #44. Graph and Assignment implementation remain deferred. |
 | Compatibility | PR #45 merged as `3745551c4ded3656ceef02b3760d5d73bb4a4ffa`; all 15 jobs passed on `182c882441cdaef35e88eb37f4cb55677c75e029`. |
 | Restore integrity follow-up | PR #46 merged as `027578b75f2657fa54c8eff49ccb6e1bcbc561c7`; all 15 jobs passed on `fea1d3eb769a2f7d20f27c2d4227bfa660ade32f`. |
-| API decomposition | PR #47 at `4e0256b1346aedd351419e09785cc8765bcd85df`; local validation and independent focused reviews passed; platform CI/integration pending. |
+| API decomposition | PR #47 at `4e0256b1346aedd351419e09785cc8765bcd85df`; local validation and independent focused reviews passed; integrated and covered by the 15-job CI run on `d5b7af9`. |
 | Candidate version | Core `1.0.0rc1` prepared separately from structural work; runtime remains separately versioned `0.1.0`. |
-| Independent reviews | Both initial whole-repository reviews pending, against one common integrated SHA. |
-| Final artifacts | Candidate wheel/sdist builds, hashes, isolated install checks and integration smoke results pending. Earlier `0.2.0` development builds do not establish candidate artifact identity. |
+| Independent reviews | Two whole-repository reviews at `e7e526e` and two at `378e722`, with review-3 corrections (see [the findings](rc1-review-findings.md)). At `b551870`, one code and documentation review: one P2 (415a0f, fixed in PR #51) and five P3 documentation findings (fixed in the follow-up PR). Every PR also received an automated Codex review. No pair of independent whole-repository reviews ran at one common SHA after `378e722`; whether that is required before tagging is part of the approval decision. |
+| Reference artifacts | Built at `b551870`; these identify that revision only, not the tag. `byteplan-1.0.0rc1-py3-none-any.whl` `0da0391c7b51af27995bf9087f083b5d8c53a09288d0ccf63d7fc9a811e793ae`; `byteplan-1.0.0rc1.tar.gz` `18ff92142fdd6119b60dfae805b19ef7d4bd96e3c48d1c584a71d05f29add35f`; `byteplan_runtime-0.1.0-py3-none-any.whl` `ea09ff29453e3ddf99bcdb294f800be5cb4bc5d0276941dab213fdb33ebb1c94`; `byteplan_runtime-0.1.0.tar.gz` `19de333d1e04862f449e7055a60ef635484bd8f718246b46efc9a94a19f8d22b`. A clean virtual environment installed the wheel and its CLI ran. |
 
 ## Compatibility, migration and authoritative state
 
@@ -76,34 +68,35 @@ semantics apply throughout. Source mutation and execution reject read-only snaps
 side effects; selected-view queries use selected data, and index HEAD freshness is uncertain.
 Preview and first-run behavior are documented in [the source-safety map](rc1-source-safety.md).
 
-## Validation to complete at the frozen revision
+## Validation
 
-The decomposition's local combined run passed 1,210 ordinary tests; all three explicit network
+At `b551870`, from a fresh clone: 1,659 tests passed, with one skip and the then-open
+67a65c placeholder xfailed; `hatch fmt --check` passed 121 files; strict typing passed 120
+files; `byteplan check` reported no errors or warnings; a second scan changed nothing; both
+distributions built. The native Windows directory-junction test passed. After PR #51 the suite
+passed 1,667 tests, and the BytePlan repository's own rescan found the same 24 annotations.
+
+Earlier, the decomposition's local combined run passed 1,210 ordinary tests; all three explicit network
 cases passed separately. One existing nonblocking P3 scaffold placeholder remains xfailed.
 Strict typing passed 111 files and formatting passed 112 files. Public manifest comparisons
 cover 43 signatures, 13 result types and six helper signatures; normalized AST comparisons cover
 52 methods and 24 helpers. Focused independent reviews supplement these checks, but do not
 replace either final whole-repository review.
 
-Final evidence must record:
+Evidence still to record at the tag commit:
 
 - Exact-head platform CI: CPython 3.11–3.14 on Linux, macOS and Windows; released clients;
   formatting/types, runtime checks and BytePlan consistency.
 - Final local suite/network results and any changes after the recorded decomposition run.
 - Wheel/sdist names, SHA-256 values, package metadata/contents and clean isolated installations.
 - Installed CLI init/preview/scan/check, optional MCP stdio and Hatch hook smoke results.
-- Both independent reviewers' common SHA, scope, findings, severities and dispositions.
 - Any administrative documentation/task-record changes after the reviewed code revision.
 
 Current CI does not establish PyPy coverage or the runtime's full advertised Python 3.8–3.14
-matrix. Record actual coverage; do not describe untested platforms as passing.
+matrix, so the core package no longer declares a PyPy classifier. Record actual coverage; do
+not describe untested platforms as passing.
 
 ## Known nonblocking and deferred work
-
-Scaffold import formatting task `67a65c` remains open/P3: new files using a first-party runtime
-shim can need a formatter pass to separate that import from pytest. It does not demonstrate
-source-semantic or verification-integrity failure. Its strict expected-failure placeholder is
-not evidence of implementation.
 
 Graph foundations target 1.5; impact/verification intelligence and relevant Assignment
 traceability target 2.0. Those tasks remain open under their release labels. Optional historical
@@ -112,6 +105,6 @@ No semantic graph implementation belongs in RC1.
 
 ## Approval decision
 
-**Pending.** Complete the frozen-revision reviews, resolve confirmed release blockers, verify
-candidate artifacts/platforms and reconcile this report before presenting it for explicit
-approval. Do not tag or publish automatically.
+**Pending.** No confirmed release blockers remain open. Before explicit approval: choose the
+tag commit, record its CI run and rebuilt artifacts, and decide whether a further pair of
+independent whole-repository reviews is required. Do not tag or publish automatically.
