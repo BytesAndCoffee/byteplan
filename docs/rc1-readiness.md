@@ -5,8 +5,8 @@
   record its exact-head CI run, rebuild the wheel/sdist there and record their hashes and install
   smoke, and update README's "Status: preparing 1.0.0rc1" line when the tag is approved. -->
 
-**Status: gate review corrections are integrated; a new common-revision review pair and
-final readiness evidence remain open.** No RC1 tag or package has been published.
+**Status: gate review corrections are integrated; exact-commit readiness evidence and explicit
+approval remain open.** No RC1 tag or package has been published.
 
 The [`a5de5c8` gate](rc1-gate-check.md) was reviewed independently by Codex and Claude, with a
 focused third review by ChatGPT. None approved it. Together they confirmed one P1 (`53c751`, a
@@ -17,11 +17,16 @@ Codex found in those corrections, each with a regression test, recorded verifica
 resolution. The code is frozen at the PR #55 merge, `0964bb4b333843b43409a58f5fbe7e73e3d610d5`;
 only documentation changes follow it. Earlier evidence below is history, not approval.
 
+**Owner decision (2026-10-27):** no further pair of AI whole-repository reviews for RC1. Addendum
+E's repeat-pair requirement after material corrections is explicitly waived for this candidate,
+not met. Instead, independent human review is invited against the tagged RC1; its findings are
+triaged for RC2 or 1.0.
+
 ## Revision and integration gates
 
 | Item | Current evidence |
 |---|---|
-| Current code freeze | `0964bb4b333843b43409a58f5fbe7e73e3d610d5`, the PR #55 merge. Its code is identical to PR head `b8d130c`, whose CI run `40568261164` passed all 15 jobs. Local suite at that head: 1,776 passed, two skipped, no expected failures. A new common revision for the repeat review pair has not yet been named. |
+| Current code freeze | `0964bb4b333843b43409a58f5fbe7e73e3d610d5`, the PR #55 merge. Its code is identical to PR head `b8d130c`, whose CI run `40568261164` passed all 15 jobs. Local suite at that head: 1,776 passed, two skipped, no expected failures. |
 | Gate review (`a5de5c8`) | Not approved. Codex and Claude reviewed the whole repository independently; ChatGPT reviewed focused paths. Findings: P1 `53c751`; P2 `e3d6bd`, `6944ec`, `515d45`, `6698e7`, `26756c`; P3 `aaf7d7`, `bbe04c`, `7140aa`, `971b9d`, `e8bd84`. All are resolved in PR #55, as are Codex's follow-up P2s `4308bf`, `e56005` and `8df831`. Gate artifacts (wheel `f708b6e8…db95`, sdist `92815239…4eec`) identify the rejected gate only. |
 | Latest compatibility correction | PR #54 merged as `013f71b0f88824001fdf2e3d0dcdb30425b6e77d`; CI run `40541039783` passed all 15 jobs at head `b8cdbc5f6f17632c05118716d48756f39ef483ac`. Local suite: 1,742 passed, two skipped; network: three passed; typing: 123 files; formatting: 124 files. Clean installed artifacts/MCP/Hatch/runtime passed. The reference artifacts identify that pre-integration head, not the new gate. |
 | Readiness check SHA | `b551870` (`main` after PR #50). CI run 40450659828 passed all 15 jobs on its code commit `d5b7af9`; `b551870` only regenerates `byteplan.md`. |
@@ -116,10 +121,16 @@ No semantic graph implementation belongs in RC1.
 
 ## Approval decision
 
-**Pending final release gates.** Every finding from the `a5de5c8` gate reviews is corrected with
-regression tests, recorded evidence and explicit resolution, and the corrected code passes the
-full platform matrix. Because the corrections touch recovery, locking, snapshots and source
-editing, Addendum E requires a new common revision and two independent whole-repository reviews
-of it, followed by its platform CI and freshly rebuilt, installed artifacts. Update this report
-with that evidence and the review dispositions before presenting it for explicit approval. Do
-not tag or publish automatically.
+**Pending exact-commit evidence and explicit approval.** Every finding from the `a5de5c8` gate
+reviews is corrected with regression tests, recorded evidence and explicit resolution, and the
+corrected code passes the full platform matrix. By the owner decision above, no further AI review
+pair is required. Before the tag:
+
+1. Choose the tag commit: `main` after the documentation review merges, with code unchanged
+   from `0964bb4`.
+2. Record that commit's platform CI run, rebuild the wheel and sdist there, and record their
+   SHA-256 hashes and a clean-install smoke of the CLI, MCP stdio and Hatch hook.
+3. Update this report with that evidence and present it for explicit approval.
+
+Tag only after approval; nothing is tagged or published automatically. After the tag, invite
+independent human review of RC1.

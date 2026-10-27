@@ -1,8 +1,9 @@
 # RC1 independent whole-repository review gate
 
 **Outcome:** this gate (`a5de5c8`) was not approved. Its findings are corrected in PR #55; see
-the [readiness report](rc1-readiness.md). The instructions below remain the protocol for the
-next common revision.
+the [readiness report](rc1-readiness.md). The owner waived a repeat AI review pair for RC1 in
+favour of independent human review of the tagged candidate. The protocol below still applies to
+future gates.
 
 Reviewers: Codex and Claude, independently.
 Release target: `1.0.0rc1`; no tag or publication is authorized by this checkpoint.
