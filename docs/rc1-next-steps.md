@@ -1,5 +1,22 @@
 # RC1 next steps — fresh assessment, 24 October 2026
 
+## Independent Codex review update, 27 October 2026
+
+The [whole-repository Codex review](reviews/rc1-d29ac93-codex.md) freezes
+`d29ac93bbbf57e9216a2c10694b307409399c734`, after PRs #51 and #52. RC1 remains
+blocked: `c6bc7c` (P1, stale-lock reclamation permits silent successful task loss) and
+`e86b8e` (P1, merge-driver installation writes through an external state-directory alias).
+Correct these before a new approval freeze. Accept `9e4d1c` (P2, literal configured paths
+in Git attributes) and `668a6c` (P2, silently ignored unclosed ID brackets) for bounded
+pre-RC1 corrections. All four are registered open through BytePlan under `release:1.0`;
+reproductions establish defects, not completed fixes or passing acceptance evidence.
+
+Next: implement focused corrections with real regressions, explicitly verify and resolve
+their tasks, and repeat affected reviews. A locking change affects repository-wide integrity;
+freeze a new common SHA and obtain the independent whole-repository conclusions required
+by Addendum E before the final readiness report. Preserve the historical assessment below;
+its old open-PR and task counts are not current status. Do not tag or publish RC1.
+
 Assessment revision: `8e829805d2e950d31c1e2a6c746aa215ea143dc6` on
 `codex/rc1-compatibility`. Main remains `471ccca109670339a443a6488e90377a00178dab`.
 Fresh clone: `/workspace/byteplan-rc1-next`, local branch `codex/rc1-next-plan`.
