@@ -360,12 +360,26 @@ def test_index_merge_is_three_way_per_entry(tmp_path: Path) -> None:
 
 
 @verifies("bbe04c")
-@pytest.mark.xfail(reason="BytePlan bbe04c: a comment naming the archive store counts as its ignore rule", strict=True)
-def test_a_comment_naming_the_archive_store_is_not_an_ignore_rule(project: ProjectFactory) -> None:
+@pytest.mark.parametrize(
+    "existing",
+    [
+        "txn/\nscan.lock\n# archive.sqlite is a local cache\n",  # a comment, not a rule
+        "txn/\narchive.sqlite\n!archive.sqlite\n",  # un-ignored by a later rule
+    ],
+)
+def test_a_comment_naming_the_archive_store_is_not_an_ignore_rule(project: ProjectFactory, existing: str) -> None:
     project.init()
     git(project.root, "init", "-q")
-    project.write(".byteplan/.gitignore", "txn/\nscan.lock\n# archive.sqlite is a local cache\n", dedent=False)
+    project.write(".byteplan/.gitignore", existing, dedent=False)
     Project.open(project.root)._ignore_archive_store()  # noqa: SLF001
     (project.root / ".byteplan" / "archive.sqlite").write_bytes(b"")
     ignored = git(project.root, "check-ignore", "-q", ".byteplan/archive.sqlite", check=False)
     assert ignored.returncode == 0
+
+
+@verifies("bbe04c")
+def test_an_existing_archive_ignore_rule_is_not_duplicated(project: ProjectFactory) -> None:
+    project.init()
+    project.write(".byteplan/.gitignore", "txn/\n/archive.sqlite\n", dedent=False)
+    Project.open(project.root)._ignore_archive_store()  # noqa: SLF001
+    assert (project.root / ".byteplan/.gitignore").read_text() == "txn/\n/archive.sqlite\n"
