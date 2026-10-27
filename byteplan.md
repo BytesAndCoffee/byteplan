@@ -2,7 +2,7 @@
 
 <!-- Generated from .byteplan/tasks.json by BytePlan; don't edit. `byteplan scan` and the commit hook keep it current. -->
 
-**18 open** · 108 closed (resolved 108)
+**18 open** · 122 closed (resolved 122)
 
 ## Open
 
@@ -10,11 +10,11 @@
 |---|---|---|---|---|---|---|
 | `c053` | in_progress | TODO | high | - | [`docs/spec-addendum-e.md:363`](docs/spec-addendum-e.md#L363) | RC1 freeze one integrated revision for two independent whole-repository reviews |
 | `a70d` | in_progress | TODO | high | - | [`docs/spec-addendum-e.md:395`](docs/spec-addendum-e.md#L395) | RC1 approval-ready release report and artifact/platform validation |
-| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1697`](docs/IMPLEMENTATION_PLAN.md#L1697) | Phase 6c (optional): acceptance criteria and dependencies |
-| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1700`](docs/IMPLEMENTATION_PLAN.md#L1700) | Phase 11 (optional): spec section 14 phase 5 items |
-| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1703`](docs/IMPLEMENTATION_PLAN.md#L1703) | Phase 11b (optional): Git reporting |
-| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1706`](docs/IMPLEMENTATION_PLAN.md#L1706) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
-| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1710`](docs/IMPLEMENTATION_PLAN.md#L1710) | Phase 13 (optional): relay-for-github |
+| `de66` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1699`](docs/IMPLEMENTATION_PLAN.md#L1699) | Phase 6c (optional): acceptance criteria and dependencies |
+| `75b4` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1702`](docs/IMPLEMENTATION_PLAN.md#L1702) | Phase 11 (optional): spec section 14 phase 5 items |
+| `9054` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1705`](docs/IMPLEMENTATION_PLAN.md#L1705) | Phase 11b (optional): Git reporting |
+| `15df` | open | TODO | normal | - | [`docs/IMPLEMENTATION_PLAN.md:1708`](docs/IMPLEMENTATION_PLAN.md#L1708) | Phase 12: assignment model (Addendum D stages D0-D2, D4) |
+| `ec99` | open | TODO | low | - | [`docs/IMPLEMENTATION_PLAN.md:1712`](docs/IMPLEMENTATION_PLAN.md#L1712) | Phase 13 (optional): relay-for-github |
 | `fd02a3` | open | FIXME | normal | - | [`docs/rc1-readiness.md:3`](docs/rc1-readiness.md#L3) | Record the frozen tag commit before approval |
 | `a933` | open | TODO | low | - | [`docs/spec-addendum-e.md:218`](docs/spec-addendum-e.md#L218) | 1.5 semantic graph schema, identity and provenance design |
 | `e4af` | open | TODO | low | - | [`docs/spec-addendum-e.md:235`](docs/spec-addendum-e.md#L235) | 1.5 repository symbol indexing and task-to-symbol associations |
@@ -24,7 +24,7 @@
 | `cdcb` | open | TODO | low | - | [`docs/spec-addendum-e.md:268`](docs/spec-addendum-e.md#L268) | 2.0 verification intelligence with traceable recommendations |
 | `4d69` | open | TODO | low | - | [`docs/spec-addendum-e.md:272`](docs/spec-addendum-e.md#L272) | 2.0 Assignment and specification traceability |
 | `595f` | open | TODO | low | - | [`docs/spec-addendum-e.md:276`](docs/spec-addendum-e.md#L276) | 2.0 bounded MCP graph operations and portable visualization design |
-| `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:309`](src/byteplan/config.py#L309) | Support detect.placeholder_assignments |
+| `a6b2` | open | TODO | normal | - | [`src/byteplan/config.py:328`](src/byteplan/config.py#L328) | Support detect.placeholder_assignments |
 | `46b6` | open | TODO | normal | - | [`src/byteplan/scanner/comments.py:71`](src/byteplan/scanner/comments.py#L71) | Recognize Google-style `TODO(owner): ...` tags |
 
 ## Closed
@@ -46,6 +46,7 @@
 | `237cb5` | resolved | FIXME | Preserve unknown nested metadata when combining branch task records. |
 | `2533` | resolved | FIXME | Keep every module an import alias may refer to, across scopes |
 | `2650ec` | resolved | FIXME | Verify merge preservation across Git checkout newline conversion. |
+| `26756c` | resolved | FIXME | Resolve snapshot registry and generated-report identities from selected Git paths so unstaged filesystem aliases cannot hide staged or committed tasks. |
 | `279e27` | resolved | FIXME | Reject positive verification claims without complete provenance and matching file fingerprints. |
 | `2887` | resolved | TODO | Phase 6b: test scaffolding |
 | `28e56f` | resolved | FIXME | Use the repository object format when removing staged entries during recovery. |
@@ -58,6 +59,7 @@
 | `3d5bb4` | resolved | FIXME | Reserve unregistered embedded IDs outside narrowed targets before allocation. |
 | `3f50` | resolved | FIXME | [P2] Normalize the test directory before excluding test-side tasks |
 | `415a0f` | resolved | FIXME | [P2] Don't treat prose comments that start with a tag word as tasks |
+| `4308bf` | resolved | FIXME | Accept an equivalent binding inside a grouped import statement |
 | `4518` | resolved | FIXME | An escaping package exposes every submodule imported under it |
 | `478d` | resolved | FIXME | Resolve relative imports before deciding whether they import the runtime |
 | `4842` | resolved | TODO | RC1 authoritative storage decision based on measured collaboration and integrity risk |
@@ -65,16 +67,21 @@
 | `4d48` | resolved | FIXME | Keep decorators pending when their runtime import can't be restored |
 | `4fb5` | resolved | TODO | Update the status line for the next release |
 | `50ad66` | resolved | FIXME | Preserve external evidence and archive-index edits during archived task restoration |
+| `515d45` | resolved | FIXME | Refuse or safely alias scaffold-generated pytest/runtime bindings when existing test-module bindings make generated code unsafe. |
+| `53c751` | resolved | FIXME | Refuse to recover a transaction journal that came from the repository |
 | `5aae` | resolved | FIXME | [P2] Collect occupied test names inside module-level control-flow blocks |
 | `5ff6` | resolved | FIXME | [P2] Report scaffold encoding and filesystem failures per task |
 | `62edd5` | resolved | FIXME | Confine serialized transaction and restore targets before filesystem side effects. |
 | `631761` | resolved | FIXME | Reject or safely reuse annotations already present during anchored release restoration. |
 | `6639` | resolved | FIXME | Keep runtime imports that __all__ re-exports |
 | `668a6c` | resolved | FIXME | Report malformed task-ID bracket syntax instead of silently ignoring the annotation. |
+| `6698e7` | resolved | FIXME | Bound verification timeout cleanup and terminate supported Windows runner descendants so inherited output pipes cannot keep verify blocked. |
 | `67a65c` | resolved | FIXME | Separate first-party runtime imports from pytest in new scaffold files |
 | `67df` | resolved | FIXME | [P2] Keep inserted imports after all future imports |
+| `6944ec` | resolved | FIXME | Create the index scratch copy exclusively instead of at a fixed, followed path |
 | `6b83` | resolved | FIXME | Keep sync's top-level JSON fields when only cleanup runs |
 | `6d434f` | resolved | FIXME | Preserve opaque evidence metadata across ordinary verification and archive writes. |
+| `7140aa` | resolved | FIXME | Record the user-visible changes from PRs #53 and #54 |
 | `71c4` | resolved | FIXME | the evidence's run metadata isn't archived, so a restore loses it |
 | `765f23` | resolved | FIXME | Validate archive-index schema and records while preserving supported opaque metadata. |
 | `7ff8` | resolved | FIXME | resolve(sync_source=true) removes the annotation without apply=true |
@@ -85,10 +92,12 @@
 | `8aeb` | resolved | TODO | RC1 public compatibility contract and documentation audit |
 | `8b28` | resolved | FIXME | Treat an imported module that escapes attribute access as consuming all its names |
 | `8c7f` | resolved | FIXME | [P1] Detect module-level bindings through control flow before editing decorators |
+| `8df831` | resolved | FIXME | Strip the lexical project root before resolving any absolute-path ancestor |
 | `90c6` | resolved | FIXME | Don't propose stub tasks for declarations whose @todo is stripped for a release |
 | `9185` | resolved | FIXME | Keep the space between words around an inline Markdown comment |
 | `932b36` | resolved | FIXME | Tell agents to restart the MCP server when the registry schema is newer than it |
 | `93dd` | resolved | TODO | Phase 10: integration |
+| `971b9d` | resolved | FIXME | Describe the current tag case rule in the spec and implementation plan |
 | `98d6` | resolved | FIXME | [P2] Include teardown skips and xfails in the verification outcome |
 | `9b40` | resolved | TODO | Phase 6a: acceptance tests |
 | `9c60` | resolved | TODO | List only active missing tasks by default |
@@ -99,6 +108,7 @@
 | `a703` | resolved | FIXME | Refuse wildcard runtime imports, whose bindings can't be proven unused |
 | `a740` | resolved | FIXME | [P2] Require regular files before selecting sources for scanning |
 | `a899de` | resolved | FIXME | Say that "files" freshness covers only the annotated file and linked tests |
+| `aaf7d7` | resolved | FIXME | Release only the lock this process created |
 | `ac9d` | resolved | FIXME | [P2] Compare collected node IDs relative to the BytePlan project root |
 | `ae7a` | resolved | FIXME | [P2] Apply nested gitignore negations with Git's precedence rules |
 | `aedf` | resolved | FIXME | Check every runtime import, not just decorator bindings, before skipping a file |
@@ -108,6 +118,7 @@
 | `b68c` | resolved | FIXME | Restore an unanchored import below the current docstring and __future__ imports |
 | `b865` | resolved | FIXME | an archived task's readiness ignores the evidence archived with it |
 | `baeb` | resolved | FIXME | Count every __all__ assignment form as an export |
+| `bbe04c` | resolved | FIXME | Recognize only a real ignore rule for the archive store, not any mention of its name |
 | `bbff04` | resolved | FIXME | Keep internal review notes out of the sdist |
 | `be8e` | resolved | FIXME | Annotate scaffolded tests with -> None |
 | `bf67e6` | resolved | FIXME | Drop the PyPy classifier or add PyPy to CI |
@@ -126,8 +137,11 @@
 | `d78b89` | resolved | FIXME | Reject cross-scope duplicate identities before narrowed task reconciliation writes. |
 | `dcd417` | resolved | FIXME | Validate all staged recovery copy hashes before forward or rollback side effects. |
 | `def0` | resolved | FIXME | scan paths resolve against the server's cwd, not the served project's root |
+| `e3d6bd` | resolved | FIXME | Index physical lines with edits.physical_lines, not str.splitlines |
+| `e56005` | resolved | FIXME | Make absolute in-root registry and report paths snapshot-relative |
 | `e7d9` | resolved | FIXME | ours always wins, so a one-sided re-archive (new sha256) is lost when merged into the other side |
 | `e86b8e` | resolved | FIXME | Preflight all merge-driver installation destinations before changing attributes or Git configuration. |
+| `e8bd84` | resolved | FIXME | Document every diagnostic code the CLI and MCP can emit |
 | `ecf4` | resolved | FIXME | [P2] Preserve runtime imports consumed by other project modules during cleanup |
 | `ed2b` | resolved | FIXME | [P2] Refuse staged writes while an ordinary transaction journal is pending |
 | `edc2` | resolved | FIXME | RC1 plain-Git merge and conflicting-evidence validation |
