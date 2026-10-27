@@ -191,3 +191,24 @@ explicitly resolved before source cleanup. Fresh linked verification after clean
 existing tasks. The existing `62edd5` Linux record retains its native-Windows skip honestly;
 actual execution of that case in new exact-head Windows CI remains mandatory. No release is
 approved or published.
+
+### Windows verification follow-up
+
+PR #50's initial head `4cf857b` passed Linux/macOS but failed new Windows test fixtures.
+The Git helper decoded command output in universal-newline text mode, then compared re-encoded
+LF data with a real CRLF source file. Independent portable reproduction with `core.autocrlf=true`
+produced the same fourteen failures. The corrected tests read raw Git blob bytes with an
+explicit selected index and verify exact per-view bytes under both LF and CRLF attributes,
+retaining unrelated staged/unstaged data, modes and rollback assertions.
+
+Ten restore assertions also decoded UTF-8 fixtures using Windows' default cp1252. Portable
+emulation reproduced all ten failures; explicit UTF-8 assertion reads preserve all original
+AST, literal, description and source assertions. Latin-1/CRLF byte coverage remains intact.
+A module-local fixture now exercises the Windows decoding default on every host, with teardown
+and explicit-encoding forwarding independently checked. No production decoding or Git-write
+regression was demonstrated, and no production code was changed for this follow-up.
+
+The [independent fixture review](reviews/rc1-review3-windows-fixtures.md) passed 139 complete
+corrected cases and reproduced both original failure sets. The failed Windows run and earlier
+successful source checks remain separate evidence. Fresh linked verification and all fifteen
+new-head platform checks, including actual native Windows junction execution, are required.

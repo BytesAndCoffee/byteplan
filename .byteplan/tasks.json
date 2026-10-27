@@ -1029,6 +1029,16 @@
           "old": {
             "path": "src/byteplan/gitwrite.py"
           }
+        },
+        {
+          "at": "2026-10-27T04:13:02Z",
+          "event": "edited",
+          "new": {
+            "notes": "P1 release-blocking data-integrity defect. Independent whole reviewer A production fixture injects a legal short os.write when publishing a staged Git index. _swap_index ignores returned count, fsyncs/replaces truncated index, and journal is removed; an unrelated partially staged user.txt entry becomes unavailable while worktree contains only different unstaged bytes. No actual external data touched. Ensure complete writes and validation before swap, handle zero progress/errors safely, preserve unrelated index entries and recovery material on failure. Evidence review2-a/probe_short_index_write.py/.log and saved complete original index. No real disk exhaustion was induced; legal short-write fault injection establishes contract failure.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.\n\nPR50 oldhead4cf857b WindowsCI identified test-fixture portability assumptions, not a demonstrated production regression. Raw CI log retained windows-312-4cf857b-failed.log. Git text helper normalized CRLF then encoded before raw-byte comparisons (14failures reproduced undercore.autocrlf=true); restore assertions read UTF-8 via defaultcp1252 (10failures reproduced portably). Test-only corrections retain/expand exact per-view bytes, AST/literal/comment/rollback/mode assertions; no production edits. Independent reviewer reproduced both baselinefailure sets and checks stronger LF/CRLF/rawselected-index/UTF8coverage. Fresh linkedverification and newexacthead15jobCI/nativeactualPASS remain mandatory; priorLinuxfullpass andoldheadartifactproofstayhistorical."
+          },
+          "old": {
+            "notes": "P1 release-blocking data-integrity defect. Independent whole reviewer A production fixture injects a legal short os.write when publishing a staged Git index. _swap_index ignores returned count, fsyncs/replaces truncated index, and journal is removed; an unrelated partially staged user.txt entry becomes unavailable while worktree contains only different unstaged bytes. No actual external data touched. Ensure complete writes and validation before swap, handle zero progress/errors safely, preserve unrelated index entries and recovery material on failure. Evidence review2-a/probe_short_index_write.py/.log and saved complete original index. No real disk exhaustion was induced; legal short-write fault injection establishes contract failure.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required."
+          }
         }
       ],
       "id": "17f1f0",
@@ -1038,7 +1048,7 @@
         "final-review"
       ],
       "last_seen": "2026-10-27T00:53:47Z",
-      "notes": "P1 release-blocking data-integrity defect. Independent whole reviewer A production fixture injects a legal short os.write when publishing a staged Git index. _swap_index ignores returned count, fsyncs/replaces truncated index, and journal is removed; an unrelated partially staged user.txt entry becomes unavailable while worktree contains only different unstaged bytes. No actual external data touched. Ensure complete writes and validation before swap, handle zero progress/errors safely, preserve unrelated index entries and recovery material on failure. Evidence review2-a/probe_short_index_write.py/.log and saved complete original index. No real disk exhaustion was induced; legal short-write fault injection establishes contract failure.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.",
+      "notes": "P1 release-blocking data-integrity defect. Independent whole reviewer A production fixture injects a legal short os.write when publishing a staged Git index. _swap_index ignores returned count, fsyncs/replaces truncated index, and journal is removed; an unrelated partially staged user.txt entry becomes unavailable while worktree contains only different unstaged bytes. No actual external data touched. Ensure complete writes and validation before swap, handle zero progress/errors safely, preserve unrelated index entries and recovery material on failure. Evidence review2-a/probe_short_index_write.py/.log and saved complete original index. No real disk exhaustion was induced; legal short-write fault injection establishes contract failure.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.\n\nPR50 oldhead4cf857b WindowsCI identified test-fixture portability assumptions, not a demonstrated production regression. Raw CI log retained windows-312-4cf857b-failed.log. Git text helper normalized CRLF then encoded before raw-byte comparisons (14failures reproduced undercore.autocrlf=true); restore assertions read UTF-8 via defaultcp1252 (10failures reproduced portably). Test-only corrections retain/expand exact per-view bytes, AST/literal/comment/rollback/mode assertions; no production edits. Independent reviewer reproduced both baselinefailure sets and checks stronger LF/CRLF/rawselected-index/UTF8coverage. Fresh linkedverification and newexacthead15jobCI/nativeactualPASS remain mandatory; priorLinuxfullpass andoldheadartifactproofstayhistorical.",
       "origin": "comment",
       "presence": "missing",
       "priority": "high",
@@ -1056,13 +1066,13 @@
       "tests": {
         "discovered": [
           {
-            "line": 395,
+            "line": 439,
             "node": "tests/test_gitwrite.py::test_failed_index_publication_preserves_original_and_recovery",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
           },
           {
-            "line": 358,
+            "line": 388,
             "node": "tests/test_gitwrite.py::test_task_17f1f0",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
@@ -2218,6 +2228,16 @@
           "old": {
             "path": "src/byteplan/gitwrite.py"
           }
+        },
+        {
+          "at": "2026-10-27T04:13:02Z",
+          "event": "edited",
+          "new": {
+            "notes": "P2 accepted before RC1. Independent whole reviewer A demonstrates production reconcile/rollback/recover in a SHA-256 Git repo: staged journal accepts 64-character object IDs but fixed 40-zero null OID makes removal of newly added registry entry fail with malformed index info; subsequent recovery fails identically, retaining journal and source safely but unable to complete. Derive null OID from actual repository object format, preserving SHA-1, alternate indexes and rollback guarantees. Evidence review2-a/probe_sha256_recovery.py/.log and probe_sha256_delete.py/.log.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.\n\nPR50 oldhead4cf857b WindowsCI identified test-fixture portability assumptions, not a demonstrated production regression. Raw CI log retained windows-312-4cf857b-failed.log. Git text helper normalized CRLF then encoded before raw-byte comparisons (14failures reproduced undercore.autocrlf=true); restore assertions read UTF-8 via defaultcp1252 (10failures reproduced portably). Test-only corrections retain/expand exact per-view bytes, AST/literal/comment/rollback/mode assertions; no production edits. Independent reviewer reproduced both baselinefailure sets and checks stronger LF/CRLF/rawselected-index/UTF8coverage. Fresh linkedverification and newexacthead15jobCI/nativeactualPASS remain mandatory; priorLinuxfullpass andoldheadartifactproofstayhistorical."
+          },
+          "old": {
+            "notes": "P2 accepted before RC1. Independent whole reviewer A demonstrates production reconcile/rollback/recover in a SHA-256 Git repo: staged journal accepts 64-character object IDs but fixed 40-zero null OID makes removal of newly added registry entry fail with malformed index info; subsequent recovery fails identically, retaining journal and source safely but unable to complete. Derive null OID from actual repository object format, preserving SHA-1, alternate indexes and rollback guarantees. Evidence review2-a/probe_sha256_recovery.py/.log and probe_sha256_delete.py/.log.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required."
+          }
         }
       ],
       "id": "28e56f",
@@ -2227,7 +2247,7 @@
         "final-review"
       ],
       "last_seen": "2026-10-27T00:53:47Z",
-      "notes": "P2 accepted before RC1. Independent whole reviewer A demonstrates production reconcile/rollback/recover in a SHA-256 Git repo: staged journal accepts 64-character object IDs but fixed 40-zero null OID makes removal of newly added registry entry fail with malformed index info; subsequent recovery fails identically, retaining journal and source safely but unable to complete. Derive null OID from actual repository object format, preserving SHA-1, alternate indexes and rollback guarantees. Evidence review2-a/probe_sha256_recovery.py/.log and probe_sha256_delete.py/.log.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.",
+      "notes": "P2 accepted before RC1. Independent whole reviewer A demonstrates production reconcile/rollback/recover in a SHA-256 Git repo: staged journal accepts 64-character object IDs but fixed 40-zero null OID makes removal of newly added registry entry fail with malformed index info; subsequent recovery fails identically, retaining journal and source safely but unable to complete. Derive null OID from actual repository object format, preserving SHA-1, alternate indexes and rollback guarantees. Evidence review2-a/probe_sha256_recovery.py/.log and probe_sha256_delete.py/.log.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.\n\nPR50 oldhead4cf857b WindowsCI identified test-fixture portability assumptions, not a demonstrated production regression. Raw CI log retained windows-312-4cf857b-failed.log. Git text helper normalized CRLF then encoded before raw-byte comparisons (14failures reproduced undercore.autocrlf=true); restore assertions read UTF-8 via defaultcp1252 (10failures reproduced portably). Test-only corrections retain/expand exact per-view bytes, AST/literal/comment/rollback/mode assertions; no production edits. Independent reviewer reproduced both baselinefailure sets and checks stronger LF/CRLF/rawselected-index/UTF8coverage. Fresh linkedverification and newexacthead15jobCI/nativeactualPASS remain mandatory; priorLinuxfullpass andoldheadartifactproofstayhistorical.",
       "origin": "comment",
       "presence": "missing",
       "priority": "high",
@@ -2245,7 +2265,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 243,
+            "line": 255,
             "node": "tests/test_gitwrite.py::test_task_28e56f",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
@@ -4536,37 +4556,37 @@
       "tests": {
         "discovered": [
           {
-            "line": 180,
+            "line": 192,
             "node": "tests/test_gitwrite.py::test_linked_worktree_uses_its_own_git_index",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
           },
           {
-            "line": 196,
+            "line": 208,
             "node": "tests/test_gitwrite.py::test_recovery_rejects_inconsistent_original_presence_before_any_side_effect",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
           },
           {
-            "line": 132,
+            "line": 144,
             "node": "tests/test_gitwrite.py::test_saved_index_cannot_select_existing_sibling_by_prefix",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
           },
           {
-            "line": 166,
+            "line": 178,
             "node": "tests/test_gitwrite.py::test_staged_recovery_rejects_symlink_copy",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
           },
           {
-            "line": 71,
+            "line": 83,
             "node": "tests/test_gitwrite.py::test_staged_recovery_rejects_whole_invalid_journal",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
           },
           {
-            "line": 146,
+            "line": 158,
             "node": "tests/test_gitwrite.py::test_supported_index_modes_recover",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
@@ -4716,6 +4736,16 @@
           "old": {
             "path": "src/byteplan/release.py"
           }
+        },
+        {
+          "at": "2026-10-27T04:13:02Z",
+          "event": "edited",
+          "new": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review A and root reproduction at378e722 show release followed by manual/cherry-picked original annotation+body hotfix then restore duplicates @todo(id=abcd) and import, clears release metadata and returns no conflicts; next check blocks on duplicate_id. Safely reuse matching already-restored blocks or report an explicit recoverable conflict; preserve conflicting/user-edited annotations and source/registry on failed restoration. Include real API/CLI preview/write/partial regressions and supported restore modes. Evidence review2-a/probe_restore_duplicate.py/.log and root-confirm-restore.log.\n\nIndependent correction probe found an additional same-operation source safety defect: moved declaration restoration linewise reindent changes multiline decorator description literal contents and clears release authority. Evidence review3-fixes/independent-a/probe_multiline_indent.py/.log. Keep task in progress; preserve runtime annotation AST/literal values during relocation or report recoverable conflict. Final authored tests are being extended; prior186pass selection does not close this remaining case.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.\n\nPR50 oldhead4cf857b WindowsCI identified test-fixture portability assumptions, not a demonstrated production regression. Raw CI log retained windows-312-4cf857b-failed.log. Git text helper normalized CRLF then encoded before raw-byte comparisons (14failures reproduced undercore.autocrlf=true); restore assertions read UTF-8 via defaultcp1252 (10failures reproduced portably). Test-only corrections retain/expand exact per-view bytes, AST/literal/comment/rollback/mode assertions; no production edits. Independent reviewer reproduced both baselinefailure sets and checks stronger LF/CRLF/rawselected-index/UTF8coverage. Fresh linkedverification and newexacthead15jobCI/nativeactualPASS remain mandatory; priorLinuxfullpass andoldheadartifactproofstayhistorical."
+          },
+          "old": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review A and root reproduction at378e722 show release followed by manual/cherry-picked original annotation+body hotfix then restore duplicates @todo(id=abcd) and import, clears release metadata and returns no conflicts; next check blocks on duplicate_id. Safely reuse matching already-restored blocks or report an explicit recoverable conflict; preserve conflicting/user-edited annotations and source/registry on failed restoration. Include real API/CLI preview/write/partial regressions and supported restore modes. Evidence review2-a/probe_restore_duplicate.py/.log and root-confirm-restore.log.\n\nIndependent correction probe found an additional same-operation source safety defect: moved declaration restoration linewise reindent changes multiline decorator description literal contents and clears release authority. Evidence review3-fixes/independent-a/probe_multiline_indent.py/.log. Keep task in progress; preserve runtime annotation AST/literal values during relocation or report recoverable conflict. Final authored tests are being extended; prior186pass selection does not close this remaining case.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required."
+          }
         }
       ],
       "id": "631761",
@@ -4725,7 +4755,7 @@
         "final-review"
       ],
       "last_seen": "2026-10-27T00:44:34Z",
-      "notes": "P2 accepted for pre-RC correction: independent whole review A and root reproduction at378e722 show release followed by manual/cherry-picked original annotation+body hotfix then restore duplicates @todo(id=abcd) and import, clears release metadata and returns no conflicts; next check blocks on duplicate_id. Safely reuse matching already-restored blocks or report an explicit recoverable conflict; preserve conflicting/user-edited annotations and source/registry on failed restoration. Include real API/CLI preview/write/partial regressions and supported restore modes. Evidence review2-a/probe_restore_duplicate.py/.log and root-confirm-restore.log.\n\nIndependent correction probe found an additional same-operation source safety defect: moved declaration restoration linewise reindent changes multiline decorator description literal contents and clears release authority. Evidence review3-fixes/independent-a/probe_multiline_indent.py/.log. Keep task in progress; preserve runtime annotation AST/literal values during relocation or report recoverable conflict. Final authored tests are being extended; prior186pass selection does not close this remaining case.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.",
+      "notes": "P2 accepted for pre-RC correction: independent whole review A and root reproduction at378e722 show release followed by manual/cherry-picked original annotation+body hotfix then restore duplicates @todo(id=abcd) and import, clears release metadata and returns no conflicts; next check blocks on duplicate_id. Safely reuse matching already-restored blocks or report an explicit recoverable conflict; preserve conflicting/user-edited annotations and source/registry on failed restoration. Include real API/CLI preview/write/partial regressions and supported restore modes. Evidence review2-a/probe_restore_duplicate.py/.log and root-confirm-restore.log.\n\nIndependent correction probe found an additional same-operation source safety defect: moved declaration restoration linewise reindent changes multiline decorator description literal contents and clears release authority. Evidence review3-fixes/independent-a/probe_multiline_indent.py/.log. Keep task in progress; preserve runtime annotation AST/literal values during relocation or report recoverable conflict. Final authored tests are being extended; prior186pass selection does not close this remaining case.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.\n\nPR50 oldhead4cf857b WindowsCI identified test-fixture portability assumptions, not a demonstrated production regression. Raw CI log retained windows-312-4cf857b-failed.log. Git text helper normalized CRLF then encoded before raw-byte comparisons (14failures reproduced undercore.autocrlf=true); restore assertions read UTF-8 via defaultcp1252 (10failures reproduced portably). Test-only corrections retain/expand exact per-view bytes, AST/literal/comment/rollback/mode assertions; no production edits. Independent reviewer reproduced both baselinefailure sets and checks stronger LF/CRLF/rawselected-index/UTF8coverage. Fresh linkedverification and newexacthead15jobCI/nativeactualPASS remain mandatory; priorLinuxfullpass andoldheadartifactproofstayhistorical.",
       "origin": "comment",
       "presence": "missing",
       "priority": "high",
@@ -4743,92 +4773,98 @@
       "tests": {
         "discovered": [
           {
-            "line": 235,
+            "line": 276,
             "node": "tests/test_restore_existing_annotations.py::test_partial_restore_reuses_safe_files_and_retries_competing_annotations",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 140,
+            "line": 181,
             "node": "tests/test_restore_existing_annotations.py::test_restore_conflicts_keep_all_authority_and_are_recoverable",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 333,
+            "line": 374,
             "node": "tests/test_restore_existing_annotations.py::test_restore_keeps_authority_when_reindentation_cannot_preserve_annotation_ast",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 114,
+            "line": 155,
             "node": "tests/test_restore_existing_annotations.py::test_restore_keeps_class_local_shadowing_conflicts_recoverable",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 275,
+            "line": 316,
             "node": "tests/test_restore_existing_annotations.py::test_restore_moved_decorator_preserves_literal_ast_and_description",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 257,
+            "line": 298,
             "node": "tests/test_restore_existing_annotations.py::test_restore_preserves_selected_runtime_and_source_encoding",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 186,
+            "line": 227,
             "node": "tests/test_restore_existing_annotations.py::test_restore_rejects_identity_copied_to_another_configured_source",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 221,
+            "line": 262,
             "node": "tests/test_restore_existing_annotations.py::test_restore_reports_unparseable_unrelated_sources_without_clearing_authority",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 99,
+            "line": 140,
             "node": "tests/test_restore_existing_annotations.py::test_restore_retains_partly_reintroduced_import_authority",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 204,
+            "line": 245,
             "node": "tests/test_restore_existing_annotations.py::test_restore_retry_checks_the_import_even_after_its_record_was_consumed",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 56,
+            "line": 97,
             "node": "tests/test_restore_existing_annotations.py::test_restore_reuses_aliases_multiline_blocks_and_stack_positions",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 131,
+            "line": 172,
             "node": "tests/test_restore_existing_annotations.py::test_restore_reuses_an_existing_import_when_its_old_anchor_is_gone",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 34,
+            "line": 75,
             "node": "tests/test_restore_existing_annotations.py::test_restore_reuses_cherry_picked_annotations_and_imports",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 90,
+            "line": 131,
             "node": "tests/test_restore_existing_annotations.py::test_restore_reuses_recorded_names_in_a_larger_import",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           },
           {
-            "line": 79,
+            "line": 120,
             "node": "tests/test_restore_existing_annotations.py::test_restore_reuses_semantic_matches_without_losing_user_formatting",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 47,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_unicode_source_uses_utf8_independently_of_default_text_decoder",
             "path": "tests/test_restore_existing_annotations.py",
             "provenance": "verifies"
           }
@@ -10457,7 +10493,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 44,
+            "line": 56,
             "node": "tests/test_gitwrite.py::test_recovery_validates_all_copies_before_any_side_effect",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"

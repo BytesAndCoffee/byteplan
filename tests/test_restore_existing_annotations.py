@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import ast
 import tokenize
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
@@ -14,12 +15,24 @@ import pytest
 from byteplan._todo import verifies
 from byteplan.api import Project
 from byteplan.release import ReleaseError
+from byteplan.scanner.source import read_source
 
 if TYPE_CHECKING:
     from tests.conftest import ProjectFactory
 
 
 SOURCE = 'from byteplan_runtime import todo\n\n@todo("work", id="abcd")\ndef f():\n    return 1\n'
+
+
+@pytest.fixture(autouse=True)
+def cp1252_default_text_reads(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Exercise these UTF-8 fixtures with the legacy Windows text-read default."""
+    read_text = Path.read_text
+
+    def read_with_windows_default(path: Path, encoding: str | None = None, errors: str | None = None) -> str:
+        return read_text(path, encoding="cp1252" if encoding is None else encoding, errors=errors)
+
+    monkeypatch.setattr(Path, "read_text", read_with_windows_default)
 
 
 def _released(project: ProjectFactory, original: str = SOURCE) -> Project:
@@ -29,6 +42,34 @@ def _released(project: ProjectFactory, original: str = SOURCE) -> Project:
     api.import_task("abcd")
     api.release(allow_dirty=True)
     return api
+
+
+@verifies("631761")
+def test_restore_unicode_source_uses_utf8_independently_of_default_text_decoder(project: ProjectFactory) -> None:
+    original = (
+        SOURCE.replace("import todo", "import todo as τ")
+        .replace("@todo", "@τ")
+        .replace('id="abcd"', 'id="abcd", description="雪"')
+    )
+    api = _released(project, original)
+    changed = original.replace("return 1", "return 2")
+    path = project.write("src/demo.py", changed, dedent=False)
+    expected_bytes = changed.encode("utf-8")
+    assert path.read_bytes() == expected_bytes
+    # The module fixture emulates cp1252 even when the host defaults to UTF-8.
+    assert path.read_text() == expected_bytes.decode("cp1252")
+    assert path.read_text() != changed
+    source = read_source(project.root, "src/demo.py")
+    assert source.encoding == "utf-8"
+    assert source.text == changed
+    assert not api.restore().conflicts
+    assert path.read_bytes() == expected_bytes
+    assert path.read_text(encoding="utf-8") == changed
+    check = api.check()
+    assert not check.blocked
+    assert len(check.tags) == 1
+    assert check.tags[0].description == "雪"
+    assert api.stripped_release() is None
 
 
 @verifies("631761")
@@ -46,7 +87,7 @@ def test_restore_reuses_cherry_picked_annotations_and_imports(project: ProjectFa
     report = api.restore(partial=partial)
     assert not report.conflicts
     assert not report.partial
-    assert path.read_text() == changed
+    assert path.read_text(encoding="utf-8") == changed
     assert api.stripped_release() is None
     check = api.check()
     assert not check.blocked
@@ -72,7 +113,7 @@ def test_restore_reuses_aliases_multiline_blocks_and_stack_positions(project: Pr
     changed = original.replace("return 1", "return 2")
     path = project.write("src/demo.py", changed, dedent=False)
     assert not api.restore().conflicts
-    assert path.read_text() == changed
+    assert path.read_text(encoding="utf-8") == changed
     assert not api.check().blocked
 
 
@@ -84,7 +125,7 @@ def test_restore_reuses_semantic_matches_without_losing_user_formatting(project:
     )
     path = project.write("src/demo.py", changed, dedent=False)
     assert not api.restore().conflicts
-    assert path.read_text() == changed
+    assert path.read_text(encoding="utf-8") == changed
 
 
 @verifies("631761")
@@ -93,7 +134,7 @@ def test_restore_reuses_recorded_names_in_a_larger_import(project: ProjectFactor
     changed = SOURCE.replace("import todo", "import todo, verifies  # user extension")
     path = project.write("src/demo.py", changed, dedent=False)
     assert not api.restore().conflicts
-    assert path.read_text() == changed
+    assert path.read_text(encoding="utf-8") == changed
 
 
 @verifies("631761")
@@ -123,7 +164,7 @@ def test_restore_keeps_class_local_shadowing_conflicts_recoverable(project: Proj
     report = api.restore(partial=True)
     assert report.partial
     assert any("shadowed" in conflict for conflict in report.conflicts)
-    assert path.read_text() == changed
+    assert path.read_text(encoding="utf-8") == changed
     project.write("src/demo.py", original, dedent=False)
     assert not api.restore().conflicts
 
@@ -134,7 +175,7 @@ def test_restore_reuses_an_existing_import_when_its_old_anchor_is_gone(project: 
     api = _released(project, original)
     path = project.write("src/demo.py", SOURCE.replace("return 1", "return 2"), dedent=False)
     assert not api.restore().conflicts
-    assert path.read_text().count("from byteplan_runtime import todo") == 1
+    assert path.read_text(encoding="utf-8").count("from byteplan_runtime import todo") == 1
 
 
 @verifies("631761")
@@ -176,10 +217,10 @@ def test_restore_conflicts_keep_all_authority_and_are_recoverable(
     assert remaining is not None
     pending = remaining["files"]["src/demo.py"]
     assert pending["decorators"] == release["files"]["src/demo.py"]["decorators"]
-    assert (project.root / "src/demo.py").read_text().count('id="abcd"') == changed.count('id="abcd"')
+    assert (project.root / "src/demo.py").read_text(encoding="utf-8").count('id="abcd"') == changed.count('id="abcd"')
     path = project.write("src/demo.py", SOURCE.replace("return 1", "return 2"), dedent=False)
     assert not api.restore().conflicts
-    assert path.read_text().count('@todo("work", id="abcd")') == 1
+    assert path.read_text(encoding="utf-8").count('@todo("work", id="abcd")') == 1
     assert api.stripped_release() is None
 
 
@@ -248,7 +289,7 @@ def test_partial_restore_reuses_safe_files_and_retries_competing_annotations(pro
     release = api.stripped_release()
     assert release is not None
     assert set(release["files"]) == {"src/demo.py"}
-    assert (project.root / "tests/test_work.py").read_text().count('@verifies("abcd")') == 1
+    assert (project.root / "tests/test_work.py").read_text(encoding="utf-8").count('@verifies("abcd")') == 1
     project.write("src/demo.py", SOURCE, dedent=False)
     assert not api.restore().conflicts
     assert not api.check().blocked
@@ -258,7 +299,7 @@ def test_partial_restore_reuses_safe_files_and_retries_competing_annotations(pro
 def test_restore_preserves_selected_runtime_and_source_encoding(project: ProjectFactory) -> None:
     project.write(
         "pyproject.toml",
-        (project.root / "pyproject.toml").read_text()
+        (project.root / "pyproject.toml").read_text(encoding="utf-8")
         + '\n[tool.byteplan.annotations]\nruntime_modules = ["pkg.annotations"]\n',
         dedent=False,
     )
@@ -317,7 +358,7 @@ def test_restore_moved_decorator_preserves_literal_ast_and_description(
     assert project.snapshot() == before
     assert api.stripped_release() is not None
     assert not api.restore().conflicts
-    restored = path.read_text()
+    restored = path.read_text(encoding="utf-8")
     actual = next(node for node in ast.walk(ast.parse(restored)) if isinstance(node, ast.FunctionDef))
     assert ast.dump(actual.decorator_list[0]) == ast.dump(expected.decorator_list[0])
     assert literal in restored
@@ -357,7 +398,7 @@ def test_restore_keeps_authority_when_reindentation_cannot_preserve_annotation_a
         remaining = api.stripped_release()
         assert remaining is not None
         assert remaining["files"]["src/demo.py"]["decorators"]
-        assert "@todo" not in path.read_text()
+        assert "@todo" not in path.read_text(encoding="utf-8")
     assert not api.restore().conflicts
     assert api.check().tags[0].description == api.get_task("abcd").description
     assert api.stripped_release() is None

@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -39,6 +40,17 @@ def snapshot(repo: ProjectFactory) -> dict[str, bytes]:
     files = {str(p.relative_to(repo.root)): p.read_bytes() for p in repo.root.rglob("*") if p.is_file()}
     files["INDEX"] = (repo.root.parent / ".git/index").read_bytes()
     return files
+
+
+def index_blob(top: Path, index: Path, path: str) -> bytes:
+    """Read exact blob bytes from the selected index, without text-mode newline decoding."""
+    return subprocess.run(
+        ["git", "cat-file", "blob", f":{path}"],
+        cwd=top,
+        env={**os.environ, "GIT_INDEX_FILE": str(index)},
+        capture_output=True,
+        check=True,
+    ).stdout
 
 
 @verifies("dcd417")
@@ -241,6 +253,7 @@ def test_recovery_rejects_inconsistent_original_presence_before_any_side_effect(
 
 
 @verifies("28e56f")
+@pytest.mark.parametrize("eol", ["lf", "crlf"])
 @pytest.mark.parametrize("object_format", ["sha1", "sha256"])
 @pytest.mark.parametrize("operation", ["forward", "rollback", "recover_forward", "recover_rollback"])
 @pytest.mark.parametrize("index_mode", ["default", "selected", "linked"])
@@ -250,6 +263,7 @@ def test_task_28e56f(
     object_format: str,
     operation: str,
     index_mode: str,
+    eol: str,
 ) -> None:
     """Reconcile and recover a newly added registry in each supported object format."""
     top = project.root.parent
@@ -261,9 +275,13 @@ def test_task_28e56f(
         if ("unknown option" in stderr and "object-format" in stderr) or "unknown hash algorithm 'sha256'" in stderr:
             pytest.skip(f"installed Git lacks SHA-256 repository support: {initialized.stderr.strip()}")
     assert initialized.returncode == 0, initialized.stderr
-    project.write("src/new.py", "# TODO: object format task\n")
-    project.write("user.txt", "user staged bytes\n")
-    git(top, "add", "proj/pyproject.toml", "proj/src/new.py", "proj/user.txt")
+    # Explicit attributes exercise both Git views on every host, independently
+    # of the user's core.autocrlf setting. Git blobs stay LF; checkout bytes vary.
+    project.write(".gitattributes", f"src/*.py text eol={eol}\n.byteplan/tasks.json text eol={eol}\nuser.txt -text\n")
+    line_ending = b"\r\n" if eol == "crlf" else b"\n"
+    project.write("src/new.py", b"# TODO: object format task" + line_ending)
+    project.write("user.txt", b"user staged bytes" + line_ending)
+    git(top, "add", "proj/.gitattributes", "proj/pyproject.toml", "proj/src/new.py", "proj/user.txt")
     root = project.root
     main_index: tuple[Path, bytes] | None = None
     if index_mode == "linked":
@@ -292,7 +310,14 @@ def test_task_28e56f(
     entries_before = git(top, "ls-files", "--stage").stdout
     source = root / "src/new.py"
     source_before = source.read_bytes()
+    assert source_before == b"# TODO: object format task" + line_ending
+    assert index_blob(top, index, "proj/src/new.py") == b"# TODO: object format task\n"
+    user_before = index_blob(top, index, "proj/user.txt")
+    # -text retains CRLF inside the blob too, proving the binary reader does
+    # not silently normalize the unrelated staged content.
+    assert user_before == b"user staged bytes" + line_ending
     (root / "user.txt").write_text("user unstaged bytes\n")
+    user_worktree_before = (root / "user.txt").read_bytes()
     registry = root / ".byteplan/tasks.json"
     real_swap = gitwrite._swap_index  # noqa: SLF001
     swaps = 0
@@ -342,12 +367,17 @@ def test_task_28e56f(
         assert gitwrite.reconcile_staged(root).code == 0
     if "rollback" not in operation:
         assert b"TODO[" in source.read_bytes()
-        assert git(top, "show", ":proj/src/new.py").stdout.encode() == source.read_bytes()
-        assert git(top, "show", ":proj/.byteplan/tasks.json").stdout.encode() == registry.read_bytes()
+        for path in ("src/new.py", ".byteplan/tasks.json"):
+            blob = index_blob(top, index, f"proj/{path}")
+            assert b"\n" in blob
+            assert b"\r" not in blob
+            assert (root / path).read_bytes() == blob.replace(b"\n", line_ending)
         oid = git(top, "rev-parse", ":proj/.byteplan/tasks.json").stdout.strip()
         assert len(oid) == (64 if object_format == "sha256" else 40)
     assert git(top, "show", ":proj/user.txt").stdout == "user staged bytes\n"
+    assert index_blob(top, index, "proj/user.txt") == user_before
     assert (root / "user.txt").read_text() == "user unstaged bytes\n"
+    assert (root / "user.txt").read_bytes() == user_worktree_before
     assert not StagedJournal.path(root).exists()
     if index_mode == "selected":
         assert original_index.read_bytes() == original_bytes
@@ -356,16 +386,25 @@ def test_task_28e56f(
 
 
 @verifies("17f1f0")
+@pytest.mark.parametrize("eol", ["lf", "crlf"])
 @pytest.mark.parametrize("interrupted", [False, True])
-def test_task_17f1f0(repo: ProjectFactory, monkeypatch: pytest.MonkeyPatch, *, interrupted: bool) -> None:
+def test_task_17f1f0(repo: ProjectFactory, monkeypatch: pytest.MonkeyPatch, eol: str, *, interrupted: bool) -> None:
     """Legal short writes must preserve the entire index and unrelated staged content."""
     top = repo.root.parent
-    repo.write("src/new.py", "# TODO: index short write task\n")
-    repo.write("user.txt", "user staged bytes\n")
+    repo.write(".gitattributes", f"src/new.py text eol={eol}\nuser.txt -text\n")
+    line_ending = b"\r\n" if eol == "crlf" else b"\n"
+    source = repo.write("src/new.py", b"# TODO: index short write task" + line_ending)
+    repo.write("user.txt", b"user staged bytes" + line_ending)
     git(top, "add", "proj/src/new.py", "proj/user.txt")
     git(top, "update-index", "--chmod=+x", "proj/user.txt")
+    index = gitwrite.index_path(top)
+    assert source.read_bytes() == b"# TODO: index short write task" + line_ending
+    assert index_blob(top, index, "proj/src/new.py") == b"# TODO: index short write task\n"
+    user_before = index_blob(top, index, "proj/user.txt")
+    assert user_before == b"user staged bytes" + line_ending
     user_entry = git(top, "ls-files", "--stage", "--", "proj/user.txt").stdout
     repo.write("user.txt", "user unstaged bytes\n")
+    user_worktree_before = (repo.root / "user.txt").read_bytes()
     real_write = os.write
     calls = 0
     index_fd: int | None = None
@@ -385,9 +424,14 @@ def test_task_17f1f0(repo: ProjectFactory, monkeypatch: pytest.MonkeyPatch, *, i
     assert gitwrite.reconcile_staged(repo.root).code == 0
     assert calls > 2
     assert git(top, "show", ":proj/user.txt").stdout == "user staged bytes\n"
+    assert index_blob(top, index, "proj/user.txt") == user_before
     assert git(top, "ls-files", "--stage", "--", "proj/user.txt").stdout == user_entry
     assert (repo.root / "user.txt").read_text() == "user unstaged bytes\n"
-    assert git(top, "show", ":proj/src/new.py").stdout.encode() == (repo.root / "src/new.py").read_bytes()
+    assert (repo.root / "user.txt").read_bytes() == user_worktree_before
+    blob = index_blob(top, index, "proj/src/new.py")
+    assert b"\n" in blob
+    assert b"\r" not in blob
+    assert source.read_bytes() == blob.replace(b"\n", line_ending)
     assert b"TODO[" in (repo.root / "src/new.py").read_bytes()
     assert not StagedJournal.path(repo.root).exists()
 
