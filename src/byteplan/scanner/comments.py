@@ -5,10 +5,11 @@
 
 Grammar (applied only to comment tokens, so strings and docstrings never match):
 
-* A tag comment starts with ``#``, optional whitespace, then a configured tag
-  (case-insensitive), an optional ``[id]``, and then ``:``, whitespace, or the
-  end of the comment. ``# x = f()  # TODO`` is not a tag: the tag must open the
-  comment.
+* A tag comment starts with ``#``, optional whitespace, then a configured tag, an
+  optional ``[id]``, and then ``:``, whitespace, or the end of the comment. The tag
+  matches in any case when ``:`` or ``[id]`` follows it (``# todo: x``); otherwise
+  only its configured spelling does, so ``# Todo list model`` is prose, not a task.
+  ``# x = f()  # TODO`` is not a tag: the tag must open the comment.
 * A tag on its own line owns the continuation lines directly below it. A
   continuation line is a comment-only line, on the very next physical line, with
   its ``#`` in the same column, whose text after ``#`` starts with at least two
@@ -78,9 +79,12 @@ class Comment:
 def tag_pattern(tags: Sequence[str], opener: str = "#") -> re.Pattern[str]:
     """The tag grammar after a comment opener (a regex: ``#``, ``<!--``, ``//``, ``/\\*``)."""
     alternatives = "|".join(re.escape(tag) for tag in sorted(tags, key=len, reverse=True))
+    # The configured spelling is a tag wherever it opens the comment. Any other case must be
+    # followed by `:` or `[id]`, so prose such as "Todo list model" is never a task.
+    tag = rf"(?:(?:{alternatives})(?=[\[:\s]|\Z)|(?i:{alternatives})(?=[\[:]))"
     return re.compile(
-        rf"{opener}\s*(?P<tag>{alternatives})(?:\[(?P<id>[^\]]*)\])?(?P<rest>(?:[:\s].*)?)",
-        re.IGNORECASE | re.DOTALL,
+        rf"{opener}\s*(?P<tag>{tag})(?:\[(?P<id>[^\]]*)\])?(?P<rest>(?:[:\s].*)?)",
+        re.DOTALL,
     )
 
 

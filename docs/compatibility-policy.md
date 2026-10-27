@@ -1,5 +1,9 @@
 # BytePlan 1.0 public compatibility policy
 
+<!-- FIXME[14c4fe]: Update stale tense in the compatibility policy
+  It calls the current release "alpha" (the package is 1.0.0rc1, Beta) and describes the API
+  decomposition and its monkey-patching inspection as future work; PR #47 completed it. -->
+
 This document defines the compatibility boundary for the 1.0 release and its release
 candidates. It does not declare the current alpha release or an unreviewed checkout ready for
 production. [Addendum E](spec-addendum-e.md) retains the RC1 acceptance and approval gates.

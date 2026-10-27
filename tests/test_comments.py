@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from byteplan._todo import verifies
 from byteplan.config import DetectConfig
 from byteplan.diagnostics import Code
 from byteplan.errors import SourceError
@@ -51,7 +52,7 @@ def test_all_default_kinds(kind: str) -> None:
 
 
 def test_case_insensitive_with_canonical_kind() -> None:
-    tag = only("#todo  lower case works\n")
+    tag = only("#todo:  lower case works\n")
     assert (tag.kind, tag.tag_text, tag.title) == ("TODO", "todo", "lower case works")
 
 
@@ -198,3 +199,28 @@ def test_crlf_and_non_ascii() -> None:
 def test_unparseable_file_raises() -> None:
     with pytest.raises(SourceError, match="syntax error"):
         scan("def f(:\n    pass\n")
+
+
+@verifies("415a0f")
+@pytest.mark.parametrize(
+    "comment",
+    ["# Todo list model and helpers", "# hack around the vendored parser", "# Fixme handling lives in the CLI"],
+)
+def test_prose_comments_that_start_with_a_tag_word_are_not_tasks(comment: str) -> None:
+    assert scan(f"{comment}\nx = 1\n").tags == []
+
+
+@verifies("415a0f")
+@pytest.mark.parametrize(
+    ("comment", "title"),
+    [
+        ("# TODO: Handle it", "Handle it"),
+        ("# TODO Handle it", "Handle it"),
+        ("# todo: Handle it", "Handle it"),
+        ("# Fixme: Handle it", "Handle it"),
+        ("# todo[7fa2]: Handle it", "Handle it"),
+    ],
+)
+def test_explicit_tag_spellings_stay_tasks(comment: str, title: str) -> None:
+    """The 415a0f fix must not stop tracking uppercase tags or any spelling followed by `:` / `[id]`."""
+    assert only(f"{comment}\nx = 1\n").title == title

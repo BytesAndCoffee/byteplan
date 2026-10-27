@@ -14,6 +14,22 @@
       "python": "3.11.0",
       "timed_out": false
     },
+    "030f7b1f5f5246fba0fadf8e1561cc9b": {
+      "argv": [
+        "hatch",
+        "test",
+        "--",
+        "-m",
+        "network or not network",
+        "-p",
+        "_byteplan_verify_plugin"
+      ],
+      "at": "2026-10-27T05:08:38Z",
+      "dirty": true,
+      "head": "d85a898edd65743ecfc366463e1d3b1708e94cff",
+      "python": "3.11.0",
+      "timed_out": false
+    },
     "165678588f64": {
       "argv": [
         "hatch",
@@ -961,6 +977,20 @@
       "tests": {
         "tests/test_scaffold.py::test_auto_scaffold_normalizes_the_test_directory": {
           "duration_ms": 11,
+          "outcome": "passed"
+        }
+      }
+    },
+    "415a0f": {
+      "fingerprint": "673af785fb90465e39cc14bbaefbce4205df092fbbf56c00596ae434515cd5f1",
+      "run": "030f7b1f5f5246fba0fadf8e1561cc9b",
+      "tests": {
+        "tests/test_comments.py::test_explicit_tag_spellings_stay_tasks": {
+          "duration_ms": 0,
+          "outcome": "passed"
+        },
+        "tests/test_comments.py::test_prose_comments_that_start_with_a_tag_word_are_not_tasks": {
+          "duration_ms": 1,
           "outcome": "passed"
         }
       }

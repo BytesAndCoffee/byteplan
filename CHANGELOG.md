@@ -5,6 +5,13 @@ All notable changes to `byteplan`. The runtime decorators ship separately as
 
 ## Unreleased
 
+### Fixed
+- **Prose comments are no longer tasks:** a comment that merely starts with a tag word in another
+  case (`# Todo list model`, `# hack around the parser`) was tracked, and the first writing scan
+  inserted an ID into it. A tag spelled differently from its configuration now needs `:` or `[id]`
+  right after it (`# todo: ...`); the configured spelling (`# TODO ...`) is unchanged. Already
+  annotated tasks (`# Todo[id] ...`) keep matching. Applies to Python, Markdown and JSONC comments.
+
 ## 1.0.0rc1 — candidate preparation
 
 This candidate is being prepared for review; it is not approved or published by these notes.
