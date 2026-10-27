@@ -28,6 +28,7 @@ from byteplan.persistence import (
 )
 from byteplan.registry import Registry, load_registry
 from byteplan.scanner.source import decode_source
+from byteplan.writeguard import control_directory, project_target
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -96,23 +97,50 @@ def shim_module_name(rel: str) -> str:
     return stem.replace("/", ".")
 
 
-def _write_shim(root: Path, rel: str, result: InitResult) -> str:
-    path = (root / rel).resolve()
-    if not path.is_relative_to(root.resolve()) or path.suffix != ".py":
+def _init_target(root: Path, path: Path, *, control: bool = False) -> Path:
+    """Apply the shared write boundary before initialization reads or creates a target."""
+    try:
+        target = project_target(root, path.relative_to(root).as_posix(), control=control)
+    except ValueError as exc:
+        msg = f"unsafe initialization target: {exc}"
+        raise ConfigError(msg) from exc
+    for parent in target.parents:
+        if parent == root:
+            break
+        if parent.exists() and not parent.is_dir():
+            msg = f"initialization target {path.relative_to(root).as_posix()!r} has a non-directory parent"
+            raise ConfigError(msg)
+    return target
+
+
+def _shim_target(root: Path, rel: str) -> tuple[Path, str]:
+    path = root / rel
+    if not path.is_relative_to(root) or path.suffix != ".py":
         msg = f"--runtime-shim {rel!r} must be a .py file inside the project"
         raise ConfigError(msg)
-    rel = path.relative_to(root.resolve()).as_posix()
+    try:
+        path = _init_target(root, path)
+    except ConfigError as exc:
+        msg = f"--runtime-shim {rel!r} must be a .py file inside the project ({exc})"
+        raise ConfigError(msg) from exc
+    path = path.resolve()
+    rel = path.relative_to(root).as_posix()
     module = shim_module_name(rel)
     if not all(part.isidentifier() for part in module.split(".")):
         msg = f"--runtime-shim {rel!r} isn't importable as a module ({module!r})"
         raise ConfigError(msg)
-    if path.exists():
-        if path.read_text(encoding="utf-8") != RUNTIME_SHIM:
-            msg = f"{rel} already exists; remove it or choose another path for the shim"
-            raise ConfigError(msg)
-    else:
+    if path.exists() and path.read_text(encoding="utf-8") != RUNTIME_SHIM:
+        msg = f"{rel} already exists; remove it or choose another path for the shim"
+        raise ConfigError(msg)
+    return path, module
+
+
+def _write_shim(root: Path, rel: str, result: InitResult) -> str:
+    path, module = _shim_target(root, rel)
+    if not path.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
         atomic_write_bytes(path, RUNTIME_SHIM.encode())
+        rel = path.relative_to(root).as_posix()
         result.actions.append(f"wrote runtime shim {rel} (module {module})")
     return module
 
@@ -126,10 +154,25 @@ def init_project(start: Path | None = None, *, runtime_shim: str | None = None) 
     """
     root = find_project_root(start or Path.cwd())
     result = InitResult(root)
+    pyproject_path = _init_target(root, root / PYPROJECT)
     pyproject = read_pyproject(root)
-    existing_registry = load_config(root).registry_path
-    if existing_registry.exists():
-        load_registry(existing_registry)  # reject incompatible data before writing a shim or config
+    registry_path = _init_target(root, load_config(root).registry_path)
+    try:
+        control_directory(root, STATE_DIR)
+    except ValueError as exc:
+        msg = f"unsafe initialization state directory: {exc}"
+        raise ConfigError(msg) from exc
+    gitignore = _init_target(root, root / STATE_DIR / ".gitignore", control=True)
+    targets = [pyproject_path, registry_path, gitignore]
+    if runtime_shim:
+        targets.append(_shim_target(root, runtime_shim)[0])
+    resolved = [path.resolve() for path in targets]
+    for path in resolved:
+        if any(other != path and other in path.parents for other in resolved):
+            msg = "initialization targets overlap as files and directories"
+            raise ConfigError(msg)
+    if registry_path.exists():
+        load_registry(registry_path)  # reject incompatible data before writing a shim or config
     shim = _write_shim(root, runtime_shim, result) if runtime_shim else None
 
     additions: list[str] = []
@@ -157,16 +200,16 @@ def init_project(start: Path | None = None, *, runtime_shim: str | None = None) 
                 "so the registry is not shipped in source distributions"
             )
     if additions:
-        _append_to_pyproject(root / PYPROJECT, additions)
+        _append_to_pyproject(pyproject_path, additions)
 
     config = load_config(root)
-    registry_path = config.registry_path
+    registry_path = _init_target(root, config.registry_path)
     if registry_path.exists():
         load_registry(registry_path)  # validate; raises on corruption
     else:
         atomic_write_bytes(registry_path, registry_io.dumps(Registry()).encode())
         result.actions.append(f"created {registry_path.relative_to(root).as_posix()}")
-    gitignore = root / STATE_DIR / ".gitignore"
+    gitignore = _init_target(root, gitignore, control=True)
     if not gitignore.exists():
         atomic_write_bytes(gitignore, BYTEPLAN_GITIGNORE.encode())
         result.actions.append(f"created {gitignore.relative_to(root).as_posix()}")

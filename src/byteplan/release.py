@@ -24,7 +24,8 @@ This module only plans text; the caller validates and writes through the journal
 from __future__ import annotations
 
 import ast
-import re
+import io
+import tokenize
 import warnings
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
@@ -32,7 +33,7 @@ from typing import TYPE_CHECKING, Any
 from byteplan.cleanup import _exported
 from byteplan.edits import header_end
 from byteplan.errors import ByteplanError
-from byteplan.scanner.decorators import _binds, _enclosing_scopes, resolve_runtime_names
+from byteplan.scanner.decorators import RuntimeNames, _binds, _enclosing_scopes, resolve_runtime_names
 from byteplan.scanner.stubs import dotted_name
 from byteplan.scanner.symbols import declarations
 
@@ -369,22 +370,86 @@ def restore_fast(stripped: str, record: dict[str, Any]) -> str:
     return "".join(lines)
 
 
-def restore_anchored(path: str, text: str, record: dict[str, Any]) -> tuple[str, list[str], dict[str, Any]]:
+def restore_anchored(
+    path: str,
+    text: str,
+    record: dict[str, Any],
+    *,
+    runtime_modules: Sequence[str] = ("byteplan_runtime",),
+) -> tuple[str, list[str], dict[str, Any]]:
     """Place each recorded block through the AST. Returns the new text, the conflicts, and
     the record entries that couldn't be placed (empty when everything went back)."""
     conflicts: list[str] = []
     left_decorators: list[dict[str, Any]] = []
     left_imports: list[dict[str, Any]] = []
 
+    try:
+        _parse(path, text)
+    except SyntaxError as exc:
+        return text, [f"{path}: fix the syntax before restoring ({exc})"], dict(record)
+    try:
+        for entry in record.get("imports", []):
+            _recorded_import(entry)
+        for entry in record.get("decorators", []):
+            _recorded_decorator(entry)
+    except (SyntaxError, ValueError) as exc:
+        return text, [f"{path}: invalid recorded annotation or import ({exc}); repair the release record"], dict(record)
+
     # Imports first: decorators without their import wouldn't be BytePlan's (or would break the
     # module), so if any import can't be placed, the whole file stays on record.
     probe = text
     for entry in sorted(record.get("imports", []), key=lambda e: e["line"]):
+        import_matches = _matching_imports(_parse(path, probe), entry)
+        if len(import_matches) > 1:
+            return (
+                text,
+                [f"{path}: multiple copies of `{entry['text'].strip()}`; keep one before restoring"],
+                dict(record),
+            )
+        if import_matches:
+            stmt = import_matches[0]
+            bound = {(alias.asname or alias.name).split(".")[0] for alias in stmt.names}
+            tree = _parse(path, probe)
+            uses = [node.lineno for node in ast.walk(tree) if isinstance(node, ast.Name) and node.id in bound]
+            pending = {
+                decorator["qualname"]
+                for decorator in record.get("decorators", [])
+                if (dotted_name(_recorded_decorator(decorator)) or "").split(".")[0] in bound
+            }
+            uses.extend(
+                min([decl.node.lineno, *(decorator.lineno for decorator in decl.node.decorator_list)])
+                for decl in declarations(tree)
+                if decl.qualname in pending
+            )
+            if uses and min(uses) < stmt.lineno:
+                return text, [f"{path}: move `{entry['text'].strip()}` before its uses before restoring"], dict(record)
+        elif any(
+            _import_parts(stmt) & _import_parts(_recorded_import(entry))
+            for stmt in _parse(path, probe).body
+            if isinstance(stmt, ast.Import | ast.ImportFrom)
+        ):
+            return (
+                text,
+                [f"{path}: `{entry['text'].strip()}` is only partly present; combine or remove its competing imports"],
+                dict(record),
+            )
         placed = _insert_import(path, probe, entry)
         if placed is None:
             conflicts.append(f"{path}: the statement before `{entry['text'].strip()}` is gone; can't place it")
             return text, conflicts, dict(record)
         probe = placed
+
+    names = resolve_runtime_names(_parse(path, probe), runtime_modules)
+    for entry in record.get("imports", []):
+        stmt = _recorded_import(entry)
+        bound = {(alias.asname or alias.name).split(".")[0] for alias in stmt.names}
+        competing = bound & names.ambiguous
+        if competing:
+            return (
+                text,
+                [f"{path}: competing bindings for {', '.join(sorted(competing))}; resolve them before restoring"],
+                dict(record),
+            )
 
     by_decl: dict[str, list[dict[str, Any]]] = {}
     for entry in record.get("decorators", []):
@@ -400,15 +465,38 @@ def restore_anchored(path: str, text: str, record: dict[str, Any]) -> tuple[str,
                 )
                 left_decorators.append(entry)
                 continue
-            name = re.match(r"\s*@\s*([A-Za-z_][\w.]*)", entry["text"])
-            base = name.group(1).split(".")[0] if name else entry["kind"]
+            name = dotted_name(_recorded_decorator(entry)) or entry["kind"]
+            base = name.split(".")[0]
             if any(_binds(scope, base) for scope in _enclosing_scopes(tree).get(matches[0].node, ())):
                 conflicts.append(
                     f"{path}: `{base}` is shadowed in {qualname}'s scope now; can't restore @{entry['kind']}"
                 )
                 left_decorators.append(entry)
                 continue
-            text = _insert_decorator(text, matches[0], entry)
+            if names.resolve(name) != entry["kind"]:
+                conflicts.append(f"{path}: `{base}` no longer resolves to BytePlan's @{entry['kind']}; fix its import")
+                left_decorators.append(entry)
+                continue
+            if not record.get("imports") and not _import_before_declaration(tree, name, matches[0]):
+                conflicts.append(f"{path}: move `{base}`'s runtime import before {qualname} before restoring")
+                left_decorators.append(entry)
+                continue
+            problem, present = _existing_decorator(matches[0], entry, entries, names)
+            if problem:
+                conflicts.append(f"{path}: {qualname} {problem}; resolve its decorators before restoring")
+                left_decorators.append(entry)
+                continue
+            if present:
+                continue
+            placed = _insert_decorator(text, matches[0], entry)
+            if placed is None:
+                conflicts.append(
+                    f"{path}: can't preserve @{entry['kind']} on {qualname}; "
+                    "restore its recorded annotation manually before retrying"
+                )
+                left_decorators.append(entry)
+                continue
+            text = placed
 
     for entry in sorted(record.get("imports", []), key=lambda e: e["line"]):
         placed = _insert_import(path, text, entry)
@@ -420,6 +508,74 @@ def restore_anchored(path: str, text: str, record: dict[str, Any]) -> tuple[str,
     text = _hoist_late_imports(path, text, [e for e in record.get("imports", []) if e not in left_imports])
     remaining = {"decorators": left_decorators, "imports": left_imports} if left_decorators or left_imports else {}
     return text, conflicts, remaining
+
+
+def _recorded_decorator(entry: dict[str, Any]) -> ast.expr:
+    block = entry["text"]
+    indent = block[: len(block) - len(block.lstrip(" \t"))]
+    # Wrapping preserves the contents of multiline string literals inside indented
+    # decorators; dedenting the block would silently change those literal values.
+    tree = ast.parse(("if True:\n" if indent else "") + block + indent + "def _recorded(): pass\n")
+    body = tree.body
+    if indent and len(body) == 1 and isinstance(body[0], ast.If):
+        body = body[0].body
+    declaration = body[0]
+    if len(body) != 1 or not isinstance(declaration, ast.FunctionDef) or len(declaration.decorator_list) != 1:
+        msg = "expected one recorded decorator"
+        raise ValueError(msg)
+    return declaration.decorator_list[0]
+
+
+def _import_before_declaration(tree: ast.Module, name: str, decl: Declaration) -> bool:
+    first = min([decl.node.lineno, *(decorator.lineno for decorator in decl.node.decorator_list)])
+    prefix = name.rpartition(".")[0]
+    for stmt in tree.body:
+        if (stmt.end_lineno or stmt.lineno) >= first:
+            continue
+        if isinstance(stmt, ast.ImportFrom) and any((alias.asname or alias.name) == name for alias in stmt.names):
+            return True
+        if isinstance(stmt, ast.Import) and any((alias.asname or alias.name) == prefix for alias in stmt.names):
+            return True
+    return False
+
+
+def _existing_decorator(
+    decl: Declaration, entry: dict[str, Any], entries: Sequence[dict[str, Any]], names: RuntimeNames
+) -> tuple[str | None, bool]:
+    """Reuse only a single recorded expression in its recorded stack position."""
+    expected = ast.dump(_recorded_decorator(entry))
+    recorded = {ast.dump(_recorded_decorator(other)) for other in entries if other["kind"] == entry["kind"]}
+    stack = decl.node.decorator_list
+    matches = [index for index, decorator in enumerate(stack) if ast.dump(decorator) == expected]
+    if len(matches) > 1:
+        return f"has multiple copies of the recorded @{entry['kind']}", False
+    if matches and matches[0] != entry["index"]:
+        return f"has the recorded @{entry['kind']} in a different decorator position", False
+    for decorator in stack:
+        name = dotted_name(decorator)
+        if name and names.resolve(name) == entry["kind"] and ast.dump(decorator) not in recorded:
+            return f"has a competing @{entry['kind']} annotation", False
+    return None, bool(matches)
+
+
+def _recorded_import(entry: dict[str, Any]) -> ast.Import | ast.ImportFrom:
+    tree = ast.parse(entry["text"])
+    if len(tree.body) != 1 or not isinstance(tree.body[0], ast.Import | ast.ImportFrom):
+        msg = "expected one recorded import"
+        raise ValueError(msg)
+    return tree.body[0]
+
+
+def _matching_imports(tree: ast.Module, entry: dict[str, Any]) -> list[ast.Import | ast.ImportFrom]:
+    expected = _import_parts(_recorded_import(entry))
+    return [
+        stmt for stmt in tree.body if isinstance(stmt, ast.Import | ast.ImportFrom) and expected <= _import_parts(stmt)
+    ]
+
+
+def _import_parts(stmt: ast.Import | ast.ImportFrom) -> set[tuple[str, int, str, str | None]]:
+    module, level = (stmt.module or "", stmt.level) if isinstance(stmt, ast.ImportFrom) else ("", 0)
+    return {(module, level, alias.name, alias.asname) for alias in stmt.names}
 
 
 def _hoist_late_imports(path: str, text: str, entries: Sequence[dict[str, Any]]) -> str:
@@ -452,7 +608,7 @@ def _hoist_late_imports(path: str, text: str, entries: Sequence[dict[str, Any]])
     return text
 
 
-def _insert_decorator(text: str, decl: Declaration, entry: dict[str, Any]) -> str:
+def _insert_decorator(text: str, decl: Declaration, entry: dict[str, Any]) -> str | None:
     lines = _lines(text)
     stack = decl.node.decorator_list
     line = stack[entry["index"]].lineno if entry["index"] < len(stack) else decl.node.lineno
@@ -462,11 +618,28 @@ def _insert_decorator(text: str, decl: Declaration, entry: dict[str, Any]) -> st
     old_indent = block[: len(block) - len(block.lstrip(" \t"))]
     new_indent = lines[decl.node.lineno - 1][: decl.col]
     if old_indent != new_indent:  # the declaration moved in or out: re-indent the block
+        # Leading whitespace on a string's continuation and closing lines belongs to
+        # the literal, even when it looks like the decorator's indentation.
+        literal_rows = {
+            row
+            for token in tokenize.generate_tokens(io.StringIO(block).readline)
+            if token.type == tokenize.STRING
+            for row in range(token.start[0] + 1, token.end[0] + 1)
+        }
         block = "".join(
-            new_indent + part[len(old_indent) :] if part.startswith(old_indent) else part for part in _lines(block)
+            new_indent + part[len(old_indent) :] if row not in literal_rows and part.startswith(old_indent) else part
+            for row, part in enumerate(_lines(block), 1)
         )
     lines[line - 1 : line - 1] = [block]
-    return "".join(lines)
+    placed = "".join(lines)
+    try:
+        declaration = next(d for d in declarations(_parse("<restore>", placed)) if d.qualname == decl.qualname)
+        actual = declaration.node.decorator_list[min(entry["index"], len(stack))]
+    except (SyntaxError, StopIteration, IndexError):
+        return None
+    if ast.dump(actual) != ast.dump(_recorded_decorator(entry)):
+        return None
+    return placed
 
 
 def _header_statements_end(tree: ast.Module) -> int:
@@ -484,6 +657,8 @@ def _header_statements_end(tree: ast.Module) -> int:
 def _insert_import(path: str, text: str, entry: dict[str, Any]) -> str | None:
     lines = _lines(text)
     tree = _parse(path, text)
+    if _matching_imports(tree, entry):
+        return text
     if entry["anchor"] is None:
         at = max(header_end(lines), _header_statements_end(tree))
     else:

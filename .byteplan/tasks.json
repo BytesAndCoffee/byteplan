@@ -4,8 +4,10 @@
     "0591",
     "0b12",
     "0c28",
+    "12ce1c",
     "14ff",
     "15df",
+    "17f1f0",
     "181f",
     "1b81",
     "1e7f",
@@ -16,6 +18,7 @@
     "2650ec",
     "279e27",
     "2887",
+    "28e56f",
     "30c3",
     "34da",
     "3644",
@@ -38,6 +41,7 @@
     "5aae",
     "5ff6",
     "62edd5",
+    "631761",
     "6639",
     "67a65c",
     "67df",
@@ -94,6 +98,7 @@
     "cdcb",
     "ce72",
     "d45d",
+    "d78b89",
     "dcd417",
     "de66",
     "def0",
@@ -517,6 +522,215 @@
       "title": "Don't count @pytest.mark.byteplan links as decorators that need stripping",
       "title_override": null
     },
+    "12ce1c": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T00:44:34Z",
+      "history": [
+        {
+          "at": "2026-10-27T00:44:34Z",
+          "event": "created",
+          "new": {
+            "line": 120,
+            "path": "src/byteplan/operations/initialize.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T00:44:37Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_initialize.py::test_init_project",
+            "path": "tests/test_initialize.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T00:44:38Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "P2 accepted for pre-RC correction: independent whole review B and root reproduction at378e722 show init with custom registry tasks.json and .byteplan symlink to a private sibling creates sibling/.gitignore with fixed txn/scan.lock content. Demonstrated scope is constrained new metadata-file creation, not arbitrary overwrite or data loss; nevertheless it violates the write boundary. Validate all initialization write targets using existing confinement/protected-state rules before any init side effects, preserve outside and local state on rejection, preserve ordinary/idempotent/custom registry/shim behavior. Independent evidence review2-b/repro_init_alias.py/.log and root-confirm-init.log.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T00:44:38Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Explicitly triaged confirmed P2 for bounded compatibility correction before RC1; no new product feature.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T00:48:17Z",
+          "event": "edited",
+          "new": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review B and root reproduction at378e722 show init with custom registry tasks.json and .byteplan symlink to a private sibling creates sibling/.gitignore with fixed txn/scan.lock content. Demonstrated scope is constrained new metadata-file creation, not arbitrary overwrite or data loss; nevertheless it violates the write boundary. Validate all initialization write targets using existing confinement/protected-state rules before any init side effects, preserve outside and local state on rejection, preserve ordinary/idempotent/custom registry/shim behavior. Independent evidence review2-b/repro_init_alias.py/.log and root-confirm-init.log.\n\nFinal severity triage: P1 release blocker. Reviewer B classifies the deterministic write outside selected project authority as a violation of the core safety contract. Root accepts that classification after considering the limited fixed-file creation extent (initial root triage was P2 and is retained in history). No arbitrary overwrite/data-loss claim is made. Initialization preflight must reject unsafe control/registry/shim/config write plans before any side effects; all confirmed same-operation protected-state variants are in scope for this bounded fix."
+          },
+          "old": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review B and root reproduction at378e722 show init with custom registry tasks.json and .byteplan symlink to a private sibling creates sibling/.gitignore with fixed txn/scan.lock content. Demonstrated scope is constrained new metadata-file creation, not arbitrary overwrite or data loss; nevertheless it violates the write boundary. Validate all initialization write targets using existing confinement/protected-state rules before any init side effects, preserve outside and local state on rejection, preserve ordinary/idempotent/custom registry/shim behavior. Independent evidence review2-b/repro_init_alias.py/.log and root-confirm-init.log."
+          }
+        },
+        {
+          "at": "2026-10-27T03:25:37Z",
+          "event": "edited",
+          "new": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review B and root reproduction at378e722 show init with custom registry tasks.json and .byteplan symlink to a private sibling creates sibling/.gitignore with fixed txn/scan.lock content. Demonstrated scope is constrained new metadata-file creation, not arbitrary overwrite or data loss; nevertheless it violates the write boundary. Validate all initialization write targets using existing confinement/protected-state rules before any init side effects, preserve outside and local state on rejection, preserve ordinary/idempotent/custom registry/shim behavior. Independent evidence review2-b/repro_init_alias.py/.log and root-confirm-init.log.\n\nFinal severity triage: P1 release blocker. Reviewer B classifies the deterministic write outside selected project authority as a violation of the core safety contract. Root accepts that classification after considering the limited fixed-file creation extent (initial root triage was P2 and is retained in history). No arbitrary overwrite/data-loss claim is made. Initialization preflight must reject unsafe control/registry/shim/config write plans before any side effects; all confirmed same-operation protected-state variants are in scope for this bounded fix.\n\nIndependent correction recheck found P2 protected-control variant: registry .byteplan/scan.lock/tasks.json creates the reserved lock as a directory, making subsequent writes fail. Same preflight obligation; fixed lexical/resolved scan.lock subtree guard now has author182passes/1nativeLinuxskip and is undergoing final independent recheck. Evidence independent-b/SUPPLEMENT.md B3 and init/LOCK-DESCENDANT-REPORT.md; no outside overwrite claimed."
+          },
+          "old": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review B and root reproduction at378e722 show init with custom registry tasks.json and .byteplan symlink to a private sibling creates sibling/.gitignore with fixed txn/scan.lock content. Demonstrated scope is constrained new metadata-file creation, not arbitrary overwrite or data loss; nevertheless it violates the write boundary. Validate all initialization write targets using existing confinement/protected-state rules before any init side effects, preserve outside and local state on rejection, preserve ordinary/idempotent/custom registry/shim behavior. Independent evidence review2-b/repro_init_alias.py/.log and root-confirm-init.log.\n\nFinal severity triage: P1 release blocker. Reviewer B classifies the deterministic write outside selected project authority as a violation of the core safety contract. Root accepts that classification after considering the limited fixed-file creation extent (initial root triage was P2 and is retained in history). No arbitrary overwrite/data-loss claim is made. Initialization preflight must reject unsafe control/registry/shim/config write plans before any side effects; all confirmed same-operation protected-state variants are in scope for this bounded fix."
+          }
+        },
+        {
+          "at": "2026-10-27T03:45:56Z",
+          "event": "edited",
+          "new": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review B and root reproduction at378e722 show init with custom registry tasks.json and .byteplan symlink to a private sibling creates sibling/.gitignore with fixed txn/scan.lock content. Demonstrated scope is constrained new metadata-file creation, not arbitrary overwrite or data loss; nevertheless it violates the write boundary. Validate all initialization write targets using existing confinement/protected-state rules before any init side effects, preserve outside and local state on rejection, preserve ordinary/idempotent/custom registry/shim behavior. Independent evidence review2-b/repro_init_alias.py/.log and root-confirm-init.log.\n\nFinal severity triage: P1 release blocker. Reviewer B classifies the deterministic write outside selected project authority as a violation of the core safety contract. Root accepts that classification after considering the limited fixed-file creation extent (initial root triage was P2 and is retained in history). No arbitrary overwrite/data-loss claim is made. Initialization preflight must reject unsafe control/registry/shim/config write plans before any side effects; all confirmed same-operation protected-state variants are in scope for this bounded fix.\n\nIndependent correction recheck found P2 protected-control variant: registry .byteplan/scan.lock/tasks.json creates the reserved lock as a directory, making subsequent writes fail. Same preflight obligation; fixed lexical/resolved scan.lock subtree guard now has author182passes/1nativeLinuxskip and is undergoing final independent recheck. Evidence independent-b/SUPPLEMENT.md B3 and init/LOCK-DESCENDANT-REPORT.md; no outside overwrite claimed.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required."
+          },
+          "old": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review B and root reproduction at378e722 show init with custom registry tasks.json and .byteplan symlink to a private sibling creates sibling/.gitignore with fixed txn/scan.lock content. Demonstrated scope is constrained new metadata-file creation, not arbitrary overwrite or data loss; nevertheless it violates the write boundary. Validate all initialization write targets using existing confinement/protected-state rules before any init side effects, preserve outside and local state on rejection, preserve ordinary/idempotent/custom registry/shim behavior. Independent evidence review2-b/repro_init_alias.py/.log and root-confirm-init.log.\n\nFinal severity triage: P1 release blocker. Reviewer B classifies the deterministic write outside selected project authority as a violation of the core safety contract. Root accepts that classification after considering the limited fixed-file creation extent (initial root triage was P2 and is retained in history). No arbitrary overwrite/data-loss claim is made. Initialization preflight must reject unsafe control/registry/shim/config write plans before any side effects; all confirmed same-operation protected-state variants are in scope for this bounded fix.\n\nIndependent correction recheck found P2 protected-control variant: registry .byteplan/scan.lock/tasks.json creates the reserved lock as a directory, making subsequent writes fail. Same preflight obligation; fixed lexical/resolved scan.lock subtree guard now has author182passes/1nativeLinuxskip and is undergoing final independent recheck. Evidence independent-b/SUPPLEMENT.md B3 and init/LOCK-DESCENDANT-REPORT.md; no outside overwrite claimed."
+          }
+        },
+        {
+          "at": "2026-10-27T03:45:56Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicit manual resolution after final-source independent review and complete combined tests; source disappearance and passing tests alone did not resolve this task.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-27T03:46:05Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T03:46:05Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/operations/initialize.py"
+          }
+        }
+      ],
+      "id": "12ce1c",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-27T00:44:34Z",
+      "notes": "P2 accepted for pre-RC correction: independent whole review B and root reproduction at378e722 show init with custom registry tasks.json and .byteplan symlink to a private sibling creates sibling/.gitignore with fixed txn/scan.lock content. Demonstrated scope is constrained new metadata-file creation, not arbitrary overwrite or data loss; nevertheless it violates the write boundary. Validate all initialization write targets using existing confinement/protected-state rules before any init side effects, preserve outside and local state on rejection, preserve ordinary/idempotent/custom registry/shim behavior. Independent evidence review2-b/repro_init_alias.py/.log and root-confirm-init.log.\n\nFinal severity triage: P1 release blocker. Reviewer B classifies the deterministic write outside selected project authority as a violation of the core safety contract. Root accepts that classification after considering the limited fixed-file creation extent (initial root triage was P2 and is retained in history). No arbitrary overwrite/data-loss claim is made. Initialization preflight must reject unsafe control/registry/shim/config write plans before any side effects; all confirmed same-operation protected-state variants are in scope for this bounded fix.\n\nIndependent correction recheck found P2 protected-control variant: registry .byteplan/scan.lock/tasks.json creates the reserved lock as a directory, making subsequent writes fail. Same preflight obligation; fixed lexical/resolved scan.lock subtree guard now has author182passes/1nativeLinuxskip and is undergoing final independent recheck. Evidence independent-b/SUPPLEMENT.md B3 and init/LOCK-DESCENDANT-REPORT.md; no outside overwrite claimed.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 149,
+        "line": 148,
+        "path": "src/byteplan/operations/initialize.py",
+        "representation": "comment",
+        "symbol": "init_project"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 192,
+            "node": "tests/test_initialize.py::test_init_keeps_confined_ordinary_parent_aliases_and_custom_registry",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 273,
+            "node": "tests/test_initialize.py::test_init_keeps_ordinary_lock_lookalike_paths",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 233,
+            "node": "tests/test_initialize.py::test_init_preserves_invalid_or_bom_pyproject_error_without_side_effects",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 136,
+            "node": "tests/test_initialize.py::test_init_rejects_existing_target_symlink_even_inside_project",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 73,
+            "node": "tests/test_initialize.py::test_init_rejects_ignore_file_alias_before_any_side_effect",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 247,
+            "node": "tests/test_initialize.py::test_init_rejects_lock_descendant_before_any_side_effect",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 162,
+            "node": "tests/test_initialize.py::test_init_rejects_non_directory_parent_before_other_writes",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 178,
+            "node": "tests/test_initialize.py::test_init_rejects_overlapping_file_and_directory_targets",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 94,
+            "node": "tests/test_initialize.py::test_init_rejects_pyproject_alias_before_any_side_effect",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 114,
+            "node": "tests/test_initialize.py::test_init_rejects_registry_in_vcs_or_transaction_metadata",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 212,
+            "node": "tests/test_initialize.py::test_init_rejects_shim_in_vcs_or_transaction_metadata",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 49,
+            "node": "tests/test_initialize.py::test_init_rejects_state_directory_alias_before_any_side_effect",
+            "path": "tests/test_initialize.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 516,
+            "node": "tests/test_persistence.py::test_commit_rejects_lock_descendant_before_any_side_effect",
+            "path": "tests/test_persistence.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Validate initialization write targets before any filesystem side effects.",
+      "title_override": null
+    },
     "14ff": {
       "assignee": null,
       "description": "`cleanup.py`, `sync --remove-resolved`, `resolve --sync-source`, `resolved_but_stubbed`,\n`--suppress-stubs`.",
@@ -734,6 +948,129 @@
       "status": "open",
       "stub": null,
       "title": "Phase 12: assignment model (Addendum D stages D0-D2, D4)",
+      "title_override": null
+    },
+    "17f1f0": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T00:53:47Z",
+      "history": [
+        {
+          "at": "2026-10-27T00:53:47Z",
+          "event": "created",
+          "new": {
+            "line": 386,
+            "path": "src/byteplan/gitwrite.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T00:53:48Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_gitwrite.py::test_task_17f1f0",
+            "path": "tests/test_gitwrite.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T00:53:48Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "P1 release-blocking data-integrity defect. Independent whole reviewer A production fixture injects a legal short os.write when publishing a staged Git index. _swap_index ignores returned count, fsyncs/replaces truncated index, and journal is removed; an unrelated partially staged user.txt entry becomes unavailable while worktree contains only different unstaged bytes. No actual external data touched. Ensure complete writes and validation before swap, handle zero progress/errors safely, preserve unrelated index entries and recovery material on failure. Evidence review2-a/probe_short_index_write.py/.log and saved complete original index. No real disk exhaustion was induced; legal short-write fault injection establishes contract failure.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T00:53:48Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Explicitly accept confirmed Git-index integrity/compatibility correction before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T03:45:56Z",
+          "event": "edited",
+          "new": {
+            "notes": "P1 release-blocking data-integrity defect. Independent whole reviewer A production fixture injects a legal short os.write when publishing a staged Git index. _swap_index ignores returned count, fsyncs/replaces truncated index, and journal is removed; an unrelated partially staged user.txt entry becomes unavailable while worktree contains only different unstaged bytes. No actual external data touched. Ensure complete writes and validation before swap, handle zero progress/errors safely, preserve unrelated index entries and recovery material on failure. Evidence review2-a/probe_short_index_write.py/.log and saved complete original index. No real disk exhaustion was induced; legal short-write fault injection establishes contract failure.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required."
+          },
+          "old": {
+            "notes": "P1 release-blocking data-integrity defect. Independent whole reviewer A production fixture injects a legal short os.write when publishing a staged Git index. _swap_index ignores returned count, fsyncs/replaces truncated index, and journal is removed; an unrelated partially staged user.txt entry becomes unavailable while worktree contains only different unstaged bytes. No actual external data touched. Ensure complete writes and validation before swap, handle zero progress/errors safely, preserve unrelated index entries and recovery material on failure. Evidence review2-a/probe_short_index_write.py/.log and saved complete original index. No real disk exhaustion was induced; legal short-write fault injection establishes contract failure."
+          }
+        },
+        {
+          "at": "2026-10-27T03:45:56Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicit manual resolution after final-source independent review and complete combined tests; source disappearance and passing tests alone did not resolve this task.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-27T03:46:05Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T03:46:05Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/gitwrite.py"
+          }
+        }
+      ],
+      "id": "17f1f0",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-27T00:53:47Z",
+      "notes": "P1 release-blocking data-integrity defect. Independent whole reviewer A production fixture injects a legal short os.write when publishing a staged Git index. _swap_index ignores returned count, fsyncs/replaces truncated index, and journal is removed; an unrelated partially staged user.txt entry becomes unavailable while worktree contains only different unstaged bytes. No actual external data touched. Ensure complete writes and validation before swap, handle zero progress/errors safely, preserve unrelated index entries and recovery material on failure. Evidence review2-a/probe_short_index_write.py/.log and saved complete original index. No real disk exhaustion was induced; legal short-write fault injection establishes contract failure.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 344,
+        "line": 396,
+        "path": "src/byteplan/gitwrite.py",
+        "representation": "comment",
+        "symbol": "_swap_index"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 395,
+            "node": "tests/test_gitwrite.py::test_failed_index_publication_preserves_original_and_recovery",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 358,
+            "node": "tests/test_gitwrite.py::test_task_17f1f0",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Complete and validate index-lock writes before publishing the index.",
       "title_override": null
     },
     "181f": {
@@ -1800,6 +2137,123 @@
         ]
       },
       "title": "Phase 6b: test scaffolding",
+      "title_override": null
+    },
+    "28e56f": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T00:53:47Z",
+      "history": [
+        {
+          "at": "2026-10-27T00:53:47Z",
+          "event": "created",
+          "new": {
+            "line": 63,
+            "path": "src/byteplan/gitwrite.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T00:53:48Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_gitwrite.py::test_task_28e56f",
+            "path": "tests/test_gitwrite.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T00:53:49Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "P2 accepted before RC1. Independent whole reviewer A demonstrates production reconcile/rollback/recover in a SHA-256 Git repo: staged journal accepts 64-character object IDs but fixed 40-zero null OID makes removal of newly added registry entry fail with malformed index info; subsequent recovery fails identically, retaining journal and source safely but unable to complete. Derive null OID from actual repository object format, preserving SHA-1, alternate indexes and rollback guarantees. Evidence review2-a/probe_sha256_recovery.py/.log and probe_sha256_delete.py/.log.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T00:53:49Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Explicitly accept confirmed Git-index integrity/compatibility correction before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T03:45:56Z",
+          "event": "edited",
+          "new": {
+            "notes": "P2 accepted before RC1. Independent whole reviewer A demonstrates production reconcile/rollback/recover in a SHA-256 Git repo: staged journal accepts 64-character object IDs but fixed 40-zero null OID makes removal of newly added registry entry fail with malformed index info; subsequent recovery fails identically, retaining journal and source safely but unable to complete. Derive null OID from actual repository object format, preserving SHA-1, alternate indexes and rollback guarantees. Evidence review2-a/probe_sha256_recovery.py/.log and probe_sha256_delete.py/.log.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required."
+          },
+          "old": {
+            "notes": "P2 accepted before RC1. Independent whole reviewer A demonstrates production reconcile/rollback/recover in a SHA-256 Git repo: staged journal accepts 64-character object IDs but fixed 40-zero null OID makes removal of newly added registry entry fail with malformed index info; subsequent recovery fails identically, retaining journal and source safely but unable to complete. Derive null OID from actual repository object format, preserving SHA-1, alternate indexes and rollback guarantees. Evidence review2-a/probe_sha256_recovery.py/.log and probe_sha256_delete.py/.log."
+          }
+        },
+        {
+          "at": "2026-10-27T03:45:56Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicit manual resolution after final-source independent review and complete combined tests; source disappearance and passing tests alone did not resolve this task.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-27T03:46:05Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T03:46:05Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/gitwrite.py"
+          }
+        }
+      ],
+      "id": "28e56f",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-27T00:53:47Z",
+      "notes": "P2 accepted before RC1. Independent whole reviewer A demonstrates production reconcile/rollback/recover in a SHA-256 Git repo: staged journal accepts 64-character object IDs but fixed 40-zero null OID makes removal of newly added registry entry fail with malformed index info; subsequent recovery fails identically, retaining journal and source safely but unable to complete. Derive null OID from actual repository object format, preserving SHA-1, alternate indexes and rollback guarantees. Evidence review2-a/probe_sha256_recovery.py/.log and probe_sha256_delete.py/.log.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "module",
+        "decl_line": null,
+        "line": 63,
+        "path": "src/byteplan/gitwrite.py",
+        "representation": "comment",
+        "symbol": null
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 243,
+            "node": "tests/test_gitwrite.py::test_task_28e56f",
+            "path": "tests/test_gitwrite.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Use the repository object format when removing staged entries during recovery.",
       "title_override": null
     },
     "30c3": {
@@ -4082,37 +4536,37 @@
       "tests": {
         "discovered": [
           {
-            "line": 176,
+            "line": 180,
             "node": "tests/test_gitwrite.py::test_linked_worktree_uses_its_own_git_index",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
           },
           {
-            "line": 192,
+            "line": 196,
             "node": "tests/test_gitwrite.py::test_recovery_rejects_inconsistent_original_presence_before_any_side_effect",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
           },
           {
-            "line": 128,
+            "line": 132,
             "node": "tests/test_gitwrite.py::test_saved_index_cannot_select_existing_sibling_by_prefix",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
           },
           {
-            "line": 162,
+            "line": 166,
             "node": "tests/test_gitwrite.py::test_staged_recovery_rejects_symlink_copy",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
           },
           {
-            "line": 67,
+            "line": 71,
             "node": "tests/test_gitwrite.py::test_staged_recovery_rejects_whole_invalid_journal",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
           },
           {
-            "line": 142,
+            "line": 146,
             "node": "tests/test_gitwrite.py::test_supported_index_modes_recover",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"
@@ -4181,6 +4635,207 @@
         "managed": []
       },
       "title": "Confine serialized transaction and restore targets before filesystem side effects.",
+      "title_override": null
+    },
+    "631761": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T00:44:34Z",
+      "history": [
+        {
+          "at": "2026-10-27T00:44:34Z",
+          "event": "created",
+          "new": {
+            "line": 372,
+            "path": "src/byteplan/release.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T00:44:39Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "P2 accepted for pre-RC correction: independent whole review A and root reproduction at378e722 show release followed by manual/cherry-picked original annotation+body hotfix then restore duplicates @todo(id=abcd) and import, clears release metadata and returns no conflicts; next check blocks on duplicate_id. Safely reuse matching already-restored blocks or report an explicit recoverable conflict; preserve conflicting/user-edited annotations and source/registry on failed restoration. Include real API/CLI preview/write/partial regressions and supported restore modes. Evidence review2-a/probe_restore_duplicate.py/.log and root-confirm-restore.log.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T00:44:39Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Explicitly triaged confirmed P2 for bounded compatibility correction before RC1; no new product feature.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T03:25:37Z",
+          "event": "edited",
+          "new": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review A and root reproduction at378e722 show release followed by manual/cherry-picked original annotation+body hotfix then restore duplicates @todo(id=abcd) and import, clears release metadata and returns no conflicts; next check blocks on duplicate_id. Safely reuse matching already-restored blocks or report an explicit recoverable conflict; preserve conflicting/user-edited annotations and source/registry on failed restoration. Include real API/CLI preview/write/partial regressions and supported restore modes. Evidence review2-a/probe_restore_duplicate.py/.log and root-confirm-restore.log.\n\nIndependent correction probe found an additional same-operation source safety defect: moved declaration restoration linewise reindent changes multiline decorator description literal contents and clears release authority. Evidence review3-fixes/independent-a/probe_multiline_indent.py/.log. Keep task in progress; preserve runtime annotation AST/literal values during relocation or report recoverable conflict. Final authored tests are being extended; prior186pass selection does not close this remaining case."
+          },
+          "old": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review A and root reproduction at378e722 show release followed by manual/cherry-picked original annotation+body hotfix then restore duplicates @todo(id=abcd) and import, clears release metadata and returns no conflicts; next check blocks on duplicate_id. Safely reuse matching already-restored blocks or report an explicit recoverable conflict; preserve conflicting/user-edited annotations and source/registry on failed restoration. Include real API/CLI preview/write/partial regressions and supported restore modes. Evidence review2-a/probe_restore_duplicate.py/.log and root-confirm-restore.log."
+          }
+        },
+        {
+          "at": "2026-10-27T03:45:56Z",
+          "event": "edited",
+          "new": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review A and root reproduction at378e722 show release followed by manual/cherry-picked original annotation+body hotfix then restore duplicates @todo(id=abcd) and import, clears release metadata and returns no conflicts; next check blocks on duplicate_id. Safely reuse matching already-restored blocks or report an explicit recoverable conflict; preserve conflicting/user-edited annotations and source/registry on failed restoration. Include real API/CLI preview/write/partial regressions and supported restore modes. Evidence review2-a/probe_restore_duplicate.py/.log and root-confirm-restore.log.\n\nIndependent correction probe found an additional same-operation source safety defect: moved declaration restoration linewise reindent changes multiline decorator description literal contents and clears release authority. Evidence review3-fixes/independent-a/probe_multiline_indent.py/.log. Keep task in progress; preserve runtime annotation AST/literal values during relocation or report recoverable conflict. Final authored tests are being extended; prior186pass selection does not close this remaining case.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required."
+          },
+          "old": {
+            "notes": "P2 accepted for pre-RC correction: independent whole review A and root reproduction at378e722 show release followed by manual/cherry-picked original annotation+body hotfix then restore duplicates @todo(id=abcd) and import, clears release metadata and returns no conflicts; next check blocks on duplicate_id. Safely reuse matching already-restored blocks or report an explicit recoverable conflict; preserve conflicting/user-edited annotations and source/registry on failed restoration. Include real API/CLI preview/write/partial regressions and supported restore modes. Evidence review2-a/probe_restore_duplicate.py/.log and root-confirm-restore.log.\n\nIndependent correction probe found an additional same-operation source safety defect: moved declaration restoration linewise reindent changes multiline decorator description literal contents and clears release authority. Evidence review3-fixes/independent-a/probe_multiline_indent.py/.log. Keep task in progress; preserve runtime annotation AST/literal values during relocation or report recoverable conflict. Final authored tests are being extended; prior186pass selection does not close this remaining case."
+          }
+        },
+        {
+          "at": "2026-10-27T03:45:57Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicit manual resolution after final-source independent review and complete combined tests; source disappearance and passing tests alone did not resolve this task.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-27T03:46:05Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T03:46:05Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/release.py"
+          }
+        }
+      ],
+      "id": "631761",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-27T00:44:34Z",
+      "notes": "P2 accepted for pre-RC correction: independent whole review A and root reproduction at378e722 show release followed by manual/cherry-picked original annotation+body hotfix then restore duplicates @todo(id=abcd) and import, clears release metadata and returns no conflicts; next check blocks on duplicate_id. Safely reuse matching already-restored blocks or report an explicit recoverable conflict; preserve conflicting/user-edited annotations and source/registry on failed restoration. Include real API/CLI preview/write/partial regressions and supported restore modes. Evidence review2-a/probe_restore_duplicate.py/.log and root-confirm-restore.log.\n\nIndependent correction probe found an additional same-operation source safety defect: moved declaration restoration linewise reindent changes multiline decorator description literal contents and clears release authority. Evidence review3-fixes/independent-a/probe_multiline_indent.py/.log. Keep task in progress; preserve runtime annotation AST/literal values during relocation or report recoverable conflict. Final authored tests are being extended; prior186pass selection does not close this remaining case.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "function",
+        "decl_line": 374,
+        "line": 373,
+        "path": "src/byteplan/release.py",
+        "representation": "comment",
+        "symbol": "restore_anchored"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 235,
+            "node": "tests/test_restore_existing_annotations.py::test_partial_restore_reuses_safe_files_and_retries_competing_annotations",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 140,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_conflicts_keep_all_authority_and_are_recoverable",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 333,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_keeps_authority_when_reindentation_cannot_preserve_annotation_ast",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 114,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_keeps_class_local_shadowing_conflicts_recoverable",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 275,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_moved_decorator_preserves_literal_ast_and_description",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 257,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_preserves_selected_runtime_and_source_encoding",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 186,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_rejects_identity_copied_to_another_configured_source",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 221,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_reports_unparseable_unrelated_sources_without_clearing_authority",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 99,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_retains_partly_reintroduced_import_authority",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 204,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_retry_checks_the_import_even_after_its_record_was_consumed",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 56,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_reuses_aliases_multiline_blocks_and_stack_positions",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 131,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_reuses_an_existing_import_when_its_old_anchor_is_gone",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 34,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_reuses_cherry_picked_annotations_and_imports",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 90,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_reuses_recorded_names_in_a_larger_import",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 79,
+            "node": "tests/test_restore_existing_annotations.py::test_restore_reuses_semantic_matches_without_losing_user_formatting",
+            "path": "tests/test_restore_existing_annotations.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Reject or safely reuse annotations already present during anchored release restoration.",
       "title_override": null
     },
     "6639": {
@@ -9531,6 +10186,153 @@
       "title": "Return only the scaffolded test, not the whole target file",
       "title_override": null
     },
+    "d78b89": {
+      "assignee": null,
+      "description": "",
+      "first_seen": "2026-10-27T00:45:29Z",
+      "history": [
+        {
+          "at": "2026-10-27T00:45:29Z",
+          "event": "created",
+          "new": {
+            "line": 209,
+            "path": "src/byteplan/operations/scan.py"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T00:45:31Z",
+          "event": "test_scaffolded",
+          "new": {
+            "node": "tests/test_scan.py::test_task_d78b89",
+            "path": "tests/test_scan.py",
+            "policy": "xfail"
+          },
+          "old": null
+        },
+        {
+          "at": "2026-10-27T00:45:32Z",
+          "event": "edited",
+          "new": {
+            "labels": [
+              "release:1.0",
+              "final-review"
+            ],
+            "notes": "P2 accepted for pre-RC correction, independently demonstrated by both whole-repo reviewers at378e722. With original task abcd in a.py and same ID on different obligation b.py, a narrowed writing scan selecting b.py reports unblocked and replaces canonical observed source/title; with additional untagged c.py it also writes a new annotation. Full check correctly blocks, managed fields/history are retained; no demonstrated lifecycle resolution/history deletion, so P2. Global reservation pass does not diagnose duplicate occurrences. Validate relevant observed identity uniqueness across full configured scope before any narrowed reconciliation/allocation writes; preserve full-scope configurations/selected-Git-view/narrowed absence behavior and source-editing guarantees. Evidence review2-a/probe_narrow_duplicate.py/.log and independently review2-b/repro_narrow_duplicate.py/.log. No new product feature.",
+            "priority": "high"
+          },
+          "old": {
+            "labels": [],
+            "notes": "",
+            "priority": "normal"
+          }
+        },
+        {
+          "at": "2026-10-27T00:45:33Z",
+          "event": "status_changed",
+          "new": "in_progress",
+          "note": "Explicitly accept demonstrated P2 for correction before RC1.",
+          "old": "open"
+        },
+        {
+          "at": "2026-10-27T03:45:57Z",
+          "event": "edited",
+          "new": {
+            "notes": "P2 accepted for pre-RC correction, independently demonstrated by both whole-repo reviewers at378e722. With original task abcd in a.py and same ID on different obligation b.py, a narrowed writing scan selecting b.py reports unblocked and replaces canonical observed source/title; with additional untagged c.py it also writes a new annotation. Full check correctly blocks, managed fields/history are retained; no demonstrated lifecycle resolution/history deletion, so P2. Global reservation pass does not diagnose duplicate occurrences. Validate relevant observed identity uniqueness across full configured scope before any narrowed reconciliation/allocation writes; preserve full-scope configurations/selected-Git-view/narrowed absence behavior and source-editing guarantees. Evidence review2-a/probe_narrow_duplicate.py/.log and independently review2-b/repro_narrow_duplicate.py/.log. No new product feature.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required."
+          },
+          "old": {
+            "notes": "P2 accepted for pre-RC correction, independently demonstrated by both whole-repo reviewers at378e722. With original task abcd in a.py and same ID on different obligation b.py, a narrowed writing scan selecting b.py reports unblocked and replaces canonical observed source/title; with additional untagged c.py it also writes a new annotation. Full check correctly blocks, managed fields/history are retained; no demonstrated lifecycle resolution/history deletion, so P2. Global reservation pass does not diagnose duplicate occurrences. Validate relevant observed identity uniqueness across full configured scope before any narrowed reconciliation/allocation writes; preserve full-scope configurations/selected-Git-view/narrowed absence behavior and source-editing guarantees. Evidence review2-a/probe_narrow_duplicate.py/.log and independently review2-b/repro_narrow_duplicate.py/.log. No new product feature."
+          }
+        },
+        {
+          "at": "2026-10-27T03:45:57Z",
+          "event": "resolved",
+          "new": "resolved",
+          "note": "Explicit manual resolution after final-source independent review and complete combined tests; source disappearance and passing tests alone did not resolve this task.",
+          "old": "in_progress"
+        },
+        {
+          "at": "2026-10-27T03:46:05Z",
+          "event": "missing",
+          "new": "missing",
+          "old": "present"
+        },
+        {
+          "at": "2026-10-27T03:46:05Z",
+          "event": "cleaned",
+          "new": null,
+          "note": "annotation removed by byteplan cleanup",
+          "old": {
+            "path": "src/byteplan/operations/scan.py"
+          }
+        }
+      ],
+      "id": "d78b89",
+      "kind": "FIXME",
+      "labels": [
+        "release:1.0",
+        "final-review"
+      ],
+      "last_seen": "2026-10-27T00:45:29Z",
+      "notes": "P2 accepted for pre-RC correction, independently demonstrated by both whole-repo reviewers at378e722. With original task abcd in a.py and same ID on different obligation b.py, a narrowed writing scan selecting b.py reports unblocked and replaces canonical observed source/title; with additional untagged c.py it also writes a new annotation. Full check correctly blocks, managed fields/history are retained; no demonstrated lifecycle resolution/history deletion, so P2. Global reservation pass does not diagnose duplicate occurrences. Validate relevant observed identity uniqueness across full configured scope before any narrowed reconciliation/allocation writes; preserve full-scope configurations/selected-Git-view/narrowed absence behavior and source-editing guarantees. Evidence review2-a/probe_narrow_duplicate.py/.log and independently review2-b/repro_narrow_duplicate.py/.log. No new product feature.\n\nImplementation explicitly accepted after independent frozen-source correction review and final-02 combined validation: core1632passed/1nativeWindowsLinuxskip/1existingP3xfail/3networkdeselected, network3passed, runtime10passed, coretypes120files/format121files and both distributions build successfully. Source/test/config hashes unchanged through final run. Independent reports committed under docs/reviews/rc1-review3-*-correction.md; final restore source84f55d4e includes literal AST preservation and existing warning suppression. Earlier interim tests/canonical stale631 evidence remain honestly recorded. Completion is implementation disposition, not RC1 approval: cleanup/fresh final linked evidence, exact-head platform CI, integration and final review/artifact/readiness gates remain required.",
+      "origin": "comment",
+      "presence": "missing",
+      "priority": "high",
+      "scope_state": "in_scope",
+      "source": {
+        "attachment_kind": "statement",
+        "decl_line": 116,
+        "line": 209,
+        "path": "src/byteplan/operations/scan.py",
+        "representation": "comment",
+        "symbol": "scan_core"
+      },
+      "status": "resolved",
+      "stub": null,
+      "tests": {
+        "discovered": [
+          {
+            "line": 216,
+            "node": "tests/test_narrowed_allocation.py::test_narrowed_allocation_blocks_duplicates_outside_selection",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 339,
+            "node": "tests/test_narrowed_allocation.py::test_narrowed_identity_validation_uses_selected_snapshot",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 312,
+            "node": "tests/test_narrowed_allocation.py::test_narrowed_prior_source_validation_respects_configured_scope",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 276,
+            "node": "tests/test_narrowed_allocation.py::test_narrowed_registered_move_refuses_unverifiable_prior_source",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 238,
+            "node": "tests/test_narrowed_allocation.py::test_narrowed_registered_task_can_move_after_old_annotation_is_gone",
+            "path": "tests/test_narrowed_allocation.py",
+            "provenance": "verifies"
+          },
+          {
+            "line": 124,
+            "node": "tests/test_scan.py::test_narrowed_duplicate_preserves_canonical_task",
+            "path": "tests/test_scan.py",
+            "provenance": "verifies"
+          }
+        ],
+        "managed": []
+      },
+      "title": "Reject cross-scope duplicate identities before narrowed task reconciliation writes.",
+      "title_override": null
+    },
     "dcd417": {
       "assignee": null,
       "description": "",
@@ -9655,7 +10457,7 @@
       "tests": {
         "discovered": [
           {
-            "line": 40,
+            "line": 44,
             "node": "tests/test_gitwrite.py::test_recovery_validates_all_copies_before_any_side_effect",
             "path": "tests/test_gitwrite.py",
             "provenance": "verifies"

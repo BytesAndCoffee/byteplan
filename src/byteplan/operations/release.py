@@ -8,7 +8,7 @@ from __future__ import annotations
 import contextlib
 import dataclasses
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -23,7 +23,9 @@ from byteplan.config import (
 from byteplan.diagnostics import Code, Diagnostic, Location, Severity
 from byteplan.errors import (
     ConfigError,
+    SourceError,
 )
+from byteplan.files import collect_files
 from byteplan.languages import Language, language_for
 from byteplan.models import HistoryEvent, Presence, Representation
 from byteplan.operations.common import _read_bytes, _requirement_name
@@ -33,6 +35,7 @@ from byteplan.persistence import (
     sha256,
     staged_dir,
 )
+from byteplan.scanner import scan_file
 from byteplan.scanner.source import decode_source, read_source
 from byteplan.writeguard import project_target, valid_hash
 
@@ -359,6 +362,8 @@ def restore(self: Project, *, dry_run: bool = False, partial: bool = False) -> R
             targets = _restore_targets(self.root, files)
         except (ValueError, TypeError, OSError) as exc:
             raise release_lib.ReleaseError(release_lib.CONFLICT, [f"unsafe serialized release paths: {exc}"]) from exc
+        identity_counts: dict[str, Counter[str]] | None = None
+        identity_problems: list[str] = []
         for path, record in sorted(files.items()):
             current = _read_bytes(targets[path])
             if current is None:
@@ -370,17 +375,57 @@ def restore(self: Project, *, dry_run: bool = False, partial: bool = False) -> R
             if sha256(current) == record.get("sha256"):
                 text = release_lib.restore_fast(source.text, record)
             else:
-                text, file_conflicts, left = release_lib.restore_anchored(path, source.text, record)
+                text, file_conflicts, left = release_lib.restore_anchored(
+                    path, source.text, record, runtime_modules=runtime_modules
+                )
                 conflicts += file_conflicts
-            normalize.ensure_equivalent_without_runtime(path, source.text, text, runtime_modules, everything=True)
             problem = release_lib.ensure_compiles(path, text)
             if problem is not None:
                 conflicts.append(f"{path}: the restored file wouldn't compile ({problem})")
                 remaining[path] = record
                 continue
+            normalize.ensure_equivalent_without_runtime(path, source.text, text, runtime_modules, everything=True)
+            placed = [d for d in record.get("decorators", []) if d not in left.get("decorators", [])]
+            restored_ids = {task_id for d in placed if d["kind"] == "todo" for task_id in d["task_ids"]}
+            if restored_ids:
+                if identity_counts is None:
+                    identity_counts = {}
+                    for other_path in collect_files(self.config).files:
+                        try:
+                            other = read_source(self.root, other_path)
+                            other_tags = scan_file(other, self.config.detect, runtime_modules).tags
+                        except SourceError as exc:
+                            # A broken release target keeps its authority below. An unreadable
+                            # unrelated source prevents proving that an identity is unique.
+                            if other_path not in files:
+                                identity_problems.append(str(exc))
+                            continue
+                        identity_counts[other_path] = Counter(tag.task_id for tag in other_tags if tag.task_id)
+                tags = scan_file(dataclasses.replace(source, text=text), self.config.detect, runtime_modules).tags
+                current_counts = Counter(tag.task_id for tag in tags if tag.task_id)
+                counts = current_counts.copy()
+                for other_path, other_counts in identity_counts.items():
+                    if other_path != path:
+                        counts.update(other_counts)
+                duplicated = sorted(task_id for task_id in restored_ids if counts[task_id] > 1)
+                missing = sorted(restored_ids - counts.keys())
+                if identity_problems:
+                    conflicts.append(
+                        f"{path}: can't prove restored task identities are unique until source errors are fixed"
+                    )
+                    conflicts.extend(identity_problems)
+                    remaining[path] = record
+                    continue
+                if duplicated or missing:
+                    conflicts.append(
+                        f"{path}: restored task identities must occur exactly once ({', '.join(duplicated + missing)}); "
+                        "resolve competing annotations before restoring"
+                    )
+                    remaining[path] = record
+                    continue
+                identity_counts[path] = current_counts
             if left:
                 remaining[path] = {**record, **left}
-            placed = [d for d in record.get("decorators", []) if d not in left.get("decorators", [])]
             restored_decorators += placed
             restored_imports += len(record.get("imports", [])) - len(left.get("imports", []))
             writes.append(FileWrite(path, sha256(current), dataclasses.replace(source, text=text).encode()))

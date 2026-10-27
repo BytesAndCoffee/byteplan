@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -15,9 +16,12 @@ import pytest
 from byteplan import gitwrite
 from byteplan._todo import verifies
 from byteplan.gitwrite import RollbackConflictError, StagedJournal
+from byteplan.persistence import atomic_write_bytes as real_atomic
 from tests.gitutil import git
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
+
     from tests.conftest import ProjectFactory
 
 
@@ -234,3 +238,225 @@ def test_recovery_rejects_inconsistent_original_presence_before_any_side_effect(
     with pytest.raises(RollbackConflictError, match="original object/copy/fingerprint presence disagree"):
         gitwrite.recover(repo.root)
     assert snapshot(repo) == before
+
+
+@verifies("28e56f")
+@pytest.mark.parametrize("object_format", ["sha1", "sha256"])
+@pytest.mark.parametrize("operation", ["forward", "rollback", "recover_forward", "recover_rollback"])
+@pytest.mark.parametrize("index_mode", ["default", "selected", "linked"])
+def test_task_28e56f(
+    project: ProjectFactory,
+    monkeypatch: pytest.MonkeyPatch,
+    object_format: str,
+    operation: str,
+    index_mode: str,
+) -> None:
+    """Reconcile and recover a newly added registry in each supported object format."""
+    top = project.root.parent
+    initialized = git(top, "init", "-q", f"--object-format={object_format}", check=False)
+    if object_format == "sha256" and initialized.returncode:
+        # Skip only explicit Git capability failures; unrelated setup failures
+        # must still fail this test rather than concealing broken fixtures.
+        stderr = initialized.stderr.lower()
+        if ("unknown option" in stderr and "object-format" in stderr) or "unknown hash algorithm 'sha256'" in stderr:
+            pytest.skip(f"installed Git lacks SHA-256 repository support: {initialized.stderr.strip()}")
+    assert initialized.returncode == 0, initialized.stderr
+    project.write("src/new.py", "# TODO: object format task\n")
+    project.write("user.txt", "user staged bytes\n")
+    git(top, "add", "proj/pyproject.toml", "proj/src/new.py", "proj/user.txt")
+    root = project.root
+    main_index: tuple[Path, bytes] | None = None
+    if index_mode == "linked":
+        git(
+            top,
+            "-c",
+            "user.name=Test",
+            "-c",
+            "user.email=test@example.com",
+            "commit",
+            "-qm",
+            "base",
+        )
+        linked = top / "linked"
+        git(top, "worktree", "add", "--detach", str(linked), "HEAD")
+        main_path = gitwrite.index_path(top)
+        main_index = (main_path, main_path.read_bytes())
+        top, root = linked, linked / "proj"
+    original_index = gitwrite.index_path(top)
+    original_bytes = original_index.read_bytes()
+    if index_mode == "selected":
+        selected = top / "selected-index"
+        shutil.copyfile(original_index, selected)
+        monkeypatch.setenv("GIT_INDEX_FILE", str(selected))
+    index = gitwrite.index_path(top)
+    entries_before = git(top, "ls-files", "--stage").stdout
+    source = root / "src/new.py"
+    source_before = source.read_bytes()
+    (root / "user.txt").write_text("user unstaged bytes\n")
+    registry = root / ".byteplan/tasks.json"
+    real_swap = gitwrite._swap_index  # noqa: SLF001
+    swaps = 0
+
+    def fail_source(path: Path, data: bytes, mode: int | None = None) -> None:
+        if path == source:
+            msg = "injected source write failure"
+            raise OSError(msg)
+        real_atomic(path, data, mode)
+
+    def fail_rollback_swap(
+        top: Path,
+        index: Path,
+        expected: Mapping[str, tuple[str, str] | None],
+        wanted: Mapping[str, tuple[str, str] | None],
+        precheck: Callable[[], None] | None = None,
+    ) -> None:
+        nonlocal swaps
+        swaps += 1
+        if swaps == 2:
+            msg = "injected rollback publication failure"
+            raise OSError(msg)
+        real_swap(top, index, expected, wanted, precheck)
+
+    if operation == "recover_forward":
+        plan = gitwrite._plan(root, top, index, lambda: "2026-10-25T00:00:00Z", framework=False)  # noqa: SLF001
+        assert isinstance(plan, tuple)
+        assert StagedJournal.path(root).exists()
+        assert "completed" in " ".join(gitwrite.recover(root))
+    elif "rollback" in operation:
+        with monkeypatch.context() as patch:
+            patch.setattr(gitwrite, "atomic_write_bytes", fail_source)
+            if operation == "recover_rollback":
+                patch.setattr(gitwrite, "_swap_index", fail_rollback_swap)
+            with pytest.raises(OSError, match="injected source write failure"):
+                gitwrite.reconcile_staged(root)
+        if operation == "recover_rollback":
+            journal = StagedJournal.load(root)
+            assert journal is not None
+            assert journal.direction == "rollback"
+            assert git(top, "ls-files", "--", "proj/.byteplan/tasks.json").stdout
+            assert "undid" in " ".join(gitwrite.recover(root))
+        assert git(top, "ls-files", "--stage").stdout == entries_before
+        assert source.read_bytes() == source_before
+        assert not registry.exists()
+    else:
+        assert gitwrite.reconcile_staged(root).code == 0
+    if "rollback" not in operation:
+        assert b"TODO[" in source.read_bytes()
+        assert git(top, "show", ":proj/src/new.py").stdout.encode() == source.read_bytes()
+        assert git(top, "show", ":proj/.byteplan/tasks.json").stdout.encode() == registry.read_bytes()
+        oid = git(top, "rev-parse", ":proj/.byteplan/tasks.json").stdout.strip()
+        assert len(oid) == (64 if object_format == "sha256" else 40)
+    assert git(top, "show", ":proj/user.txt").stdout == "user staged bytes\n"
+    assert (root / "user.txt").read_text() == "user unstaged bytes\n"
+    assert not StagedJournal.path(root).exists()
+    if index_mode == "selected":
+        assert original_index.read_bytes() == original_bytes
+    if main_index is not None:
+        assert main_index[0].read_bytes() == main_index[1]
+
+
+@verifies("17f1f0")
+@pytest.mark.parametrize("interrupted", [False, True])
+def test_task_17f1f0(repo: ProjectFactory, monkeypatch: pytest.MonkeyPatch, *, interrupted: bool) -> None:
+    """Legal short writes must preserve the entire index and unrelated staged content."""
+    top = repo.root.parent
+    repo.write("src/new.py", "# TODO: index short write task\n")
+    repo.write("user.txt", "user staged bytes\n")
+    git(top, "add", "proj/src/new.py", "proj/user.txt")
+    git(top, "update-index", "--chmod=+x", "proj/user.txt")
+    user_entry = git(top, "ls-files", "--stage", "--", "proj/user.txt").stdout
+    repo.write("user.txt", "user unstaged bytes\n")
+    real_write = os.write
+    calls = 0
+    index_fd: int | None = None
+
+    def short_write(fd: int, data: bytes | memoryview) -> int:
+        nonlocal calls, index_fd
+        if bytes(data[:4]) == b"DIRC":
+            index_fd = fd
+        if fd != index_fd:
+            return real_write(fd, data)
+        calls += 1
+        if interrupted and calls == 2:
+            raise InterruptedError
+        return real_write(fd, data[: max(1, len(data) // 2)])
+
+    monkeypatch.setattr(os, "write", short_write)
+    assert gitwrite.reconcile_staged(repo.root).code == 0
+    assert calls > 2
+    assert git(top, "show", ":proj/user.txt").stdout == "user staged bytes\n"
+    assert git(top, "ls-files", "--stage", "--", "proj/user.txt").stdout == user_entry
+    assert (repo.root / "user.txt").read_text() == "user unstaged bytes\n"
+    assert git(top, "show", ":proj/src/new.py").stdout.encode() == (repo.root / "src/new.py").read_bytes()
+    assert b"TODO[" in (repo.root / "src/new.py").read_bytes()
+    assert not StagedJournal.path(repo.root).exists()
+
+
+@verifies("17f1f0")
+@pytest.mark.parametrize(
+    "fault",
+    ["zero", "error", "short_error", "interrupt", "corrupt", "fsync", "replace"],
+)
+def test_failed_index_publication_preserves_original_and_recovery(
+    repo: ProjectFactory, monkeypatch: pytest.MonkeyPatch, fault: str
+) -> None:
+    top = repo.root.parent
+    repo.write("user.txt", "user staged bytes\n")
+    git(top, "add", "proj/user.txt")
+    repo.write("user.txt", "user unstaged bytes\n")
+    journal = staged_plan(repo)
+    assert journal.index is not None
+    index = Path(journal.index)
+    before = snapshot(repo)
+    real_write = os.write
+    calls = 0
+    index_fd: int | None = None
+
+    def faulty_write(fd: int, data: bytes | memoryview) -> int:
+        nonlocal calls, index_fd
+        if bytes(data[:4]) == b"DIRC":
+            index_fd = fd
+        if fd != index_fd:
+            return real_write(fd, data)
+        calls += 1
+        if fault == "zero":
+            return 0
+        if fault == "error" or (fault == "short_error" and calls > 1):
+            msg = "injected index write failure"
+            raise OSError(msg)
+        if fault == "interrupt":
+            raise KeyboardInterrupt
+        if fault == "corrupt":
+            return real_write(fd, b"X" * len(data))
+        return real_write(fd, data[: max(1, len(data) // 2)])
+
+    def fail_sync(_fd: int) -> None:
+        msg = "injected fsync failure"
+        raise OSError(msg)
+
+    def fail_replace(_source: Path, _target: Path) -> None:
+        msg = "injected index replace failure"
+        raise OSError(msg)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(os, "write", faulty_write)
+        if fault == "fsync":
+            patch.setattr(os, "fsync", fail_sync)
+        if fault == "replace":
+            patch.setattr(os, "replace", fail_replace)
+        with pytest.raises(KeyboardInterrupt if fault == "interrupt" else OSError):
+            gitwrite._swap_index(  # noqa: SLF001
+                top,
+                index,
+                {entry.top_path: (entry.mode, entry.before_oid) for entry in journal.entries if entry.before_oid},
+                {entry.top_path: (entry.mode, entry.after_oid) for entry in journal.entries},
+            )
+    assert calls > 0
+    assert snapshot(repo) == before
+    assert not index.with_name(index.name + ".lock").exists()
+    assert not index.with_name(index.name + ".byteplan-scratch").exists()
+    assert StagedJournal.path(repo.root).exists()
+    assert "completed" in " ".join(gitwrite.recover(repo.root))
+    assert git(top, "show", ":proj/user.txt").stdout == "user staged bytes\n"
+    assert (repo.root / "user.txt").read_text() == "user unstaged bytes\n"
+    assert not StagedJournal.path(repo.root).exists()
