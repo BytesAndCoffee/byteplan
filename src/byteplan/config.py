@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import posixpath
 import tomllib
 from dataclasses import dataclass, field, fields
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -165,6 +166,13 @@ class Config:
     @property
     def registry_path(self) -> Path:
         return self.root / self.registry
+
+
+def lexical_rel(rel: str) -> str:
+    """A configured project-relative path, normalized as written. Git snapshots use this:
+    resolving it through the live filesystem would let an unstaged symlink change which
+    selected file it names."""
+    return posixpath.normpath(rel.replace("\\", "/"))
 
 
 def find_project_root(start: Path) -> Path:

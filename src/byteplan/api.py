@@ -18,6 +18,7 @@ from byteplan.config import (
     Config,
     config_from_text,
     find_project_root,
+    lexical_rel,
     load_config,
     parse_pyproject_text,
 )
@@ -169,12 +170,16 @@ class Project:
 
     @property
     def registry_rel(self) -> str:
+        if self.snapshot is not None:
+            return lexical_rel(self.config.registry)
         return self.config.registry_path.relative_to(self.root).as_posix()
 
     @property
     def report_rel(self) -> str | None:
         if not self.config.report_file:
             return None
+        if self.snapshot is not None:  # the selected Git view, not what the working tree aliases
+            return lexical_rel(self.config.report_file)
         return (self.root / self.config.report_file).resolve().relative_to(self.root.resolve()).as_posix()
 
     def load_registry(self) -> Registry:

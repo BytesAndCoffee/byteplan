@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from byteplan._todo import verifies
 from byteplan.cli import EXIT_ERROR, EXIT_FINDINGS, EXIT_OK
 from tests.gitutil import frozen, git
 
@@ -381,3 +382,32 @@ def test_writing_scan_with_require_reconciled_reports_the_result(repo: ProjectFa
     assert scanned.code == EXIT_OK, scanned.err
     assert "NEW_UNREGISTERED" not in scanned.err
     assert run_cli("check", "--project", repo.root).code == EXIT_OK
+
+
+@verifies("26756c")
+def test_an_unstaged_report_alias_cannot_hide_a_selected_task(repo: ProjectFactory, run_cli: RunCli) -> None:
+    """Snapshot checks judge Git objects: a working-tree symlink must not redirect the report exclusion."""
+    pyproject = repo.root / "pyproject.toml"
+    text = pyproject.read_text().replace('include = ["**/*.py"]', 'include = ["**/*.py", "**/*.md"]')
+    pyproject.write_text(text.replace("[tool.byteplan]\n", '[tool.byteplan]\nreport_file = "report.md"\n', 1))
+    assert run_cli("scan", "--project", repo.root).code == EXIT_OK  # writes report.md
+    repo.write("real.md", "<!-- TODO: a task nobody registered -->\n")
+    top = repo.root.parent
+    git(top, "add", "-A")
+    git(top, "commit", "-qm", "report and real")
+    selections = (("--staged",), ("--commit", "HEAD"))
+    for selection in selections:
+        result = run_cli("check", *selection, "--project", repo.root)
+        assert result.code == EXIT_FINDINGS, selection
+        assert "NEW_UNREGISTERED  real.md" in result.err, selection
+
+    report = repo.root / "report.md"
+    report.unlink()
+    try:
+        report.symlink_to("real.md")  # unstaged: the index and HEAD still hold the regular report
+    except OSError:
+        pytest.skip("symlinks are not available")
+    for selection in selections:
+        result = run_cli("check", *selection, "--project", repo.root)
+        assert result.code == EXIT_FINDINGS, selection
+        assert "NEW_UNREGISTERED  real.md" in result.err, selection
