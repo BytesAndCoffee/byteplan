@@ -16,7 +16,8 @@ It never decides that work is done. If a TODO disappears, its task is marked **m
 resolved. Only you resolve tasks.
 
 > **Status: 1.0.0rc1, a release candidate.** Independent review and feedback are welcome:
-> please [open an issue](https://github.com/BytesAndCoffee/byteplan/issues). It includes:
+> report bugs as [issues](https://github.com/BytesAndCoffee/byteplan/issues), and bring questions
+> and ideas to [Discussions](https://github.com/BytesAndCoffee/byteplan/discussions). It includes:
 > - the CLI, scanner and registry, for Python, Markdown and JSON
 > - Git integration: IDs added at commit time, staged and CI checks, and the merge drivers
 > - acceptance tests: linking, scaffolding and `byteplan verify` with recorded evidence
